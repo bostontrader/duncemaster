@@ -6,19 +6,22 @@
         <div class="header-image">
         </div>
     </header>
-    <div id="content">
-        <div">
-            <p>classes</p>
-            <p>herds</p>
-            <p>interactions</p>
-            <p>majors</p>
-            <p>sections</p>
-            <p>semesters</p>
-            <p>students</p>
-            <p>subjects</p>
-            <p>teachers</p>
-        </div>
-    </div>
+
+    <nav class="large-3 medium-4 columns" id="actions-sidebar">
+        <ul class="side-nav">
+            <li class="heading"><?= __('Actions') ?></li>
+            <li><?= $this->Html->link(__('Classes'),      ['controller' => 'Clazzes'])       ?></li>
+            <li><?= $this->Html->link(__('Herds'),        ['controller' => 'Herds'])         ?></li>
+            <li><?= $this->Html->link(__('Interactions'), ['controller' => 'Interactions'])  ?></li>
+            <li><?= $this->Html->link(__('Majors'),       ['controller' => 'Majors'])        ?></li>
+            <li><?= $this->Html->link(__('Sections'),     ['controller' => 'Sections'])      ?></li>
+            <li><?= $this->Html->link(__('Semesters'),    ['controller' => 'Semesters'])     ?></li>
+            <li><?= $this->Html->link(__('Students'),     ['controller' => 'Students'])      ?></li>
+            <li><?= $this->Html->link(__('Subjects'),     ['controller' => 'Subjects'])      ?></li>
+            <li><?= $this->Html->link(__('Teachers'),     ['controller' => 'Teachers'])      ?></li>
+        </ul>
+    </nav>
+
     <footer>
     </footer>
 </body>

@@ -25,8 +25,7 @@ use Cake\Event\Event;
  *
  * @link http://book.cakephp.org/3.0/en/controllers.html#the-app-controller
  */
-class AppController extends Controller
-{
+class AppController extends Controller {
 
     /**
      * Initialization hook method.
@@ -37,13 +36,27 @@ class AppController extends Controller
      *
      * @return void
      */
-    public function initialize()
-    {
+    public function initialize() {
         parent::initialize();
 
         $this->loadComponent('RequestHandler');
         $this->loadComponent('Flash');
+        //$this->loadComponent('Auth', [
+            //'loginRedirect' => [
+                //'controller' => 'Articles',
+                //'action' => 'index'
+            //],
+            //'logoutRedirect' => [
+                //'controller' => 'Pages',
+                //'action' => 'display',
+                //'home'
+            //]
+            //]
+        //);
     }
+    //public function beforeFilter(Event $event) {
+        //$this->Auth->allow(['index', 'view', 'display']);
+    //}
 
     /**
      * Before render callback.
@@ -51,8 +64,7 @@ class AppController extends Controller
      * @param \Cake\Event\Event $event The beforeRender event.
      * @return void
      */
-    public function beforeRender(Event $event)
-    {
+    public function beforeRender(Event $event) {
         if (!array_key_exists('_serialize', $this->viewVars) &&
             in_array($this->response->type(), ['application/json', 'application/xml'])
         ) {
