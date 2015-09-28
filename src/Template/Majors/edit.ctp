@@ -8,8 +8,8 @@
             )
         ?></li>
         <li><?= $this->Html->link(__('List Majors'), ['action' => 'index']) ?></li>
-        <li><?= $this->Html->link(__('List Herds'), ['controller' => 'Herds', 'action' => 'index']) ?></li>
-        <li><?= $this->Html->link(__('New Herd'), ['controller' => 'Herds', 'action' => 'add']) ?></li>
+        <li><?= $this->Html->link(__('List Cohorts'), ['controller' => 'Cohorts', 'action' => 'index']) ?></li>
+        <li><?= $this->Html->link(__('New Cohort'), ['controller' => 'Cohorts', 'action' => 'add']) ?></li>
     </ul>
 </nav>
 <div class="majors form large-9 medium-8 columns content">
@@ -17,7 +17,7 @@
     <fieldset>
         <legend><?= __('Edit Major') ?></legend>
         <?php
-            echo $this->Form->input('desc');
+            echo $this->Form->input('title');
             echo $this->Form->input('sdesc');
         ?>
     </fieldset>

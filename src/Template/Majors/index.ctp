@@ -12,6 +12,8 @@
         <thead>
             <tr>
                 <th><?= $this->Paginator->sort('id') ?></th>
+                <th><?= __('Title') ?></th>
+                <th><?= __('SDesc') ?></th>
                 <th class="actions"><?= __('Actions') ?></th>
             </tr>
         </thead>
@@ -19,6 +21,8 @@
             <?php foreach ($majors as $major): ?>
             <tr>
                 <td><?= $this->Number->format($major->id) ?></td>
+                <td><?= $major->title ?></td>
+                <td><?= $major->sdesc ?></td>
                 <td class="actions">
                     <?= $this->Html->link(__('View'), ['action' => 'view', $major->id]) ?>
                     <?= $this->Html->link(__('Edit'), ['action' => 'edit', $major->id]) ?>

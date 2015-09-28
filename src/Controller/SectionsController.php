@@ -19,7 +19,7 @@ class SectionsController extends AppController
     public function index()
     {
         $this->paginate = [
-            'contain' => ['Herds', 'Subjects']
+            'contain' => ['Cohorts', 'Subjects']
         ];
         $this->set('sections', $this->paginate($this->Sections));
         $this->set('_serialize', ['sections']);
@@ -35,7 +35,7 @@ class SectionsController extends AppController
     public function view($id = null)
     {
         $section = $this->Sections->get($id, [
-            'contain' => ['Herds', 'Subjects']
+            'contain' => ['Cohorts', 'Subjects']
         ]);
         $this->set('section', $section);
         $this->set('_serialize', ['section']);
@@ -58,9 +58,9 @@ class SectionsController extends AppController
                 $this->Flash->error(__('The section could not be saved. Please, try again.'));
             }
         }
-        $herds = $this->Sections->Herds->find('list', ['limit' => 200]);
+        $cohorts = $this->Sections->Cohorts->find('list', ['limit' => 200]);
         $subjects = $this->Sections->Subjects->find('list', ['limit' => 200]);
-        $this->set(compact('section', 'herds', 'subjects'));
+        $this->set(compact('section', 'cohorts', 'subjects'));
         $this->set('_serialize', ['section']);
     }
 
@@ -85,9 +85,9 @@ class SectionsController extends AppController
                 $this->Flash->error(__('The section could not be saved. Please, try again.'));
             }
         }
-        $herds = $this->Sections->Herds->find('list', ['limit' => 200]);
+        $cohorts = $this->Sections->Cohorts->find('list', ['limit' => 200]);
         $subjects = $this->Sections->Subjects->find('list', ['limit' => 200]);
-        $this->set(compact('section', 'herds', 'subjects'));
+        $this->set(compact('section', 'cohorts', 'subjects'));
         $this->set('_serialize', ['section']);
     }
 

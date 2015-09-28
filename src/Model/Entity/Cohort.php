@@ -4,7 +4,7 @@ namespace App\Model\Entity;
 use Cake\ORM\Entity;
 
 /**
- * Herd Entity.
+ * Cohort Entity.
  *
  * @property int $id
  * @property int $start_year
@@ -13,7 +13,7 @@ use Cake\ORM\Entity;
  * @property int $seq
  * @property \App\Model\Entity\Section[] $sections
  */
-class Herd extends Entity
+class Cohort extends Entity
 {
 
     /**

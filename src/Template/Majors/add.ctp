@@ -11,7 +11,7 @@
     <fieldset>
         <legend><?= __('Add Major') ?></legend>
         <?php
-            echo $this->Form->input('desc');
+            echo $this->Form->input('title');
             echo $this->Form->input('sdesc');
         ?>
     </fieldset>

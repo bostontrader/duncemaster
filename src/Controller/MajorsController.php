@@ -32,7 +32,7 @@ class MajorsController extends AppController
     public function view($id = null)
     {
         $major = $this->Majors->get($id, [
-            'contain' => ['Herds']
+            'contain' => ['Cohorts']
         ]);
         $this->set('major', $major);
         $this->set('_serialize', ['major']);

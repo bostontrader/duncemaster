@@ -19,7 +19,7 @@
     </table>
     <div class="row">
         <h4><?= __('Desc') ?></h4>
-        <?= $this->Text->autoParagraph(h($subject->desc)); ?>
+        <?= $this->Text->autoParagraph(h($subject->title)); ?>
     </div>
     <div class="related">
         <h4><?= __('Related Sections') ?></h4>

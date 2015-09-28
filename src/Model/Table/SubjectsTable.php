@@ -47,8 +47,8 @@ class SubjectsTable extends Table
             ->allowEmpty('id', 'create');
 
         $validator
-            ->requirePresence('desc', 'create')
-            ->notEmpty('desc');
+            ->requirePresence('title', 'create')
+            ->notEmpty('title');
 
         return $validator;
     }

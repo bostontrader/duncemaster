@@ -2,8 +2,30 @@
 <project version="4">
   <component name="Encoding">
     <file url="file://$PROJECT_DIR$/src/Controller/AppController.php" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/Controller/CohortsController.php" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/Controller/MajorsController.php" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/Controller/TeachersController.php" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/Controller/UsersController.php" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/Model/Entity/Cohort.php" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/Model/Entity/Major.php" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/Model/Entity/Section.php" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/Model/Table/CohortsTable.php" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/Model/Table/MajorsTable.php" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/Model/Table/SectionsTable.php" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/Model/Table/SubjectsTable.php" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/Model/Table/TeachersTable.php" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/Template/Layout/default.ctp" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/Template/Majors/add.ctp" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/Template/Majors/edit.ctp" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/Template/Majors/index.ctp" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/Template/Majors/view.ctp" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/Template/Pages/home.ctp" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/Template/Subjects/add.ctp" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/Template/Subjects/edit.ctp" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/Template/Subjects/index.ctp" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/Template/Subjects/view.ctp" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/Template/Teachers/add.ctp" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/Template/Teachers/index.ctp" charset="UTF-8" />
+    <file url="PROJECT" charset="UTF-8" />
   </component>
 </project>

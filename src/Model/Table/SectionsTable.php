@@ -10,7 +10,7 @@ use Cake\Validation\Validator;
 /**
  * Sections Model
  *
- * @property \Cake\ORM\Association\BelongsTo $Herds
+ * @property \Cake\ORM\Association\BelongsTo $Cohorts
  * @property \Cake\ORM\Association\BelongsTo $Subjects
  */
 class SectionsTable extends Table
@@ -30,8 +30,8 @@ class SectionsTable extends Table
         $this->displayField('id');
         $this->primaryKey('id');
 
-        $this->belongsTo('Herds', [
-            'foreignKey' => 'herd_id',
+        $this->belongsTo('Cohorts', [
+            'foreignKey' => 'cohort_id',
             'joinType' => 'INNER'
         ]);
         $this->belongsTo('Subjects', [
@@ -74,7 +74,7 @@ class SectionsTable extends Table
      */
     public function buildRules(RulesChecker $rules)
     {
-        $rules->add($rules->existsIn(['herd_id'], 'Herds'));
+        $rules->add($rules->existsIn(['cohort_id'], 'Cohorts'));
         $rules->add($rules->existsIn(['subject_id'], 'Subjects'));
         return $rules;
     }

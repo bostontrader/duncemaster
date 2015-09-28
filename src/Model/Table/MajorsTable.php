@@ -10,7 +10,7 @@ use Cake\Validation\Validator;
 /**
  * Majors Model
  *
- * @property \Cake\ORM\Association\HasMany $Herds
+ * @property \Cake\ORM\Association\HasMany $Cohorts
  */
 class MajorsTable extends Table
 {
@@ -29,7 +29,7 @@ class MajorsTable extends Table
         $this->displayField('id');
         $this->primaryKey('id');
 
-        $this->hasMany('Herds', [
+        $this->hasMany('Cohorts', [
             'foreignKey' => 'major_id'
         ]);
     }
@@ -47,7 +47,7 @@ class MajorsTable extends Table
             ->allowEmpty('id', 'create');
 
         $validator
-            ->requirePresence('desc', 'create')
+            ->requirePresence('title', 'create')
             ->notEmpty('desc');
 
         $validator

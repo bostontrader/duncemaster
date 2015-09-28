@@ -7,8 +7,8 @@ use Cake\ORM\Entity;
  * Section Entity.
  *
  * @property int $id
- * @property int $herd_id
- * @property \App\Model\Entity\Herd $herd
+ * @property int $cohort_id
+ * @property \App\Model\Entity\Cohort $cohort
  * @property int $subject_id
  * @property \App\Model\Entity\Subject $subject
  * @property int $weekday

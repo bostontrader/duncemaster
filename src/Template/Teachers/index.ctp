@@ -10,6 +10,7 @@
         <thead>
             <tr>
                 <th><?= $this->Paginator->sort('id') ?></th>
+                <th><?= __('given name') ?></th>
                 <th class="actions"><?= __('Actions') ?></th>
             </tr>
         </thead>
@@ -17,6 +18,7 @@
             <?php foreach ($teachers as $teacher): ?>
             <tr>
                 <td><?= $this->Number->format($teacher->id) ?></td>
+                <td><?= $teacher->giv_name ?></td>
                 <td class="actions">
                     <?= $this->Html->link(__('View'), ['action' => 'view', $teacher->id]) ?>
                     <?= $this->Html->link(__('Edit'), ['action' => 'edit', $teacher->id]) ?>

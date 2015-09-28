@@ -9,7 +9,7 @@ use Cake\ORM\Entity;
  * @property int $id
  * @property string $desc
  * @property string $sdesc
- * @property \App\Model\Entity\Herd[] $herds
+ * @property \App\Model\Entity\Cohort[] $cohorts
  */
 class Major extends Entity
 {

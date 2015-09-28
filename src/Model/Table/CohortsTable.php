@@ -1,19 +1,19 @@
 <?php
 namespace App\Model\Table;
 
-use App\Model\Entity\Herd;
+use App\Model\Entity\Cohort;
 use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\Validation\Validator;
 
 /**
- * Herds Model
+ * Cohorts Model
  *
  * @property \Cake\ORM\Association\BelongsTo $Majors
  * @property \Cake\ORM\Association\HasMany $Sections
  */
-class HerdsTable extends Table
+class CohortsTable extends Table
 {
 
     /**
@@ -26,7 +26,7 @@ class HerdsTable extends Table
     {
         parent::initialize($config);
 
-        $this->table('herds');
+        $this->table('cohorts');
         $this->displayField('id');
         $this->primaryKey('id');
 
@@ -35,7 +35,7 @@ class HerdsTable extends Table
             'joinType' => 'INNER'
         ]);
         $this->hasMany('Sections', [
-            'foreignKey' => 'herd_id'
+            'foreignKey' => 'cohort_id'
         ]);
     }
 
