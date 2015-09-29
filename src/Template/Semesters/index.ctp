@@ -18,9 +18,9 @@
         <tbody>
             <?php foreach ($semesters as $semester): ?>
             <tr>
-                <td><?= $this->Number->format($semester->id) ?></td>
-                <td><?= $this->Number->format($semester->year) ?></td>
-                <td><?= $this->Number->format($semester->seq) ?></td>
+                <td><?= $semester->id ?></td>
+                <td><?= $semester->year ?></td>
+                <td><?= $semester->seq ?></td>
                 <td class="actions">
                     <?= $this->Html->link(__('View'), ['action' => 'view', $semester->id]) ?>
                     <?= $this->Html->link(__('Edit'), ['action' => 'edit', $semester->id]) ?>

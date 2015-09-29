@@ -10,13 +10,17 @@
         <thead>
             <tr>
                 <th><?= $this->Paginator->sort('id') ?></th>
+                <th><?= 'Student ID' ?></th>
+                <th><?= 'Name' ?></th>
                 <th class="actions"><?= __('Actions') ?></th>
             </tr>
         </thead>
         <tbody>
             <?php foreach ($students as $student): ?>
             <tr>
-                <td><?= $this->Number->format($student->id) ?></td>
+                <td><?= $student->id ?></td>
+                <td><?= $student->sid ?></td>
+                <td><?= $student->fam_name . $student->giv_name ?></td>
                 <td class="actions">
                     <?= $this->Html->link(__('View'), ['action' => 'view', $student->id]) ?>
                     <?= $this->Html->link(__('Edit'), ['action' => 'edit', $student->id]) ?>

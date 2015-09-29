@@ -12,15 +12,15 @@
     <table class="vertical-table">
         <tr>
             <th><?= __('Id') ?></th>
-            <td><?= $this->Number->format($semester->id) ?></td>
+            <td><?= $semester->id ?></td>
         </tr>
         <tr>
             <th><?= __('Year') ?></th>
-            <td><?= $this->Number->format($semester->year) ?></td>
+            <td><?= $semester->year ?></td>
         </tr>
         <tr>
             <th><?= __('Seq') ?></th>
-            <td><?= $this->Number->format($semester->seq) ?></td>
+            <td><?= $semester->seq ?></td>
         </tr>
     </table>
 </div>

@@ -2,10 +2,6 @@
     <ul class="side-nav">
         <li class="heading"><?= __('Actions') ?></li>
         <li><?= $this->Html->link(__('New Section'), ['action' => 'add']) ?></li>
-        <li><?= $this->Html->link(__('List Herds'), ['controller' => 'Herds', 'action' => 'index']) ?></li>
-        <li><?= $this->Html->link(__('New Herd'), ['controller' => 'Herds', 'action' => 'add']) ?></li>
-        <li><?= $this->Html->link(__('List Subjects'), ['controller' => 'Subjects', 'action' => 'index']) ?></li>
-        <li><?= $this->Html->link(__('New Subject'), ['controller' => 'Subjects', 'action' => 'add']) ?></li>
     </ul>
 </nav>
 <div class="sections index large-9 medium-8 columns content">
@@ -14,7 +10,7 @@
         <thead>
             <tr>
                 <th><?= $this->Paginator->sort('id') ?></th>
-                <th><?= $this->Paginator->sort('herd_id') ?></th>
+                <th><?= $this->Paginator->sort('cohort_id') ?></th>
                 <th><?= $this->Paginator->sort('subject_id') ?></th>
                 <th><?= $this->Paginator->sort('weekday') ?></th>
                 <th><?= $this->Paginator->sort('time') ?></th>
@@ -25,10 +21,13 @@
             <?php foreach ($sections as $section): ?>
             <tr>
                 <td><?= $this->Number->format($section->id) ?></td>
-                <td><?= $section->has('herd') ? $this->Html->link($section->herd->id, ['controller' => 'Herds', 'action' => 'view', $section->herd->id]) : '' ?></td>
-                <td><?= $section->has('subject') ? $this->Html->link($section->subject->id, ['controller' => 'Subjects', 'action' => 'view', $section->subject->id]) : '' ?></td>
-                <td><?= $this->Number->format($section->weekday) ?></td>
-                <td><?= h($section->time) ?></td>
+                <!--
+                <td><?= $section->has('cohort') ? $this->Html->link($section->cohort->id, ['controller' => 'Cohorts', 'action' => 'view', $section->cohort->id]) : '' ?></td>
+                -->
+                <td><?= $section->cohort->nickname ?></td>
+                <td><?= $section->has('subject') ? $this->Html->link($section->subject->title, ['controller' => 'Subjects', 'action' => 'view', $section->subject->id]) : '' ?></td>
+                <td><?= $this->Time->format($section->time,'E') ?></td>
+                <td><?= $this->Time->format($section->time,'hh:m') ?></td>
                 <td class="actions">
                     <?= $this->Html->link(__('View'), ['action' => 'view', $section->id]) ?>
                     <?= $this->Html->link(__('Edit'), ['action' => 'edit', $section->id]) ?>

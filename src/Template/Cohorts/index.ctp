@@ -13,6 +13,7 @@
                 <th><?= $this->Paginator->sort('start_year') ?></th>
                 <th><?= $this->Paginator->sort('major_id') ?></th>
                 <th><?= $this->Paginator->sort('seq') ?></th>
+                <th><?= 'Short Name' ?></th>
                 <th class="actions"><?= __('Actions') ?></th>
             </tr>
         </thead>
@@ -23,6 +24,8 @@
                 <td><?= $cohort->start_year ?></td>
                 <td><?= $cohort->has('major') ? $this->Html->link($cohort->major->sdesc, ['controller' => 'Majors', 'action' => 'view', $cohort->major->id]) : '' ?></td>
                 <td><?= $this->Number->format($cohort->seq) ?></td>
+                <?php $n = $cohort->nickname; ?>
+                <td><?= $n ?></td>
                 <td class="actions">
                     <?= $this->Html->link(__('View'), ['action' => 'view', $cohort->id]) ?>
                     <?= $this->Html->link(__('Edit'), ['action' => 'edit', $cohort->id]) ?>

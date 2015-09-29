@@ -5,8 +5,6 @@
         <li><?= $this->Form->postLink(__('Delete Major'), ['action' => 'delete', $major->id], ['confirm' => __('Are you sure you want to delete # {0}?', $major->id)]) ?> </li>
         <li><?= $this->Html->link(__('List Majors'), ['action' => 'index']) ?> </li>
         <li><?= $this->Html->link(__('New Major'), ['action' => 'add']) ?> </li>
-        <li><?= $this->Html->link(__('List Cohorts'), ['controller' => 'Cohorts', 'action' => 'index']) ?> </li>
-        <li><?= $this->Html->link(__('New Cohort'), ['controller' => 'Cohorts', 'action' => 'add']) ?> </li>
     </ul>
 </nav>
 <div class="majors view large-9 medium-8 columns content">

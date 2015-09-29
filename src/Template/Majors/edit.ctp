@@ -8,8 +8,6 @@
             )
         ?></li>
         <li><?= $this->Html->link(__('List Majors'), ['action' => 'index']) ?></li>
-        <li><?= $this->Html->link(__('List Cohorts'), ['controller' => 'Cohorts', 'action' => 'index']) ?></li>
-        <li><?= $this->Html->link(__('New Cohort'), ['controller' => 'Cohorts', 'action' => 'add']) ?></li>
     </ul>
 </nav>
 <div class="majors form large-9 medium-8 columns content">
