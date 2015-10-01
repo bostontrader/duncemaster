@@ -9,9 +9,10 @@
     <table cellpadding="0" cellspacing="0">
         <thead>
             <tr>
-                <th><?= $this->Paginator->sort('id') ?></th>
-                <th><?= 'Student ID' ?></th>
-                <th><?= 'Name' ?></th>
+                <th><?= __('id') ?></th>
+                <th><?= __('Student ID') ?></th>
+                <th><?= __('Name') ?></th>
+                <th><?= __('Cohort') ?></th>
                 <th class="actions"><?= __('Actions') ?></th>
             </tr>
         </thead>
@@ -21,6 +22,7 @@
                 <td><?= $student->id ?></td>
                 <td><?= $student->sid ?></td>
                 <td><?= $student->fam_name . $student->giv_name ?></td>
+                <td><?= $student->cohort->nickname ?></td>
                 <td class="actions">
                     <?= $this->Html->link(__('View'), ['action' => 'view', $student->id]) ?>
                     <?= $this->Html->link(__('Edit'), ['action' => 'edit', $student->id]) ?>
@@ -30,6 +32,7 @@
             <?php endforeach; ?>
         </tbody>
     </table>
+<!--
     <div class="paginator">
         <ul class="pagination">
             <?= $this->Paginator->prev('< ' . __('previous')) ?>
@@ -37,5 +40,5 @@
             <?= $this->Paginator->next(__('next') . ' >') ?>
         </ul>
         <p><?= $this->Paginator->counter() ?></p>
-    </div>
+    </div> -->
 </div>

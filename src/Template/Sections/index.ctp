@@ -9,11 +9,11 @@
     <table cellpadding="0" cellspacing="0">
         <thead>
             <tr>
-                <th><?= $this->Paginator->sort('id') ?></th>
-                <th><?= $this->Paginator->sort('cohort_id') ?></th>
-                <th><?= $this->Paginator->sort('subject_id') ?></th>
-                <th><?= $this->Paginator->sort('weekday') ?></th>
-                <th><?= $this->Paginator->sort('time') ?></th>
+                <th><?= __('id') ?></th>
+                <th><?= __('cohort') ?></th>
+                <th><?= __('subject') ?></th>
+                <th><?= __('weekday') ?></th>
+                <th><?= __('time') ?></th>
                 <th class="actions"><?= __('Actions') ?></th>
             </tr>
         </thead>
@@ -37,6 +37,7 @@
             <?php endforeach; ?>
         </tbody>
     </table>
+    <!--
     <div class="paginator">
         <ul class="pagination">
             <?= $this->Paginator->prev('< ' . __('previous')) ?>
@@ -44,5 +45,5 @@
             <?= $this->Paginator->next(__('next') . ' >') ?>
         </ul>
         <p><?= $this->Paginator->counter() ?></p>
-    </div>
+    </div> -->
 </div>

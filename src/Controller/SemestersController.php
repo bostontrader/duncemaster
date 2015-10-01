@@ -18,7 +18,11 @@ class SemestersController extends AppController
      */
     public function index()
     {
-        $this->set('semesters', $this->paginate($this->Semesters));
+        $this->set(
+            'semesters',
+            $this->Semesters->find()
+                ->order(['year','seq'])
+        );
         $this->set('_serialize', ['semesters']);
     }
 

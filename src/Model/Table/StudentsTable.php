@@ -28,6 +28,10 @@ class StudentsTable extends Table
         $this->displayField('id');
         $this->primaryKey('id');
 
+        $this->belongsTo('Cohorts', [
+            'foreignKey' => 'cohort_id',
+            'joinType' => 'INNER'
+        ]);
     }
 
     /**

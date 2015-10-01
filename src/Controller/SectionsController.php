@@ -16,13 +16,8 @@ class SectionsController extends AppController
      *
      * @return void
      */
-    public function index()
-    {
-        $this->paginate = [
-            'contain' => ['Cohorts', 'Subjects']
-        ];
-        $this->set('sections', $this->paginate($this->Sections));
-        $this->set('_serialize', ['sections']);
+    public function index() {
+        $this->set('sections', $this->Sections->find('all', ['contain' => ['Cohorts.Majors','Subjects']]));
     }
 
     /**

@@ -18,7 +18,7 @@ class MajorsController extends AppController
      */
     public function index()
     {
-        $this->set('majors', $this->paginate($this->Majors));
+        $this->set('majors', $this->Majors->find());
         $this->set('_serialize', ['majors']);
     }
 

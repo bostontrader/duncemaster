@@ -29,4 +29,12 @@ class Cohort extends Entity
         '*' => true,
         'id' => false,
     ];
+
+    protected function _getNickname() {
+        $s1 = substr($this->_properties['start_year'],-2);
+        $s2 = $this->major->_properties['sdesc'];
+        $s3 = $this->_properties['seq'];
+        return $s1 . $s2 . $s3;
+        //return substr($this->_properties['start_year'],-2) . $this->major->sdesc . $this->_properties['seq'];
+    }
 }

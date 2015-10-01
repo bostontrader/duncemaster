@@ -16,10 +16,9 @@ class StudentsController extends AppController
      *
      * @return void
      */
-    public function index()
-    {
-        $this->set('students', $this->paginate($this->Students));
-        $this->set('_serialize', ['students']);
+    public function index() {
+        // We need Cohorts.Majors because the Cohort entity needs this for the nickname virtual field
+        $this->set('students', $this->Students->find('all', ['contain' => ['Cohorts.Majors']]));
     }
 
     /**
