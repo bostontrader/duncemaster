@@ -37,10 +37,10 @@ class CohortsController extends AppController
     public function view($id = null)
     {
         $cohort = $this->Cohorts->get($id, [
-            'contain' => ['Majors', 'Sections']
+            'contain' => ['Majors', 'Sections', 'Students']
         ]);
         $this->set('cohort', $cohort);
-        $this->set('_serialize', ['cohort']);
+        //$this->set('_serialize', ['cohort']);
     }
 
     /**

@@ -31,6 +31,7 @@
             <td><?= $this->Number->format($cohort->seq) ?></td>
         </tr>
     </table>
+
     <div class="related">
         <h4><?= __('Related Sections') ?></h4>
         <?php if (!empty($cohort->sections)): ?>
@@ -63,4 +64,34 @@
         </table>
     <?php endif; ?>
     </div>
+
+    <div class="related">
+        <h4><?= __('Related Students') ?></h4>
+        <?php if (!empty($cohort->students)): ?>
+            <table cellpadding="0" cellspacing="0">
+                <tr>
+                    <th><?= __('id') ?></th>
+                    <th><?= __('Student ID') ?></th>
+                    <th><?= __('Name') ?></th>
+                    <th class="actions"><?= __('Actions') ?></th>
+                </tr>
+                <?php foreach ($cohort->students as $student): ?>
+                    <tr>
+                        <td><?= $student->id ?></td>
+                        <td><?= $student->sid ?></td>
+                        <td><?= $student->fam_name . $student->giv_name ?></td>
+                        <td class="actions">
+                            <?= $this->Html->link(__('View'), ['controller' => 'Sections', 'action' => 'view', $sections->id]) ?>
+
+                            <?= $this->Html->link(__('Edit'), ['controller' => 'Sections', 'action' => 'edit', $sections->id]) ?>
+
+                            <?= $this->Form->postLink(__('Delete'), ['controller' => 'Sections', 'action' => 'delete', $sections->id], ['confirm' => __('Are you sure you want to delete # {0}?', $sections->id)]) ?>
+
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            </table>
+        <?php endif; ?>
+    </div>
+
 </div>

@@ -2,6 +2,7 @@
 namespace App\Controller;
 
 use App\Controller\AppController;
+use Cake\Event\Event;
 
 /**
  * Users Controller
@@ -10,15 +11,16 @@ use App\Controller\AppController;
  */
 class UsersController extends AppController {
 
-    //public function beforeFilter(Event $event) {
-        //parent::beforeFilter($event);
+    public function beforeFilter(Event $event) {
+        parent::beforeFilter($event);
         // Allow users to register and logout.
         // You should not add the "login" action to allow list. Doing so would
         // cause problems with normal functioning of AuthComponent.
-        //$this->Auth->allow(['add', 'logout']);
-    //}
+        $this->Auth->allow(['add', 'logout']);
+    }
 
     public function login() {
+        $this->viewBuilder()->layout('login');
         if ($this->request->is('post')) {
             $user = $this->Auth->identify();
             if ($user) {

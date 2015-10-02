@@ -8,7 +8,7 @@ use Cake\ORM\Entity;
  * User Entity.
  *
  * @property int $id
- * @property string $email
+ * @property string $username
  * @property string $password
  * @property \Cake\I18n\Time $created
  * @property \Cake\I18n\Time $modified

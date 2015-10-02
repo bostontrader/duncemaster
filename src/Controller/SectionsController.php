@@ -53,10 +53,11 @@ class SectionsController extends AppController
                 $this->Flash->error(__('The section could not be saved. Please, try again.'));
             }
         }
-        $cohorts = $this->Sections->Cohorts->find('list', ['limit' => 200]);
+        $cohorts = $this->Sections->Cohorts->find('list', ['limit' => 200])->select(['id', 'start_year']);
         $subjects = $this->Sections->Subjects->find('list', ['limit' => 200]);
+        //$list = $articles->find('list')->select(['id', 'title']);
         $this->set(compact('section', 'cohorts', 'subjects'));
-        $this->set('_serialize', ['section']);
+        //$this->set('_serialize', ['section']);
     }
 
     /**
