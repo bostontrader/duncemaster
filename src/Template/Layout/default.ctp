@@ -15,22 +15,47 @@
 <body>
 
     <?php if($currentUser) {
-        echo "current user = " . $currentUser;
-        echo $this->Html->link(
+        $userMsg   = "current user = " . $currentUser;
+        $loginLink = $this->Html->link(
             'Logout',
             '/users/logout',
             ['class' => 'button']
         );
-        echo $this->fetch('content');
+
     } else {
-        echo "not logged in";
-        echo $this->Html->link(
-            'Login',
+        $userMsg   = "not logged in";
+        $loginLink = $this->Html->link(
+            __('Login'),
             '/users/login',
             ['class' => 'button']
         );
-    };
+    }
     ?>
+
+
+    <nav class="top-bar" data-topbar role="navigation">
+        <ul class="title-area">
+            <li class="name">
+                <h1><a href="#">DunceMaster</a></h1>
+            </li>
+        </ul>
+
+        <section class="top-bar-section">
+            <!-- Right Nav Section -->
+            <ul class="right">
+                <li><a href="#"><?= $userMsg ?></a></li>
+                <li><a href="#"><?= $loginLink ?></a></li>
+                <li><a href="#"><?= $this->Html->image("us_flag.gif", ['width' => 28, 'height' => 20, 'url' => ['controller' => 'I18n', 'action' => 'eng']]); ?></a></li>
+                <li><a href="#"><?= $this->Html->image("chinese_flag.gif", ['width' => 28, 'height' => 20, 'url' => ['controller' => 'I18n', 'action' => 'chi']]); ?></a></li>
+
+            </ul>
+
+        </section>
+    </nav>
+
+    <?php if($currentUser) {
+        echo $this->fetch('content');
+    }?>
 
 </body>
 </html>

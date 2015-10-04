@@ -26,7 +26,7 @@ class MajorsTable extends Table
         parent::initialize($config);
 
         $this->table('majors');
-        $this->displayField('id');
+        $this->displayField('title');
         $this->primaryKey('id');
 
         $this->hasMany('Cohorts', [

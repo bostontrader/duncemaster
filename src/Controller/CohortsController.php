@@ -60,10 +60,13 @@ class CohortsController extends AppController
                 $this->Flash->error(__('The cohort could not be saved. Please, try again.'));
             }
         }
-        //$majors = $this->Cohorts->Majors->find('list', ['limit' => 200]);
-        $majors = ['1'=>'Tourist English','2'=>'Aviation','3'=>'Hotel'];
-        $this->set(compact('cohort', 'majors'));
-        $this->set('_serialize', ['cohort']);
+        $majors = $this->Cohorts->Majors->find('list', ['limit' => 200]);
+        //$n = $majors->execute();
+        //$majors = ['1'=>'Tourist English','2'=>'Aviation','3'=>'Hotel'];
+        //$this->set(compact('cohort', 'majors'));
+        $this->set('cohort', $cohort);
+        $this->set('majors',$majors);
+        //$this->set('_serialize', ['cohort']);
     }
 
     /**

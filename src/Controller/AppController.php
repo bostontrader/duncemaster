@@ -16,6 +16,7 @@ namespace App\Controller;
 
 use Cake\Controller\Controller;
 use Cake\Event\Event;
+use Cake\I18n\I18n;
 
 /**
  * Application Controller
@@ -54,6 +55,19 @@ class AppController extends Controller {
                 ]
             ]
         );
+
+        // The language is initially set in bootstrap.php.  If we want to change the language on-the-fly,
+        // as in clicking the little flags, then we need to store the desired language in the session,
+        // retrieve that value here, and use that value to override the default language
+        $lang=$this->request->session()->read('Config.language');
+        switch($lang) {
+            case "en_US":
+                I18n::locale('zh_CN');
+                break;
+            default:
+                I18n::locale('en_EN');
+                break;
+        }
     }
     public function beforeFilter(Event $event) {
         $this->Auth->allow(['index', 'view', 'display']);
