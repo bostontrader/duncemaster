@@ -1,13 +1,13 @@
 <?php
 namespace App\Test\TestCase\Controller;
 
-use App\Controller\HerdsController;
+use App\Controller\CohortsController;
 use Cake\TestSuite\IntegrationTestCase;
 
 /**
- * App\Controller\HerdsController Test Case
+ * App\Controller\CohortsController Test Case
  */
-class HerdsControllerTest extends IntegrationTestCase
+class CohortsControllerTest extends IntegrationTestCase
 {
 
     /**
@@ -16,7 +16,7 @@ class HerdsControllerTest extends IntegrationTestCase
      * @var array
      */
     public $fixtures = [
-        'app.herds',
+        'app.cohorts',
         'app.majors',
         'app.sections'
     ];

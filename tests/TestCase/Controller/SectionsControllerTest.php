@@ -16,8 +16,8 @@ class SectionsControllerTest extends IntegrationTestCase
      * @var array
      */
     public $fixtures = [
+        'app.cohorts',
         'app.sections',
-        'app.herds',
         'app.majors',
         'app.subjects'
     ];

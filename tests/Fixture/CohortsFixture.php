@@ -4,10 +4,10 @@ namespace App\Test\Fixture;
 use Cake\TestSuite\Fixture\TestFixture;
 
 /**
- * HerdsFixture
+ * CohortsFixture
  *
  */
-class HerdsFixture extends TestFixture
+class CohortsFixture extends TestFixture
 {
 
     /**

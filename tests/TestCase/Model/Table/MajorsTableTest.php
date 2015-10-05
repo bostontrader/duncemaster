@@ -17,8 +17,8 @@ class MajorsTableTest extends TestCase
      * @var array
      */
     public $fixtures = [
+        'app.cohorts',
         'app.majors',
-        'app.herds',
         'app.sections'
     ];
 

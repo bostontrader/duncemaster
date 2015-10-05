@@ -16,8 +16,8 @@ class MajorsControllerTest extends IntegrationTestCase
      * @var array
      */
     public $fixtures = [
+        'app.cohorts',
         'app.majors',
-        'app.herds',
         'app.sections'
     ];
 

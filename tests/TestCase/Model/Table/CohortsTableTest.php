@@ -1,14 +1,14 @@
 <?php
 namespace App\Test\TestCase\Model\Table;
 
-use App\Model\Table\HerdsTable;
+use App\Model\Table\CohortsTable;
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
 
 /**
- * App\Model\Table\HerdsTable Test Case
+ * App\Model\Table\CohortsTable Test Case
  */
-class HerdsTableTest extends TestCase
+class CohortsTableTest extends TestCase
 {
 
     /**
@@ -17,7 +17,7 @@ class HerdsTableTest extends TestCase
      * @var array
      */
     public $fixtures = [
-        'app.herds',
+        'app.cohorts',
         'app.majors',
         'app.sections'
     ];
@@ -30,8 +30,8 @@ class HerdsTableTest extends TestCase
     public function setUp()
     {
         parent::setUp();
-        $config = TableRegistry::exists('Herds') ? [] : ['className' => 'App\Model\Table\HerdsTable'];
-        $this->Herds = TableRegistry::get('Herds', $config);
+        $config = TableRegistry::exists('Cohorts') ? [] : ['className' => 'App\Model\Table\CohortsTable'];
+        $this->Cohorts = TableRegistry::get('Cohorts', $config);
     }
 
     /**
@@ -41,7 +41,7 @@ class HerdsTableTest extends TestCase
      */
     public function tearDown()
     {
-        unset($this->Herds);
+        unset($this->Cohorts);
 
         parent::tearDown();
     }

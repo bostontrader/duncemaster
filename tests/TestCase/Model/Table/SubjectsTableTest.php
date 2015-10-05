@@ -17,9 +17,9 @@ class SubjectsTableTest extends TestCase
      * @var array
      */
     public $fixtures = [
+        'app.cohorts',
         'app.subjects',
         'app.sections',
-        'app.herds',
         'app.majors'
     ];
 

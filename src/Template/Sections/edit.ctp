@@ -8,10 +8,7 @@
             )
         ?></li>
         <li><?= $this->Html->link(__('List Sections'), ['action' => 'index']) ?></li>
-        <li><?= $this->Html->link(__('List Herds'), ['controller' => 'Herds', 'action' => 'index']) ?></li>
-        <li><?= $this->Html->link(__('New Herd'), ['controller' => 'Herds', 'action' => 'add']) ?></li>
-        <li><?= $this->Html->link(__('List Subjects'), ['controller' => 'Subjects', 'action' => 'index']) ?></li>
-        <li><?= $this->Html->link(__('New Subject'), ['controller' => 'Subjects', 'action' => 'add']) ?></li>
+
     </ul>
 </nav>
 <div class="sections form large-9 medium-8 columns content">
@@ -19,7 +16,7 @@
     <fieldset>
         <legend><?= __('Edit Section') ?></legend>
         <?php
-            echo $this->Form->input('herd_id', ['options' => $herds]);
+            echo $this->Form->input('cohort_id', ['options' => $cohorts]);
             echo $this->Form->input('subject_id', ['options' => $subjects]);
             echo $this->Form->input('weekday');
             echo $this->Form->input('time');
