@@ -1,11 +1,11 @@
 <?php
 namespace App\Model\Table;
 
-use App\Model\Entity\Interaction;
-use Cake\ORM\Query;
-use Cake\ORM\RulesChecker;
+//use App\Model\Entity\Interaction;
+//use Cake\ORM\Query;
+//use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
-use Cake\Validation\Validator;
+//use Cake\Validation\Validator;
 
 /**
  * Interactions Model
@@ -13,8 +13,7 @@ use Cake\Validation\Validator;
  * @property \Cake\ORM\Association\BelongsTo $Classes
  * @property \Cake\ORM\Association\BelongsTo $Students
  */
-class InteractionsTable extends Table
-{
+class InteractionsTable extends Table {
 
     /**
      * Initialize method
@@ -22,18 +21,18 @@ class InteractionsTable extends Table
      * @param array $config The configuration for the Table.
      * @return void
      */
-    public function initialize(array $config)
-    {
+    public function initialize(array $config) {
         parent::initialize($config);
 
-        $this->table('interactions');
-        $this->displayField('id');
-        $this->primaryKey('id');
+        //$this->table('interactions');
+        //$this->displayField('id');
+        //$this->primaryKey('id');
 
         $this->belongsTo('Classes', [
             'foreignKey' => 'class_id',
             'joinType' => 'INNER'
         ]);
+
         $this->belongsTo('Students', [
             'foreignKey' => 'student_id',
             'joinType' => 'INNER'
@@ -46,14 +45,12 @@ class InteractionsTable extends Table
      * @param \Cake\Validation\Validator $validator Validator instance.
      * @return \Cake\Validation\Validator
      */
-    public function validationDefault(Validator $validator)
-    {
-        $validator
-            ->add('id', 'valid', ['rule' => 'numeric'])
-            ->allowEmpty('id', 'create');
-
-        return $validator;
-    }
+    //public function validationDefault(Validator $validator) {
+        //$validator
+            //->add('id', 'valid', ['rule' => 'numeric'])
+            //->allowEmpty('id', 'create');
+        //return $validator;
+    //}
 
     /**
      * Returns a rules checker object that will be used for validating
@@ -62,10 +59,9 @@ class InteractionsTable extends Table
      * @param \Cake\ORM\RulesChecker $rules The rules object to be modified.
      * @return \Cake\ORM\RulesChecker
      */
-    public function buildRules(RulesChecker $rules)
-    {
-        $rules->add($rules->existsIn(['class_id'], 'Classes'));
-        $rules->add($rules->existsIn(['student_id'], 'Students'));
-        return $rules;
-    }
+    //public function buildRules(RulesChecker $rules) {
+        //$rules->add($rules->existsIn(['class_id'], 'Classes'));
+        //$rules->add($rules->existsIn(['student_id'], 'Students'));
+        //return $rules;
+    //}
 }

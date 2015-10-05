@@ -1,18 +1,17 @@
 <?php
 namespace App\Model\Table;
 
-use App\Model\Entity\Teacher;
-use Cake\ORM\Query;
-use Cake\ORM\RulesChecker;
+//use App\Model\Entity\Teacher;
+//use Cake\ORM\Query;
+//use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
-use Cake\Validation\Validator;
+//use Cake\Validation\Validator;
 
 /**
  * Teachers Model
  *
  */
-class TeachersTable extends Table
-{
+class TeachersTable extends Table {
 
     /**
      * Initialize method
@@ -20,14 +19,16 @@ class TeachersTable extends Table
      * @param array $config The configuration for the Table.
      * @return void
      */
-    public function initialize(array $config)
-    {
+    public function initialize(array $config) {
         parent::initialize($config);
 
-        $this->table('teachers');
-        $this->displayField('id');
-        $this->primaryKey('id');
+        //$this->table('teachers');
+        //$this->displayField('id');
+        //$this->primaryKey('id');
 
+        $this->hasMany('Sections', [
+            'foreignKey' => 'section_id'
+        ]);
     }
 
     /**
@@ -36,16 +37,15 @@ class TeachersTable extends Table
      * @param \Cake\Validation\Validator $validator Validator instance.
      * @return \Cake\Validation\Validator
      */
-    public function validationDefault(Validator $validator)
-    {
-        $validator
-            ->add('id', 'valid', ['rule' => 'numeric'])
-            ->allowEmpty('id', 'create');
+    //public function validationDefault(Validator $validator) {
+        //$validator
+            //->add('id', 'valid', ['rule' => 'numeric'])
+            //->allowEmpty('id', 'create');
 
-        $validator
-            ->requirePresence('giv_name', 'create')
-            ->notEmpty('giv_name');
+        //$validator
+            //->requirePresence('giv_name', 'create')
+            //->notEmpty('giv_name');
 
-        return $validator;
-    }
+        //return $validator;
+    //}
 }
