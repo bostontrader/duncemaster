@@ -19,10 +19,6 @@ use Cake\Event\Event;
 use Cake\I18n\I18n;
 
 /**
- * Application Controller
- *
- * Add your application-wide methods in the class below, your controllers
- * will inherit them.
  *
  * @link http://book.cakephp.org/3.0/en/controllers.html#the-app-controller
  */
@@ -31,23 +27,14 @@ class AppController extends Controller {
     /**
      * Initialization hook method.
      *
-     * Use this method to add common initialization code like loading components.
-     *
-     * e.g. `$this->loadComponent('Security');`
-     *
      * @return void
      */
     public function initialize() {
         parent::initialize();
 
-        $this->loadComponent('RequestHandler');
         $this->loadComponent('Flash');
         $this->loadComponent(
             'Auth', [
-                //'loginRedirect' => [
-                    //'controller' => 'Articles',
-                    //'action' => 'index'
-                //],
                 'logoutRedirect' => [
                     'controller' => 'Pages',
                     'action' => 'display',
@@ -57,24 +44,21 @@ class AppController extends Controller {
         );
 
         // The language is initially set in bootstrap.php.  If we want to change the language on-the-fly,
-        // as in clicking the little flags, then we need to store the desired language in the session,
-        // retrieve that value here, and use that value to override the default language
+        // such as in clicking the little flags, then we need to store the desired language in the session,
+        // retrieve that value here, and use that value to override the default language.  Even though the
+        // default in bootstrap.php is en_EN, we still need to set it here.
         $lang=$this->request->session()->read('Config.language');
         switch($lang) {
-            case "en_US":
+            case "zh_CN":
                 I18n::locale('zh_CN');
                 break;
-            default:
-                I18n::locale('en_EN');
+            case "en_US":
+                I18n::locale('en_US');
                 break;
         }
     }
-    public function beforeFilter(Event $event) {
-        $this->Auth->allow(['index', 'view', 'display']);
-    }
 
     /**
-     * Before render callback.
      *
      * @param \Cake\Event\Event $event The beforeRender event.
      * @return void
@@ -85,7 +69,6 @@ class AppController extends Controller {
         ) {
             $this->set('_serialize', true);
         }
-        //$user = $this->Auth->identify();
         $username = $this->Auth->user('username');
         $this->set('currentUser',$username);
     }

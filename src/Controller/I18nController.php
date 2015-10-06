@@ -2,31 +2,33 @@
 
 namespace App\Controller;
 
-use App\Controller\AppController;
+use Cake\Event\Event;
 use Cake\I18n\I18n;
 
-	class I18nController extends AppController {
+class I18nController extends AppController {
 
-		function chi() {
-            $this->autoRender = false;
-			I18n::locale('zh_CN');
-			I18n::clear();
-			$this->redirect($this->referer());
-		}
-
-		function eng() {
-            $this->autoRender = false;
-			I18n::locale('en_US');
-			$this->request->session()->write('Config.language', 'en_US');
-			I18n::clear();
-			$this->redirect($this->referer());
-		}
-
-        // Pinyin
-		function pin() {
-            $this->autoRender = false;
-			$this->redirect($this->referer());
-		}
-
+	public function beforeFilter(Event $event) {
+		parent::beforeFilter($event);
+		$this->Auth->allow(['chi','eng','pin']);
 	}
+
+	function chi() {
+        $this->autoRender = false;
+		$this->request->session()->write('Config.language', 'zh_CN');
+		$this->redirect($this->referer());
+	}
+
+	function eng() {
+        $this->autoRender = false;
+		$this->request->session()->write('Config.language', 'en_US');
+		$this->redirect($this->referer());
+	}
+
+    // Pinyin
+	//function pin() {
+        //$this->autoRender = false;
+		//$this->redirect($this->referer());
+	//}
+
+}
 ?>

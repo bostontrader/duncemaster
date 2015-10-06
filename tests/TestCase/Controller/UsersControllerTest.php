@@ -22,10 +22,10 @@ class UsersControllerTest extends IntegrationTestCase {
     ];
 
     // Test for an http verb that the add method should ignore.
-    public function testAddBadVerb() {
-        $result = $this->testAction('/users/add', array('return' => 'view', 'method' => 'DELETE'));
-        $this->assertEqual($result, false);
-    }
+    //public function testAddBadVerb() {
+        //$result = $this->testAction('/users/add', array('return' => 'view', 'method' => 'DELETE'));
+        //$this->assertEqual($result, false);
+    //}
 
     //public function testAddGET() {
         //$result = $this->testAction('/users/add', array('return' => 'view', 'method' => 'GET'));
@@ -126,8 +126,11 @@ class UsersControllerTest extends IntegrationTestCase {
         //$result = $this->testAction('/users/add', array('return' => 'view', 'method' => 'DELETE'));
         //$this->assertEqual($result, false);
     //}
-    //public function testIndexGET() {
+
+    public function testIndexGET() {
         //$result = $this->testAction('/users/index', array('return' => 'view', 'method' => 'GET'));
+        $result = $this->get('/users/index');
+        $this->assertResponseOk();
         //$html = str_get_html($result);
         // 1. Ensure that the single row of the thead section
         //    has a column for id and username, in that order
@@ -160,12 +163,36 @@ class UsersControllerTest extends IntegrationTestCase {
             //$this->assertEqual($fixtureRecord['is_active'], $htmlColumns[2]->plaintext);
             //$this->assertEqual($fixtureRecord['is_admin'],  $htmlColumns[3]->plaintext);
         //}
-    //}
+    }
+
     // Test for an http verb that the view method should ignore.
     //public function testViewBadVerb()
         //$result = $this->testAction('/users/add', array('return' => 'view', 'method' => 'DELETE'));
         //$this->assertEqual($result, false);
     //}
+
+    public function testEditUnauthenticatedFails() {
+        // No session data set.
+        $this->get('/users/edit');
+        $this->assertRedirect(['controller' => 'Users', 'action' => 'login']);
+    }
+
+    public function testAddAuthenticated()
+    {
+        // Set session data
+        $this->session([
+            'Auth' => [
+                'User' => [
+                    'id' => 1,
+                    'username' => 'testing',
+                // other keys.
+                ]
+            ]
+        ]);
+        $this->get('/users/edit/1');
+        $this->assertResponseOk();
+    }
+
     //public function testViewGET() {
         // This test will look for a user with an id=1.  The ids
         // are assigned using an autoincrement field that starts with 1.
