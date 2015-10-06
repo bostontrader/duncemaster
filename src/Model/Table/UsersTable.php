@@ -36,7 +36,7 @@ class UsersTable extends Table {
      * @param \Cake\Validation\Validator $validator Validator instance.
      * @return \Cake\Validation\Validator
      */
-    public function validationDefault(Validator $validator) {
+    //public function validationDefault(Validator $validator) {
 
 
         //$validator
@@ -49,7 +49,7 @@ class UsersTable extends Table {
             //]);
 
         //return $validator;
-    }
+    //}
 
     /**
      * Returns a rules checker object that will be used for validating

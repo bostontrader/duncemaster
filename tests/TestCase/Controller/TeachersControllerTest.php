@@ -1,14 +1,13 @@
 <?php
 namespace App\Test\TestCase\Controller;
 
-use App\Controller\TeachersController;
+//use App\Controller\TeachersController;
 use Cake\TestSuite\IntegrationTestCase;
 
 /**
  * App\Controller\TeachersController Test Case
  */
-class TeachersControllerTest extends IntegrationTestCase
-{
+class TeachersControllerTest extends IntegrationTestCase {
 
     /**
      * Fixtures
@@ -24,8 +23,7 @@ class TeachersControllerTest extends IntegrationTestCase
      *
      * @return void
      */
-    public function testIndex()
-    {
+    public function testIndex() {
         $this->markTestIncomplete('Not implemented yet.');
     }
 
@@ -34,8 +32,7 @@ class TeachersControllerTest extends IntegrationTestCase
      *
      * @return void
      */
-    public function testView()
-    {
+    public function testView() {
         $this->markTestIncomplete('Not implemented yet.');
     }
 
@@ -44,8 +41,7 @@ class TeachersControllerTest extends IntegrationTestCase
      *
      * @return void
      */
-    public function testAdd()
-    {
+    public function testAdd() {
         $this->markTestIncomplete('Not implemented yet.');
     }
 
@@ -54,8 +50,7 @@ class TeachersControllerTest extends IntegrationTestCase
      *
      * @return void
      */
-    public function testEdit()
-    {
+    public function testEdit() {
         $this->markTestIncomplete('Not implemented yet.');
     }
 
@@ -64,8 +59,7 @@ class TeachersControllerTest extends IntegrationTestCase
      *
      * @return void
      */
-    public function testDelete()
-    {
+    public function testDelete() {
         $this->markTestIncomplete('Not implemented yet.');
     }
 }
