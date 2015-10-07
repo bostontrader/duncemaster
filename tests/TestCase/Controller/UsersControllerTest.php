@@ -1,14 +1,35 @@
 <?php
 namespace App\Test\TestCase\Controller;
 
-//use App\Controller\UsersController;
-
-//include_once "C:\xampp_1_8_2\htdocs\sdcth\vendor\cakephp\cakephp\src\Auth\BaseAuthorize.php";
-//include_once "C:\xampp_1_8_2\htdocs\sdcth\vendor\cakephp\cakephp\src\TestSuite\IntegrationTestCase.php";
 use Cake\TestSuite\IntegrationTestCase;
+
 require_once 'config\bootstrap.php';
+
 /**
  * App\Controller\UsersController Test Case
+ *
+ * In this test I only want to test that:
+ *
+ * 1. A controller method exists...
+ *
+ * 2. Said method returns ResponseOK.
+ *
+ * 3. A bare minimum of html structure required to reasonbly verify correct operation
+ *    and to facilitate TDD.  For example, the add method should return a form with certain fields.
+ *
+ * 4. Verify that the db has changed as expected, if applicable.
+ *
+ * I do not want to test:
+ *
+ * 1. Whether or not Auth prevents/allows access to a method.
+ *
+ * 2. How the method responds to badly formed requests, such as trying to submit a DELETE to the add method.
+ *
+ * 3. Any html structure, formatting, css, scripts, tags, krakens, or whatever, beyond the bare minimum
+ *    listed above.
+ *
+ * These items should be tested elsewhere.
+ *
  */
 class UsersControllerTest extends IntegrationTestCase {
 
@@ -21,36 +42,30 @@ class UsersControllerTest extends IntegrationTestCase {
         'app.users'
     ];
 
-    // Test for an http verb that the add method should ignore.
-    //public function testAddBadVerb() {
-        //$result = $this->testAction('/users/add', array('return' => 'view', 'method' => 'DELETE'));
-        //$this->assertEqual($result, false);
-    //}
+    public function testAddGet() {
+        $this->fakeLogin();
+        $this->get('/users/add');
+        $html = 
+        $this->assertResponseOk();
+    }
 
-    //public function testAddGET() {
-        //$result = $this->testAction('/users/add', array('return' => 'view', 'method' => 'GET'));
-        //$html = str_get_html($result);
-        //$form = $html->find('form[id=UserAddForm]')[0];
+    // Hack the session to make it look as if we're properly logged in.
+    private function fakeLogin() {
+        // Set session data
+        $this->session(
+            [
+                'Auth' => [
+                    'User' => [
+                        'id' => 1,
+                        'username' => 'testing',
+                    ]
+                ]
+            ]
+        );
+    }
 
-        // Omit the id field
-        // Ensure that there's a field, labled Username, that is empty
-        //$label = $form->find('label[for=UserUsername]')[0];
-        //$input = $form->find('input[id=UserUsername]')[0];
-        //$this->assertEqual($label->plaintext, "Username");
-        //$this->assertEqual($input->value, "");
 
-        // Ensure that there's a field, labled 'Is active', that is set to the correct value
-        //$label = $form->find('label[for=UserIsActive]')[0];
-        //$input = $form->find('input[id=UserIsActive]')[0];
-        //$this->assertEqual($label->plaintext, "Is Active");
-        //$this->assertEqual($input->checked, false);
 
-        // Ensure that there's a field, labled 'Is admin', that is set to the correct value
-        //$label = $form->find('label[for=UserIsAdmin]')[0];
-        //$input = $form->find('input[id=UserIsAdmin]')[0];
-        //$this->assertEqual($label->plaintext, "Is Admin");
-        //$this->assertEqual($input->checked, false);
-    //}
 
     //public function testAddPOST() {
         //$data = array(
@@ -129,6 +144,16 @@ class UsersControllerTest extends IntegrationTestCase {
 
     public function testIndexGET() {
         //$result = $this->testAction('/users/index', array('return' => 'view', 'method' => 'GET'));
+        // Set session data
+        $this->session([
+            'Auth' => [
+                'User' => [
+                    'id' => 1,
+                    'username' => 'testing',
+                    // other keys.
+                ]
+            ]
+        ]);
         $result = $this->get('/users/index');
         $this->assertResponseOk();
         //$html = str_get_html($result);
@@ -171,27 +196,7 @@ class UsersControllerTest extends IntegrationTestCase {
         //$this->assertEqual($result, false);
     //}
 
-    public function testEditUnauthenticatedFails() {
-        // No session data set.
-        $this->get('/users/edit');
-        $this->assertRedirect(['controller' => 'Users', 'action' => 'login']);
-    }
 
-    public function testAddAuthenticated()
-    {
-        // Set session data
-        $this->session([
-            'Auth' => [
-                'User' => [
-                    'id' => 1,
-                    'username' => 'testing',
-                // other keys.
-                ]
-            ]
-        ]);
-        $this->get('/users/edit/1');
-        $this->assertResponseOk();
-    }
 
     //public function testViewGET() {
         // This test will look for a user with an id=1.  The ids
