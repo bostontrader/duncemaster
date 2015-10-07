@@ -60,7 +60,7 @@ class UsersController extends AppController {
      * @return void Redirects on successful add, renders view otherwise.
      */
     public function add() {
-        //$user = $this->Users->newEntity();
+        $user = $this->Users->newEntity();
         //if ($this->request->is('post')) {
             //$user = $this->Users->patchEntity($user, $this->request->data);
             //if ($this->Users->save($user)) {
@@ -70,8 +70,7 @@ class UsersController extends AppController {
                 //$this->Flash->error(__('The user could not be saved. Please, try again.'));
             //}
         //}
-        //$this->set(compact('user'));
-        //$this->set('_serialize', ['user']);
+        $this->set(compact('user'));
     }
 
     /**

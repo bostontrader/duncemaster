@@ -3,7 +3,8 @@ namespace App\Test\TestCase\Controller;
 
 use Cake\TestSuite\IntegrationTestCase;
 
-require_once 'config\bootstrap.php';
+require_once 'simple_html_dom.php';
+require_once 'config\bootstrap.php'; // we shouldn't need this here
 
 /**
  * App\Controller\UsersController Test Case
@@ -43,10 +44,54 @@ class UsersControllerTest extends IntegrationTestCase {
     ];
 
     public function testAddGet() {
+
         $this->fakeLogin();
         $this->get('/users/add');
-        $html = 
         $this->assertResponseOk();
+
+        // Make sure this view var is set, to keep the FormHelper happy
+        $this->assertNotNull($this->viewVariable('user'));
+
+        // Parse the response into a DOM-like tree
+        $html = str_get_html($this->_response->body());
+
+        // Ensure that the correct form exists
+        $form = $html->find('form[id=UserAddForm]')[0];
+        $this->assertNotNull($form);
+
+        // Omit the id field
+        // Ensure that there's a field for username, that is empty
+        $input = $form->find('input[id=UserUsername]')[0];
+        $this->assertEquals($input->value, false);
+
+        // Ensure that there's a field for password, that is empty
+        $input = $form->find('input[id=UserPassword]')[0];
+        $this->assertEquals($input->value, false);
+    }
+
+    public function testAddPOST() {
+        $data = [
+            'id' => 1,
+            'username' => 'adminx',
+            'password' => 'admin',
+        ];
+        $this->post('/users/add', $data);
+        $this->assertResponseSuccess();
+
+        // Now verify what we think just got written
+        $users = TableRegistry::get('Users');
+        $query = $users->find()->where(['username' => $data['username']]);
+        $this->assertEquals(1, $query->count());
+
+
+
+
+    //$result = $this->testAction('/users/add', array('data' => $data, 'return' => 'view', 'method' => 'POST'));
+    //$newRecordId = $this->controller->User->id;
+    //$newRecord = $this->controller->User->findById($newRecordId);
+    //$this->assertEqual($data['User']['username'],  $newRecord['User']['username']);
+    //$this->assertEqual($data['User']['is_active'], $newRecord['User']['is_active']);
+    //$this->assertEqual($data['User']['is_admin'],  $newRecord['User']['is_admin']);
     }
 
     // Hack the session to make it look as if we're properly logged in.
@@ -67,21 +112,7 @@ class UsersControllerTest extends IntegrationTestCase {
 
 
 
-    //public function testAddPOST() {
-        //$data = array(
-            //'User' => array(
-                //'username' => 'hendrix',
-                //'is_active' => 1,
-                //'is_admin' => 1
-            //)
-        //);
-        //$result = $this->testAction('/users/add', array('data' => $data, 'return' => 'view', 'method' => 'POST'));
-        //$newRecordId = $this->controller->User->id;
-        //$newRecord = $this->controller->User->findById($newRecordId);
-        //$this->assertEqual($data['User']['username'],  $newRecord['User']['username']);
-        //$this->assertEqual($data['User']['is_active'], $newRecord['User']['is_active']);
-        //$this->assertEqual($data['User']['is_admin'],  $newRecord['User']['is_admin']);
-    //}
+
 
     //public function testDelete() {
         //$result = $this->testAction('/users/delete/1', array('method' => 'DELETE'));
