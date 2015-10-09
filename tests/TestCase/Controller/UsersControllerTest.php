@@ -1,10 +1,12 @@
 <?php
 namespace App\Test\TestCase\Controller;
 
+use Cake\Datasource\ConnectionManager;
+use Cake\ORM\TableRegistry;
 use Cake\TestSuite\IntegrationTestCase;
 
 require_once 'simple_html_dom.php';
-require_once 'config\bootstrap.php'; // we shouldn't need this here
+//require_once 'config\bootstrap.php'; // we shouldn't need this here
 
 /**
  * App\Controller\UsersController Test Case
@@ -40,8 +42,15 @@ class UsersControllerTest extends IntegrationTestCase {
      * @var array
      */
     public $fixtures = [
-        'app.users'
+        'app.users',
+        'app.roles'
     ];
+
+    public function setUp() {
+        parent::setUp();
+        //ConnectionManager::alias('default','test');
+        //ConnectionManager::alias('test','default');
+    }
 
     public function testAddGet() {
 
@@ -73,25 +82,42 @@ class UsersControllerTest extends IntegrationTestCase {
         $data = [
             'id' => 1,
             'username' => 'adminx',
-            'password' => 'admin',
+            'password' => 'password',
         ];
+        $this->fakeLogin();
         $this->post('/users/add', $data);
         $this->assertResponseSuccess();
 
         // Now verify what we think just got written
         $users = TableRegistry::get('Users');
         $query = $users->find()->where(['username' => $data['username']]);
-        $this->assertEquals(1, $query->count());
+        //$this->assertEquals(1, $query->count());
+        $this->assertTrue($query->count()>0);
 
+        // Verify redirect to /users
+        $this->assertRedirect( '/users' );
 
+    }
 
+    public function testDelete() {
+        $data = [
+            'id' => 1,
+            //'username' => 'adminx',
+            //'password' => 'password',
+        ];
+        $this->fakeLogin();
+        $this->post('/users/delete', $data);
+        $this->assertResponseSuccess();
 
-    //$result = $this->testAction('/users/add', array('data' => $data, 'return' => 'view', 'method' => 'POST'));
-    //$newRecordId = $this->controller->User->id;
-    //$newRecord = $this->controller->User->findById($newRecordId);
-    //$this->assertEqual($data['User']['username'],  $newRecord['User']['username']);
-    //$this->assertEqual($data['User']['is_active'], $newRecord['User']['is_active']);
-    //$this->assertEqual($data['User']['is_admin'],  $newRecord['User']['is_admin']);
+        // Now verify the record no longer exists
+        $users = TableRegistry::get('Users');
+        $query = $users->find()->where(['id' => $data['id']]);
+        $this->assertEquals(0, $query->count());
+        //$this->assertTrue($query->count()>0);
+
+        // Verify redirect to /users
+        $this->assertRedirect( '/users' );
+
     }
 
     // Hack the session to make it look as if we're properly logged in.
