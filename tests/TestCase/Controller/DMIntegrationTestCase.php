@@ -43,9 +43,9 @@ class DMIntegrationTestCase extends IntegrationTestCase {
         $this->session(
             [
                 'Auth' => [
-                    'Major' => [
+                    'User' => [
                         'id' => 1,
-                        'majorname' => 'testing',
+                        'username' => 'testing',
                     ]
                 ]
             ]

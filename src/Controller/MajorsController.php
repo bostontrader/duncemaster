@@ -1,9 +1,6 @@
 <?php
 namespace App\Controller;
 
-//use App\Controller\AppController;
-use Cake\Event\Event;
-
 class MajorsController extends AppController {
 
     public function add() {
@@ -19,14 +16,6 @@ class MajorsController extends AppController {
             }
         }
         $this->set(compact('major'));
-    }
-
-    public function beforeFilter(Event $event) {
-        parent::beforeFilter($event);
-        // Allow users to register and logout.
-        // You should not add the "login" action to allow list. Doing so would
-        // cause problems with normal functioning of AuthComponent.
-        $this->Auth->allow([]);
     }
 
     public function delete($id = null) {

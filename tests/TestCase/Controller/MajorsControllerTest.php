@@ -2,28 +2,9 @@
 namespace App\Test\TestCase\Controller;
 
 use App\Test\Fixture\MajorsFixture;
-//use Cake\ORM\TableRegistry;
-use Cake\TestSuite\IntegrationTestCase;
+use Cake\ORM\TableRegistry;
 
-require_once 'simple_html_dom.php';
-
-class MajorsControllerTest extends IntegrationTestCase {
-//class MajorsControllerTest extends DMIntegrationTestCase {
-
-    // Hack the session to make it look as if we're properly logged in.
-    protected function fakeLogin() {
-        // Set session data
-        $this->session(
-            [
-                'Auth' => [
-                    'User' => [
-                        'id' => 1,
-                        'username' => 'testing',
-                    ]
-                ]
-            ]
-        );
-    }
+class MajorsControllerTest extends DMIntegrationTestCase {
 
     public $fixtures = [
         'app.majors'
@@ -47,12 +28,12 @@ class MajorsControllerTest extends IntegrationTestCase {
         $this->assertNotNull($form);
 
         // Omit the id field
-        // Ensure that there's a field for majorname, that is empty
-        $input = $form->find('input[id=MajorMajorname]')[0];
+        // Ensure that there's a field for title, that is empty
+        $input = $form->find('input[id=MajorTitle]')[0];
         $this->assertEquals($input->value, false);
 
-        // Ensure that there's a field for password, that is empty
-        $input = $form->find('input[id=MajorPassword]')[0];
+        // Ensure that there's a field for sdesc, that is empty
+        $input = $form->find('input[id=MajorSDesc]')[0];
         $this->assertEquals($input->value, false);
     }
 
@@ -72,7 +53,7 @@ class MajorsControllerTest extends IntegrationTestCase {
 
         // Now retrieve that 1 record and compare to what we expect
         $major = $majors->get($majorsFixture->newMajorRecord['id']);
-        $this->assertEquals($major['majorname'],$majorsFixture->newMajorRecord['majorname']);
+        $this->assertEquals($major['title'],$majorsFixture->newMajorRecord['title']);
     }
 
     public function testDeletePOST() {
@@ -110,13 +91,13 @@ class MajorsControllerTest extends IntegrationTestCase {
         $this->assertNotNull($form);
 
         // Omit the id field
-        // Ensure that there's a field for majorname, that is correctly set
-        $input = $form->find('input[id=MajorMajorname]')[0];
-        $this->assertEquals($input->value, $majorsFixture->major1Record['majorname']);
+        // Ensure that there's a field for title, that is correctly set
+        $input = $form->find('input[id=MajorTitle]')[0];
+        $this->assertEquals($input->value, $majorsFixture->major1Record['title']);
 
-        // Ensure that there's a field for password, that is empty
-        $input = $form->find('input[id=MajorPassword]')[0];
-        $this->assertEquals($input->value, false);
+        // Ensure that there's a field for sdesc, that is correctly set
+        $input = $form->find('input[id=MajorSDesc]')[0];
+        $this->assertEquals($input->value,  $majorsFixture->major1Record['sdesc']);
 
     }
 
@@ -137,7 +118,7 @@ class MajorsControllerTest extends IntegrationTestCase {
 
         // Now retrieve that 1 record and compare to what we expect
         $major = $majors->get($majorsFixture->major1Record['id']);
-        $this->assertEquals($major['majorname'],$majorsFixture->newMajorRecord['majorname']);
+        $this->assertEquals($major['title'],$majorsFixture->newMajorRecord['title']);
 
     }
 
@@ -152,22 +133,22 @@ class MajorsControllerTest extends IntegrationTestCase {
         $html = str_get_html($result);
 
         // 1. Ensure that the single row of the thead section
-        //    has a column for id and majorname, in that order
+        //    has a column for id and title, in that order
         //$rows = $html->find('table[id=majors]',0)->find('thead',0)->find('tr');
         //$row_cnt = count($rows);
         //$this->assertEqual($row_cnt, 1);
 
         // 2. Ensure that the thead section has a heading
-        //    for id, majorname, is_active, and is_admin.
+        //    for id, title, is_active, and is_admin.
         //$columns = $rows[0]->find('td');
         //$this->assertEqual($columns[0]->plaintext, 'id');
-        //$this->assertEqual($columns[1]->plaintext, 'majorname');
+        //$this->assertEqual($columns[1]->plaintext, 'title');
         //$this->assertEqual($columns[2]->plaintext, 'is_active');
         //$this->assertEqual($columns[3]->plaintext, 'is_admin');
 
         // 3. Ensure that the tbody section has the same
         //    quantity of rows as the count of major records in the fixture.
-        //    For each of these rows, ensure that the id and majorname match
+        //    For each of these rows, ensure that the id and title match
         //$majorFixture = new MajorFixture();
         //$rowsInHTMLTable = $html->find('table[id=majors]',0)->find('tbody',0)->find('tr');
         //$this->assertEqual(count($majorFixture->records), count($rowsInHTMLTable));
@@ -180,7 +161,7 @@ class MajorsControllerTest extends IntegrationTestCase {
         //$htmlRow = $values[1];
         //$htmlColumns = $htmlRow->find('td');
         //$this->assertEqual($fixtureRecord['id'],        $htmlColumns[0]->plaintext);
-        //$this->assertEqual($fixtureRecord['majorname'],  $htmlColumns[1]->plaintext);
+        //$this->assertEqual($fixtureRecord['title'],  $htmlColumns[1]->plaintext);
         //$this->assertEqual($fixtureRecord['is_active'], $htmlColumns[2]->plaintext);
         //$this->assertEqual($fixtureRecord['is_admin'],  $htmlColumns[3]->plaintext);
         //}
@@ -206,12 +187,12 @@ class MajorsControllerTest extends IntegrationTestCase {
         //$this->assertNotNull($form);
 
         // Omit the id field
-        // Ensure that there's a field for majorname, that is correctly set
-        //$input = $form->find('input[id=MajorMajorname]')[0];
-        //$this->assertEquals($input->value, $majorsFixture->major1Record['majorname']);
+        // Ensure that there's a field for title, that is correctly set
+        //$input = $form->find('input[id=MajorTitle]')[0];
+        //$this->assertEquals($input->value, $majorsFixture->major1Record['title']);
 
-        // Ensure that there's a field for password, that is empty
-        //$input = $form->find('input[id=MajorPassword]')[0];
+        // Ensure that there's a field for sdesc, that is empty
+        //$input = $form->find('input[id=MajorSDesc]')[0];
         //$this->assertEquals($input->value, false);
     }
 

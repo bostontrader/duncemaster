@@ -2,8 +2,6 @@
     <ul class="side-nav">
         <li class="heading"><?= __('Actions') ?></li>
         <li><?= $this->Html->link(__('New Subject'), ['action' => 'add']) ?></li>
-        <li><?= $this->Html->link(__('List Sections'), ['controller' => 'Sections', 'action' => 'index']) ?></li>
-        <li><?= $this->Html->link(__('New Section'), ['controller' => 'Sections', 'action' => 'add']) ?></li>
     </ul>
 </nav>
 <div class="subjects index large-9 medium-8 columns content">
@@ -11,7 +9,7 @@
     <table cellpadding="0" cellspacing="0">
         <thead>
             <tr>
-                <th><?= $this->Paginator->sort('id') ?></th>
+                <th><?= __('id') ?></th>
                 <th><?= __('Title') ?></th>
                 <th class="actions"><?= __('Actions') ?></th>
             </tr>
@@ -19,7 +17,7 @@
         <tbody>
             <?php foreach ($subjects as $subject): ?>
             <tr>
-                <td><?= $this->Number->format($subject->id) ?></td>
+                <td><?= $subject->id ?></td>
                 <td><?= $subject->title ?></td>
                 <td class="actions">
                     <?= $this->Html->link(__('View'), ['action' => 'view', $subject->id]) ?>
@@ -30,12 +28,5 @@
             <?php endforeach; ?>
         </tbody>
     </table>
-    <div class="paginator">
-        <ul class="pagination">
-            <?= $this->Paginator->prev('< ' . __('previous')) ?>
-            <?= $this->Paginator->numbers() ?>
-            <?= $this->Paginator->next(__('next') . ' >') ?>
-        </ul>
-        <p><?= $this->Paginator->counter() ?></p>
-    </div>
+
 </div>
