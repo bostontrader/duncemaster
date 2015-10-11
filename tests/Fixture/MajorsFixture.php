@@ -3,43 +3,22 @@ namespace App\Test\Fixture;
 
 use Cake\TestSuite\Fixture\TestFixture;
 
-/**
- * MajorsFixture
- *
- */
-class MajorsFixture extends TestFixture
-{
+class MajorsFixture extends TestFixture {
+    public $import = ['table' => 'majors'];
 
-    /**
-     * Fields
-     *
-     * @var array
-     */
-    // @codingStandardsIgnoreStart
-    public $fields = [
-        'id' => ['type' => 'integer', 'length' => 11, 'unsigned' => true, 'null' => false, 'default' => null, 'comment' => '', 'autoIncrement' => true, 'precision' => null],
-        'title' => ['type' => 'text', 'length' => null, 'null' => false, 'default' => null, 'comment' => '', 'precision' => null],
-        'sdesc' => ['type' => 'text', 'length' => null, 'null' => false, 'default' => null, 'comment' => '', 'precision' => null],
-        '_constraints' => [
-            'primary' => ['type' => 'primary', 'columns' => ['id'], 'length' => []],
-        ],
-        '_options' => [
-            'engine' => 'InnoDB',
-            'collation' => 'utf8_general_ci'
-        ],
-    ];
-    // @codingStandardsIgnoreEnd
+    // Specify id because later we'll try to specifically find this record in the db
+    public $major1Record = ['id'=>5,  'title' => 'Lion Taming', 'sdesc' => 'LT'];
 
-    /**
-     * Records
-     *
-     * @var array
-     */
-    public $records = [
-        [
-            'id' => 1,
-            'title' => 'lion taming  ',
-            'sdesc' => 'LT'
-        ],
-    ];
+    // This is a new record to be inserted by Cake's patchEntity method. We can't
+    // feasibly control the id, so go with the flow.  But we _can_ predict what
+    // the new ID will be, and we'll need that to read back this record.
+    public $newMajorRecord = ['id'=>6,  'title' => 'Advanced Lion Taming', 'sdesc' => 'AT'];
+
+    public function init()
+    {
+        $this->records = [
+            $this->major1Record
+        ];
+        parent::init();
+    }
 }
