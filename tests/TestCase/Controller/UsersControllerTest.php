@@ -1,12 +1,11 @@
 <?php
 namespace App\Test\TestCase\Controller;
 
-use Cake\Datasource\ConnectionManager;
+use App\Test\Fixture\UsersFixture;
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\IntegrationTestCase;
 
 require_once 'simple_html_dom.php';
-//require_once 'config\bootstrap.php'; // we shouldn't need this here
 
 /**
  * App\Controller\UsersController Test Case
@@ -17,10 +16,12 @@ require_once 'simple_html_dom.php';
  *
  * 2. Said method returns ResponseOK.
  *
- * 3. A bare minimum of html structure required to reasonbly verify correct operation
+ * 3. Said method does or does not redirect.  If it redirects, then where to?
+ *
+ * 4. A bare minimum of html structure required to reasonably verify correct operation
  *    and to facilitate TDD.  For example, the add method should return a form with certain fields.
  *
- * 4. Verify that the db has changed as expected, if applicable.
+ * 5. Verify that the db has changed as expected, if applicable.
  *
  * I do not want to test:
  *
@@ -42,26 +43,20 @@ class UsersControllerTest extends IntegrationTestCase {
      * @var array
      */
     public $fixtures = [
-        'app.users',
-        'app.roles'
+        'app.users'
     ];
 
-    public function setUp() {
-        parent::setUp();
-        //ConnectionManager::alias('default','test');
-        //ConnectionManager::alias('test','default');
-    }
-
-    public function testAddGet() {
+    public function testAddGET() {
 
         $this->fakeLogin();
         $this->get('/users/add');
         $this->assertResponseOk();
+        $this->assertNoRedirect();
 
         // Make sure this view var is set, to keep the FormHelper happy
         $this->assertNotNull($this->viewVariable('user'));
 
-        // Parse the response into a DOM-like tree
+        // Parse the html from the response
         $html = str_get_html($this->_response->body());
 
         // Ensure that the correct form exists
@@ -79,45 +74,162 @@ class UsersControllerTest extends IntegrationTestCase {
     }
 
     public function testAddPOST() {
-        $data = [
-            'id' => 1,
-            'username' => 'adminx',
-            'password' => 'password',
-        ];
+
+        $usersFixture = new UsersFixture();
+
         $this->fakeLogin();
-        $this->post('/users/add', $data);
+        $this->post('/users/add', $usersFixture->newUserRecord);
         $this->assertResponseSuccess();
+        $this->assertRedirect( '/users' );
 
         // Now verify what we think just got written
         $users = TableRegistry::get('Users');
-        $query = $users->find()->where(['username' => $data['username']]);
-        //$this->assertEquals(1, $query->count());
-        $this->assertTrue($query->count()>0);
+        $query = $users->find()->where(['id' => $usersFixture->newUserRecord['id']]);
+        $this->assertEquals(1, $query->count());
 
-        // Verify redirect to /users
+        // Now retrieve that 1 record and compare to what we expect
+        $user = $users->get($usersFixture->newUserRecord['id']);
+        $this->assertEquals($user['username'],$usersFixture->newUserRecord['username']);
+    }
+
+    public function testDeletePOST() {
+
+        $usersFixture = new UsersFixture();
+
+        $this->fakeLogin();
+        $this->post('/users/delete/' . $usersFixture->adminRecord['id']);
+        $this->assertResponseSuccess();
         $this->assertRedirect( '/users' );
+
+        // Now verify that the record no longer exists
+        $users = TableRegistry::get('Users');
+        $query = $users->find()->where(['id' => $usersFixture->adminRecord['id']]);
+        $this->assertEquals(0, $query->count());
+    }
+
+    public function testEditGET() {
+
+        $usersFixture = new UsersFixture();
+
+        $this->fakeLogin();
+        $this->get('/users/edit/' . $usersFixture->adminRecord['id']);
+        $this->assertResponseOk();
+        $this->assertNoRedirect();
+
+        // Make sure this view var is set, to keep the FormHelper happy
+        $this->assertNotNull($this->viewVariable('user'));
+
+        // Parse the html from the response
+        $html = str_get_html($this->_response->body());
+
+        // Ensure that the correct form exists
+        $form = $html->find('form[id=UserEditForm]')[0];
+        $this->assertNotNull($form);
+
+        // Omit the id field
+        // Ensure that there's a field for username, that is correctly set
+        $input = $form->find('input[id=UserUsername]')[0];
+        $this->assertEquals($input->value, $usersFixture->adminRecord['username']);
+
+        // Ensure that there's a field for password, that is empty
+        $input = $form->find('input[id=UserPassword]')[0];
+        $this->assertEquals($input->value, false);
 
     }
 
-    public function testDelete() {
-        $data = [
-            'id' => 1,
-            //'username' => 'adminx',
-            //'password' => 'password',
-        ];
+    public function testEditPOST() {
+
+        $usersFixture = new UsersFixture();
+
         $this->fakeLogin();
-        $this->post('/users/delete', $data);
-        $this->assertResponseSuccess();
+        $this->post('/users/edit/' . $usersFixture->adminRecord['id'], $usersFixture->newUserRecord);
+        $this->assertResponseOk();
+        $this->assertNoRedirect();
 
-        // Now verify the record no longer exists
+        // Now verify what we think just got written
         $users = TableRegistry::get('Users');
-        $query = $users->find()->where(['id' => $data['id']]);
-        $this->assertEquals(0, $query->count());
-        //$this->assertTrue($query->count()>0);
+        $query = $users->find()->where(['id' => $usersFixture->adminRecord['id']]);
+        $c = $query->count();
+        $this->assertEquals(1, $c);
 
-        // Verify redirect to /users
-        $this->assertRedirect( '/users' );
+        // Now retrieve that 1 record and compare to what we expect
+        $user = $users->get($usersFixture->adminRecord['id']);
+        $this->assertEquals($user['username'],$usersFixture->newUserRecord['username']);
 
+    }
+
+    public function testIndexGET() {
+
+        $this->fakeLogin();
+        $result = $this->get('/users/index');
+        $this->assertResponseOk();
+        $this->assertNoRedirect();
+
+        // Parse the html from the response
+        $html = str_get_html($result);
+
+        // 1. Ensure that the single row of the thead section
+        //    has a column for id and username, in that order
+        //$rows = $html->find('table[id=users]',0)->find('thead',0)->find('tr');
+        //$row_cnt = count($rows);
+        //$this->assertEqual($row_cnt, 1);
+
+        // 2. Ensure that the thead section has a heading
+        //    for id, username, is_active, and is_admin.
+        //$columns = $rows[0]->find('td');
+        //$this->assertEqual($columns[0]->plaintext, 'id');
+        //$this->assertEqual($columns[1]->plaintext, 'username');
+        //$this->assertEqual($columns[2]->plaintext, 'is_active');
+        //$this->assertEqual($columns[3]->plaintext, 'is_admin');
+
+        // 3. Ensure that the tbody section has the same
+        //    quantity of rows as the count of user records in the fixture.
+        //    For each of these rows, ensure that the id and username match
+        //$userFixture = new UserFixture();
+        //$rowsInHTMLTable = $html->find('table[id=users]',0)->find('tbody',0)->find('tr');
+        //$this->assertEqual(count($userFixture->records), count($rowsInHTMLTable));
+        //$iterator = new MultipleIterator;
+        //$iterator->attachIterator(new ArrayIterator($userFixture->records));
+        //$iterator->attachIterator(new ArrayIterator($rowsInHTMLTable));
+
+        //foreach ($iterator as $values) {
+        //$fixtureRecord = $values[0];
+        //$htmlRow = $values[1];
+        //$htmlColumns = $htmlRow->find('td');
+        //$this->assertEqual($fixtureRecord['id'],        $htmlColumns[0]->plaintext);
+        //$this->assertEqual($fixtureRecord['username'],  $htmlColumns[1]->plaintext);
+        //$this->assertEqual($fixtureRecord['is_active'], $htmlColumns[2]->plaintext);
+        //$this->assertEqual($fixtureRecord['is_admin'],  $htmlColumns[3]->plaintext);
+        //}
+    }
+
+    public function testViewGET() {
+
+        $usersFixture = new UsersFixture();
+
+        $this->fakeLogin();
+        $this->get('/users/view/' . $usersFixture->adminRecord['id']);
+        $this->assertResponseOk();
+        $this->assertNoRedirect();
+
+        // Make sure this view var is set
+        $this->assertNotNull($this->viewVariable('user'));
+
+        // Parse the html from the response
+        $html = str_get_html($this->_response->body());
+
+        // Ensure that the correct form exists
+        //$form = $html->find('form[id=UserEditForm]')[0];
+        //$this->assertNotNull($form);
+
+        // Omit the id field
+        // Ensure that there's a field for username, that is correctly set
+        //$input = $form->find('input[id=UserUsername]')[0];
+        //$this->assertEquals($input->value, $usersFixture->adminRecord['username']);
+
+        // Ensure that there's a field for password, that is empty
+        //$input = $form->find('input[id=UserPassword]')[0];
+        //$this->assertEquals($input->value, false);
     }
 
     // Hack the session to make it look as if we're properly logged in.
@@ -135,142 +247,4 @@ class UsersControllerTest extends IntegrationTestCase {
         );
     }
 
-
-
-
-
-
-    //public function testDelete() {
-        //$result = $this->testAction('/users/delete/1', array('method' => 'DELETE'));
-        //$this->assertEqual($result, true);
-        //$deletedRecord = $this->controller->User->findById(1);
-        //$this->assertEqual(count($deletedRecord), 0);
-    //}
-    // Test for an http verb that the delete method should ignore.
-    //public function testDeleteBadVerb() {
-        //$result = $this->testAction('/users/delete', array('return' => 'view', 'method' => 'GET'));
-        //$this->assertEqual($result, false);
-    //}
-    // Test for an http verb that the edit method should ignore.
-    //public function testEditBadVerb() {
-        //$result = $this->testAction('/users/edit', array('return' => 'view', 'method' => 'DELETE'));
-        //$this->assertEqual($result, false);
-    //}
-    //public function testEditGET() {
-        //$result = $this->testAction('/users/edit/1', array('return' => 'view', 'method' => 'GET'));
-        //$html = str_get_html($result);
-        //$userFixture = new UserFixture();
-        //$fixtureRecord = $userFixture->records[0];
-        //$form = $html->find('form[id=UserEditForm]')[0];
-        // Omit the id field
-        // Ensure that there's a field, labled Username, that contains the correct value
-        //$label = $form->find('label[for=UserUsername]')[0];
-        //$input = $form->find('input[id=UserUsername]')[0];
-        //$this->assertEqual($label->plaintext, "Username");
-        //$this->assertEqual($input->value, $fixtureRecord['username']);
-        // Ensure that there's a field, labled 'Is active', that is set to the correct value
-        //$label = $form->find('label[for=UserIsActive]')[0];
-        //$input = $form->find('input[id=UserIsActive]')[0];
-        //$this->assertEqual($label->plaintext, "Is Active");
-        //$this->assertEqual($input->checked, ($fixtureRecord['is_active']?"checked":false) );
-        // Ensure that there's a field, labled 'Is admin', that is set to the correct value
-        //$label = $form->find('label[for=UserIsAdmin]')[0];
-        //$input = $form->find('input[id=UserIsAdmin]')[0];
-        //$this->assertEqual($label->plaintext, "Is Admin");
-        //$this->assertEqual($input->checked, ($fixtureRecord['is_admin']?"checked":false));
-    //}
-    //public function testEditPUT() {
-        //$data = array(
-            //'User' => array(
-                //'username' => 'hendrix',
-                //'is_active' => 1,
-                //'is_admin' => 1
-            //)
-        //);
-        //$result = $this->testAction('/users/edit/1', array('data' => $data, 'return' => 'view', 'method' => 'PUT'));
-        //$changedRecord = $this->controller->User->findById(1);
-        //$this->assertEqual($data['User']['username'],  $changedRecord['User']['username']);
-        //$this->assertEqual($data['User']['is_active'], $changedRecord['User']['is_active']);
-        //$this->assertEqual($data['User']['is_admin'],  $changedRecord['User']['is_admin']);
-    //}
-    // Test for an http verb that the index method should ignore.
-    //public function testIndexBadVerb() {
-        //$result = $this->testAction('/users/add', array('return' => 'view', 'method' => 'DELETE'));
-        //$this->assertEqual($result, false);
-    //}
-
-    public function testIndexGET() {
-        //$result = $this->testAction('/users/index', array('return' => 'view', 'method' => 'GET'));
-        // Set session data
-        $this->session([
-            'Auth' => [
-                'User' => [
-                    'id' => 1,
-                    'username' => 'testing',
-                    // other keys.
-                ]
-            ]
-        ]);
-        $result = $this->get('/users/index');
-        $this->assertResponseOk();
-        //$html = str_get_html($result);
-        // 1. Ensure that the single row of the thead section
-        //    has a column for id and username, in that order
-        //$rows = $html->find('table[id=users]',0)->find('thead',0)->find('tr');
-        //$row_cnt = count($rows);
-        //$this->assertEqual($row_cnt, 1);
-        // 2. Ensure that the thead section has a heading
-        //    for id, username, is_active, and is_admin.
-        //$columns = $rows[0]->find('td');
-        //$this->assertEqual($columns[0]->plaintext, 'id');
-        //$this->assertEqual($columns[1]->plaintext, 'username');
-        //$this->assertEqual($columns[2]->plaintext, 'is_active');
-        //$this->assertEqual($columns[3]->plaintext, 'is_admin');
-        // 3. Ensure that the tbody section has the same
-        //    quantity of rows as the count of user records in the fixture.
-        //    For each of these rows, ensure that the id and username match
-        //$userFixture = new UserFixture();
-        //$rowsInHTMLTable = $html->find('table[id=users]',0)->find('tbody',0)->find('tr');
-        //$this->assertEqual(count($userFixture->records), count($rowsInHTMLTable));
-        //$iterator = new MultipleIterator;
-        //$iterator->attachIterator(new ArrayIterator($userFixture->records));
-        //$iterator->attachIterator(new ArrayIterator($rowsInHTMLTable));
-
-        //foreach ($iterator as $values) {
-            //$fixtureRecord = $values[0];
-            //$htmlRow = $values[1];
-            //$htmlColumns = $htmlRow->find('td');
-            //$this->assertEqual($fixtureRecord['id'],        $htmlColumns[0]->plaintext);
-            //$this->assertEqual($fixtureRecord['username'],  $htmlColumns[1]->plaintext);
-            //$this->assertEqual($fixtureRecord['is_active'], $htmlColumns[2]->plaintext);
-            //$this->assertEqual($fixtureRecord['is_admin'],  $htmlColumns[3]->plaintext);
-        //}
-    }
-
-    // Test for an http verb that the view method should ignore.
-    //public function testViewBadVerb()
-        //$result = $this->testAction('/users/add', array('return' => 'view', 'method' => 'DELETE'));
-        //$this->assertEqual($result, false);
-    //}
-
-
-
-    //public function testViewGET() {
-        // This test will look for a user with an id=1.  The ids
-        // are assigned using an autoincrement field that starts with 1.
-        // The array of user fixture records use zero-based indexing.
-        // Therefore the id number will be 1 higher than the index for
-        // the corresponding record in the array of user fixture records.
-        //$result = $this->testAction('/users/view/1', array('return' => 'view', 'method' => 'GET'));
-        //$userFixture = new UserFixture();
-        //$fixtureRecord = $userFixture->records[0];
-        //$html = str_get_html($result);
-        //$p = $html->find('p[id=id]');
-        //$this->assertEqual($fixtureRecord['id'], $p[0]->plaintext);
-        //$p = $html->find('p[id=username]');
-        //$this->assertEqual($fixtureRecord['username'], $p[0]->plaintext);
-        //$p = $html->find('p[id=is_active]');
-        //$this->assertEqual($fixtureRecord['is_active'], $p[0]->plaintext);
-        //$p = $html->find('p[id=is_admin]');
-        //$this->assertEqual($fixtureRecord['is_admin'], $p[0]->plaintext);}
 }
