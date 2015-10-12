@@ -51,6 +51,7 @@ class SubjectsController extends AppController {
     }
 
     public function view($id = null) {
+        $this->request->allowMethod(['get']);
         $subject = $this->Subjects->get($id);
         $this->set('subject', $subject);
     }

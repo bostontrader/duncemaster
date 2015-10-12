@@ -51,6 +51,7 @@ class MajorsController extends AppController {
     }
 
     public function view($id = null) {
+        $this->request->allowMethod(['get']);
         $major = $this->Majors->get($id);
         $this->set('major', $major);
     }
