@@ -3,41 +3,22 @@ namespace App\Test\Fixture;
 
 use Cake\TestSuite\Fixture\TestFixture;
 
-/**
- * TeachersFixture
- *
- */
-class TeachersFixture extends TestFixture
-{
+class TeachersFixture extends TestFixture {
+    public $import = ['table' => 'teachers'];
 
-    /**
-     * Fields
-     *
-     * @var array
-     */
-    // @codingStandardsIgnoreStart
-    public $fields = [
-        'id' => ['type' => 'integer', 'length' => 11, 'unsigned' => true, 'null' => false, 'default' => null, 'comment' => '', 'autoIncrement' => true, 'precision' => null],
-        'giv_name' => ['type' => 'text', 'length' => null, 'null' => false, 'default' => null, 'comment' => '', 'precision' => null],
-        '_constraints' => [
-            'primary' => ['type' => 'primary', 'columns' => ['id'], 'length' => []],
-        ],
-        '_options' => [
-            'engine' => 'InnoDB',
-            'collation' => 'utf8_general_ci'
-        ],
-    ];
-    // @codingStandardsIgnoreEnd
+    // Specify id because later we'll try to specifically find this record in the db
+    public $teacher1Record = ['id'=>5,  'title' => 'Lion Taming', 'sdesc' => 'LT'];
 
-    /**
-     * Records
-     *
-     * @var array
-     */
-    public $records = [
-        [
-            'id' => 1,
-            'giv_name' => 'Lorem ipsum dolor sit amet, aliquet feugiat. Convallis morbi fringilla gravida, phasellus feugiat dapibus velit nunc, pulvinar eget sollicitudin venenatis cum nullam, vivamus ut a sed, mollitia lectus. Nulla vestibulum massa neque ut et, id hendrerit sit, feugiat in taciti enim proin nibh, tempor dignissim, rhoncus duis vestibulum nunc mattis convallis.'
-        ],
-    ];
+    // This is a new record to be inserted by Cake's patchEntity method. We can't
+    // feasibly control the id, so go with the flow.  But we _can_ predict what
+    // the new ID will be, and we'll need that to read back this record.
+    public $newTeacherRecord = ['id'=>6,  'title' => 'Advanced Lion Taming', 'sdesc' => 'AT'];
+
+    public function init()
+    {
+        $this->records = [
+            $this->teacher1Record
+        ];
+        parent::init();
+    }
 }

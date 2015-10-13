@@ -1,131 +1,131 @@
 <?php
 namespace App\Test\TestCase\Controller;
 
-use App\Test\Fixture\CohortsFixture;
+use App\Test\Fixture\ClazzsFixture;
 use Cake\ORM\TableRegistry;
 
-class CohortsControllerTest extends DMIntegrationTestCase {
+class ClazzsControllerTest extends DMIntegrationTestCase {
 
     public $fixtures = [
-        'app.cohorts'
+        'app.clazzs'
     ];
 
     public function testAddGET() {
 
         $this->fakeLogin();
-        $this->get('/cohorts/add');
+        $this->get('/clazzs/add');
         $this->assertResponseOk();
         $this->assertNoRedirect();
 
         // Make sure this view var is set, to keep the FormHelper happy
-        $this->assertNotNull($this->viewVariable('cohort'));
+        $this->assertNotNull($this->viewVariable('clazz'));
 
         // Parse the html from the response
         $html = str_get_html($this->_response->body());
 
         // Ensure that the correct form exists
-        $form = $html->find('form[id=CohortAddForm]')[0];
+        $form = $html->find('form[id=ClazzAddForm]')[0];
         $this->assertNotNull($form);
 
         // Omit the id field
         // Ensure that there's a field for title, that is empty
-        $input = $form->find('input[id=CohortTitle]')[0];
+        $input = $form->find('input[id=ClazzTitle]')[0];
         $this->assertEquals($input->value, false);
 
         // Ensure that there's a field for sdesc, that is empty
-        $input = $form->find('input[id=CohortSDesc]')[0];
+        $input = $form->find('input[id=ClazzSDesc]')[0];
         $this->assertEquals($input->value, false);
     }
 
     public function testAddPOST() {
 
-        $cohortsFixture = new CohortsFixture();
+        $clazzsFixture = new ClazzsFixture();
 
         $this->fakeLogin();
-        $this->post('/cohorts/add', $cohortsFixture->newCohortRecord);
+        $this->post('/clazzs/add', $clazzsFixture->newClazzRecord);
         $this->assertResponseSuccess();
-        $this->assertRedirect( '/cohorts' );
+        $this->assertRedirect( '/clazzs' );
 
         // Now verify what we think just got written
-        $cohorts = TableRegistry::get('Cohorts');
-        $query = $cohorts->find()->where(['id' => $cohortsFixture->newCohortRecord['id']]);
+        $clazzs = TableRegistry::get('Clazzs');
+        $query = $clazzs->find()->where(['id' => $clazzsFixture->newClazzRecord['id']]);
         $this->assertEquals(1, $query->count());
 
         // Now retrieve that 1 record and compare to what we expect
-        $cohort = $cohorts->get($cohortsFixture->newCohortRecord['id']);
-        $this->assertEquals($cohort['title'],$cohortsFixture->newCohortRecord['title']);
+        $clazz = $clazzs->get($clazzsFixture->newClazzRecord['id']);
+        $this->assertEquals($clazz['title'],$clazzsFixture->newClazzRecord['title']);
     }
 
     public function testDeletePOST() {
 
-        $cohortsFixture = new CohortsFixture();
+        $clazzsFixture = new ClazzsFixture();
 
         $this->fakeLogin();
-        $this->post('/cohorts/delete/' . $cohortsFixture->cohort1Record['id']);
+        $this->post('/clazzs/delete/' . $clazzsFixture->clazz1Record['id']);
         $this->assertResponseSuccess();
-        $this->assertRedirect( '/cohorts' );
+        $this->assertRedirect( '/clazzs' );
 
         // Now verify that the record no longer exists
-        $cohorts = TableRegistry::get('Cohorts');
-        $query = $cohorts->find()->where(['id' => $cohortsFixture->cohort1Record['id']]);
+        $clazzs = TableRegistry::get('Clazzs');
+        $query = $clazzs->find()->where(['id' => $clazzsFixture->clazz1Record['id']]);
         $this->assertEquals(0, $query->count());
     }
 
     public function testEditGET() {
 
-        $cohortsFixture = new CohortsFixture();
+        $clazzsFixture = new ClazzsFixture();
 
         $this->fakeLogin();
-        $this->get('/cohorts/edit/' . $cohortsFixture->cohort1Record['id']);
+        $this->get('/clazzs/edit/' . $clazzsFixture->clazz1Record['id']);
         $this->assertResponseOk();
         $this->assertNoRedirect();
 
         // Make sure this view var is set, to keep the FormHelper happy
-        $this->assertNotNull($this->viewVariable('cohort'));
+        $this->assertNotNull($this->viewVariable('clazz'));
 
         // Parse the html from the response
         $html = str_get_html($this->_response->body());
 
         // Ensure that the correct form exists
-        $form = $html->find('form[id=CohortEditForm]')[0];
+        $form = $html->find('form[id=ClazzEditForm]')[0];
         $this->assertNotNull($form);
 
         // Omit the id field
         // Ensure that there's a field for title, that is correctly set
-        $input = $form->find('input[id=CohortTitle]')[0];
-        $this->assertEquals($input->value, $cohortsFixture->cohort1Record['title']);
+        $input = $form->find('input[id=ClazzTitle]')[0];
+        $this->assertEquals($input->value, $clazzsFixture->clazz1Record['title']);
 
         // Ensure that there's a field for sdesc, that is correctly set
-        $input = $form->find('input[id=CohortSDesc]')[0];
-        $this->assertEquals($input->value,  $cohortsFixture->cohort1Record['sdesc']);
+        $input = $form->find('input[id=ClazzSDesc]')[0];
+        $this->assertEquals($input->value,  $clazzsFixture->clazz1Record['sdesc']);
 
     }
 
     public function testEditPOST() {
 
-        $cohortsFixture = new CohortsFixture();
+        $clazzsFixture = new ClazzsFixture();
 
         $this->fakeLogin();
-        $this->post('/cohorts/edit/' . $cohortsFixture->cohort1Record['id'], $cohortsFixture->newCohortRecord);
+        $this->post('/clazzs/edit/' . $clazzsFixture->clazz1Record['id'], $clazzsFixture->newClazzRecord);
         $this->assertResponseOk();
         $this->assertNoRedirect();
 
         // Now verify what we think just got written
-        $cohorts = TableRegistry::get('Cohorts');
-        $query = $cohorts->find()->where(['id' => $cohortsFixture->cohort1Record['id']]);
+        $clazzs = TableRegistry::get('Clazzs');
+        $query = $clazzs->find()->where(['id' => $clazzsFixture->clazz1Record['id']]);
         $c = $query->count();
         $this->assertEquals(1, $c);
 
         // Now retrieve that 1 record and compare to what we expect
-        $cohort = $cohorts->get($cohortsFixture->cohort1Record['id']);
-        $this->assertEquals($cohort['title'],$cohortsFixture->newCohortRecord['title']);
+        $clazz = $clazzs->get($clazzsFixture->clazz1Record['id']);
+        $this->assertEquals($clazz['title'],$clazzsFixture->newClazzRecord['title']);
 
     }
 
     public function testIndexGET() {
 
         $this->fakeLogin();
-        $result = $this->get('/cohorts/index');
+        $result = $this->get('/clazzs/index');
         $this->assertResponseOk();
         $this->assertNoRedirect();
 
@@ -134,7 +134,7 @@ class CohortsControllerTest extends DMIntegrationTestCase {
 
         // 1. Ensure that the single row of the thead section
         //    has a column for id and title, in that order
-        //$rows = $html->find('table[id=cohorts]',0)->find('thead',0)->find('tr');
+        //$rows = $html->find('table[id=clazzs]',0)->find('thead',0)->find('tr');
         //$row_cnt = count($rows);
         //$this->assertEqual($row_cnt, 1);
 
@@ -147,13 +147,13 @@ class CohortsControllerTest extends DMIntegrationTestCase {
         //$this->assertEqual($columns[3]->plaintext, 'is_admin');
 
         // 3. Ensure that the tbody section has the same
-        //    quantity of rows as the count of cohort records in the fixture.
+        //    quantity of rows as the count of clazz records in the fixture.
         //    For each of these rows, ensure that the id and title match
-        //$cohortFixture = new CohortFixture();
-        //$rowsInHTMLTable = $html->find('table[id=cohorts]',0)->find('tbody',0)->find('tr');
-        //$this->assertEqual(count($cohortFixture->records), count($rowsInHTMLTable));
+        //$clazzFixture = new ClazzFixture();
+        //$rowsInHTMLTable = $html->find('table[id=clazzs]',0)->find('tbody',0)->find('tr');
+        //$this->assertEqual(count($clazzFixture->records), count($rowsInHTMLTable));
         //$iterator = new MultipleIterator;
-        //$iterator->attachIterator(new ArrayIterator($cohortFixture->records));
+        //$iterator->attachIterator(new ArrayIterator($clazzFixture->records));
         //$iterator->attachIterator(new ArrayIterator($rowsInHTMLTable));
 
         //foreach ($iterator as $values) {
@@ -169,30 +169,30 @@ class CohortsControllerTest extends DMIntegrationTestCase {
 
     public function testViewGET() {
 
-        $cohortsFixture = new CohortsFixture();
+        $clazzsFixture = new ClazzsFixture();
 
         $this->fakeLogin();
-        $this->get('/cohorts/view/' . $cohortsFixture->cohort1Record['id']);
+        $this->get('/clazzs/view/' . $clazzsFixture->clazz1Record['id']);
         $this->assertResponseOk();
         $this->assertNoRedirect();
 
         // Make sure this view var is set
-        $this->assertNotNull($this->viewVariable('cohort'));
+        $this->assertNotNull($this->viewVariable('clazz'));
 
         // Parse the html from the response
         $html = str_get_html($this->_response->body());
 
         // Ensure that the correct form exists
-        //$form = $html->find('form[id=CohortEditForm]')[0];
+        //$form = $html->find('form[id=ClazzEditForm]')[0];
         //$this->assertNotNull($form);
 
         // Omit the id field
         // Ensure that there's a field for title, that is correctly set
-        //$input = $form->find('input[id=CohortTitle]')[0];
-        //$this->assertEquals($input->value, $cohortsFixture->cohort1Record['title']);
+        //$input = $form->find('input[id=ClazzTitle]')[0];
+        //$this->assertEquals($input->value, $clazzsFixture->clazz1Record['title']);
 
         // Ensure that there's a field for sdesc, that is empty
-        //$input = $form->find('input[id=CohortSDesc]')[0];
+        //$input = $form->find('input[id=ClazzSDesc]')[0];
         //$this->assertEquals($input->value, false);
     }
 
