@@ -41,7 +41,6 @@ class UsersController extends AppController {
 
     public function edit($id = null) {
         $this->request->allowMethod(['get', 'post']);
-
         $user = $this->Users->get($id);
         if ($this->request->is(['post'])) {
             $user = $this->Users->patchEntity($user, $this->request->data);

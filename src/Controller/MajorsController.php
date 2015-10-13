@@ -31,7 +31,6 @@ class MajorsController extends AppController {
 
     public function edit($id = null) {
         $this->request->allowMethod(['get', 'post']);
-
         $major = $this->Majors->get($id);
         if ($this->request->is(['post'])) {
             $major = $this->Majors->patchEntity($major, $this->request->data);

@@ -35,9 +35,8 @@ class SectionsController extends AppController {
 
     public function edit($id = null) {
         $this->request->allowMethod(['get', 'post']);
-
         $section = $this->Sections->get($id);
-        if ($this->request->is(['patch', 'post', 'put'])) {
+        if ($this->request->is(['post'])) {
             $section = $this->Sections->patchEntity($section, $this->request->data);
             if ($this->Sections->save($section)) {
                 //$this->Flash->success(__('The section has been saved.'));
@@ -54,7 +53,7 @@ class SectionsController extends AppController {
     public function index() {
         $this->request->allowMethod(['get']);
         //$this->set('sections', $this->Sections->find('all', ['contain' => ['Cohorts.Majors','Subjects']]));
-        $this->set('sections', $this->Sections->find('');
+        $this->set('sections', $this->Sections->find(''));
     }
 
 

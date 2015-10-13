@@ -1,93 +1,50 @@
 <?php
 namespace App\Controller;
 
-use App\Controller\AppController;
-use Cake\ORM\TableRegistry;
+class CohortsController extends AppController {
 
-/**
- * Cohorts Controller
- *
- * @property \App\Model\Table\CohortsTable $Cohorts
- */
-class CohortsController extends AppController
-{
-
-    /**
-     * Index method
-     *
-     * @return void
-     */
-    public function index()
-    {
-        $this->paginate = [
-            'contain' => ['Majors']
-        ];
-
-        $this->set('cohorts', $this->paginate($this->Cohorts));
-        $this->set('_serialize', ['cohorts']);
-    }
-
-    /**
-     * View method
-     *
-     * @param string|null $id Cohort id.
-     * @return void
-     * @throws \Cake\Network\Exception\NotFoundException When record not found.
-     */
-    public function view($id = null)
-    {
-        $cohort = $this->Cohorts->get($id, [
-            'contain' => ['Majors', 'Sections', 'Students']
-        ]);
-        $this->set('cohort', $cohort);
-        //$this->set('_serialize', ['cohort']);
-    }
-
-    /**
-     * Add method
-     *
-     * @return void Redirects on successful add, renders view otherwise.
-     */
-    public function add()
-    {
+    public function add() {
+        $this->request->allowMethod(['get', 'post']);
         $cohort = $this->Cohorts->newEntity();
         if ($this->request->is('post')) {
             $cohort = $this->Cohorts->patchEntity($cohort, $this->request->data);
             if ($this->Cohorts->save($cohort)) {
-                $this->Flash->success(__('The cohort has been saved.'));
+                //$this->Flash->success(__('The cohort has been saved.'));
                 return $this->redirect(['action' => 'index']);
-            } else {
-                $this->Flash->error(__('The cohort could not be saved. Please, try again.'));
+                //} else {
+                //$this->Flash->error(__('The cohort could not be saved. Please, try again.'));
             }
         }
-        $majors = $this->Cohorts->Majors->find('list', ['limit' => 200]);
+        //$majors = $this->Cohorts->Majors->find('list', ['limit' => 200]);
         //$n = $majors->execute();
         //$majors = ['1'=>'Tourist English','2'=>'Aviation','3'=>'Hotel'];
         //$this->set(compact('cohort', 'majors'));
         $this->set('cohort', $cohort);
-        $this->set('majors',$majors);
+        //$this->set('majors',$majors);
         //$this->set('_serialize', ['cohort']);
     }
 
-    /**
-     * Edit method
-     *
-     * @param string|null $id Cohort id.
-     * @return void Redirects on successful edit, renders view otherwise.
-     * @throws \Cake\Network\Exception\NotFoundException When record not found.
-     */
-    public function edit($id = null)
-    {
-        $cohort = $this->Cohorts->get($id, [
-            'contain' => []
-        ]);
-        if ($this->request->is(['patch', 'post', 'put'])) {
+    public function delete($id = null) {
+        $this->request->allowMethod(['post', 'delete']);
+        $cohort = $this->Cohorts->get($id);
+        if ($this->Cohorts->delete($cohort)) {
+            //$this->Flash->success(__('The cohort has been deleted.'));
+            //} else {
+            //$this->Flash->error(__('The cohort could not be deleted. Please, try again.'));
+        }
+        return $this->redirect(['action' => 'index']);
+    }
+
+    public function edit($id = null) {
+        $this->request->allowMethod(['get', 'post']);
+        $cohort = $this->Cohorts->get($id);
+        if ($this->request->is(['post'])) {
             $cohort = $this->Cohorts->patchEntity($cohort, $this->request->data);
             if ($this->Cohorts->save($cohort)) {
-                $this->Flash->success(__('The cohort has been saved.'));
-                return $this->redirect(['action' => 'index']);
-            } else {
-                $this->Flash->error(__('The cohort could not be saved. Please, try again.'));
+                //$this->Flash->success(__('The cohort has been saved.'));
+                //return $this->redirect(['action' => 'index']);
+                //} else {
+                //$this->Flash->error(__('The cohort could not be saved. Please, try again.'));
             }
         }
         //$majors = $this->Cohorts->Majors->find('list', ['limit' => 200,'fields'=>['id','title']]);
@@ -98,22 +55,14 @@ class CohortsController extends AppController
         $this->set('_serialize', ['cohort']);
     }
 
-    /**
-     * Delete method
-     *
-     * @param string|null $id Cohort id.
-     * @return void Redirects to index.
-     * @throws \Cake\Network\Exception\NotFoundException When record not found.
-     */
-    public function delete($id = null)
-    {
-        $this->request->allowMethod(['post', 'delete']);
+    public function index() {
+        $this->request->allowMethod(['get']);
+        $this->set('cohorts', $this->paginate($this->Cohorts));
+    }
+
+    public function view($id = null) {
+        $this->request->allowMethod(['get']);
         $cohort = $this->Cohorts->get($id);
-        if ($this->Cohorts->delete($cohort)) {
-            $this->Flash->success(__('The cohort has been deleted.'));
-        } else {
-            $this->Flash->error(__('The cohort could not be deleted. Please, try again.'));
-        }
-        return $this->redirect(['action' => 'index']);
+        $this->set('cohort', $cohort);
     }
 }

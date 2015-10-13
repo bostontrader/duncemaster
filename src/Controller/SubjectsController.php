@@ -31,9 +31,8 @@ class SubjectsController extends AppController {
 
     public function edit($id = null) {
         $this->request->allowMethod(['get', 'post']);
-
         $subject = $this->Subjects->get($id);
-        if ($this->request->is(['patch', 'post', 'put'])) {
+        if ($this->request->is(['post'])) {
             $subject = $this->Subjects->patchEntity($subject, $this->request->data);
             if ($this->Subjects->save($subject)) {
                 //$this->Flash->success(__('The subject has been saved.'));
