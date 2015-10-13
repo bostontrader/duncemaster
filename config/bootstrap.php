@@ -195,6 +195,9 @@ DispatcherFactory::add('Asset');
 DispatcherFactory::add('Routing');
 DispatcherFactory::add('ControllerFactory');
 
+DispatcherFactory::add('LocaleSelector');
+DispatcherFactory::add('LocaleSelector', ['locales' => ['en_US', 'zh_CN']]);
+
 /**
  * Enable default locale format parsing.
  * This is needed for matching the auto-localized string output of Time() class when parsing dates.
