@@ -7,6 +7,8 @@ use Cake\ORM\TableRegistry;
 class StudentsControllerTest extends DMIntegrationTestCase {
 
     public $fixtures = [
+        'app.cohorts',
+        'app.majors',
         'app.students'
     ];
 
@@ -28,12 +30,13 @@ class StudentsControllerTest extends DMIntegrationTestCase {
         $this->assertNotNull($form);
 
         // Omit the id field
-        // Ensure that there's a field for title, that is empty
-        $input = $form->find('input[id=StudentTitle]')[0];
+
+        // Ensure that there's a field for fam_name, that is empty
+        $input = $form->find('input[id=StudentFamName]')[0];
         $this->assertEquals($input->value, false);
 
-        // Ensure that there's a field for sdesc, that is empty
-        $input = $form->find('input[id=StudentSDesc]')[0];
+        // Ensure that there's a field for giv_name, that is empty
+        $input = $form->find('input[id=StudentGivName]')[0];
         $this->assertEquals($input->value, false);
     }
 
@@ -53,7 +56,8 @@ class StudentsControllerTest extends DMIntegrationTestCase {
 
         // Now retrieve that 1 record and compare to what we expect
         $student = $students->get($studentsFixture->newStudentRecord['id']);
-        $this->assertEquals($student['title'],$studentsFixture->newStudentRecord['title']);
+        $this->assertEquals($student['fam_name'],$studentsFixture->newStudentRecord['fam_name']);
+        $this->assertEquals($student['giv_name'],$studentsFixture->newStudentRecord['giv_name']);
     }
 
     public function testDeletePOST() {
@@ -91,13 +95,13 @@ class StudentsControllerTest extends DMIntegrationTestCase {
         $this->assertNotNull($form);
 
         // Omit the id field
-        // Ensure that there's a field for title, that is correctly set
-        $input = $form->find('input[id=StudentTitle]')[0];
-        $this->assertEquals($input->value, $studentsFixture->student1Record['title']);
+        // Ensure that there's a field for giv_name, that is correctly set
+        $input = $form->find('input[id=StudentGivName]')[0];
+        $this->assertEquals($input->value, $studentsFixture->student1Record['giv_name']);
 
-        // Ensure that there's a field for sdesc, that is correctly set
-        $input = $form->find('input[id=StudentSDesc]')[0];
-        $this->assertEquals($input->value,  $studentsFixture->student1Record['sdesc']);
+        // Ensure that there's a field for fam_name, that is correctly set
+        $input = $form->find('input[id=StudentFamName]')[0];
+        $this->assertEquals($input->value,  $studentsFixture->student1Record['fam_name']);
 
     }
 
@@ -118,8 +122,8 @@ class StudentsControllerTest extends DMIntegrationTestCase {
 
         // Now retrieve that 1 record and compare to what we expect
         $student = $students->get($studentsFixture->student1Record['id']);
-        $this->assertEquals($student['title'],$studentsFixture->newStudentRecord['title']);
-
+        $this->assertEquals($student['giv_name'],$studentsFixture->newStudentRecord['giv_name']);
+        $this->assertEquals($student['fam_name'],$studentsFixture->newStudentRecord['fam_name']);
     }
 
     public function testIndexGET() {
@@ -188,11 +192,11 @@ class StudentsControllerTest extends DMIntegrationTestCase {
 
         // Omit the id field
         // Ensure that there's a field for title, that is correctly set
-        //$input = $form->find('input[id=StudentTitle]')[0];
+        //$input = $form->find('input[id=StudentGivName]')[0];
         //$this->assertEquals($input->value, $studentsFixture->student1Record['title']);
 
-        // Ensure that there's a field for sdesc, that is empty
-        //$input = $form->find('input[id=StudentSDesc]')[0];
+        // Ensure that there's a field for fam_name, that is empty
+        //$input = $form->find('input[id=StudentFamName]')[0];
         //$this->assertEquals($input->value, false);
     }
 
