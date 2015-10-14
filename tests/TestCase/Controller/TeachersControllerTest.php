@@ -28,12 +28,8 @@ class TeachersControllerTest extends DMIntegrationTestCase {
         $this->assertNotNull($form);
 
         // Omit the id field
-        // Ensure that there's a field for title, that is empty
-        $input = $form->find('input[id=TeacherTitle]')[0];
-        $this->assertEquals($input->value, false);
-
-        // Ensure that there's a field for sdesc, that is empty
-        $input = $form->find('input[id=TeacherSDesc]')[0];
+        // Ensure that there's a field for giv_name, that is empty
+        $input = $form->find('input[id=TeacherGivName]')[0];
         $this->assertEquals($input->value, false);
     }
 
@@ -53,7 +49,7 @@ class TeachersControllerTest extends DMIntegrationTestCase {
 
         // Now retrieve that 1 record and compare to what we expect
         $teacher = $teachers->get($teachersFixture->newTeacherRecord['id']);
-        $this->assertEquals($teacher['title'],$teachersFixture->newTeacherRecord['title']);
+        $this->assertEquals($teacher['giv_name'],$teachersFixture->newTeacherRecord['giv_name']);
     }
 
     public function testDeletePOST() {
@@ -91,14 +87,9 @@ class TeachersControllerTest extends DMIntegrationTestCase {
         $this->assertNotNull($form);
 
         // Omit the id field
-        // Ensure that there's a field for title, that is correctly set
-        $input = $form->find('input[id=TeacherTitle]')[0];
-        $this->assertEquals($input->value, $teachersFixture->teacher1Record['title']);
-
-        // Ensure that there's a field for sdesc, that is correctly set
-        $input = $form->find('input[id=TeacherSDesc]')[0];
-        $this->assertEquals($input->value,  $teachersFixture->teacher1Record['sdesc']);
-
+        // Ensure that there's a field for giv_name, that is correctly set
+        $input = $form->find('input[id=TeacherGivName]')[0];
+        $this->assertEquals($input->value, $teachersFixture->teacher1Record['giv_name']);
     }
 
     public function testEditPOST() {
@@ -118,7 +109,7 @@ class TeachersControllerTest extends DMIntegrationTestCase {
 
         // Now retrieve that 1 record and compare to what we expect
         $teacher = $teachers->get($teachersFixture->teacher1Record['id']);
-        $this->assertEquals($teacher['title'],$teachersFixture->newTeacherRecord['title']);
+        $this->assertEquals($teacher['giv_name'],$teachersFixture->newTeacherRecord['giv_name']);
 
     }
 

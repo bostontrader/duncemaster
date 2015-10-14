@@ -28,12 +28,12 @@ class CohortsControllerTest extends DMIntegrationTestCase {
         $this->assertNotNull($form);
 
         // Omit the id field
-        // Ensure that there's a field for title, that is empty
-        $input = $form->find('input[id=CohortTitle]')[0];
+        // Ensure that there's a field for start_year, that is empty
+        $input = $form->find('input[id=CohortStartYear]')[0];
         $this->assertEquals($input->value, false);
 
-        // Ensure that there's a field for sdesc, that is empty
-        $input = $form->find('input[id=CohortSDesc]')[0];
+        // Ensure that there's a field for seq, that is empty
+        $input = $form->find('input[id=CohortSeq]')[0];
         $this->assertEquals($input->value, false);
     }
 
@@ -53,7 +53,8 @@ class CohortsControllerTest extends DMIntegrationTestCase {
 
         // Now retrieve that 1 record and compare to what we expect
         $cohort = $cohorts->get($cohortsFixture->newCohortRecord['id']);
-        $this->assertEquals($cohort['title'],$cohortsFixture->newCohortRecord['title']);
+        $this->assertEquals($cohort['start_year'],$cohortsFixture->newCohortRecord['start_year']);
+        $this->assertEquals($cohort['seq'],$cohortsFixture->newCohortRecord['seq']);
     }
 
     public function testDeletePOST() {
@@ -91,13 +92,13 @@ class CohortsControllerTest extends DMIntegrationTestCase {
         $this->assertNotNull($form);
 
         // Omit the id field
-        // Ensure that there's a field for title, that is correctly set
-        $input = $form->find('input[id=CohortTitle]')[0];
-        $this->assertEquals($input->value, $cohortsFixture->cohort1Record['title']);
+        // Ensure that there's a field for start_year, that is correctly set
+        $input = $form->find('input[id=CohortStartYear]')[0];
+        $this->assertEquals($input->value, $cohortsFixture->cohort1Record['start_year']);
 
         // Ensure that there's a field for sdesc, that is correctly set
-        $input = $form->find('input[id=CohortSDesc]')[0];
-        $this->assertEquals($input->value,  $cohortsFixture->cohort1Record['sdesc']);
+        $input = $form->find('input[id=CohortSeq]')[0];
+        $this->assertEquals($input->value,  $cohortsFixture->cohort1Record['seq']);
 
     }
 
@@ -118,7 +119,8 @@ class CohortsControllerTest extends DMIntegrationTestCase {
 
         // Now retrieve that 1 record and compare to what we expect
         $cohort = $cohorts->get($cohortsFixture->cohort1Record['id']);
-        $this->assertEquals($cohort['title'],$cohortsFixture->newCohortRecord['title']);
+        $this->assertEquals($cohort['start_year'],$cohortsFixture->newCohortRecord['start_year']);
+        $this->assertEquals($cohort['seq'],$cohortsFixture->newCohortRecord['seq']);
 
     }
 
