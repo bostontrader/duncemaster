@@ -28,8 +28,8 @@ class InteractionsControllerTest extends DMIntegrationTestCase {
         $this->assertNotNull($form);
 
         // Omit the id field
-        // Ensure that there's a field for title, that is empty
-        $input = $form->find('input[id=InteractionTitle]')[0];
+        // Ensure that there's a field for clazz_id, that is empty
+        $input = $form->find('input[id=InteractionClazzId]')[0];
         $this->assertEquals($input->value, false);
 
         // Ensure that there's a field for sdesc, that is empty
@@ -187,7 +187,7 @@ class InteractionsControllerTest extends DMIntegrationTestCase {
         //$this->assertNotNull($form);
 
         // Omit the id field
-        // Ensure that there's a field for title, that is correctly set
+        // Ensure that there's a field for class_id, that is correctly set
         //$input = $form->find('input[id=InteractionTitle]')[0];
         //$this->assertEquals($input->value, $interactionsFixture->interaction1Record['title']);
 

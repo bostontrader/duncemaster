@@ -28,9 +28,9 @@ class SectionsTable extends Table {
         //$this->displayField('id');
         //$this->primaryKey('id');
 
-        //$this->hasMany('Clazzes', [
+        $this->hasMany('Clazzs', [
             //'foreignKey' => 'clazz_id'
-        //]);
+        ]);
 
         //$this->belongsTo('Cohorts', [
             //'foreignKey' => 'cohort_id',

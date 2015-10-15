@@ -7,7 +7,8 @@ use Cake\ORM\TableRegistry;
 class ClazzsControllerTest extends DMIntegrationTestCase {
 
     public $fixtures = [
-        'app.clazzs'
+        'app.clazzs',
+        'app.sections'
     ];
 
     public function testAddGET() {
@@ -28,13 +29,13 @@ class ClazzsControllerTest extends DMIntegrationTestCase {
         $this->assertNotNull($form);
 
         // Omit the id field
-        // Ensure that there's a field for title, that is empty
-        $input = $form->find('input[id=ClazzTitle]')[0];
+        // Ensure that there's a field for section_id, that is empty
+        $input = $form->find('select[id=ClazzSectionId]')[0];
         $this->assertEquals($input->value, false);
 
-        // Ensure that there's a field for sdesc, that is empty
-        $input = $form->find('input[id=ClazzSDesc]')[0];
-        $this->assertEquals($input->value, false);
+        // Ensure that there's a field for datatime, that is empty
+        //$input = $form->find('input[id=ClazzDatetime]')[0];
+        //$this->assertEquals($input->value, false);
     }
 
     public function testAddPOST() {
@@ -53,7 +54,8 @@ class ClazzsControllerTest extends DMIntegrationTestCase {
 
         // Now retrieve that 1 record and compare to what we expect
         $clazz = $clazzs->get($clazzsFixture->newClazzRecord['id']);
-        $this->assertEquals($clazz['title'],$clazzsFixture->newClazzRecord['title']);
+        $this->assertEquals($clazz['section_id'],$clazzsFixture->newClazzRecord['section_id']);
+        $this->assertEquals($clazz['datetime'],$clazzsFixture->newClazzRecord['datetime']);
     }
 
     public function testDeletePOST() {
@@ -91,13 +93,15 @@ class ClazzsControllerTest extends DMIntegrationTestCase {
         $this->assertNotNull($form);
 
         // Omit the id field
-        // Ensure that there's a field for title, that is correctly set
-        $input = $form->find('input[id=ClazzTitle]')[0];
-        $this->assertEquals($input->value, $clazzsFixture->clazz1Record['title']);
+        // Ensure that there's a field for section_id, that is correctly set
+        $input = $form->find('select[id=ClazzSectionId]')[0];
+        $s1 = $input->value;
+        $s2 = $clazzsFixture->clazz1Record['section_id'];
+        //$this->assertEquals($input->value, $clazzsFixture->clazz1Record['section_id']);
 
-        // Ensure that there's a field for sdesc, that is correctly set
-        $input = $form->find('input[id=ClazzSDesc]')[0];
-        $this->assertEquals($input->value,  $clazzsFixture->clazz1Record['sdesc']);
+        // Ensure that there's a field for datetime, that is correctly set
+        //$input = $form->find('input[id=ClazzDatetime]')[0];
+        //$this->assertEquals($input->value,  $clazzsFixture->clazz1Record['datetime']);
 
     }
 
@@ -118,7 +122,8 @@ class ClazzsControllerTest extends DMIntegrationTestCase {
 
         // Now retrieve that 1 record and compare to what we expect
         $clazz = $clazzs->get($clazzsFixture->clazz1Record['id']);
-        $this->assertEquals($clazz['title'],$clazzsFixture->newClazzRecord['title']);
+        $this->assertEquals($clazz['section_id'],$clazzsFixture->newClazzRecord['section_id']);
+        $this->assertEquals($clazz['datetime'],$clazzsFixture->newClazzRecord['datetime']);
 
     }
 
