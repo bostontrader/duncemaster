@@ -19,7 +19,7 @@ class SectionsController extends AppController {
         //$subjects = $this->Sections->Subjects->find('list', ['limit' => 200]);
         //$list = $articles->find('list')->select(['id', 'title']);
         //$this->set(compact('section', 'cohorts', 'subjects'));
-        $this->set(compact('sections'));
+        $this->set(compact('section'));
     }
 
     public function delete($id = null) {
@@ -53,7 +53,7 @@ class SectionsController extends AppController {
     public function index() {
         $this->request->allowMethod(['get']);
         //$this->set('sections', $this->Sections->find('all', ['contain' => ['Cohorts.Majors','Subjects']]));
-        $this->set('sections', $this->Sections->find(''));
+        $this->set('sections', $this->Sections->find());
     }
 
 

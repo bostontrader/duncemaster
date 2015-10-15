@@ -20,11 +20,7 @@
         <tbody>
             <?php foreach ($sections as $section): ?>
             <tr>
-                <td><?= $this->Number->format($section->id) ?></td>
-                <!--
-                <td><?= $section->has('cohort') ? $this->Html->link($section->cohort->id, ['controller' => 'Cohorts', 'action' => 'view', $section->cohort->id]) : '' ?></td>
-                -->
-                <td><?= $section->cohort->nickname ?></td>
+                <td><?= $section->id ?></td>
                 <td><?= $section->has('subject') ? $this->Html->link($section->subject->title, ['controller' => 'Subjects', 'action' => 'view', $section->subject->id]) : '' ?></td>
                 <td><?= $this->Time->format($section->time,'E') ?></td>
                 <td><?= $this->Time->format($section->time,'hh:m') ?></td>
@@ -37,13 +33,5 @@
             <?php endforeach; ?>
         </tbody>
     </table>
-    <!--
-    <div class="paginator">
-        <ul class="pagination">
-            <?= $this->Paginator->prev('< ' . __('previous')) ?>
-            <?= $this->Paginator->numbers() ?>
-            <?= $this->Paginator->next(__('next') . ' >') ?>
-        </ul>
-        <p><?= $this->Paginator->counter() ?></p>
-    </div> -->
+
 </div>

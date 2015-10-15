@@ -1,13 +1,15 @@
 <?php
 namespace App\Test\TestCase\Controller;
 
-use App\Test\Fixture\SectionssFixture;
+use App\Test\Fixture\SectionsFixture;
 use Cake\ORM\TableRegistry;
 
-class SectionssControllerTest extends DMIntegrationTestCase {
+class SectionsControllerTest extends DMIntegrationTestCase {
 
     public $fixtures = [
+        //'app.cohorts',
         'app.sections'
+        //'app.subjects'
     ];
 
     public function testAddGET() {
@@ -24,41 +26,37 @@ class SectionssControllerTest extends DMIntegrationTestCase {
         $html = str_get_html($this->_response->body());
 
         // Ensure that the correct form exists
-        $form = $html->find('form[id=SectionsAddForm]')[0];
+        $form = $html->find('form[id=SectionAddForm]')[0];
         $this->assertNotNull($form);
 
         // Omit the id field
-        // Ensure that there's a field for title, that is empty
-        $input = $form->find('input[id=SectionsTitle]')[0];
-        $this->assertEquals($input->value, false);
-
-        // Ensure that there's a field for sdesc, that is empty
-        $input = $form->find('input[id=SectionsSDesc]')[0];
+        // Ensure that there's a field for weekday, that is empty
+        $input = $form->find('input[id=SectionWeekday]')[0];
         $this->assertEquals($input->value, false);
     }
 
     public function testAddPOST() {
 
-        $sectionsFixture = new SectionssFixture();
+        $sectionsFixture = new SectionsFixture();
 
         $this->fakeLogin();
-        $this->post('/sections/add', $sectionsFixture->newSectionsRecord);
+        $this->post('/sections/add', $sectionsFixture->newSectionRecord);
         $this->assertResponseSuccess();
         $this->assertRedirect( '/sections' );
 
         // Now verify what we think just got written
-        $sections = TableRegistry::get('Sectionss');
-        $query = $sections->find()->where(['id' => $sectionsFixture->newSectionsRecord['id']]);
+        $sections = TableRegistry::get('Sections');
+        $query = $sections->find()->where(['id' => $sectionsFixture->newSectionRecord['id']]);
         $this->assertEquals(1, $query->count());
 
         // Now retrieve that 1 record and compare to what we expect
-        $section = $sections->get($sectionsFixture->newSectionsRecord['id']);
-        $this->assertEquals($section['title'],$sectionsFixture->newSectionsRecord['title']);
+        $section = $sections->get($sectionsFixture->newSectionRecord['id']);
+        $this->assertEquals($section['weekday'],$sectionsFixture->newSectionRecord['weekday']);
     }
 
     public function testDeletePOST() {
 
-        $sectionsFixture = new SectionssFixture();
+        $sectionsFixture = new SectionsFixture();
 
         $this->fakeLogin();
         $this->post('/sections/delete/' . $sectionsFixture->section1Record['id']);
@@ -66,14 +64,14 @@ class SectionssControllerTest extends DMIntegrationTestCase {
         $this->assertRedirect( '/sections' );
 
         // Now verify that the record no longer exists
-        $sections = TableRegistry::get('Sectionss');
+        $sections = TableRegistry::get('Sections');
         $query = $sections->find()->where(['id' => $sectionsFixture->section1Record['id']]);
         $this->assertEquals(0, $query->count());
     }
 
     public function testEditGET() {
 
-        $sectionsFixture = new SectionssFixture();
+        $sectionsFixture = new SectionsFixture();
 
         $this->fakeLogin();
         $this->get('/sections/edit/' . $sectionsFixture->section1Record['id']);
@@ -87,38 +85,34 @@ class SectionssControllerTest extends DMIntegrationTestCase {
         $html = str_get_html($this->_response->body());
 
         // Ensure that the correct form exists
-        $form = $html->find('form[id=SectionsEditForm]')[0];
+        $form = $html->find('form[id=SectionEditForm]')[0];
         $this->assertNotNull($form);
 
         // Omit the id field
-        // Ensure that there's a field for title, that is correctly set
-        $input = $form->find('input[id=SectionsTitle]')[0];
-        $this->assertEquals($input->value, $sectionsFixture->section1Record['title']);
-
-        // Ensure that there's a field for sdesc, that is correctly set
-        $input = $form->find('input[id=SectionsSDesc]')[0];
-        $this->assertEquals($input->value,  $sectionsFixture->section1Record['sdesc']);
+        // Ensure that there's a field for weekday, that is correctly set
+        $input = $form->find('input[id=SectionWeekday]')[0];
+        $this->assertEquals($input->value, $sectionsFixture->section1Record['weekday']);
 
     }
 
     public function testEditPOST() {
 
-        $sectionsFixture = new SectionssFixture();
+        $sectionsFixture = new SectionsFixture();
 
         $this->fakeLogin();
-        $this->post('/sections/edit/' . $sectionsFixture->section1Record['id'], $sectionsFixture->newSectionsRecord);
+        $this->post('/sections/edit/' . $sectionsFixture->section1Record['id'], $sectionsFixture->newSectionRecord);
         $this->assertResponseOk();
         $this->assertNoRedirect();
 
         // Now verify what we think just got written
-        $sections = TableRegistry::get('Sectionss');
+        $sections = TableRegistry::get('Sections');
         $query = $sections->find()->where(['id' => $sectionsFixture->section1Record['id']]);
         $c = $query->count();
         $this->assertEquals(1, $c);
 
         // Now retrieve that 1 record and compare to what we expect
         $section = $sections->get($sectionsFixture->section1Record['id']);
-        $this->assertEquals($section['title'],$sectionsFixture->newSectionsRecord['title']);
+        $this->assertEquals($section['weekday'],$sectionsFixture->newSectionRecord['weekday']);
 
     }
 
@@ -169,7 +163,7 @@ class SectionssControllerTest extends DMIntegrationTestCase {
 
     public function testViewGET() {
 
-        $sectionsFixture = new SectionssFixture();
+        $sectionsFixture = new SectionsFixture();
 
         $this->fakeLogin();
         $this->get('/sections/view/' . $sectionsFixture->section1Record['id']);

@@ -2,13 +2,13 @@
 
 </nav>
 <div class="sections form large-9 medium-8 columns content">
-    <?= $this->Form->create($section) ?>
+    <?= $this->Form->create($section,['id'=>'SectionAddForm']) ?>
     <fieldset>
         <legend><?= __('Add Section') ?></legend>
         <?php
-            echo $this->Form->input('cohort_id', ['options' => $cohorts]);
-            echo $this->Form->input('subject_id', ['options' => $subjects]);
-            echo $this->Form->input('weekday');
+            //echo $this->Form->input('cohort_id', ['options' => $cohorts]);
+            //echo $this->Form->input('subject_id', ['options' => $subjects]);
+            echo $this->Form->input('weekday',['id'=>'SectionWeekday']);
             echo $this->Form->input('time');
         ?>
     </fieldset>

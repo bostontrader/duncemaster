@@ -28,29 +28,29 @@ class SectionsTable extends Table {
         //$this->displayField('id');
         //$this->primaryKey('id');
 
-        $this->hasMany('Clazzes', [
-            'foreignKey' => 'clazz_id'
-        ]);
+        //$this->hasMany('Clazzes', [
+            //'foreignKey' => 'clazz_id'
+        //]);
 
-        $this->belongsTo('Cohorts', [
-            'foreignKey' => 'cohort_id',
-            'joinType' => 'INNER'
-        ]);
+        //$this->belongsTo('Cohorts', [
+            //'foreignKey' => 'cohort_id',
+            //'joinType' => 'INNER'
+        //]);
 
-        $this->belongsTo('Semester', [
-            'foreignKey' => 'semester_id',
-            'joinType' => 'INNER'
-        ]);
+        //$this->belongsTo('Semester', [
+            //'foreignKey' => 'semester_id',
+            //'joinType' => 'INNER'
+        //]);
 
-        $this->belongsTo('Subjects', [
-            'foreignKey' => 'subject_id',
-            'joinType' => 'INNER'
-        ]);
+        //$this->belongsTo('Subjects', [
+            //'foreignKey' => 'subject_id',
+            //'joinType' => 'INNER'
+        //]);
 
-        $this->belongsTo('Teachers', [
-            'foreignKey' => 'teacher_id',
-            'joinType' => 'INNER'
-        ]);
+        //$this->belongsTo('Teachers', [
+            //'foreignKey' => 'teacher_id',
+            //'joinType' => 'INNER'
+        //]);
     }
 
     /**
