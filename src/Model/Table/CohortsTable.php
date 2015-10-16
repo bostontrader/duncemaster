@@ -7,21 +7,8 @@ namespace App\Model\Table;
 use Cake\ORM\Table;
 //use Cake\Validation\Validator;
 
-/**
- * Cohorts Model
- *
- * @property \Cake\ORM\Association\BelongsTo $Majors
- * @property \Cake\ORM\Association\HasMany $Sections
- */
-class CohortsTable extends Table
-{
+class CohortsTable extends Table {
 
-    /**
-     * Initialize method
-     *
-     * @param array $config The configuration for the Table.
-     * @return void
-     */
     public function initialize(array $config) {
         parent::initialize($config);
 
@@ -30,17 +17,17 @@ class CohortsTable extends Table
         //$this->primaryKey('id');
 
         $this->belongsTo('Majors', [
-            'foreignKey' => 'major_id',
-            'joinType' => 'INNER'
+            //'foreignKey' => 'major_id',
+            //'joinType' => 'INNER'
         ]);
 
-        $this->hasMany('Sections', [
-            'foreignKey' => 'cohort_id'
-        ]);
+        //$this->hasMany('Sections', [
+            //'foreignKey' => 'cohort_id'
+        //]);
 
-        $this->hasMany('Students', [
-            'foreignKey' => 'cohort_id'
-        ]);
+        //$this->hasMany('Students', [
+            //'foreignKey' => 'cohort_id'
+        //]);
     }
 
     /**

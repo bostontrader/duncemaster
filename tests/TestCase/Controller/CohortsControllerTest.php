@@ -2,39 +2,49 @@
 namespace App\Test\TestCase\Controller;
 
 use App\Test\Fixture\CohortsFixture;
+use App\Test\Fixture\FixtureConstants;
 use Cake\ORM\TableRegistry;
 
 class CohortsControllerTest extends DMIntegrationTestCase {
 
     public $fixtures = [
-        'app.cohorts'
+        'app.cohorts',
+        'app.majors'
     ];
 
     public function testAddGET() {
 
         $this->fakeLogin();
         $this->get('/cohorts/add');
-        $this->assertResponseOk();
+        $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();
 
-        // Make sure this view var is set, to keep the FormHelper happy
+        // Make sure these view vars are set, to keep the FormHelper happy
         $this->assertNotNull($this->viewVariable('cohort'));
+        $this->assertNotNull($this->viewVariable('majors'));
 
         // Parse the html from the response
         $html = str_get_html($this->_response->body());
 
         // Ensure that the correct form exists
-        $form = $html->find('form[id=CohortAddForm]')[0];
+        $form = $html->find('form#CohortAddForm',0);
         $this->assertNotNull($form);
 
         // Omit the id field
-        // Ensure that there's a field for start_year, that is empty
-        $input = $form->find('input[id=CohortStartYear]')[0];
+
+        // Ensure that there's an input field for start_year, of type text, and that it is empty
+        $input = $form->find('input#CohortStartYear',0);
+        $this->assertEquals($input->type, "text");
         $this->assertEquals($input->value, false);
 
-        // Ensure that there's a field for seq, that is empty
-        $input = $form->find('input[id=CohortSeq]')[0];
+        // Ensure that there's an input field for seq, of type text, and that it is empty
+        $input = $form->find('input#CohortSeq',0);
+        $this->assertEquals($input->type, "text");
         $this->assertEquals($input->value, false);
+
+        // Ensure that there's a select field for major_id and that is has no selection
+        $option = $form->find('select#CohortMajorId option[selected]',0);
+        $this->assertNull($option);
     }
 
     public function testAddPOST() {
@@ -43,18 +53,20 @@ class CohortsControllerTest extends DMIntegrationTestCase {
 
         $this->fakeLogin();
         $this->post('/cohorts/add', $cohortsFixture->newCohortRecord);
-        $this->assertResponseSuccess();
+        $this->assertResponseSuccess(); // 2xx,3xx
         $this->assertRedirect( '/cohorts' );
 
         // Now verify what we think just got written
         $cohorts = TableRegistry::get('Cohorts');
-        $query = $cohorts->find()->where(['id' => $cohortsFixture->newCohortRecord['id']]);
+        $new_id = FixtureConstants::cohort1_id + 1;
+        $query = $cohorts->find()->where(['id' => $new_id]);
         $this->assertEquals(1, $query->count());
 
         // Now retrieve that 1 record and compare to what we expect
-        $cohort = $cohorts->get($cohortsFixture->newCohortRecord['id']);
-        $this->assertEquals($cohort['start_year'],$cohortsFixture->newCohortRecord['start_year']);
-        $this->assertEquals($cohort['seq'],$cohortsFixture->newCohortRecord['seq']);
+        $new_cohort = $cohorts->get($new_id);
+        $this->assertEquals($new_cohort['start_year'],$cohortsFixture->newCohortRecord['start_year']);
+        $this->assertEquals($new_cohort['seq'],$cohortsFixture->newCohortRecord['seq']);
+        $this->assertEquals($new_cohort['major_id'],$cohortsFixture->newCohortRecord['major_id']);
     }
 
     public function testDeletePOST() {
@@ -62,13 +74,14 @@ class CohortsControllerTest extends DMIntegrationTestCase {
         $cohortsFixture = new CohortsFixture();
 
         $this->fakeLogin();
-        $this->post('/cohorts/delete/' . $cohortsFixture->cohort1Record['id']);
-        $this->assertResponseSuccess();
+        $cohort_id = $cohortsFixture->cohort1Record['id'];
+        $this->post('/cohorts/delete/' . $cohort_id);
+        $this->assertResponseSuccess(); // 2xx, 3xx
         $this->assertRedirect( '/cohorts' );
 
         // Now verify that the record no longer exists
         $cohorts = TableRegistry::get('Cohorts');
-        $query = $cohorts->find()->where(['id' => $cohortsFixture->cohort1Record['id']]);
+        $query = $cohorts->find()->where(['id' => $cohort_id]);
         $this->assertEquals(0, $query->count());
     }
 

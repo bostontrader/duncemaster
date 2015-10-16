@@ -11,17 +11,16 @@ class CohortsController extends AppController {
             if ($this->Cohorts->save($cohort)) {
                 //$this->Flash->success(__('The cohort has been saved.'));
                 return $this->redirect(['action' => 'index']);
-                //} else {
+            } else {
                 //$this->Flash->error(__('The cohort could not be saved. Please, try again.'));
             }
         }
-        //$majors = $this->Cohorts->Majors->find('list', ['limit' => 200]);
+        $majors = $this->Cohorts->Majors->find('list');
         //$n = $majors->execute();
         //$majors = ['1'=>'Tourist English','2'=>'Aviation','3'=>'Hotel'];
-        //$this->set(compact('cohort', 'majors'));
-        $this->set('cohort', $cohort);
+        $this->set(compact('cohort', 'majors'));
+        //$this->set('cohort', $cohort);
         //$this->set('majors',$majors);
-        //$this->set('_serialize', ['cohort']);
     }
 
     public function delete($id = null) {
@@ -57,7 +56,7 @@ class CohortsController extends AppController {
 
     public function index() {
         $this->request->allowMethod(['get']);
-        $this->set('cohorts', $this->paginate($this->Cohorts));
+        $this->set('cohorts', $this->Cohorts->find()->contain(['Majors']));
     }
 
     public function view($id = null) {

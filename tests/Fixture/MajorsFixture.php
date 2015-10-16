@@ -7,7 +7,7 @@ class MajorsFixture extends TestFixture {
     public $import = ['table' => 'majors'];
 
     // Specify id because later we'll try to specifically find this record in the db
-    public $major1Record = ['id'=>5,  'title' => 'Lion Taming', 'sdesc' => 'LT'];
+    public $major1Record = ['id'=>FixtureConstants::major1_id,  'title' => 'Lion Taming', 'sdesc' => 'LT'];
 
     // This is a new record to be inserted by Cake's patchEntity method. We can't
     // feasibly control the id, so go with the flow.  But we _can_ predict what
@@ -18,6 +18,7 @@ class MajorsFixture extends TestFixture {
     {
         $this->records = [
             $this->major1Record
+            //MajorsFixture::major1Record
         ];
         parent::init();
     }

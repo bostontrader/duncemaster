@@ -7,9 +7,9 @@
     <fieldset>
         <legend><?= __('Add Cohort') ?></legend>
         <?php
-            echo $this->Form->input('start_year',['id'=>'CohortStartYear']);
-            //echo $this->Form->input('major_id', ['options' => $majors]);
-            echo $this->Form->input('seq',['id'=>'CohortSeq']);
+            echo $this->Form->input('start_year',['id'=>'CohortStartYear','type'=>'text']);
+            echo $this->Form->input('seq',['id'=>'CohortSeq','type'=>'text']);
+            echo $this->Form->input('major_id', ['id'=>'CohortMajorId', 'options' => $majors, 'empty' => '(none selected)']);
         ?>
     </fieldset>
     <?= $this->Form->button(__('Submit')) ?>

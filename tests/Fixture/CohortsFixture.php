@@ -6,16 +6,18 @@ use Cake\TestSuite\Fixture\TestFixture;
 class CohortsFixture extends TestFixture {
     public $import = ['table' => 'cohorts'];
 
-    // Specify id because later we'll try to specifically find this record in the db
-    public $cohort1Record = ['id'=>5,  'start_year' => 2015, 'seq' => 1];
+    // This record is injected into the db before the tests.  We need to specify the
+    // id to ensure the test records are properly related.
+    public $cohort1Record = [
+        'id'=>FixtureConstants::cohort1_id,
+        'major_id'=>FixtureConstants::major1_id,
+        'start_year' => 2015, 'seq' => 1
+    ];
 
-    // This is a new record to be inserted by Cake's patchEntity method. We can't
-    // feasibly control the id, so go with the flow.  But we _can_ predict what
-    // the new ID will be, and we'll need that to read back this record.
-    public $newCohortRecord = ['id'=>6,  'start_year' => 2016, 'seq' => 2];
+    // This record will be added during a test.  We don't need or want to control the id here, so omit it.
+    public $newCohortRecord = ['major_id'=>FixtureConstants::major2_id, 'start_year' => 2016, 'seq' => 2];
 
-    public function init()
-    {
+    public function init() {
         $this->records = [
             $this->cohort1Record
         ];

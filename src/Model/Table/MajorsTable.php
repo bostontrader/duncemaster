@@ -7,28 +7,17 @@ namespace App\Model\Table;
 use Cake\ORM\Table;
 //use Cake\Validation\Validator;
 
-/**
- * Majors Model
- *
- * @property \Cake\ORM\Association\HasMany $Cohorts
- */
 class MajorsTable extends Table {
 
-    /**
-     * Initialize method
-     *
-     * @param array $config The configuration for the Table.
-     * @return void
-     */
     public function initialize(array $config) {
         parent::initialize($config);
 
         //$this->table('majors');
-        //$this->displayField('title');
+        $this->displayField('title');
         //$this->primaryKey('id');
 
         $this->hasMany('Cohorts', [
-            'foreignKey' => 'major_id'
+            //'foreignKey' => 'major_id'
         ]);
     }
 

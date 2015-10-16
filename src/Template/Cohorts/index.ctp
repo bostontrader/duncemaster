@@ -9,21 +9,21 @@
     <table cellpadding="0" cellspacing="0">
         <thead>
             <tr>
-                <th><?= $this->Paginator->sort('id') ?></th>
-                <th><?= $this->Paginator->sort('start_year') ?></th>
-                <th><?= $this->Paginator->sort('major_id') ?></th>
-                <th><?= $this->Paginator->sort('seq') ?></th>
-                <th><?= 'Short Name' ?></th>
+                <th><?= __('id') ?></th>
+                <th><?= __('Start year') ?></th>
+                <th><?= __('Major') ?></th>
+                <th><?= __('Seq') ?></th>
+                <th><?= __('Short Name') ?></th>
                 <th class="actions"><?= __('Actions') ?></th>
             </tr>
         </thead>
         <tbody>
             <?php foreach ($cohorts as $cohort): ?>
             <tr>
-                <td><?= $this->Number->format($cohort->id) ?></td>
+                <td><?= $cohort->id ?></td>
                 <td><?= $cohort->start_year ?></td>
                 <td><?= $cohort->has('major') ? $this->Html->link($cohort->major->sdesc, ['controller' => 'Majors', 'action' => 'view', $cohort->major->id]) : '' ?></td>
-                <td><?= $this->Number->format($cohort->seq) ?></td>
+                <td><?= $cohort->seq ?></td>
                 <?php $n = $cohort->nickname; ?>
                 <td><?= $n ?></td>
                 <td class="actions">
@@ -35,12 +35,5 @@
             <?php endforeach; ?>
         </tbody>
     </table>
-    <div class="paginator">
-        <ul class="pagination">
-            <?= $this->Paginator->prev('< ' . __('previous')) ?>
-            <?= $this->Paginator->numbers() ?>
-            <?= $this->Paginator->next(__('next') . ' >') ?>
-        </ul>
-        <p><?= $this->Paginator->counter() ?></p>
-    </div>
+
 </div>
