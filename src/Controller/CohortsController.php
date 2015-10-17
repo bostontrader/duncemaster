@@ -41,17 +41,16 @@ class CohortsController extends AppController {
             $cohort = $this->Cohorts->patchEntity($cohort, $this->request->data);
             if ($this->Cohorts->save($cohort)) {
                 //$this->Flash->success(__('The cohort has been saved.'));
-                //return $this->redirect(['action' => 'index']);
+                return $this->redirect(['action' => 'index']);
                 //} else {
                 //$this->Flash->error(__('The cohort could not be saved. Please, try again.'));
             }
         }
-        //$majors = $this->Cohorts->Majors->find('list', ['limit' => 200,'fields'=>['id','title']]);
+        $majors = $this->Cohorts->Majors->find('list');
         //$query = $this->Cohorts->Majors->find();
         //$majors = $this->Cohorts->Majors->findList($query,['fields'=>['id','title']]);
-        $majors = ['1'=>'Tourist English','2'=>'Aviation','3'=>'Hotel'];
+        //$majors = ['1'=>'Tourist English','2'=>'Aviation','3'=>'Hotel'];
         $this->set(compact('cohort', 'majors'));
-        $this->set('_serialize', ['cohort']);
     }
 
     public function index() {

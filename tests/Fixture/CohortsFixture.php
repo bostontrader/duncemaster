@@ -15,7 +15,10 @@ class CohortsFixture extends TestFixture {
     ];
 
     // This record will be added during a test.  We don't need or want to control the id here, so omit it.
-    public $newCohortRecord = ['major_id'=>FixtureConstants::major2_id, 'start_year' => 2016, 'seq' => 2];
+    public $newCohortRecord = [
+        'major_id'=>FixtureConstants::major2_id,
+        'start_year' => 2016, 'seq' => 2
+    ];
 
     public function init() {
         $this->records = [

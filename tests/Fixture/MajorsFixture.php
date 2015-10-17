@@ -14,12 +14,18 @@ class MajorsFixture extends TestFixture {
     // the new ID will be, and we'll need that to read back this record.
     public $newMajorRecord = ['id'=>6,  'title' => 'Advanced Lion Taming', 'sdesc' => 'AT'];
 
-    public function init()
-    {
+    public function init() {
         $this->records = [
             $this->major1Record
             //MajorsFixture::major1Record
         ];
         parent::init();
+    }
+
+    // Given an id, return the first record found with that id, or null if not found.
+    public function get($id) {
+        foreach ($this->records as $record)
+            if ($record['id'] == $id) return $record;
+        return null;
     }
 }
