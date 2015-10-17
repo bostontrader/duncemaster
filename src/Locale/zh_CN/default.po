@@ -492,7 +492,7 @@ msgstr ""
 
 #: Template/Majors/index.ctp:8 Template/Pages/home.ctp:13
 msgid "Majors"
-msgstr ""
+msgstr "主修课"
 
 #: Template/Majors/index.ctp:13 Template/Subjects/index.ctp:15
 msgid "Title"
