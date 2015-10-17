@@ -1,14 +1,5 @@
 <nav class="large-3 medium-4 columns" id="actions-sidebar">
     <ul class="side-nav">
-        <li class="heading"><?= __('Actions') ?></li>
-        <li><?= $this->Html->link(__('Edit Cohort'), ['action' => 'edit', $cohort->id]) ?> </li>
-        <li><?= $this->Form->postLink(__('Delete Cohort'), ['action' => 'delete', $cohort->id], ['confirm' => __('Are you sure you want to delete # {0}?', $cohort->id)]) ?> </li>
-        <li><?= $this->Html->link(__('List Cohorts'), ['action' => 'index']) ?> </li>
-        <li><?= $this->Html->link(__('New Cohort'), ['action' => 'add']) ?> </li>
-        <li><?= $this->Html->link(__('List Majors'), ['controller' => 'Majors', 'action' => 'index']) ?> </li>
-        <li><?= $this->Html->link(__('New Major'), ['controller' => 'Majors', 'action' => 'add']) ?> </li>
-        <li><?= $this->Html->link(__('List Sections'), ['controller' => 'Sections', 'action' => 'index']) ?> </li>
-        <li><?= $this->Html->link(__('New Section'), ['controller' => 'Sections', 'action' => 'add']) ?> </li>
     </ul>
 </nav>
 <div class="cohorts view large-9 medium-8 columns content">
@@ -16,19 +7,24 @@
     <table class="vertical-table">
         <tr>
             <th><?= __('Major') ?></th>
-            <td><?= $cohort->has('major') ? $this->Html->link($cohort->major->id, ['controller' => 'Majors', 'action' => 'view', $cohort->major->id]) : '' ?></td>
+            <td id = "major_title"><?= $cohort->has('major') ? $this->Html->link($cohort->major->title, ['controller' => 'Majors', 'action' => 'view', $cohort->major->id]) : '' ?></td>
         </tr>
         <tr>
             <th><?= __('Id') ?></th>
-            <td><?= $this->Number->format($cohort->id) ?></td>
+            <td id = "id"><?= $cohort->id ?></td>
         </tr>
         <tr>
             <th><?= __('Start Year') ?></th>
-            <td><?= $this->Number->format($cohort->start_year) ?></td>
+            <td id = "start_year"><?= $cohort->start_year ?></td>
         </tr>
         <tr>
             <th><?= __('Seq') ?></th>
-            <td><?= $this->Number->format($cohort->seq) ?></td>
+            <td id = "seq"><?= $cohort->seq ?></td>
+        </tr>
+
+        <tr>
+            <th><?= __('Nickname') ?></th>
+            <td id = "nickname"><?= $cohort->nickname ?></td>
         </tr>
     </table>
 

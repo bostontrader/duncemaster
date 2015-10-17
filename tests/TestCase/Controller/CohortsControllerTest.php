@@ -153,7 +153,7 @@ class CohortsControllerTest extends DMIntegrationTestCase {
         $this->assertResponseOk(); //2xx, 3xx
         $this->assertNoRedirect();
 
-        // Make sure these view vars are set
+        // Make sure this view var is set
         $this->assertNotNull($this->viewVariable('cohorts'));
 
         // Parse the html from the response
@@ -170,7 +170,6 @@ class CohortsControllerTest extends DMIntegrationTestCase {
         $thead = $cohorts_table->find('thead',0);
         $thead_ths = $thead->find('tr th');
 
-        $this->assertEquals($thead_ths[0]->id, 'id');
         $this->assertEquals($thead_ths[0]->id, 'id');
         $this->assertEquals($thead_ths[1]->id, 'start_year');
         $this->assertEquals($thead_ths[2]->id, 'major');
@@ -192,7 +191,6 @@ class CohortsControllerTest extends DMIntegrationTestCase {
         //    with nothing else thereafter.  In order to do this we'll also need
         //    to read from the Cohorts table.
         $cohorts = TableRegistry::get('Cohorts');
-        //$query = $cohorts->find()->where(['id' => $new_id]);
         $iterator = new \MultipleIterator();
         $iterator->attachIterator(new \ArrayIterator($cohortsFixture->records));
         $iterator->attachIterator(new \ArrayIterator($tbody_rows));
@@ -225,7 +223,7 @@ class CohortsControllerTest extends DMIntegrationTestCase {
 
         $this->fakeLogin();
         $this->get('/cohorts/view/' . $cohortsFixture->cohort1Record['id']);
-        $this->assertResponseOk();
+        $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();
 
         // Make sure this view var is set
@@ -234,18 +232,29 @@ class CohortsControllerTest extends DMIntegrationTestCase {
         // Parse the html from the response
         $html = str_get_html($this->_response->body());
 
-        // Ensure that the correct form exists
-        //$form = $html->find('form[id=CohortEditForm]')[0];
-        //$this->assertNotNull($form);
+        // How shall we tet the view?  It doesn't have any enclosing table or structure so just
+        // ignore that part.  Instead, look for individual display fields.
+        $field = $html->find('td#id',0);
+        $this->assertEquals($cohortsFixture->cohort1Record['id'], $field->plaintext);
 
-        // Omit the id field
-        // Ensure that there's a field for title, that is correctly set
-        //$input = $form->find('input[id=CohortTitle]')[0];
-        //$this->assertEquals($input->value, $cohortsFixture->cohort1Record['title']);
+        $field = $html->find('td#start_year',0);
+        $this->assertEquals($cohortsFixture->cohort1Record['start_year'], $field->plaintext);
 
-        // Ensure that there's a field for sdesc, that is empty
-        //$input = $form->find('input[id=CohortSDesc]')[0];
-        //$this->assertEquals($input->value, false);
+        // major_id requires finding the related value in the MajorsFixture
+        $field = $html->find('td#major_title',0);
+        $majorsFixture = new MajorsFixture();
+        $major_id = $cohortsFixture->cohort1Record['major_id'];
+        $major = $majorsFixture->get($major_id);
+        $this->assertEquals($major['title'], $field->plaintext);
+
+        $field = $html->find('td#seq',0);
+        $this->assertEquals($cohortsFixture->cohort1Record['seq'], $field->plaintext);
+
+        // nickname is computed by the Cohort Entity.
+        $field = $html->find('td#nickname',0);
+        $cohorts = TableRegistry::get('Cohorts');
+        $cohort = $cohorts->get($cohortsFixture->cohort1Record['id'], ['contain' => ['Majors']]);
+        $this->assertEquals($cohort->nickname, $field->plaintext);
     }
 
 }

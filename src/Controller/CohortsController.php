@@ -16,11 +16,7 @@ class CohortsController extends AppController {
             }
         }
         $majors = $this->Cohorts->Majors->find('list');
-        //$n = $majors->execute();
-        //$majors = ['1'=>'Tourist English','2'=>'Aviation','3'=>'Hotel'];
         $this->set(compact('cohort', 'majors'));
-        //$this->set('cohort', $cohort);
-        //$this->set('majors',$majors);
     }
 
     public function delete($id = null) {
@@ -47,9 +43,6 @@ class CohortsController extends AppController {
             }
         }
         $majors = $this->Cohorts->Majors->find('list');
-        //$query = $this->Cohorts->Majors->find();
-        //$majors = $this->Cohorts->Majors->findList($query,['fields'=>['id','title']]);
-        //$majors = ['1'=>'Tourist English','2'=>'Aviation','3'=>'Hotel'];
         $this->set(compact('cohort', 'majors'));
     }
 
@@ -60,7 +53,7 @@ class CohortsController extends AppController {
 
     public function view($id = null) {
         $this->request->allowMethod(['get']);
-        $cohort = $this->Cohorts->get($id);
+        $cohort = $this->Cohorts->get($id, ['contain' => ['Majors']]);
         $this->set('cohort', $cohort);
     }
 }
