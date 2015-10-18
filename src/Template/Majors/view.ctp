@@ -1,10 +1,5 @@
 <nav class="large-3 medium-4 columns" id="actions-sidebar">
     <ul class="side-nav">
-        <li class="heading"><?= __('Actions') ?></li>
-        <li><?= $this->Html->link(__('Edit Major'), ['action' => 'edit', $major->id]) ?> </li>
-        <li><?= $this->Form->postLink(__('Delete Major'), ['action' => 'delete', $major->id], ['confirm' => __('Are you sure you want to delete # {0}?', $major->id)]) ?> </li>
-        <li><?= $this->Html->link(__('List Majors'), ['action' => 'index']) ?> </li>
-        <li><?= $this->Html->link(__('New Major'), ['action' => 'add']) ?> </li>
     </ul>
 </nav>
 <div class="majors view large-9 medium-8 columns content">
@@ -12,17 +7,18 @@
     <table class="vertical-table">
         <tr>
             <th><?= __('Id') ?></th>
-            <td><?= $this->Number->format($major->id) ?></td>
+            <td id="id"><?= $major->id ?></td>
+        </tr>
+        <tr>
+            <th><?= __('Title') ?></th>
+            <td id="title"><?= $major->title ?></td>
+        </tr>
+        <tr>
+            <th><?= __('SDesc') ?></th>
+            <td id="sdesc"><?= $major->sdesc ?></td>
         </tr>
     </table>
-    <div class="row">
-        <h4><?= __('Desc') ?></h4>
-        <?= $this->Text->autoParagraph(h($major->title)); ?>
-    </div>
-    <div class="row">
-        <h4><?= __('Sdesc') ?></h4>
-        <?= $this->Text->autoParagraph(h($major->sdesc)); ?>
-    </div>
+
     <div class="related">
         <h4><?= __('Related Cohorts') ?></h4>
         <?php if (!empty($major->cohorts)): ?>

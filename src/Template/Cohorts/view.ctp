@@ -7,24 +7,24 @@
     <table class="vertical-table">
         <tr>
             <th><?= __('Major') ?></th>
-            <td id = "major_title"><?= $cohort->has('major') ? $this->Html->link($cohort->major->title, ['controller' => 'Majors', 'action' => 'view', $cohort->major->id]) : '' ?></td>
+            <td id="major_title"><?= $cohort->has('major') ? $this->Html->link($cohort->major->title, ['controller' => 'Majors', 'action' => 'view', $cohort->major->id]) : '' ?></td>
         </tr>
         <tr>
             <th><?= __('Id') ?></th>
-            <td id = "id"><?= $cohort->id ?></td>
+            <td id="id"><?= $cohort->id ?></td>
         </tr>
         <tr>
             <th><?= __('Start Year') ?></th>
-            <td id = "start_year"><?= $cohort->start_year ?></td>
+            <td id="start_year"><?= $cohort->start_year ?></td>
         </tr>
         <tr>
             <th><?= __('Seq') ?></th>
-            <td id = "seq"><?= $cohort->seq ?></td>
+            <td id="seq"><?= $cohort->seq ?></td>
         </tr>
 
         <tr>
             <th><?= __('Nickname') ?></th>
-            <td id = "nickname"><?= $cohort->nickname ?></td>
+            <td id="nickname"><?= $cohort->nickname ?></td>
         </tr>
     </table>
 

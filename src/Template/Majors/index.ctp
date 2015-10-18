@@ -6,13 +6,13 @@
 </nav>
 <div class="majors index large-9 medium-8 columns content">
     <h3><?= __('Majors') ?></h3>
-    <table cellpadding="0" cellspacing="0">
+    <table id = "majors" cellpadding="0" cellspacing="0">
         <thead>
             <tr>
-                <th><?= __('id') ?></th>
-                <th><?= __('Title') ?></th>
-                <th><?= __('SDesc') ?></th>
-                <th class="actions"><?= __('Actions') ?></th>
+                <th id="id"><?= __('id') ?></th>
+                <th id="title"><?= __('Title') ?></th>
+                <th id="sdesc"><?= __('SDesc') ?></th>
+                <th id="actions" class="actions"><?= __('Actions') ?></th>
             </tr>
         </thead>
         <tbody>

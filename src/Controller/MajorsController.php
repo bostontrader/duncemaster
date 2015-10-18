@@ -30,13 +30,13 @@ class MajorsController extends AppController {
     }
 
     public function edit($id = null) {
-        $this->request->allowMethod(['get', 'post']);
+        $this->request->allowMethod(['get', 'put']);
         $major = $this->Majors->get($id);
-        if ($this->request->is(['post'])) {
+        if ($this->request->is(['put'])) {
             $major = $this->Majors->patchEntity($major, $this->request->data);
             if ($this->Majors->save($major)) {
                 //$this->Flash->success(__('The major has been saved.'));
-                //return $this->redirect(['action' => 'index']);
+                return $this->redirect(['action' => 'index']);
                 //} else {
                 //$this->Flash->error(__('The major could not be saved. Please, try again.'));
             }

@@ -9,10 +9,10 @@ class CohortsController extends AppController {
         if ($this->request->is('post')) {
             $cohort = $this->Cohorts->patchEntity($cohort, $this->request->data);
             if ($this->Cohorts->save($cohort)) {
-                $this->Flash->success(__('The cohort has been saved.'));
+                //$this->Flash->success(__('The cohort has been saved.'));
                 return $this->redirect(['action' => 'index']);
             } else {
-                $this->Flash->error(__('The cohort could not be saved. Please, try again.'));
+                //$this->Flash->error(__('The cohort could not be saved. Please, try again.'));
             }
         }
         $majors = $this->Cohorts->Majors->find('list');
@@ -31,16 +31,15 @@ class CohortsController extends AppController {
     }
 
     public function edit($id = null) {
-        //$n = $this->request->method();
-        //$this->request->allowMethod(['get', 'put']);
+        $this->request->allowMethod(['get', 'put']);
         $cohort = $this->Cohorts->get($id);
-        if ($this->request->is(['post'])) {
+        if ($this->request->is(['put'])) {
             $cohort = $this->Cohorts->patchEntity($cohort, $this->request->data);
             if ($this->Cohorts->save($cohort)) {
-                $this->Flash->success(__('The cohort has been saved.'));
+                //$this->Flash->success(__('The cohort has been saved.'));
                 return $this->redirect(['action' => 'index']);
             } else {
-                $this->Flash->error(__('The cohort could not be saved. Please, try again.'));
+                //$this->Flash->error(__('The cohort could not be saved. Please, try again.'));
             }
         }
         $majors = $this->Cohorts->Majors->find('list');

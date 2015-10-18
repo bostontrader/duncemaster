@@ -117,9 +117,8 @@ class MajorsControllerTest extends DMIntegrationTestCase {
 
         $this->fakeLogin();
         $major_id = $majorsFixture->major1Record['id'];
-        $this->post('/majors/edit/' . $major_id, $majorsFixture->newMajorRecord);
+        $this->put('/majors/edit/' . $major_id, $majorsFixture->newMajorRecord);
         $this->assertResponseSuccess(); // 2xx, 3xx
-        $this->assertNoRedirect();
         $this->assertRedirect('/majors');
 
         // Now verify what we think just got written
@@ -136,46 +135,59 @@ class MajorsControllerTest extends DMIntegrationTestCase {
     public function testIndexGET() {
 
         $this->fakeLogin();
-        $result = $this->get('/majors/index');
-        $this->assertResponseOk();
+        $this->get('/majors/index');
+        $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();
 
+        // Make sure this view var is set
+        $this->assertNotNull($this->viewVariable('majors'));
+
         // Parse the html from the response
-        $html = str_get_html($result);
+        $html = str_get_html($this->_response->body());
 
-        // 1. Ensure that the single row of the thead section
-        //    has a column for id and title, in that order
-        //$rows = $html->find('table[id=majors]',0)->find('thead',0)->find('tr');
-        //$row_cnt = count($rows);
-        //$this->assertEqual($row_cnt, 1);
+        // How shall we test the index?
 
-        // 2. Ensure that the thead section has a heading
-        //    for id, title, is_active, and is_admin.
-        //$columns = $rows[0]->find('td');
-        //$this->assertEqual($columns[0]->plaintext, 'id');
-        //$this->assertEqual($columns[1]->plaintext, 'title');
-        //$this->assertEqual($columns[2]->plaintext, 'is_active');
-        //$this->assertEqual($columns[3]->plaintext, 'is_admin');
+        // 1. Ensure that there is a suitably named table to display the results.
+        $majors_table = $html->find('table#majors',0);
+        $this->assertNotNull($majors_table);
+
+        // 2. Ensure that said table's thead element contains the correct
+        //    headings, in the correct order, and nothing else.
+        $thead = $majors_table->find('thead',0);
+        $thead_ths = $thead->find('tr th');
+
+        $this->assertEquals($thead_ths[0]->id, 'id');
+        $this->assertEquals($thead_ths[1]->id, 'title');
+        $this->assertEquals($thead_ths[2]->id, 'sdesc');
+        $this->assertEquals($thead_ths[3]->id, 'actions');
+        $this->assertEquals(count($thead_ths),4); // no other columns
 
         // 3. Ensure that the tbody section has the same
         //    quantity of rows as the count of major records in the fixture.
-        //    For each of these rows, ensure that the id and title match
-        //$majorFixture = new MajorFixture();
-        //$rowsInHTMLTable = $html->find('table[id=majors]',0)->find('tbody',0)->find('tr');
-        //$this->assertEqual(count($majorFixture->records), count($rowsInHTMLTable));
-        //$iterator = new MultipleIterator;
-        //$iterator->attachIterator(new ArrayIterator($majorFixture->records));
-        //$iterator->attachIterator(new ArrayIterator($rowsInHTMLTable));
+        $majorsFixture = new MajorsFixture();
+        $tbody = $majors_table->find('tbody',0);
+        $tbody_rows = $tbody->find('tr');
+        $this->assertEquals(count($tbody_rows), count($majorsFixture));
 
-        //foreach ($iterator as $values) {
-        //$fixtureRecord = $values[0];
-        //$htmlRow = $values[1];
-        //$htmlColumns = $htmlRow->find('td');
-        //$this->assertEqual($fixtureRecord['id'],        $htmlColumns[0]->plaintext);
-        //$this->assertEqual($fixtureRecord['title'],  $htmlColumns[1]->plaintext);
-        //$this->assertEqual($fixtureRecord['is_active'], $htmlColumns[2]->plaintext);
-        //$this->assertEqual($fixtureRecord['is_admin'],  $htmlColumns[3]->plaintext);
-        //}
+        // 4. Ensure that the values displayed in each row, match the values from
+        //    the fixture.  The values should be presented in a particular order
+        //    with nothing else thereafter.  In order to do this we'll also need
+        //    to read from the Majors table.
+        $majors = TableRegistry::get('Majors');
+        $iterator = new \MultipleIterator();
+        $iterator->attachIterator(new \ArrayIterator($majorsFixture->records));
+        $iterator->attachIterator(new \ArrayIterator($tbody_rows));
+
+        foreach ($iterator as $values) {
+            $fixtureRecord = $values[0];
+            $htmlRow = $values[1];
+            $htmlColumns = $htmlRow->find('td');
+            $this->assertEquals($fixtureRecord['id'], $htmlColumns[0]->plaintext);
+            $this->assertEquals($fixtureRecord['title'],  $htmlColumns[1]->plaintext);
+            $this->assertEquals($fixtureRecord['sdesc'],  $htmlColumns[2]->plaintext);
+            
+            // Ignore the action links
+        }
     }
 
     public function testViewGET() {
@@ -184,7 +196,7 @@ class MajorsControllerTest extends DMIntegrationTestCase {
 
         $this->fakeLogin();
         $this->get('/majors/view/' . $majorsFixture->major1Record['id']);
-        $this->assertResponseOk();
+        $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();
 
         // Make sure this view var is set
@@ -193,18 +205,16 @@ class MajorsControllerTest extends DMIntegrationTestCase {
         // Parse the html from the response
         $html = str_get_html($this->_response->body());
 
-        // Ensure that the correct form exists
-        //$form = $html->find('form[id=MajorEditForm]')[0];
-        //$this->assertNotNull($form);
+        // How shall we tet the view?  It doesn't have any enclosing table or structure so just
+        // ignore that part.  Instead, look for individual display fields.
+        $field = $html->find('td#id',0);
+        $this->assertEquals($majorsFixture->major1Record['id'], $field->plaintext);
 
-        // Omit the id field
-        // Ensure that there's a field for title, that is correctly set
-        //$input = $form->find('input[id=MajorTitle]')[0];
-        //$this->assertEquals($input->value, $majorsFixture->major1Record['title']);
+        $field = $html->find('td#title',0);
+        $this->assertEquals($majorsFixture->major1Record['title'], $field->plaintext);
 
-        // Ensure that there's a field for sdesc, that is empty
-        //$input = $form->find('input[id=MajorSDesc]')[0];
-        //$this->assertEquals($input->value, false);
+        $field = $html->find('td#sdesc',0);
+        $this->assertEquals($majorsFixture->major1Record['sdesc'], $field->plaintext);
     }
 
 }

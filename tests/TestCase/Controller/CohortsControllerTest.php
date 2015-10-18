@@ -130,7 +130,7 @@ class CohortsControllerTest extends DMIntegrationTestCase {
 
         $this->fakeLogin();
         $cohort_id = $cohortsFixture->cohort1Record['id'];
-        $this->post('/cohorts/edit/' . $cohort_id, $cohortsFixture->newCohortRecord);
+        $this->put('/cohorts/edit/' . $cohort_id, $cohortsFixture->newCohortRecord);
         $this->assertResponseSuccess(); // 2xx, 3xx
         $this->assertRedirect('/cohorts');
 
@@ -150,7 +150,7 @@ class CohortsControllerTest extends DMIntegrationTestCase {
 
         $this->fakeLogin();
         $this->get('/cohorts/index');
-        $this->assertResponseOk(); //2xx, 3xx
+        $this->assertResponseOk(); //2xx
         $this->assertNoRedirect();
 
         // Make sure this view var is set

@@ -6,15 +6,15 @@
 </nav>
 <div class="cohorts index large-9 medium-8 columns content">
     <h3><?= __('Cohorts') ?></h3>
-    <table id = "cohorts" cellpadding="0" cellspacing="0">
+    <table id="cohorts" cellpadding="0" cellspacing="0">
         <thead>
             <tr>
-                <th id = "id"><?= __('id') ?></th>
-                <th id = "start_year"><?= __('Start year') ?></th>
-                <th id = "major"><?= __('Major') ?></th>
-                <th id = "seq"><?= __('Seq') ?></th>
-                <th id = "nickname"><?= __('Nickname') ?></th>
-                <th id = "actions" class="actions"><?= __('Actions') ?></th>
+                <th id="id"><?= __('id') ?></th>
+                <th id="start_year"><?= __('Start year') ?></th>
+                <th id="major"><?= __('Major') ?></th>
+                <th id="seq"><?= __('Seq') ?></th>
+                <th id="nickname"><?= __('Nickname') ?></th>
+                <th id="actions" class="actions"><?= __('Actions') ?></th>
             </tr>
         </thead>
         <tbody>
