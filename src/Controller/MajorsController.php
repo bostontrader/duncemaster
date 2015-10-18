@@ -11,7 +11,7 @@ class MajorsController extends AppController {
             if ($this->Majors->save($major)) {
                 // $this->Flash->success(__('The major has been saved.'));
                 return $this->redirect(['action' => 'index']);
-                //} else {
+            } else {
                 //$this->Flash->error(__('The major could not be saved. Please, try again.'));
             }
         }

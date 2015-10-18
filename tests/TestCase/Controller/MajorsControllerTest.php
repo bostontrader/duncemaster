@@ -1,6 +1,7 @@
 <?php
 namespace App\Test\TestCase\Controller;
 
+use App\Test\Fixture\FixtureConstants;
 use App\Test\Fixture\MajorsFixture;
 use Cake\ORM\TableRegistry;
 
@@ -14,7 +15,7 @@ class MajorsControllerTest extends DMIntegrationTestCase {
 
         $this->fakeLogin();
         $this->get('/majors/add');
-        $this->assertResponseOk();
+        $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();
 
         // Make sure this view var is set, to keep the FormHelper happy
@@ -24,16 +25,19 @@ class MajorsControllerTest extends DMIntegrationTestCase {
         $html = str_get_html($this->_response->body());
 
         // Ensure that the correct form exists
-        $form = $html->find('form[id=MajorAddForm]')[0];
+        $form = $html->find('form#MajorAddForm',0);
         $this->assertNotNull($form);
 
         // Omit the id field
-        // Ensure that there's a field for title, that is empty
-        $input = $form->find('input[id=MajorTitle]')[0];
+
+        // Ensure that there's an input field for title, of type text, and that it is empty
+        $input = $form->find('input#MajorTitle',0);
+        $this->assertEquals($input->type, "text");
         $this->assertEquals($input->value, false);
 
-        // Ensure that there's a field for sdesc, that is empty
-        $input = $form->find('input[id=MajorSDesc]')[0];
+        // Ensure that there's an input field for sdesc, of type text, and that it is empty
+        $input = $form->find('input#MajorSDesc',0);
+        $this->assertEquals($input->type, "text");
         $this->assertEquals($input->value, false);
     }
 
@@ -43,17 +47,19 @@ class MajorsControllerTest extends DMIntegrationTestCase {
 
         $this->fakeLogin();
         $this->post('/majors/add', $majorsFixture->newMajorRecord);
-        $this->assertResponseSuccess();
+        $this->assertResponseSuccess(); // 2xx, 3xx
         $this->assertRedirect( '/majors' );
 
         // Now verify what we think just got written
         $majors = TableRegistry::get('Majors');
-        $query = $majors->find()->where(['id' => $majorsFixture->newMajorRecord['id']]);
+        $new_id = FixtureConstants::major1_id + 1;
+        $query = $majors->find()->where(['id' => $new_id]);
         $this->assertEquals(1, $query->count());
 
         // Now retrieve that 1 record and compare to what we expect
-        $major = $majors->get($majorsFixture->newMajorRecord['id']);
-        $this->assertEquals($major['title'],$majorsFixture->newMajorRecord['title']);
+        $new_major = $majors->get($new_id);
+        $this->assertEquals($new_major['title'],$majorsFixture->newMajorRecord['title']);
+        $this->assertEquals($new_major['sdesc'],$majorsFixture->newMajorRecord['sdesc']);
     }
 
     public function testDeletePOST() {
@@ -61,13 +67,14 @@ class MajorsControllerTest extends DMIntegrationTestCase {
         $majorsFixture = new MajorsFixture();
 
         $this->fakeLogin();
-        $this->post('/majors/delete/' . $majorsFixture->major1Record['id']);
-        $this->assertResponseSuccess();
+        $major_id = $majorsFixture->major1Record['id'];
+        $this->post('/majors/delete/' . $major_id);
+        $this->assertResponseSuccess(); // 2xx, 3xx
         $this->assertRedirect( '/majors' );
 
         // Now verify that the record no longer exists
         $majors = TableRegistry::get('Majors');
-        $query = $majors->find()->where(['id' => $majorsFixture->major1Record['id']]);
+        $query = $majors->find()->where(['id' => $major_id]);
         $this->assertEquals(0, $query->count());
     }
 
@@ -76,8 +83,9 @@ class MajorsControllerTest extends DMIntegrationTestCase {
         $majorsFixture = new MajorsFixture();
 
         $this->fakeLogin();
-        $this->get('/majors/edit/' . $majorsFixture->major1Record['id']);
-        $this->assertResponseOk();
+        $major_id = $majorsFixture->major1Record['id'];
+        $this->get('/majors/edit/' . $major_id);
+        $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();
 
         // Make sure this view var is set, to keep the FormHelper happy
@@ -87,18 +95,20 @@ class MajorsControllerTest extends DMIntegrationTestCase {
         $html = str_get_html($this->_response->body());
 
         // Ensure that the correct form exists
-        $form = $html->find('form[id=MajorEditForm]')[0];
+        $form = $html->find('form#MajorEditForm',0);
         $this->assertNotNull($form);
 
         // Omit the id field
-        // Ensure that there's a field for title, that is correctly set
-        $input = $form->find('input[id=MajorTitle]')[0];
+
+        // Ensure that there's an input field for title, of type text, and that it is correctly set
+        $input = $form->find('input#MajorTitle',0);
+        $this->assertEquals($input->type, "text");
         $this->assertEquals($input->value, $majorsFixture->major1Record['title']);
 
-        // Ensure that there's a field for sdesc, that is correctly set
-        $input = $form->find('input[id=MajorSDesc]')[0];
+        // Ensure that there's an input field for sdesc, of type text, and that that it is correctly set
+        $input = $form->find('input#MajorSDesc',0);
+        $this->assertEquals($input->type, "text");
         $this->assertEquals($input->value,  $majorsFixture->major1Record['sdesc']);
-
     }
 
     public function testEditPOST() {
@@ -106,20 +116,21 @@ class MajorsControllerTest extends DMIntegrationTestCase {
         $majorsFixture = new MajorsFixture();
 
         $this->fakeLogin();
-        $this->post('/majors/edit/' . $majorsFixture->major1Record['id'], $majorsFixture->newMajorRecord);
-        $this->assertResponseOk();
+        $major_id = $majorsFixture->major1Record['id'];
+        $this->post('/majors/edit/' . $major_id, $majorsFixture->newMajorRecord);
+        $this->assertResponseSuccess(); // 2xx, 3xx
         $this->assertNoRedirect();
+        $this->assertRedirect('/majors');
 
         // Now verify what we think just got written
         $majors = TableRegistry::get('Majors');
-        $query = $majors->find()->where(['id' => $majorsFixture->major1Record['id']]);
-        $c = $query->count();
-        $this->assertEquals(1, $c);
+        $query = $majors->find()->where(['id' => $major_id]);
+        $this->assertEquals(1, $query->count());
 
         // Now retrieve that 1 record and compare to what we expect
-        $major = $majors->get($majorsFixture->major1Record['id']);
+        $major = $majors->get($major_id);
         $this->assertEquals($major['title'],$majorsFixture->newMajorRecord['title']);
-
+        $this->assertEquals($major['sdesc'],$majorsFixture->newMajorRecord['sdesc']);
     }
 
     public function testIndexGET() {
