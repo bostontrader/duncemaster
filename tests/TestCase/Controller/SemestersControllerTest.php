@@ -205,7 +205,7 @@ class SemestersControllerTest extends DMIntegrationTestCase {
         // Parse the html from the response
         $html = str_get_html($this->_response->body());
 
-        // How shall we tet the view?  It doesn't have any enclosing table or structure so just
+        // How shall we test the view?  It doesn't have any enclosing table or structure so just
         // ignore that part.  Instead, look for individual display fields.
         $field = $html->find('td#id',0);
         $this->assertEquals($semestersFixture->semester1Record['id'], $field->plaintext);

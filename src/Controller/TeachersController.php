@@ -11,7 +11,7 @@ class TeachersController extends AppController {
             if ($this->Teachers->save($teacher)) {
                 //$this->Flash->success(__('The teacher has been saved.'));
                 return $this->redirect(['action' => 'index']);
-                //} else {
+            } else {
                 //$this->Flash->error(__('The teacher could not be saved. Please, try again.'));
             }
         }
@@ -30,13 +30,13 @@ class TeachersController extends AppController {
     }
 
     public function edit($id = null) {
-        $this->request->allowMethod(['get', 'post']);
+        $this->request->allowMethod(['get', 'put']);
         $teacher = $this->Teachers->get($id);
-        if ($this->request->is(['post'])) {
+        if ($this->request->is(['put'])) {
             $teacher = $this->Teachers->patchEntity($teacher, $this->request->data);
             if ($this->Teachers->save($teacher)) {
                 //$this->Flash->success(__('The teacher has been saved.'));
-                //return $this->redirect(['action' => 'index']);
+                return $this->redirect(['action' => 'index']);
                 //} else {
                 //$this->Flash->error(__('The teacher could not be saved. Please, try again.'));
             }
