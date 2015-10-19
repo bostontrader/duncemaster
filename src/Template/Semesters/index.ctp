@@ -6,13 +6,13 @@
 </nav>
 <div class="semesters index large-9 medium-8 columns content">
     <h3><?= __('Semesters') ?></h3>
-    <table cellpadding="0" cellspacing="0">
+    <table id="semesters" cellpadding="0" cellspacing="0">
         <thead>
             <tr>
-                <th><?= __('id') ?></th>
-                <th><?= __('year') ?></th>
-                <th><?= __('seq') ?></th>
-                <th class="actions"><?= __('Actions') ?></th>
+                <th id="id"><?= __('id') ?></th>
+                <th id="year"><?= __('year') ?></th>
+                <th id="seq"><?= __('seq') ?></th>
+                <th id="actions" class="actions"><?= __('Actions') ?></th>
             </tr>
         </thead>
         <tbody>

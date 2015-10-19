@@ -7,15 +7,15 @@
     <table class="vertical-table">
         <tr>
             <th><?= __('Id') ?></th>
-            <td><?= $semester->id ?></td>
+            <td id="id"><?= $semester->id ?></td>
         </tr>
         <tr>
             <th><?= __('Year') ?></th>
-            <td><?= $semester->year ?></td>
+            <td id="year"><?= $semester->year ?></td>
         </tr>
         <tr>
             <th><?= __('Seq') ?></th>
-            <td><?= $semester->seq ?></td>
+            <td id="seq"><?= $semester->seq ?></td>
         </tr>
     </table>
 </div>

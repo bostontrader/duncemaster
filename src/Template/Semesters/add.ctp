@@ -7,8 +7,8 @@
     <fieldset>
         <legend><?= __('Add Semester') ?></legend>
         <?php
-            echo $this->Form->input('year',['id'=>'SemesterYear']);
-            echo $this->Form->input('seq',['id'=>'SemesterSeq']);
+            echo $this->Form->input('year',['id'=>'SemesterYear', 'type'=>'text']);
+            echo $this->Form->input('seq',['id'=>'SemesterSeq', 'type'=>'text']);
         ?>
     </fieldset>
     <?= $this->Form->button(__('Submit')) ?>

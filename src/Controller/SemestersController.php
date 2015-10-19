@@ -30,13 +30,13 @@ class SemestersController extends AppController {
     }
 
     public function edit($id = null) {
-        $this->request->allowMethod(['get', 'post']);
+        $this->request->allowMethod(['get', 'put']);
         $semester = $this->Semesters->get($id);
-        if ($this->request->is(['post'])) {
+        if ($this->request->is(['put'])) {
             $semester = $this->Semesters->patchEntity($semester, $this->request->data);
             if ($this->Semesters->save($semester)) {
                 //$this->Flash->success(__('The semester has been saved.'));
-                //return $this->redirect(['action' => 'index']);
+                return $this->redirect(['action' => 'index']);
                 //} else {
                 //$this->Flash->error(__('The semester could not be saved. Please, try again.'));
             }
@@ -46,18 +46,12 @@ class SemestersController extends AppController {
 
     public function index() {
         $this->request->allowMethod(['get']);
-        $this->set(
-            'semesters',
-            $this->Semesters->find()
-                ->order(['year','seq'])
-        );
+        $this->set('semesters',$this->Semesters->find()->order(['year','seq']));
     }
 
     public function view($id = null) {
         $this->request->allowMethod(['get']);
-        $semester = $this->Semesters->get($id, [
-            'contain' => []
-        ]);
+        $semester = $this->Semesters->get($id);
         $this->set('semester', $semester);
     }
 }

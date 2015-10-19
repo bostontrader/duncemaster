@@ -9,4 +9,5 @@ class FixtureConstants {
     const cohort1_id = 1;
     const major1_id = 1;
     const major2_id = 2;
+    const semester1_id = 1;
 }

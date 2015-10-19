@@ -1,6 +1,7 @@
 <?php
 namespace App\Test\TestCase\Controller;
 
+use App\Test\Fixture\FixtureConstants;
 use App\Test\Fixture\SemestersFixture;
 use Cake\ORM\TableRegistry;
 
@@ -14,7 +15,7 @@ class SemestersControllerTest extends DMIntegrationTestCase {
 
         $this->fakeLogin();
         $this->get('/semesters/add');
-        $this->assertResponseOk();
+        $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();
 
         // Make sure this view var is set, to keep the FormHelper happy
@@ -24,16 +25,19 @@ class SemestersControllerTest extends DMIntegrationTestCase {
         $html = str_get_html($this->_response->body());
 
         // Ensure that the correct form exists
-        $form = $html->find('form[id=SemesterAddForm]')[0];
+        $form = $html->find('form#SemesterAddForm',0);
         $this->assertNotNull($form);
 
         // Omit the id field
-        // Ensure that there's a field for year, that is empty
-        $input = $form->find('input[id=SemesterYear]')[0];
+
+        // Ensure that there's an input field for year, of type text, and that it is empty
+        $input = $form->find('input#SemesterYear',0);
+        $this->assertEquals($input->type, "text");
         $this->assertEquals($input->value, false);
 
-        // Ensure that there's a field for seq, that is empty
-        $input = $form->find('input[id=SemesterSeq]')[0];
+        // Ensure that there's an input field for seq, of type text, and that it is empty
+        $input = $form->find('input#SemesterSeq',0);
+        $this->assertEquals($input->type, "text");
         $this->assertEquals($input->value, false);
     }
 
@@ -43,18 +47,19 @@ class SemestersControllerTest extends DMIntegrationTestCase {
 
         $this->fakeLogin();
         $this->post('/semesters/add', $semestersFixture->newSemesterRecord);
-        $this->assertResponseSuccess();
+        $this->assertResponseSuccess(); // 2xx, 3xx
         $this->assertRedirect( '/semesters' );
 
         // Now verify what we think just got written
         $semesters = TableRegistry::get('Semesters');
-        $query = $semesters->find()->where(['id' => $semestersFixture->newSemesterRecord['id']]);
+        $new_id = FixtureConstants::semester1_id + 1;
+        $query = $semesters->find()->where(['id' => $new_id]);
         $this->assertEquals(1, $query->count());
 
         // Now retrieve that 1 record and compare to what we expect
-        $semester = $semesters->get($semestersFixture->newSemesterRecord['id']);
-        $this->assertEquals($semester['year'],$semestersFixture->newSemesterRecord['year']);
-        $this->assertEquals($semester['seq'],$semestersFixture->newSemesterRecord['seq']);
+        $new_semester = $semesters->get($new_id);
+        $this->assertEquals($new_semester['year'],$semestersFixture->newSemesterRecord['year']);
+        $this->assertEquals($new_semester['seq'],$semestersFixture->newSemesterRecord['seq']);
     }
 
     public function testDeletePOST() {
@@ -62,13 +67,14 @@ class SemestersControllerTest extends DMIntegrationTestCase {
         $semestersFixture = new SemestersFixture();
 
         $this->fakeLogin();
-        $this->post('/semesters/delete/' . $semestersFixture->semester1Record['id']);
-        $this->assertResponseSuccess();
+        $semester_id = $semestersFixture->semester1Record['id'];
+        $this->post('/semesters/delete/' . $semester_id);
+        $this->assertResponseSuccess(); // 2xx, 3xx
         $this->assertRedirect( '/semesters' );
 
         // Now verify that the record no longer exists
         $semesters = TableRegistry::get('Semesters');
-        $query = $semesters->find()->where(['id' => $semestersFixture->semester1Record['id']]);
+        $query = $semesters->find()->where(['id' => $semester_id]);
         $this->assertEquals(0, $query->count());
     }
 
@@ -77,8 +83,9 @@ class SemestersControllerTest extends DMIntegrationTestCase {
         $semestersFixture = new SemestersFixture();
 
         $this->fakeLogin();
-        $this->get('/semesters/edit/' . $semestersFixture->semester1Record['id']);
-        $this->assertResponseOk();
+        $semester_id = $semestersFixture->semester1Record['id'];
+        $this->get('/semesters/edit/' . $semester_id);
+        $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();
 
         // Make sure this view var is set, to keep the FormHelper happy
@@ -88,18 +95,20 @@ class SemestersControllerTest extends DMIntegrationTestCase {
         $html = str_get_html($this->_response->body());
 
         // Ensure that the correct form exists
-        $form = $html->find('form[id=SemesterEditForm]')[0];
+        $form = $html->find('form#SemesterEditForm',0);
         $this->assertNotNull($form);
 
         // Omit the id field
-        // Ensure that there's a field for year, that is correctly set
-        $input = $form->find('input[id=SemesterYear]')[0];
+
+        // Ensure that there's an input field for year, of type text, and that it is correctly set
+        $input = $form->find('input#SemesterYear',0);
+        $this->assertEquals($input->type, "text");
         $this->assertEquals($input->value, $semestersFixture->semester1Record['year']);
 
-        // Ensure that there's a field for seq, that is correctly set
-        $input = $form->find('input[id=SemesterSeq]')[0];
+        // Ensure that there's an input field for seq, of type text, and that it is correctly set
+        $input = $form->find('input#SemesterSeq',0);
+        $this->assertEquals($input->type, "text");
         $this->assertEquals($input->value,  $semestersFixture->semester1Record['seq']);
-
     }
 
     public function testEditPOST() {
@@ -107,65 +116,78 @@ class SemestersControllerTest extends DMIntegrationTestCase {
         $semestersFixture = new SemestersFixture();
 
         $this->fakeLogin();
-        $this->post('/semesters/edit/' . $semestersFixture->semester1Record['id'], $semestersFixture->newSemesterRecord);
-        $this->assertResponseOk();
-        $this->assertNoRedirect();
+        $semester_id = $semestersFixture->semester1Record['id'];
+        $this->put('/semesters/edit/' . $semester_id, $semestersFixture->newSemesterRecord);
+        $this->assertResponseSuccess(); // 2xx, 3xx
+        $this->assertRedirect('/semesters');
 
         // Now verify what we think just got written
         $semesters = TableRegistry::get('Semesters');
-        $query = $semesters->find()->where(['id' => $semestersFixture->semester1Record['id']]);
-        $c = $query->count();
-        $this->assertEquals(1, $c);
+        $query = $semesters->find()->where(['id' => $semester_id]);
+        $this->assertEquals(1, $query->count());
 
         // Now retrieve that 1 record and compare to what we expect
         $semester = $semesters->get($semestersFixture->semester1Record['id']);
         $this->assertEquals($semester['year'],$semestersFixture->newSemesterRecord['year']);
-
+        $this->assertEquals($semester['seq'],$semestersFixture->newSemesterRecord['seq']);
     }
 
     public function testIndexGET() {
 
         $this->fakeLogin();
-        $result = $this->get('/semesters/index');
-        $this->assertResponseOk();
+        $this->get('/semesters/index');
+        $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();
 
+        // Make sure this view var is set
+        $this->assertNotNull($this->viewVariable('semesters'));
+
         // Parse the html from the response
-        $html = str_get_html($result);
+        $html = str_get_html($this->_response->body());
 
-        // 1. Ensure that the single row of the thead section
-        //    has a column for id and year, in that order
-        //$rows = $html->find('table[id=semesters]',0)->find('thead',0)->find('tr');
-        //$row_cnt = count($rows);
-        //$this->assertEqual($row_cnt, 1);
+        // How shall we test the index?
 
-        // 2. Ensure that the thead section has a heading
-        //    for id, year, is_active, and is_admin.
-        //$columns = $rows[0]->find('td');
-        //$this->assertEqual($columns[0]->plaintext, 'id');
-        //$this->assertEqual($columns[1]->plaintext, 'year');
-        //$this->assertEqual($columns[2]->plaintext, 'is_active');
-        //$this->assertEqual($columns[3]->plaintext, 'is_admin');
+        // 1. Ensure that there is a suitably named table to display the results.
+        $semesters_table = $html->find('table#semesters',0);
+        $this->assertNotNull($semesters_table);
+
+        // 2. Ensure that said table's thead element contains the correct
+        //    headings, in the correct order, and nothing else.
+        $thead = $semesters_table->find('thead',0);
+        $thead_ths = $thead->find('tr th');
+
+        $this->assertEquals($thead_ths[0]->id, 'id');
+        $this->assertEquals($thead_ths[1]->id, 'year');
+        $this->assertEquals($thead_ths[2]->id, 'seq');
+        $this->assertEquals($thead_ths[3]->id, 'actions');
+        $this->assertEquals(count($thead_ths),4); // no other columns
 
         // 3. Ensure that the tbody section has the same
         //    quantity of rows as the count of semester records in the fixture.
-        //    For each of these rows, ensure that the id and year match
-        //$semesterFixture = new SemesterFixture();
-        //$rowsInHTMLTable = $html->find('table[id=semesters]',0)->find('tbody',0)->find('tr');
-        //$this->assertEqual(count($semesterFixture->records), count($rowsInHTMLTable));
-        //$iterator = new MultipleIterator;
-        //$iterator->attachIterator(new ArrayIterator($semesterFixture->records));
-        //$iterator->attachIterator(new ArrayIterator($rowsInHTMLTable));
+        $semestersFixture = new SemestersFixture();
+        $tbody = $semesters_table->find('tbody',0);
+        $tbody_rows = $tbody->find('tr');
+        $this->assertEquals(count($tbody_rows), count($semestersFixture));
 
-        //foreach ($iterator as $values) {
-        //$fixtureRecord = $values[0];
-        //$htmlRow = $values[1];
-        //$htmlColumns = $htmlRow->find('td');
-        //$this->assertEqual($fixtureRecord['id'],        $htmlColumns[0]->plaintext);
-        //$this->assertEqual($fixtureRecord['year'],  $htmlColumns[1]->plaintext);
-        //$this->assertEqual($fixtureRecord['is_active'], $htmlColumns[2]->plaintext);
-        //$this->assertEqual($fixtureRecord['is_admin'],  $htmlColumns[3]->plaintext);
-        //}
+        // 4. Ensure that the values displayed in each row, match the values from
+        //    the fixture.  The values should be presented in a particular order
+        //    with nothing else thereafter.  In order to do this we'll also need
+        //    to read from the Semesters table.
+        $semesters = TableRegistry::get('Semesters');
+        $iterator = new \MultipleIterator();
+        $iterator->attachIterator(new \ArrayIterator($semestersFixture->records));
+        $iterator->attachIterator(new \ArrayIterator($tbody_rows));
+
+        foreach ($iterator as $values) {
+            $fixtureRecord = $values[0];
+            $htmlRow = $values[1];
+            $htmlColumns = $htmlRow->find('td');
+            $this->assertEquals($fixtureRecord['id'], $htmlColumns[0]->plaintext);
+            $this->assertEquals($fixtureRecord['year'],  $htmlColumns[1]->plaintext);
+            $this->assertEquals($fixtureRecord['seq'],  $htmlColumns[2]->plaintext);
+
+            // Ignore the action links
+        }
     }
 
     public function testViewGET() {
@@ -174,7 +196,7 @@ class SemestersControllerTest extends DMIntegrationTestCase {
 
         $this->fakeLogin();
         $this->get('/semesters/view/' . $semestersFixture->semester1Record['id']);
-        $this->assertResponseOk();
+        $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();
 
         // Make sure this view var is set
@@ -183,18 +205,16 @@ class SemestersControllerTest extends DMIntegrationTestCase {
         // Parse the html from the response
         $html = str_get_html($this->_response->body());
 
-        // Ensure that the correct form exists
-        //$form = $html->find('form[id=SemesterEditForm]')[0];
-        //$this->assertNotNull($form);
+        // How shall we tet the view?  It doesn't have any enclosing table or structure so just
+        // ignore that part.  Instead, look for individual display fields.
+        $field = $html->find('td#id',0);
+        $this->assertEquals($semestersFixture->semester1Record['id'], $field->plaintext);
 
-        // Omit the id field
-        // Ensure that there's a field for year, that is correctly set
-        //$input = $form->find('input[id=SemesterYear]')[0];
-        //$this->assertEquals($input->value, $semestersFixture->semester1Record['year']);
+        $field = $html->find('td#year',0);
+        $this->assertEquals($semestersFixture->semester1Record['year'], $field->plaintext);
 
-        // Ensure that there's a field for seq, that is empty
-        //$input = $form->find('input[id=SemesterSeq]')[0];
-        //$this->assertEquals($input->value, false);
+        $field = $html->find('td#seq',0);
+        $this->assertEquals($semestersFixture->semester1Record['seq'], $field->plaintext);
     }
 
 }

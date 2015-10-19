@@ -6,7 +6,7 @@
 </nav>
 <div class="majors index large-9 medium-8 columns content">
     <h3><?= __('Majors') ?></h3>
-    <table id = "majors" cellpadding="0" cellspacing="0">
+    <table id="majors" cellpadding="0" cellspacing="0">
         <thead>
             <tr>
                 <th id="id"><?= __('id') ?></th>
