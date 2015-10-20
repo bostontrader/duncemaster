@@ -6,16 +6,23 @@ use Cake\TestSuite\Fixture\TestFixture;
 class StudentsFixture extends TestFixture {
     public $import = ['table' => 'students'];
 
-    // Specify id because later we'll try to specifically find this record in the db
-    public $student1Record = ['id'=>5,  'fam_name' => 'Smith', 'giv_name' => 'John'];
+    // This record is injected into the db before the tests.  We need to specify the
+    // id to ensure the test records are properly related.
+    public $student1Record = [
+        'id'=>FixtureConstants::student1_id,
+        'cohort_id'=>FixtureConstants::cohort1_id,
+        'sid'=>'2014010101',
+        'fam_name' => 'Smith', 'giv_name' => 'John'
+    ];
 
-    // This is a new record to be inserted by Cake's patchEntity method. We can't
-    // feasibly control the id, so go with the flow.  But we _can_ predict what
-    // the new ID will be, and we'll need that to read back this record.
-    public $newStudentRecord = ['id'=>6,  'fam_name' => 'Jones', 'giv_name' => 'Sally'];
+    // This record will be added during a test.  We don't need or want to control the id here, so omit it.
+    public $newStudentRecord = [
+        'cohort_id'=>FixtureConstants::cohort1_id,
+        'sid'=>'2014010202',
+        'fam_name' => 'Jones', 'giv_name' => 'Billy'
+    ];
 
-    public function init()
-    {
+    public function init() {
         $this->records = [
             $this->student1Record
         ];

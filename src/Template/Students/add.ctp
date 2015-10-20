@@ -10,6 +10,7 @@
             echo $this->Form->input('sid',['id'=>'StudentSid']);
             echo $this->Form->input('fam_name',['id'=>'StudentFamName']);
             echo $this->Form->input('giv_name',['id'=>'StudentGivName']);
+            echo $this->Form->input('cohort_id', ['id'=>'StudentCohortId', 'options' => $cohorts, 'empty' => '(none selected)']);
         ?>
     </fieldset>
     <?= $this->Form->button(__('Submit')) ?>

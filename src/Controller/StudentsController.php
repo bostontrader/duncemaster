@@ -11,11 +11,12 @@ class StudentsController extends AppController {
             if ($this->Students->save($student)) {
                 //$this->Flash->success(__('The student has been saved.'));
                 return $this->redirect(['action' => 'index']);
-                //} else {
+            } else {
                 //$this->Flash->error(__('The student could not be saved. Please, try again.'));
             }
         }
-        $this->set(compact('student'));
+        $cohorts = $this->Students->Cohorts->find('list');
+        $this->set(compact('student','cohorts'));
     }
 
     public function delete($id = null) {
@@ -30,23 +31,23 @@ class StudentsController extends AppController {
     }
 
     public function edit($id = null) {
-        $this->request->allowMethod(['get', 'post']);
+        $this->request->allowMethod(['get', 'put']);
         $student = $this->Students->get($id);
-        if ($this->request->is(['post'])) {
+        if ($this->request->is(['put'])) {
             $student = $this->Students->patchEntity($student, $this->request->data);
             if ($this->Students->save($student)) {
                 //$this->Flash->success(__('The student has been saved.'));
-                //return $this->redirect(['action' => 'index']);
-                //} else {
+                return $this->redirect(['action' => 'index']);
+            } else {
                 //$this->Flash->error(__('The student could not be saved. Please, try again.'));
             }
         }
-        $this->set(compact('student'));
+        $cohorts = $this->Students->Cohorts->find('list');
+        $this->set(compact('cohorts','student'));
     }
 
     public function index() {
         $this->request->allowMethod(['get']);
-        // We need Cohorts.Majors because the Cohort entity needs this for the nickname virtual field
         $this->set('students', $this->Students->find('all', ['contain' => ['Cohorts.Majors']]));
     }
 

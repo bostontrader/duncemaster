@@ -16,8 +16,7 @@ class SemestersFixture extends TestFixture {
     // This record will be added during a test.  We don't need or want to control the id here, so omit it.
     public $newSemesterRecord = ['year' => 2016, 'seq' => 2];
 
-    public function init()
-    {
+    public function init() {
         $this->records = [
             $this->semester1Record
         ];

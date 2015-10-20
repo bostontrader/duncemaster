@@ -16,8 +16,7 @@ class TeachersFixture extends TestFixture {
     // This record will be added during a test.  We don't need or want to control the id here, so omit it.
     public $newTeacherRecord = ['giv_name' => 'Sally'];
 
-    public function init()
-    {
+    public function init() {
         $this->records = [
             $this->teacher1Record
         ];
