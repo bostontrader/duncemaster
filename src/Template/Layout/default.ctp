@@ -47,6 +47,7 @@
                 <li><a href="#"><?= $loginLink ?></a></li>
                 <li><a href="#"><?= $this->Html->image("us_flag.gif", ['width' => 28, 'height' => 20, 'url' => ['controller' => 'I18n', 'action' => 'eng']]); ?></a></li>
                 <li><a href="#"><?= $this->Html->image("chinese_flag.gif", ['width' => 28, 'height' => 20, 'url' => ['controller' => 'I18n', 'action' => 'chi']]); ?></a></li>
+                <li><a href="#"><?= $this->Html->image("pinyin_flag.gif", ['width' => 28, 'height' => 20, 'url' => ['controller' => 'I18n', 'action' => 'pin']]); ?></a></li>
 
             </ul>
 

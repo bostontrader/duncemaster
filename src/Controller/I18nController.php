@@ -3,7 +3,6 @@
 namespace App\Controller;
 
 use Cake\Event\Event;
-use Cake\I18n\I18n;
 
 class I18nController extends AppController {
 
@@ -25,10 +24,9 @@ class I18nController extends AppController {
 	}
 
     // Pinyin
-	//function pin() {
-        //$this->autoRender = false;
-		//$this->redirect($this->referer());
-	//}
-
+	function pin() {
+        $this->autoRender = false;
+		$this->request->session()->write('Config.language', 'zh_PN'); // my custom locale for pinyin
+		$this->redirect($this->referer());	}
 }
 ?>
