@@ -13,8 +13,7 @@ use Cake\ORM\Entity;
  * @property int $seq
  * @property \App\Model\Entity\Section[] $sections
  */
-class Cohort extends Entity
-{
+class Cohort extends Entity {
 
     /**
      * Fields that can be mass assigned using newEntity() or patchEntity().

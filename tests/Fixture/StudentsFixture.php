@@ -17,7 +17,7 @@ class StudentsFixture extends TestFixture {
 
     // This record will be added during a test.  We don't need or want to control the id here, so omit it.
     public $newStudentRecord = [
-        'cohort_id'=>FixtureConstants::cohort1_id,
+        'cohort_id'=>FixtureConstants::cohort2_id,
         'sid'=>'2014010202',
         'fam_name' => 'Jones', 'giv_name' => 'Billy'
     ];

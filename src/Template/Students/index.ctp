@@ -6,14 +6,14 @@
 </nav>
 <div class="students index large-9 medium-8 columns content">
     <h3><?= __('Students') ?></h3>
-    <table cellpadding="0" cellspacing="0">
+    <table id="students" cellpadding="0" cellspacing="0">
         <thead>
             <tr>
-                <th><?= __('id') ?></th>
-                <th><?= __('Student ID') ?></th>
-                <th><?= __('Name') ?></th>
-                <th><?= __('Cohort') ?></th>
-                <th class="actions"><?= __('Actions') ?></th>
+                <th id="id"><?= __('id') ?></th>
+                <th id="sid"><?= __('Student ID') ?></th>
+                <th id="fullname"><?= __('Name') ?></th>
+                <th id="cohort_nickname"><?= __('Cohort') ?></th>
+                <th id="actions" class="actions"><?= __('Actions') ?></th>
             </tr>
         </thead>
         <tbody>

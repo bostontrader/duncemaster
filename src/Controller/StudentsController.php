@@ -15,7 +15,7 @@ class StudentsController extends AppController {
                 //$this->Flash->error(__('The student could not be saved. Please, try again.'));
             }
         }
-        $cohorts = $this->Students->Cohorts->find('list');
+        $cohorts = $this->Students->Cohorts->find('list',['contain' => ['Majors']]);
         $this->set(compact('student','cohorts'));
     }
 
@@ -42,7 +42,7 @@ class StudentsController extends AppController {
                 //$this->Flash->error(__('The student could not be saved. Please, try again.'));
             }
         }
-        $cohorts = $this->Students->Cohorts->find('list');
+        $cohorts = $this->Students->Cohorts->find('list',['contain' => ['Majors']]);
         $this->set(compact('cohorts','student'));
     }
 

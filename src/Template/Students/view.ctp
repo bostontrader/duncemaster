@@ -7,19 +7,24 @@
     <table class="vertical-table">
         <tr>
             <th><?= __('Id') ?></th>
-            <td><?= $this->Number->format($student->id) ?></td>
+            <td id="id"><?= $student->id ?></td>
+        </tr>
+        <tr>
+            <th><?= __('SID') ?></th>
+            <td id="sid"><?= $student->id ?></td>
+        </tr>
+        <tr>
+            <th><?= __('Family name') ?></th>
+            <td id="fam_name"><?= $student->id ?></td>
+        </tr>
+        <tr>
+            <th><?= __('Given name') ?></th>
+            <td id="giv_name"><?= $student->id ?></td>
+        </tr>
+        <tr>
+            <th><?= __('Major') ?></th>
+            <td id="cohort_title"><?= $student->has('cohort') ? $this->Html->link($student->cohort->title, ['controller' => 'Cohorts', 'action' => 'view', $student->cohort->id]) : '' ?></td>
         </tr>
     </table>
-    <div class="row">
-        <h4><?= __('Sid') ?></h4>
-        <?= $this->Text->autoParagraph(h($student->sid)); ?>
-    </div>
-    <div class="row">
-        <h4><?= __('Fam Name') ?></h4>
-        <?= $this->Text->autoParagraph(h($student->fam_name)); ?>
-    </div>
-    <div class="row">
-        <h4><?= __('Giv Name') ?></h4>
-        <?= $this->Text->autoParagraph(h($student->giv_name)); ?>
-    </div>
+
 </div>

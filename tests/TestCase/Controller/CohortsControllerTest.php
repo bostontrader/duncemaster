@@ -89,6 +89,7 @@ class CohortsControllerTest extends DMIntegrationTestCase {
     public function testEditGET() {
 
         $cohortsFixture = new CohortsFixture();
+        $majorsFixture = new MajorsFixture();
 
         $this->fakeLogin();
         $cohort_id = $cohortsFixture->cohort1Record['id'];
@@ -119,9 +120,15 @@ class CohortsControllerTest extends DMIntegrationTestCase {
         $this->assertEquals($input->type, "text");
         $this->assertEquals($input->value,  $cohortsFixture->cohort1Record['seq']);
 
-        // Ensure that there's a select field for major_id and that is correctly set
+        // Ensure that there's a select field for major_id and that it is correctly set
         $option = $form->find('select#CohortMajorId option[selected]',0);
-        $this->assertEquals($option->value, $cohortsFixture->cohort1Record['major_id']);
+        $major_id = $cohortsFixture->cohort1Record['major_id'];
+        $this->assertEquals($option->value, $major_id);
+
+        // Even though major_id is correct, we don't display major_id.  Instead we display the title
+        // from the related Majors table. Verify that title is displayed correctly.
+        $major = $majorsFixture->get($major_id);
+        $this->assertEquals($major['title'], $option->plaintext);
     }
 
     public function testEditPOST() {

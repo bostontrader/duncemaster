@@ -11,8 +11,7 @@ use Cake\ORM\Entity;
  * @property string $fam_name
  * @property string $giv_name
  */
-class Student extends Entity
-{
+class Student extends Entity {
 
     /**
      * Fields that can be mass assigned using newEntity() or patchEntity().
@@ -27,4 +26,10 @@ class Student extends Entity
         '*' => true,
         'id' => false,
     ];
+
+    protected function _getFullname() {
+        $s1 = $this->_properties['fam_name'];
+        $s2 = $this->_properties['giv_name'];
+        return $s1 . $s2;
+    }
 }

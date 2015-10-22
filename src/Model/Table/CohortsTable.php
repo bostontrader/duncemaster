@@ -13,7 +13,7 @@ class CohortsTable extends Table {
         parent::initialize($config);
 
         //$this->table('cohorts');
-        //$this->displayField('id');
+        $this->displayField('nickname');
         //$this->primaryKey('id');
 
         $this->belongsTo('Majors', [

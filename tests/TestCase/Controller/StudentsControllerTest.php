@@ -1,6 +1,7 @@
 <?php
 namespace App\Test\TestCase\Controller;
 
+use App\Test\Fixture\CohortsFixture;
 use App\Test\Fixture\FixtureConstants;
 use App\Test\Fixture\StudentsFixture;
 use Cake\ORM\TableRegistry;
@@ -20,7 +21,10 @@ class StudentsControllerTest extends DMIntegrationTestCase {
         $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();
 
-        // Make sure these view vars are set, to keep the FormHelper happy
+        // Make sure these view vars are set.
+        // I'd like to check that cohorts contains majors.  But...
+        // doing so has proven to be too complicated and not worth the effort.
+        // Just make sure cohorts contains majors.
         $this->assertNotNull($this->viewVariable('cohorts'));
         $this->assertNotNull($this->viewVariable('student'));
 
@@ -94,6 +98,7 @@ class StudentsControllerTest extends DMIntegrationTestCase {
 
     public function testEditGET() {
 
+        $cohortsFixture = new CohortsFixture();
         $studentsFixture = new StudentsFixture();
 
         $this->fakeLogin();
@@ -102,7 +107,10 @@ class StudentsControllerTest extends DMIntegrationTestCase {
         $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();
 
-        // Make sure these view vars are set, to keep the FormHelper happy
+        // Make sure these view vars are set.
+        // I'd like to check that cohorts contains majors.  But...
+        // doing so has proven to be too complicated and not worth the effort.
+        // Just make sure cohorts contains majors.
         $this->assertNotNull($this->viewVariable('cohorts'));
         $this->assertNotNull($this->viewVariable('student'));
 
@@ -117,8 +125,6 @@ class StudentsControllerTest extends DMIntegrationTestCase {
 
         // Ensure that there's an input field for giv_name, of type text, and that it is correctly set
         $input = $form->find('input#StudentGivName',0);
-        $s1 = $input->value;
-        $s2 = $studentsFixture->student1Record['giv_name'];
         $this->assertEquals($input->value, $studentsFixture->student1Record['giv_name']);
 
         // Ensure that there's an input field for fam_name, of type text, and that it is correctly set
@@ -129,9 +135,17 @@ class StudentsControllerTest extends DMIntegrationTestCase {
         $input = $form->find('input#StudentSid',0);
         $this->assertEquals($input->value,  $studentsFixture->student1Record['sid']);
 
-        // Ensure that there's a select field for major_id and that is correctly set
-        $option = $form->find('select#CohortMajorId option[selected]',0);
-        //$this->assertEquals($option->value, $cohortsFixture->cohort1Record['major_id']);
+        // Ensure that there's a select field for cohort_id and that it is correctly set
+        $option = $form->find('select#StudentCohortId option[selected]',0);
+        $cohort_id = $studentsFixture->student1Record['cohort_id'];
+        $this->assertEquals($option->value, $cohort_id);
+
+        // Even though cohort_id is correct, we don't display cohort_id.  Instead we display the
+        // nickname from the related Cohorts table.  But nickname is a virtual field so we must
+        // read the record in order to get the nickname, instead of looking it up in the fixture records.
+        $cohorts = TableRegistry::get('Cohorts');
+        $cohort = $cohorts->get($cohort_id,['contain' => ['Majors']]);
+        $this->assertEquals($cohort->nickname, $option->plaintext);
     }
 
     public function testEditPOST() {
@@ -184,15 +198,15 @@ class StudentsControllerTest extends DMIntegrationTestCase {
         $this->assertEquals($thead_ths[0]->id, 'id');
         $this->assertEquals($thead_ths[1]->id, 'sid');
         $this->assertEquals($thead_ths[2]->id, 'fullname');
-        $this->assertEquals($thead_ths[3]->id, 'cohort');
+        $this->assertEquals($thead_ths[3]->id, 'cohort_nickname');
         $this->assertEquals($thead_ths[4]->id, 'actions');
         $this->assertEquals(count($thead_ths),5); // no other columns
 
         // 3. Ensure that the tbody section has the same
         //    quantity of rows as the count of cohort records in the fixture.
         $cohortsFixture = new CohortsFixture();
-        $majorsFixture = new MajorsFixture();
-        $tbody = $cohorts_table->find('tbody',0);
+        $studentsFixture = new StudentsFixture();
+        $tbody = $students_table->find('tbody',0);
         $tbody_rows = $tbody->find('tr');
         $this->assertEquals(count($tbody_rows), count($cohortsFixture));
 
@@ -200,9 +214,9 @@ class StudentsControllerTest extends DMIntegrationTestCase {
         //    the fixture.  The values should be presented in a particular order
         //    with nothing else thereafter.  In order to do this we'll also need
         //    to read from the Cohorts table.
-        $cohorts = TableRegistry::get('Cohorts');
+        $students = TableRegistry::get('Students');
         $iterator = new \MultipleIterator();
-        $iterator->attachIterator(new \ArrayIterator($cohortsFixture->records));
+        $iterator->attachIterator(new \ArrayIterator($studentsFixture->records));
         $iterator->attachIterator(new \ArrayIterator($tbody_rows));
 
         foreach ($iterator as $values) {
@@ -210,19 +224,16 @@ class StudentsControllerTest extends DMIntegrationTestCase {
             $htmlRow = $values[1];
             $htmlColumns = $htmlRow->find('td');
             $this->assertEquals($fixtureRecord['id'], $htmlColumns[0]->plaintext);
-            $this->assertEquals($fixtureRecord['start_year'],  $htmlColumns[1]->plaintext);
+            $this->assertEquals($fixtureRecord['sid'],  $htmlColumns[1]->plaintext);
 
-            // major_id requires finding the related value in the MajorsFixture
-            $major_id = $fixtureRecord['major_id'];
-            $major = $majorsFixture->get($major_id);
-            $this->assertEquals($major['sdesc'], $htmlColumns[2]->plaintext);
+            // fullname is computed by the Student Entity.
+            $student = $students->get($fixtureRecord['id'],['contain' => ['Cohorts.Majors']]);
+            $this->assertEquals($student->fullname, $htmlColumns[2]->plaintext);
 
-            $this->assertEquals($fixtureRecord['seq'],  $htmlColumns[3]->plaintext);
+            $this->assertEquals($student->cohort->nickname, $htmlColumns[3]->plaintext);
 
-            // nickname is computed by the Cohort Entity.
-            $cohort = $cohorts->get($fixtureRecord['id'], ['contain' => ['Majors']]);
-            $this->assertEquals($cohort->nickname, $htmlColumns[4]->plaintext);
             // Ignore the action links
+
         }
 
     }
