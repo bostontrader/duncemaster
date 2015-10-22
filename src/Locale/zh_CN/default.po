@@ -1,755 +1,605 @@
+# LANGUAGE translation of CakePHP Application
+# Copyright YEAR NAME <EMAIL@ADDRESS>
+# Tom <bostontrader@gmail.com>, 2015.
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2015-10-04 07:35+0800\n"
-"PO-Revision-Date: 2015-10-04 07:36+0800\n"
-"Last-Translator: John Smith <no@spam.com>\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2015-10-22 10:05+0000\n"
+"PO-Revision-Date: 2015-10-22 19:26+0800\n"
+"Last-Translator: Tom <bostontrader@gmail.com>\n"
 "Language-Team: \n"
 "Language: zh_CN\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.8.5\n"
-"X-Poedit-Basepath: .\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Virtaal 0.7.1\n"
+"X-Poedit-Basepath: .\n"
 
-#: Controller/ClazzesController.php:55;81
-msgid "The clazze has been saved."
+#: C:/xampp_1_8_2/htdocs/sdcth//Controller/ClazzsController.php:12;40
+msgid "The clazz has been saved."
 msgstr ""
 
-#: Controller/ClazzesController.php:58;84
-msgid "The clazze could not be saved. Please, try again."
+#: C:/xampp_1_8_2/htdocs/sdcth//Controller/ClazzsController.php:15;43
+msgid "The clazz could not be saved. Please, try again."
 msgstr ""
 
-#: Controller/ClazzesController.php:104
-msgid "The clazze has been deleted."
-msgstr ""
-
-#: Controller/ClazzesController.php:106
-msgid "The clazze could not be deleted. Please, try again."
-msgstr ""
-
-#: Controller/CohortsController.php:57;87
-msgid "The cohort has been saved."
-msgstr ""
-
-#: Controller/CohortsController.php:60;90
-msgid "The cohort could not be saved. Please, try again."
-msgstr ""
-
-#: Controller/CohortsController.php:113
-msgid "The cohort has been deleted."
-msgstr ""
-
-#: Controller/CohortsController.php:115
-msgid "The cohort could not be deleted. Please, try again."
-msgstr ""
-
-#: Controller/InteractionsController.php:52;77
-msgid "The interaction has been saved."
-msgstr ""
-
-#: Controller/InteractionsController.php:55;80
-msgid "The interaction could not be saved. Please, try again."
-msgstr ""
-
-#: Controller/InteractionsController.php:99
-msgid "The interaction has been deleted."
-msgstr ""
-
-#: Controller/InteractionsController.php:101
-msgid "The interaction could not be deleted. Please, try again."
-msgstr ""
-
-#: Controller/MajorsController.php:52;77
-msgid "The major has been saved."
-msgstr ""
-
-#: Controller/MajorsController.php:55;80
-msgid "The major could not be saved. Please, try again."
-msgstr ""
-
-#: Controller/MajorsController.php:99
-msgid "The major has been deleted."
-msgstr ""
-
-#: Controller/MajorsController.php:101
-msgid "The major could not be deleted. Please, try again."
-msgstr ""
-
-#: Controller/SectionsController.php:50;78
-msgid "The section has been saved."
-msgstr ""
-
-#: Controller/SectionsController.php:53;81
-msgid "The section could not be saved. Please, try again."
-msgstr ""
-
-#: Controller/SectionsController.php:102
-msgid "The section has been deleted."
-msgstr ""
-
-#: Controller/SectionsController.php:104
-msgid "The section could not be deleted. Please, try again."
-msgstr ""
-
-#: Controller/SemestersController.php:56;81
-msgid "The semester has been saved."
-msgstr ""
-
-#: Controller/SemestersController.php:59;84
-msgid "The semester could not be saved. Please, try again."
-msgstr ""
-
-#: Controller/SemestersController.php:103
-msgid "The semester has been deleted."
-msgstr ""
-
-#: Controller/SemestersController.php:105
-msgid "The semester could not be deleted. Please, try again."
-msgstr ""
-
-#: Controller/StudentsController.php:51;76
-msgid "The student has been saved."
-msgstr ""
-
-#: Controller/StudentsController.php:54;79
-msgid "The student could not be saved. Please, try again."
-msgstr ""
-
-#: Controller/StudentsController.php:98
-msgid "The student has been deleted."
-msgstr ""
-
-#: Controller/StudentsController.php:100
-msgid "The student could not be deleted. Please, try again."
-msgstr ""
-
-#: Controller/SubjectsController.php:52;77
-msgid "The subject has been saved."
-msgstr ""
-
-#: Controller/SubjectsController.php:55;80
-msgid "The subject could not be saved. Please, try again."
-msgstr ""
-
-#: Controller/SubjectsController.php:99
-msgid "The subject has been deleted."
-msgstr ""
-
-#: Controller/SubjectsController.php:101
-msgid "The subject could not be deleted. Please, try again."
-msgstr ""
-
-#: Controller/TeachersController.php:52;77
-msgid "The teacher has been saved."
-msgstr ""
-
-#: Controller/TeachersController.php:55;80
-msgid "The teacher could not be saved. Please, try again."
-msgstr ""
-
-#: Controller/TeachersController.php:99
-msgid "The teacher has been deleted."
-msgstr ""
-
-#: Controller/TeachersController.php:101
-msgid "The teacher could not be deleted. Please, try again."
-msgstr ""
-
-#: Controller/UsersController.php:30
+#: C:/xampp_1_8_2/htdocs/sdcth//Controller/UsersController.php:71
 msgid "Invalid username or password, try again"
 msgstr ""
 
-#: Controller/UsersController.php:73;97
-msgid "The user has been saved."
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Clazzs/add.ctp:8
+msgid "Add Class"
 msgstr ""
 
-#: Controller/UsersController.php:76;100
-msgid "The user could not be saved. Please, try again."
-msgstr ""
-
-#: Controller/UsersController.php:118
-msgid "The user has been deleted."
-msgstr ""
-
-#: Controller/UsersController.php:120
-msgid "The user could not be deleted. Please, try again."
-msgstr ""
-
-#: Template/Clazzes/add.ctp:3 Template/Clazzes/edit.ctp:3
-#: Template/Clazzes/index.ctp:2;13 Template/Clazzes/view.ctp:3
-#: Template/Cohorts/add.ctp:3 Template/Cohorts/edit.ctp:3
-#: Template/Cohorts/index.ctp:3;17 Template/Cohorts/view.ctp:3;45;76
-#: Template/Interactions/add.ctp:3 Template/Interactions/edit.ctp:3
-#: Template/Interactions/index.ctp:3;15 Template/Interactions/view.ctp:3
-#: Template/Majors/add.ctp:3 Template/Majors/edit.ctp:3
-#: Template/Majors/index.ctp:3;15 Template/Majors/view.ctp:3;35
-#: Template/Pages/home.ctp:12 Template/Sections/edit.ctp:3
-#: Template/Sections/index.ctp:3;17 Template/Sections/view.ctp:3
-#: Template/Semesters/add.ctp:3 Template/Semesters/edit.ctp:3
-#: Template/Semesters/index.ctp:3;15 Template/Semesters/view.ctp:3
-#: Template/Students/add.ctp:3 Template/Students/edit.ctp:3
-#: Template/Students/index.ctp:3;16 Template/Students/view.ctp:3
-#: Template/Subjects/add.ctp:3 Template/Subjects/edit.ctp:3
-#: Template/Subjects/index.ctp:3;16 Template/Subjects/view.ctp:3;33
-#: Template/Teachers/add.ctp:3 Template/Teachers/edit.ctp:3
-#: Template/Teachers/index.ctp:3;14 Template/Teachers/view.ctp:3
-#: Template/Users/add.ctp:3 Template/Users/edit.ctp:3
-#: Template/Users/index.ctp:3;17 Template/Users/view.ctp:3
-msgid "Actions"
-msgstr ""
-
-#: Template/Clazzes/add.ctp:4 Template/Clazzes/edit.ctp:10
-#: Template/Clazzes/view.ctp:6
-msgid "List Clazzes"
-msgstr ""
-
-#: Template/Clazzes/add.ctp:5 Template/Clazzes/edit.ctp:11
-#: Template/Clazzes/view.ctp:8 Template/Cohorts/add.ctp:7
-#: Template/Cohorts/edit.ctp:13 Template/Cohorts/view.ctp:10
-#: Template/Sections/edit.ctp:10 Template/Sections/view.ctp:6
-#: Template/Subjects/add.ctp:5 Template/Subjects/edit.ctp:11
-#: Template/Subjects/index.ctp:5
-msgid "List Sections"
-msgstr ""
-
-#: Template/Clazzes/add.ctp:6 Template/Clazzes/edit.ctp:12
-#: Template/Clazzes/view.ctp:9 Template/Cohorts/add.ctp:8
-#: Template/Cohorts/edit.ctp:14 Template/Cohorts/view.ctp:11
-#: Template/Sections/index.ctp:4 Template/Sections/view.ctp:7
-#: Template/Subjects/add.ctp:6 Template/Subjects/edit.ctp:12
-#: Template/Subjects/index.ctp:6
-msgid "New Section"
-msgstr ""
-
-#: Template/Clazzes/add.ctp:12
-msgid "Add Clazze"
-msgstr ""
-
-#: Template/Clazzes/add.ctp:18 Template/Clazzes/edit.ctp:24
-#: Template/Cohorts/add.ctp:21 Template/Cohorts/edit.ctp:27
-#: Template/Interactions/add.ctp:16 Template/Interactions/edit.ctp:22
-#: Template/Majors/add.ctp:18 Template/Majors/edit.ctp:22
-#: Template/Sections/add.ctp:15 Template/Sections/edit.ctp:28
-#: Template/Semesters/add.ctp:16 Template/Semesters/edit.ctp:22
-#: Template/Students/add.ctp:17 Template/Students/edit.ctp:23
-#: Template/Subjects/add.ctp:17 Template/Subjects/edit.ctp:23
-#: Template/Teachers/add.ctp:15 Template/Teachers/edit.ctp:21
-#: Template/Users/add.ctp:16 Template/Users/edit.ctp:22
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Clazzs/add.ctp:14
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Clazzs/edit.ctp:15
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Cohorts/add.ctp:15
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Cohorts/edit.ctp:15
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Interactions/add.ctp:16
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Interactions/edit.ctp:22
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Majors/add.ctp:14
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Majors/edit.ctp:14
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Sections/add.ctp:15
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Sections/edit.ctp:16
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Semesters/add.ctp:14
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Semesters/edit.ctp:14
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Students/add.ctp:16
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Students/edit.ctp:16
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Subjects/add.ctp:14
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Subjects/edit.ctp:14
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Teachers/add.ctp:13
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Teachers/edit.ctp:13
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Users/add.ctp:16
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Users/edit.ctp:15
 msgid "Submit"
-msgstr ""
+msgstr "提交"
 
-#: Template/Clazzes/edit.ctp:5 Template/Clazzes/index.ctp:25
-#: Template/Cohorts/edit.ctp:5 Template/Cohorts/index.ctp:32
-#: Template/Cohorts/view.ctp:59;88 Template/Interactions/edit.ctp:5
-#: Template/Interactions/index.ctp:27 Template/Majors/edit.ctp:5
-#: Template/Majors/index.ctp:27 Template/Majors/view.ctp:48
-#: Template/Sections/edit.ctp:5 Template/Sections/index.ctp:34
-#: Template/Semesters/edit.ctp:5 Template/Semesters/index.ctp:27
-#: Template/Students/edit.ctp:5 Template/Students/index.ctp:29
-#: Template/Subjects/edit.ctp:5 Template/Subjects/index.ctp:27
-#: Template/Subjects/view.ctp:47 Template/Teachers/edit.ctp:5
-#: Template/Teachers/index.ctp:25 Template/Users/edit.ctp:5
-#: Template/Users/index.ctp:31
-msgid "Delete"
-msgstr ""
-
-#: Template/Clazzes/edit.ctp:7 Template/Clazzes/index.ctp:25
-#: Template/Clazzes/view.ctp:5 Template/Cohorts/edit.ctp:7
-#: Template/Cohorts/index.ctp:32 Template/Cohorts/view.ctp:5;59;88
-#: Template/Interactions/edit.ctp:7 Template/Interactions/index.ctp:27
-#: Template/Interactions/view.ctp:5 Template/Majors/edit.ctp:7
-#: Template/Majors/index.ctp:27 Template/Majors/view.ctp:5;48
-#: Template/Sections/edit.ctp:7 Template/Sections/index.ctp:34
-#: Template/Sections/view.ctp:5 Template/Semesters/edit.ctp:7
-#: Template/Semesters/index.ctp:27 Template/Semesters/view.ctp:5
-#: Template/Students/edit.ctp:7 Template/Students/index.ctp:29
-#: Template/Students/view.ctp:5 Template/Subjects/edit.ctp:7
-#: Template/Subjects/index.ctp:27 Template/Subjects/view.ctp:5;47
-#: Template/Teachers/edit.ctp:7 Template/Teachers/index.ctp:25
-#: Template/Teachers/view.ctp:5 Template/Users/edit.ctp:7
-#: Template/Users/index.ctp:31 Template/Users/view.ctp:5
-msgid "Are you sure you want to delete # {0}?"
-msgstr ""
-
-#: Template/Clazzes/edit.ctp:18 Template/Clazzes/view.ctp:4
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Clazzs/edit.ctp:8
 msgid "Edit Clazze"
 msgstr ""
 
-#: Template/Clazzes/index.ctp:3
-msgid "New Class"
-msgstr ""
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Clazzs/index.ctp:2;13
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Cohorts/index.ctp:3;17
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Cohorts/view.ctp:41;72
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Interactions/add.ctp:3
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Interactions/edit.ctp:3
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Interactions/index.ctp:3;15
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Interactions/view.ctp:3
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Majors/index.ctp:3;15
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Majors/view.ctp:31
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Pages/home.ctp:12
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Sections/index.ctp:3;17
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Sections/view.ctp:3
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Semesters/index.ctp:3;15
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Students/index.ctp:3;16
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Subjects/add.ctp:3
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Subjects/edit.ctp:3
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Subjects/index.ctp:3;14
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Subjects/view.ctp:28
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Teachers/index.ctp:3;14
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Users/add.ctp:3
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Users/edit.ctp:3
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Users/index.ctp:3;17
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Users/view.ctp:3
+msgid "Actions"
+msgstr "操作"
 
-#: Template/Clazzes/index.ctp:6 Template/Pages/home.ctp:22
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Clazzs/index.ctp:3
+msgid "New Class"
+msgstr "创建"
+
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Clazzs/index.ctp:6
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Pages/home.ctp:22
 msgid "Classes"
 msgstr ""
 
-#: Template/Clazzes/index.ctp:10 Template/Cohorts/view.ctp:73
-#: Template/Majors/index.ctp:12 Template/Sections/index.ctp:12
-#: Template/Semesters/index.ctp:12 Template/Students/index.ctp:12
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Clazzs/index.ctp:10
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Cohorts/index.ctp:12
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Cohorts/view.ctp:69
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Majors/index.ctp:12
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Sections/index.ctp:12
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Semesters/index.ctp:12
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Students/index.ctp:12
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Subjects/index.ctp:12
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Teachers/index.ctp:12
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Users/index.ctp:12
 msgid "id"
-msgstr ""
+msgstr "编号"
 
-#: Template/Clazzes/index.ctp:11
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Clazzs/index.ctp:11
 msgid "section_id"
 msgstr ""
 
-#: Template/Clazzes/index.ctp:12
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Clazzs/index.ctp:12
 msgid "datetime"
 msgstr ""
 
-#: Template/Clazzes/index.ctp:23 Template/Cohorts/index.ctp:30
-#: Template/Cohorts/view.ctp:55;84 Template/Interactions/index.ctp:25
-#: Template/Majors/index.ctp:25 Template/Majors/view.ctp:44
-#: Template/Sections/index.ctp:32 Template/Semesters/index.ctp:25
-#: Template/Students/index.ctp:27 Template/Subjects/index.ctp:25
-#: Template/Subjects/view.ctp:43 Template/Teachers/index.ctp:23
-#: Template/Users/index.ctp:29
-msgid "View"
-msgstr ""
-
-#: Template/Clazzes/index.ctp:24 Template/Cohorts/index.ctp:31
-#: Template/Cohorts/view.ctp:57;86 Template/Interactions/index.ctp:26
-#: Template/Majors/index.ctp:26 Template/Majors/view.ctp:46
-#: Template/Sections/index.ctp:33 Template/Semesters/index.ctp:26
-#: Template/Students/index.ctp:28 Template/Subjects/index.ctp:26
-#: Template/Subjects/view.ctp:45 Template/Teachers/index.ctp:24
-#: Template/Users/index.ctp:30
-msgid "Edit"
-msgstr ""
-
-#: Template/Clazzes/view.ctp:5
-msgid "Delete Clazze"
-msgstr ""
-
-#: Template/Clazzes/view.ctp:7
-msgid "New Clazze"
-msgstr ""
-
-#: Template/Clazzes/view.ctp:16
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Clazzs/view.ctp:9
 msgid "Section"
 msgstr ""
 
-#: Template/Clazzes/view.ctp:20 Template/Cohorts/view.ctp:22;40
-#: Template/Interactions/view.ctp:14 Template/Majors/view.ctp:14;31
-#: Template/Sections/view.ctp:22 Template/Semesters/view.ctp:14
-#: Template/Students/view.ctp:14 Template/Subjects/view.ctp:14;28
-#: Template/Teachers/view.ctp:14 Template/Users/view.ctp:22
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Clazzs/view.ctp:13
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Cohorts/view.ctp:13;36
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Interactions/view.ctp:14
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Majors/view.ctp:9;27
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Sections/view.ctp:22
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Semesters/view.ctp:9
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Students/view.ctp:9
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Subjects/view.ctp:9;23
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Teachers/view.ctp:9
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Users/view.ctp:22
 msgid "Id"
-msgstr ""
+msgstr "编号"
 
-#: Template/Clazzes/view.ctp:24
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Clazzs/view.ctp:17
 msgid "Datetime"
 msgstr ""
 
-#: Template/Cohorts/add.ctp:4 Template/Cohorts/edit.ctp:10
-#: Template/Cohorts/view.ctp:6
-msgid "List Cohorts"
-msgstr ""
-
-#: Template/Cohorts/add.ctp:5 Template/Cohorts/edit.ctp:11
-#: Template/Cohorts/view.ctp:8 Template/Majors/add.ctp:4
-#: Template/Majors/edit.ctp:10 Template/Majors/view.ctp:6
-msgid "List Majors"
-msgstr ""
-
-#: Template/Cohorts/add.ctp:6 Template/Cohorts/edit.ctp:12
-#: Template/Cohorts/view.ctp:9 Template/Majors/index.ctp:4
-#: Template/Majors/view.ctp:7
-msgid "New Major"
-msgstr ""
-
-#: Template/Cohorts/add.ctp:14
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Cohorts/add.ctp:8
 msgid "Add Cohort"
-msgstr ""
+msgstr "创建"
 
-#: Template/Cohorts/edit.ctp:20 Template/Cohorts/view.ctp:4
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Cohorts/edit.ctp:8
 msgid "Edit Cohort"
 msgstr ""
 
-#: Template/Cohorts/index.ctp:4 Template/Cohorts/view.ctp:7
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Cohorts/index.ctp:4
 msgid "New Cohort"
-msgstr ""
+msgstr "创建"
 
-#: Template/Cohorts/index.ctp:8 Template/Pages/home.ctp:19
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Cohorts/index.ctp:8
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Pages/home.ctp:19
 msgid "Cohorts"
+msgstr "班级"
+
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Cohorts/index.ctp:13
+msgid "Start year"
 msgstr ""
 
-#: Template/Cohorts/index.ctp:40 Template/Interactions/index.ctp:35
-#: Template/Sections/index.ctp:43 Template/Students/index.ctp:38
-#: Template/Subjects/index.ctp:35 Template/Teachers/index.ctp:33
-#: Template/Users/index.ctp:39
-msgid "previous"
-msgstr ""
-
-#: Template/Cohorts/index.ctp:42 Template/Interactions/index.ctp:37
-#: Template/Sections/index.ctp:45 Template/Students/index.ctp:40
-#: Template/Subjects/index.ctp:37 Template/Teachers/index.ctp:35
-#: Template/Users/index.ctp:41
-msgid "next"
-msgstr ""
-
-#: Template/Cohorts/view.ctp:5
-msgid "Delete Cohort"
-msgstr ""
-
-#: Template/Cohorts/view.ctp:18
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Cohorts/index.ctp:14
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Cohorts/view.ctp:9
 msgid "Major"
 msgstr ""
 
-#: Template/Cohorts/view.ctp:26 Template/Majors/view.ctp:32
-msgid "Start Year"
-msgstr ""
-
-#: Template/Cohorts/view.ctp:30 Template/Majors/view.ctp:34
-#: Template/Semesters/view.ctp:22
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Cohorts/index.ctp:15
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Cohorts/view.ctp:21
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Majors/view.ctp:30
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Semesters/view.ctp:17
 msgid "Seq"
 msgstr ""
 
-#: Template/Cohorts/view.ctp:36 Template/Subjects/view.ctp:24
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Cohorts/index.ctp:16
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Cohorts/view.ctp:26
+msgid "Nickname"
+msgstr ""
+
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Cohorts/index.ctp:30
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Cohorts/view.ctp:51;80
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Interactions/index.ctp:25
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Majors/index.ctp:25
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Majors/view.ctp:40
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Sections/index.ctp:28
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Semesters/index.ctp:25
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Students/index.ctp:27
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Subjects/index.ctp:23
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Subjects/view.ctp:38
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Teachers/index.ctp:23
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Users/index.ctp:29
+msgid "View"
+msgstr "查看"
+
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Cohorts/index.ctp:31
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Cohorts/view.ctp:53;82
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Interactions/index.ctp:26
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Majors/index.ctp:26
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Majors/view.ctp:42
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Sections/index.ctp:29
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Semesters/index.ctp:26
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Students/index.ctp:28
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Subjects/index.ctp:24
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Subjects/view.ctp:40
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Teachers/index.ctp:24
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Users/index.ctp:30
+msgid "Edit"
+msgstr "编辑"
+
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Cohorts/index.ctp:32
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Cohorts/view.ctp:55;84
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Interactions/edit.ctp:5
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Interactions/index.ctp:27
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Majors/index.ctp:27
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Majors/view.ctp:44
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Sections/index.ctp:30
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Semesters/index.ctp:27
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Students/index.ctp:29
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Subjects/index.ctp:25
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Subjects/view.ctp:42
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Teachers/index.ctp:25
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Users/index.ctp:31
+msgid "Delete"
+msgstr "删除"
+
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Cohorts/index.ctp:32
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Cohorts/view.ctp:55;84
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Interactions/edit.ctp:7
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Interactions/index.ctp:27
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Interactions/view.ctp:5
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Majors/index.ctp:27
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Majors/view.ctp:44
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Sections/index.ctp:30
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Sections/view.ctp:5
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Semesters/index.ctp:27
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Students/index.ctp:29
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Subjects/index.ctp:25
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Subjects/view.ctp:42
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Teachers/index.ctp:25
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Users/index.ctp:31
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Users/view.ctp:5
+msgid "Are you sure you want to delete # {0}?"
+msgstr ""
+
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Cohorts/view.ctp:17
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Majors/view.ctp:28
+msgid "Start Year"
+msgstr ""
+
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Cohorts/view.ctp:32
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Subjects/view.ctp:19
 msgid "Related Sections"
 msgstr ""
 
-#: Template/Cohorts/view.ctp:41 Template/Subjects/view.ctp:29
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Cohorts/view.ctp:37
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Subjects/view.ctp:24
 msgid "Cohort Id"
 msgstr ""
 
-#: Template/Cohorts/view.ctp:42 Template/Subjects/view.ctp:30
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Cohorts/view.ctp:38
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Subjects/view.ctp:25
 msgid "Subject Id"
 msgstr ""
 
-#: Template/Cohorts/view.ctp:43 Template/Sections/view.ctp:26
-#: Template/Subjects/view.ctp:31
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Cohorts/view.ctp:39
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Sections/view.ctp:26
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Subjects/view.ctp:26
 msgid "Weekday"
 msgstr ""
 
-#: Template/Cohorts/view.ctp:44 Template/Sections/view.ctp:30
-#: Template/Subjects/view.ctp:32
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Cohorts/view.ctp:40
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Sections/view.ctp:30
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Subjects/view.ctp:27
 msgid "Time"
 msgstr ""
 
-#: Template/Cohorts/view.ctp:69
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Cohorts/view.ctp:65
 msgid "Related Students"
 msgstr ""
 
-#: Template/Cohorts/view.ctp:74 Template/Students/index.ctp:13
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Cohorts/view.ctp:70
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Students/index.ctp:13
 msgid "Student ID"
-msgstr ""
+msgstr "学号"
 
-#: Template/Cohorts/view.ctp:75 Template/Students/index.ctp:14
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Cohorts/view.ctp:71
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Students/index.ctp:14
 msgid "Name"
-msgstr ""
+msgstr "姓名"
 
-#: Template/Interactions/add.ctp:4 Template/Interactions/edit.ctp:10
-#: Template/Interactions/view.ctp:6
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Interactions/add.ctp:4
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Interactions/edit.ctp:10
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Interactions/view.ctp:6
 msgid "List Interactions"
 msgstr ""
 
-#: Template/Interactions/add.ctp:10
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Interactions/add.ctp:10
 msgid "Add Interaction"
-msgstr ""
+msgstr "创建"
 
-#: Template/Interactions/edit.ctp:16 Template/Interactions/view.ctp:4
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Interactions/edit.ctp:16
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Interactions/view.ctp:4
 msgid "Edit Interaction"
 msgstr ""
 
-#: Template/Interactions/index.ctp:4 Template/Interactions/view.ctp:7
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Interactions/index.ctp:4
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Interactions/view.ctp:7
 msgid "New Interaction"
-msgstr ""
+msgstr "创建"
 
-#: Template/Interactions/index.ctp:8 Template/Pages/home.ctp:23
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Interactions/index.ctp:8
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Pages/home.ctp:23
 msgid "Interactions"
 msgstr ""
 
-#: Template/Interactions/view.ctp:5
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Interactions/index.ctp:35
+msgid "previous"
+msgstr ""
+
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Interactions/index.ctp:37
+msgid "next"
+msgstr ""
+
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Interactions/view.ctp:5
 msgid "Delete Interaction"
 msgstr ""
 
-#: Template/Interactions/view.ctp:18
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Interactions/view.ctp:18
 msgid "Class Id"
 msgstr ""
 
-#: Template/Interactions/view.ctp:22
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Interactions/view.ctp:22
 msgid "Student Id"
 msgstr ""
 
-#: Template/Majors/add.ctp:5 Template/Sections/edit.ctp:11
-msgid "List Herds"
-msgstr ""
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Layout/default.ctp:28
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Users/login.ctp:9
+msgid "Login"
+msgstr "登录"
 
-#: Template/Majors/add.ctp:6 Template/Sections/edit.ctp:12
-msgid "New Herd"
-msgstr ""
-
-#: Template/Majors/add.ctp:12
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Majors/add.ctp:8
 msgid "Add Major"
-msgstr ""
+msgstr "创建"
 
-#: Template/Majors/edit.ctp:16 Template/Majors/view.ctp:4
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Majors/edit.ctp:8
 msgid "Edit Major"
 msgstr ""
 
-#: Template/Majors/index.ctp:8 Template/Pages/home.ctp:13
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Majors/index.ctp:4
+msgid "New Major"
+msgstr "创建"
+
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Majors/index.ctp:8
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Pages/home.ctp:13
 msgid "Majors"
 msgstr "主修课"
 
-#: Template/Majors/index.ctp:13 Template/Subjects/index.ctp:15
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Majors/index.ctp:13
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Majors/view.ctp:13
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Subjects/index.ctp:13
 msgid "Title"
-msgstr ""
+msgstr "标题"
 
-#: Template/Majors/index.ctp:14
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Majors/index.ctp:14
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Majors/view.ctp:17
 msgid "SDesc"
-msgstr ""
+msgstr "代码"
 
-#: Template/Majors/view.ctp:5
-msgid "Delete Major"
-msgstr ""
-
-#: Template/Majors/view.ctp:19 Template/Subjects/view.ctp:19
-msgid "Desc"
-msgstr ""
-
-#: Template/Majors/view.ctp:23
-msgid "Sdesc"
-msgstr ""
-
-#: Template/Majors/view.ctp:27
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Majors/view.ctp:23
 msgid "Related Cohorts"
 msgstr ""
 
-#: Template/Majors/view.ctp:33
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Majors/view.ctp:29
 msgid "Major Id"
 msgstr ""
 
-#: Template/Pages/home.ctp:14 Template/Semesters/index.ctp:8
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Pages/home.ctp:14
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Semesters/index.ctp:8
 msgid "Semesters"
-msgstr ""
+msgstr "学期"
 
-#: Template/Pages/home.ctp:15 Template/Students/index.ctp:8
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Pages/home.ctp:15
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Students/index.ctp:8
 msgid "Students"
-msgstr ""
+msgstr "学生花名册"
 
-#: Template/Pages/home.ctp:16 Template/Subjects/index.ctp:10
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Pages/home.ctp:16
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Subjects/index.ctp:8
 msgid "Subjects"
-msgstr ""
+msgstr "科目"
 
-#: Template/Pages/home.ctp:17 Template/Teachers/index.ctp:8
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Pages/home.ctp:17
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Teachers/index.ctp:8
 msgid "Teachers"
-msgstr ""
+msgstr "任教老师"
 
-#: Template/Pages/home.ctp:20 Template/Sections/index.ctp:8
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Pages/home.ctp:20
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Sections/index.ctp:8
 msgid "Sections"
 msgstr ""
 
-#: Template/Sections/add.ctp:7
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Sections/add.ctp:7
 msgid "Add Section"
-msgstr ""
+msgstr "创建"
 
-#: Template/Sections/edit.ctp:13 Template/Subjects/add.ctp:4
-#: Template/Subjects/edit.ctp:10 Template/Subjects/view.ctp:6
-msgid "List Subjects"
-msgstr ""
-
-#: Template/Sections/edit.ctp:14 Template/Subjects/index.ctp:4
-#: Template/Subjects/view.ctp:7
-msgid "New Subject"
-msgstr ""
-
-#: Template/Sections/edit.ctp:20 Template/Sections/view.ctp:4
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Sections/edit.ctp:8
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Sections/view.ctp:4
 msgid "Edit Section"
 msgstr ""
 
-#: Template/Sections/index.ctp:13
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Sections/index.ctp:4
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Sections/view.ctp:7
+msgid "New Section"
+msgstr "创建"
+
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Sections/index.ctp:13
 msgid "cohort"
 msgstr ""
 
-#: Template/Sections/index.ctp:14
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Sections/index.ctp:14
 msgid "subject"
 msgstr ""
 
-#: Template/Sections/index.ctp:15
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Sections/index.ctp:15
 msgid "weekday"
 msgstr ""
 
-#: Template/Sections/index.ctp:16
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Sections/index.ctp:16
 msgid "time"
 msgstr ""
 
-#: Template/Sections/view.ctp:5
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Sections/view.ctp:5
 msgid "Delete Section"
 msgstr ""
 
-#: Template/Sections/view.ctp:14 Template/Students/index.ctp:15
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Sections/view.ctp:6
+msgid "List Sections"
+msgstr ""
+
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Sections/view.ctp:14
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Students/index.ctp:15
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Students/view.ctp:25
 msgid "Cohort"
-msgstr ""
+msgstr "班级"
 
-#: Template/Sections/view.ctp:18
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Sections/view.ctp:18
 msgid "Subject"
-msgstr ""
+msgstr "科目"
 
-#: Template/Semesters/add.ctp:4 Template/Semesters/edit.ctp:10
-#: Template/Semesters/view.ctp:6
-msgid "List Semesters"
-msgstr ""
-
-#: Template/Semesters/add.ctp:10
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Semesters/add.ctp:8
 msgid "Add Semester"
-msgstr ""
+msgstr "创建"
 
-#: Template/Semesters/edit.ctp:16 Template/Semesters/view.ctp:4
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Semesters/edit.ctp:8
 msgid "Edit Semester"
 msgstr ""
 
-#: Template/Semesters/index.ctp:4 Template/Semesters/view.ctp:7
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Semesters/index.ctp:4
 msgid "New Semester"
-msgstr ""
+msgstr "创建"
 
-#: Template/Semesters/index.ctp:13
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Semesters/index.ctp:13
 #, fuzzy
 msgid "year"
 msgstr "年"
 
-#: Template/Semesters/index.ctp:14
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Semesters/index.ctp:14
 msgid "seq"
 msgstr ""
 
-#: Template/Semesters/view.ctp:5
-msgid "Delete Semester"
-msgstr ""
-
-#: Template/Semesters/view.ctp:18
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Semesters/view.ctp:13
 #, fuzzy
 msgid "Year"
 msgstr "年"
 
-#: Template/Students/add.ctp:4 Template/Students/edit.ctp:10
-#: Template/Students/view.ctp:6
-msgid "List Students"
-msgstr ""
-
-#: Template/Students/add.ctp:10
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Students/add.ctp:8
 msgid "Add Student"
-msgstr ""
+msgstr "创建"
 
-#: Template/Students/edit.ctp:16 Template/Students/view.ctp:4
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Students/edit.ctp:8
 msgid "Edit Student"
 msgstr ""
 
-#: Template/Students/index.ctp:4 Template/Students/view.ctp:7
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Students/index.ctp:4
 msgid "New Student"
+msgstr "创建"
+
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Students/view.ctp:13
+msgid "SID"
 msgstr ""
 
-#: Template/Students/view.ctp:5
-msgid "Delete Student"
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Students/view.ctp:17
+msgid "Family name"
 msgstr ""
 
-#: Template/Students/view.ctp:19
-msgid "Sid"
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Students/view.ctp:21
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Teachers/view.ctp:13
+msgid "Given name"
 msgstr ""
 
-#: Template/Students/view.ctp:23
-msgid "Fam Name"
-msgstr ""
-
-#: Template/Students/view.ctp:27 Template/Teachers/view.ctp:19
-msgid "Giv Name"
-msgstr ""
-
-#: Template/Subjects/add.ctp:12
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Subjects/add.ctp:9
 msgid "Add Subject"
-msgstr ""
+msgstr "创建"
 
-#: Template/Subjects/edit.ctp:18 Template/Subjects/view.ctp:4
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Subjects/edit.ctp:9
 msgid "Edit Subject"
 msgstr ""
 
-#: Template/Subjects/view.ctp:5
-msgid "Delete Subject"
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Subjects/index.ctp:4
+msgid "New Subject"
+msgstr "创建"
+
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Subjects/view.ctp:14
+msgid "Desc"
 msgstr ""
 
-#: Template/Teachers/add.ctp:4 Template/Teachers/edit.ctp:10
-#: Template/Teachers/view.ctp:6
-msgid "List Teachers"
-msgstr ""
-
-#: Template/Teachers/add.ctp:10
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Teachers/add.ctp:8
 msgid "Add Teacher"
-msgstr ""
+msgstr "创建"
 
-#: Template/Teachers/edit.ctp:16 Template/Teachers/view.ctp:4
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Teachers/edit.ctp:8
 msgid "Edit Teacher"
 msgstr ""
 
-#: Template/Teachers/index.ctp:4 Template/Teachers/view.ctp:7
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Teachers/index.ctp:4
 msgid "New Teacher"
-msgstr ""
+msgstr "创建"
 
-#: Template/Teachers/index.ctp:13
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Teachers/index.ctp:13
 msgid "given name"
 msgstr ""
 
-#: Template/Teachers/view.ctp:5
-msgid "Delete Teacher"
-msgstr ""
-
-#: Template/Users/add.ctp:4 Template/Users/edit.ctp:10
-#: Template/Users/view.ctp:6
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Users/add.ctp:4
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Users/view.ctp:6
 msgid "List Users"
 msgstr ""
 
-#: Template/Users/add.ctp:10
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Users/add.ctp:10
 msgid "Add User"
-msgstr ""
+msgstr "创建"
 
-#: Template/Users/edit.ctp:16 Template/Users/view.ctp:4
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Users/edit.ctp:9
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Users/view.ctp:4
 msgid "Edit User"
 msgstr ""
 
-#: Template/Users/index.ctp:4 Template/Users/view.ctp:7
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Users/index.ctp:4
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Users/view.ctp:7
 msgid "New User"
-msgstr ""
+msgstr "创建"
 
-#: Template/Users/index.ctp:8
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Users/index.ctp:8
 msgid "Users"
 msgstr ""
 
-#: Template/Users/login.ctp:5
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Users/index.ctp:13
+msgid "username"
+msgstr ""
+
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Users/index.ctp:14
+msgid "password"
+msgstr ""
+
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Users/index.ctp:15
+msgid "created"
+msgstr ""
+
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Users/index.ctp:16
+msgid "modified"
+msgstr ""
+
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Users/login.ctp:5
 msgid "Please enter your username and password"
 msgstr ""
 
-#: Template/Users/login.ctp:9
-msgid "Login"
-msgstr "登录"
-
-#: Template/Users/view.ctp:5
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Users/view.ctp:5
 msgid "Delete User"
 msgstr ""
 
-#: Template/Users/view.ctp:14
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Users/view.ctp:14
 msgid "Email"
 msgstr ""
 
-#: Template/Users/view.ctp:18
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Users/view.ctp:18
 msgid "Password"
 msgstr ""
 
-#: Template/Users/view.ctp:26
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Users/view.ctp:26
 msgid "Created"
 msgstr ""
 
-#: Template/Users/view.ctp:30
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Users/view.ctp:30
 msgid "Modified"
 msgstr ""
 
-#: Template/Error/error400.ctp:33 Template/Error/error500.ctp:35
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Error/error400.ctp:33
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Error/error500.ctp:35
 msgid "Error"
 msgstr ""
 
-#: Template/Error/error400.ctp:35
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Error/error400.ctp:35
 msgid "The requested address %s was not found on this server."
 msgstr ""
 
-#: Template/Error/error500.ctp:33
+#: C:/xampp_1_8_2/htdocs/sdcth//Template/Error/error500.ctp:33
 msgid "An Internal Error Has Occurred"
 msgstr ""
