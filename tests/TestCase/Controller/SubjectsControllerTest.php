@@ -1,6 +1,7 @@
 <?php
 namespace App\Test\TestCase\Controller;
 
+use App\Test\Fixture\FixtureConstants;
 use App\Test\Fixture\SubjectsFixture;
 use Cake\ORM\TableRegistry;
 
@@ -14,7 +15,7 @@ class SubjectsControllerTest extends DMIntegrationTestCase {
 
         $this->fakeLogin();
         $this->get('/subjects/add');
-        $this->assertResponseOk();
+        $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();
 
         // Make sure this view var is set, to keep the FormHelper happy
@@ -24,14 +25,15 @@ class SubjectsControllerTest extends DMIntegrationTestCase {
         $html = str_get_html($this->_response->body());
 
         // Ensure that the correct form exists
-        $form = $html->find('form[id=SubjectAddForm]')[0];
+        $form = $html->find('form#SubjectAddForm',0);
         $this->assertNotNull($form);
 
         // Omit the id field
-        // Ensure that there's a field for title, that is empty
-        $input = $form->find('input[id=SubjectTitle]')[0];
-        $this->assertEquals($input->value, false);
 
+        // Ensure that there's an input field for title, of type text, and that it is empty
+        $input = $form->find('input#SubjectTitle',0);
+        $this->assertEquals($input->type, "text");
+        $this->assertEquals($input->value, false);
     }
 
     public function testAddPOST() {
@@ -40,17 +42,18 @@ class SubjectsControllerTest extends DMIntegrationTestCase {
 
         $this->fakeLogin();
         $this->post('/subjects/add', $subjectsFixture->newSubjectRecord);
-        $this->assertResponseSuccess();
+        $this->assertResponseSuccess(); // 2xx, 3xx
         $this->assertRedirect( '/subjects' );
 
         // Now verify what we think just got written
         $subjects = TableRegistry::get('Subjects');
-        $query = $subjects->find()->where(['id' => $subjectsFixture->newSubjectRecord['id']]);
+        $new_id = FixtureConstants::subject1_id + 1;
+        $query = $subjects->find()->where(['id' => $new_id]);
         $this->assertEquals(1, $query->count());
 
         // Now retrieve that 1 record and compare to what we expect
-        $subject = $subjects->get($subjectsFixture->newSubjectRecord['id']);
-        $this->assertEquals($subject['title'],$subjectsFixture->newSubjectRecord['title']);
+        $new_subject = $subjects->get($new_id);
+        $this->assertEquals($new_subject['title'],$subjectsFixture->newSubjectRecord['title']);
     }
 
     public function testDeletePOST() {
@@ -58,13 +61,14 @@ class SubjectsControllerTest extends DMIntegrationTestCase {
         $subjectsFixture = new SubjectsFixture();
 
         $this->fakeLogin();
-        $this->post('/subjects/delete/' . $subjectsFixture->subject1Record['id']);
-        $this->assertResponseSuccess();
+        $subject_id = $subjectsFixture->subject1Record['id'];
+        $this->post('/subjects/delete/' . $subject_id);
+        $this->assertResponseSuccess(); // 2xx, 3xx
         $this->assertRedirect( '/subjects' );
 
         // Now verify that the record no longer exists
         $subjects = TableRegistry::get('Subjects');
-        $query = $subjects->find()->where(['id' => $subjectsFixture->subject1Record['id']]);
+        $query = $subjects->find()->where(['id' => $subject_id]);
         $this->assertEquals(0, $query->count());
     }
 
@@ -73,8 +77,9 @@ class SubjectsControllerTest extends DMIntegrationTestCase {
         $subjectsFixture = new SubjectsFixture();
 
         $this->fakeLogin();
-        $this->get('/subjects/edit/' . $subjectsFixture->subject1Record['id']);
-        $this->assertResponseOk();
+        $subject_id = $subjectsFixture->subject1Record['id'];
+        $this->get('/subjects/edit/' . $subject_id);
+        $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();
 
         // Make sure this view var is set, to keep the FormHelper happy
@@ -84,14 +89,15 @@ class SubjectsControllerTest extends DMIntegrationTestCase {
         $html = str_get_html($this->_response->body());
 
         // Ensure that the correct form exists
-        $form = $html->find('form[id=SubjectEditForm]')[0];
+        $form = $html->find('form#SubjectEditForm',0);
         $this->assertNotNull($form);
 
         // Omit the id field
-        // Ensure that there's a field for title, that is correctly set
-        $input = $form->find('input[id=SubjectTitle]')[0];
-        $this->assertEquals($input->value, $subjectsFixture->subject1Record['title']);
 
+        // Ensure that there's an input field for title, of type text, that is correctly set
+        $input = $form->find('input#SubjectTitle',0);
+        $this->assertEquals($input->type, "text");
+        $this->assertEquals($input->value, $subjectsFixture->subject1Record['title']);
     }
 
     public function testEditPOST() {
@@ -99,9 +105,10 @@ class SubjectsControllerTest extends DMIntegrationTestCase {
         $subjectsFixture = new SubjectsFixture();
 
         $this->fakeLogin();
-        $this->post('/subjects/edit/' . $subjectsFixture->subject1Record['id'], $subjectsFixture->newSubjectRecord);
-        $this->assertResponseOk();
-        $this->assertNoRedirect();
+        $subject_id = $subjectsFixture->subject1Record['id'];
+        $this->post('/subjects/edit/' . $subject_id, $subjectsFixture->newSubjectRecord);
+        $this->assertResponseSuccess(); // 2xx, 3xx
+        $this->assertRedirect('/subjects');
 
         // Now verify what we think just got written
         $subjects = TableRegistry::get('Subjects');
