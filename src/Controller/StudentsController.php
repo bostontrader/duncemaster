@@ -53,7 +53,7 @@ class StudentsController extends AppController {
 
     public function view($id = null) {
         $this->request->allowMethod(['get']);
-        $student = $this->Students->get($id);
+        $student = $this->Students->get($id,['contain' => ['Cohorts.Majors']]);
         $this->set('student', $student);
     }
 }

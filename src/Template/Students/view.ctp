@@ -11,19 +11,19 @@
         </tr>
         <tr>
             <th><?= __('SID') ?></th>
-            <td id="sid"><?= $student->id ?></td>
+            <td id="sid"><?= $student->sid ?></td>
         </tr>
         <tr>
             <th><?= __('Family name') ?></th>
-            <td id="fam_name"><?= $student->id ?></td>
+            <td id="fam_name"><?= $student->fam_name ?></td>
         </tr>
         <tr>
             <th><?= __('Given name') ?></th>
-            <td id="giv_name"><?= $student->id ?></td>
+            <td id="giv_name"><?= $student->giv_name ?></td>
         </tr>
         <tr>
-            <th><?= __('Major') ?></th>
-            <td id="cohort_title"><?= $student->has('cohort') ? $this->Html->link($student->cohort->title, ['controller' => 'Cohorts', 'action' => 'view', $student->cohort->id]) : '' ?></td>
+            <th><?= __('Cohort') ?></th>
+            <td id="cohort_nickname"><?= $student->has('cohort') ? $this->Html->link($student->cohort->nickname, ['controller' => 'Cohorts', 'action' => 'view', $student->cohort->id]) : '' ?></td>
         </tr>
     </table>
 

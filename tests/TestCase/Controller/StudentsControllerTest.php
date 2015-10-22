@@ -244,7 +244,7 @@ class StudentsControllerTest extends DMIntegrationTestCase {
 
         $this->fakeLogin();
         $this->get('/students/view/' . $studentsFixture->student1Record['id']);
-        $this->assertResponseOk();
+        $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();
 
         // Make sure this view var is set
@@ -253,18 +253,25 @@ class StudentsControllerTest extends DMIntegrationTestCase {
         // Parse the html from the response
         $html = str_get_html($this->_response->body());
 
-        // Ensure that the correct form exists
-        //$form = $html->find('form[id=StudentEditForm]')[0];
-        //$this->assertNotNull($form);
+        // How shall we test the view?  It doesn't have any enclosing table or structure so just
+        // ignore that part.  Instead, look for individual display fields.
+        $field = $html->find('td#id',0);
+        $student_id = $studentsFixture->student1Record['id'];
+        $this->assertEquals($student_id, $field->plaintext);
 
-        // Omit the id field
-        // Ensure that there's a field for title, that is correctly set
-        //$input = $form->find('input[id=StudentGivName]')[0];
-        //$this->assertEquals($input->value, $studentsFixture->student1Record['title']);
+        $field = $html->find('td#sid',0);
+        $this->assertEquals($studentsFixture->student1Record['sid'], $field->plaintext);
 
-        // Ensure that there's a field for fam_name, that is empty
-        //$input = $form->find('input[id=StudentFamName]')[0];
-        //$this->assertEquals($input->value, false);
+        $field = $html->find('td#fam_name',0);
+        $this->assertEquals($studentsFixture->student1Record['fam_name'], $field->plaintext);
+
+        $field = $html->find('td#giv_name',0);
+        $this->assertEquals($studentsFixture->student1Record['giv_name'], $field->plaintext);
+
+        $field = $html->find('td#cohort_nickname',0);
+        $students = TableRegistry::get('Students');
+        $student = $students->get($student_id,['contain' => ['Cohorts.Majors']]);
+        $this->assertEquals($student->cohort->nickname, $field->plaintext);
     }
 
 }
