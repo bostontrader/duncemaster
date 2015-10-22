@@ -7,13 +7,14 @@
     <table class="vertical-table">
         <tr>
             <th><?= __('Id') ?></th>
-            <td><?= $this->Number->format($subject->id) ?></td>
+            <td id="id"><?= $subject->id ?></td>
+        </tr>
+        <th>
+            <?= __('Title') ?></th>
+            <td id="title"><?= $subject->title ?></td>
         </tr>
     </table>
-    <div class="row">
-        <h4><?= __('Desc') ?></h4>
-        <?= $this->Text->autoParagraph(h($subject->title)); ?>
-    </div>
+
 <!--
     <div class="related">
         <h4><?= __('Related Sections') ?></h4>

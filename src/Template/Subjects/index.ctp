@@ -6,12 +6,12 @@
 </nav>
 <div class="subjects index large-9 medium-8 columns content">
     <h3><?= __('Subjects') ?></h3>
-    <table cellpadding="0" cellspacing="0">
+    <table id="subjects" cellpadding="0" cellspacing="0">
         <thead>
             <tr>
-                <th><?= __('id') ?></th>
-                <th><?= __('Title') ?></th>
-                <th class="actions"><?= __('Actions') ?></th>
+                <th id="id" ><?= __('id') ?></th>
+                <th id="title" ><?= __('Title') ?></th>
+                <th id="actions" class="actions"><?= __('Actions') ?></th>
             </tr>
         </thead>
         <tbody>

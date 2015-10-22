@@ -11,7 +11,7 @@ class SubjectsController extends AppController {
             if ($this->Subjects->save($subject)) {
                 //$this->Flash->success(__('The subject has been saved.'));
                 return $this->redirect(['action' => 'index']);
-                //} else {
+            } else {
                 //$this->Flash->error(__('The subject could not be saved. Please, try again.'));
             }
         }
@@ -30,13 +30,13 @@ class SubjectsController extends AppController {
     }
 
     public function edit($id = null) {
-        $this->request->allowMethod(['get', 'post']);
+        $this->request->allowMethod(['get', 'put']);
         $subject = $this->Subjects->get($id);
-        if ($this->request->is(['post'])) {
+        if ($this->request->is(['put'])) {
             $subject = $this->Subjects->patchEntity($subject, $this->request->data);
             if ($this->Subjects->save($subject)) {
                 //$this->Flash->success(__('The subject has been saved.'));
-                //return $this->redirect(['action' => 'index']);
+                return $this->redirect(['action' => 'index']);
                 //} else {
                 //$this->Flash->error(__('The subject could not be saved. Please, try again.'));
             }

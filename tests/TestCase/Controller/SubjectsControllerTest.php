@@ -106,18 +106,17 @@ class SubjectsControllerTest extends DMIntegrationTestCase {
 
         $this->fakeLogin();
         $subject_id = $subjectsFixture->subject1Record['id'];
-        $this->post('/subjects/edit/' . $subject_id, $subjectsFixture->newSubjectRecord);
+        $this->put('/subjects/edit/' . $subject_id, $subjectsFixture->newSubjectRecord);
         $this->assertResponseSuccess(); // 2xx, 3xx
         $this->assertRedirect('/subjects');
 
         // Now verify what we think just got written
         $subjects = TableRegistry::get('Subjects');
         $query = $subjects->find()->where(['id' => $subjectsFixture->subject1Record['id']]);
-        $c = $query->count();
-        $this->assertEquals(1, $c);
+        $this->assertEquals(1, $query->count());
 
         // Now retrieve that 1 record and compare to what we expect
-        $subject = $subjects->get($subjectsFixture->subject1Record['id']);
+        $subject = $subjects->get($subject_id);
         $this->assertEquals($subject['title'],$subjectsFixture->newSubjectRecord['title']);
 
     }
@@ -126,45 +125,56 @@ class SubjectsControllerTest extends DMIntegrationTestCase {
 
         $this->fakeLogin();
         $result = $this->get('/subjects/index');
-        $this->assertResponseOk();
+        $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();
 
+        // Make sure this view var is set
+        $this->assertNotNull($this->viewVariable('subjects'));
+
         // Parse the html from the response
-        $html = str_get_html($result);
+        $html = str_get_html($this->_response->body());
 
-        // 1. Ensure that the single row of the thead section
-        //    has a column for id and title, in that order
-        //$rows = $html->find('table[id=subjects]',0)->find('thead',0)->find('tr');
-        //$row_cnt = count($rows);
-        //$this->assertEqual($row_cnt, 1);
+        // How shall we test the index?
 
-        // 2. Ensure that the thead section has a heading
-        //    for id, title, is_active, and is_admin.
-        //$columns = $rows[0]->find('td');
-        //$this->assertEqual($columns[0]->plaintext, 'id');
-        //$this->assertEqual($columns[1]->plaintext, 'title');
-        //$this->assertEqual($columns[2]->plaintext, 'is_active');
-        //$this->assertEqual($columns[3]->plaintext, 'is_admin');
+        // 1. Ensure that there is a suitably named table to display the results.
+        $subjects_table = $html->find('table#subjects',0);
+        $this->assertNotNull($subjects_table);
+
+        // 2. Ensure that said table's thead element contains the correct
+        //    headings, in the correct order, and nothing else.
+        $thead = $subjects_table->find('thead',0);
+        $thead_ths = $thead->find('tr th');
+
+        $this->assertEquals($thead_ths[0]->id, 'id');
+        $this->assertEquals($thead_ths[1]->id, 'title');
+        $this->assertEquals($thead_ths[2]->id, 'actions');
+        $this->assertEquals(count($thead_ths),3); // no other columns
 
         // 3. Ensure that the tbody section has the same
         //    quantity of rows as the count of subject records in the fixture.
-        //    For each of these rows, ensure that the id and title match
-        //$subjectFixture = new SubjectFixture();
-        //$rowsInHTMLTable = $html->find('table[id=subjects]',0)->find('tbody',0)->find('tr');
-        //$this->assertEqual(count($subjectFixture->records), count($rowsInHTMLTable));
-        //$iterator = new MultipleIterator;
-        //$iterator->attachIterator(new ArrayIterator($subjectFixture->records));
-        //$iterator->attachIterator(new ArrayIterator($rowsInHTMLTable));
+        $subjectsFixture = new SubjectsFixture();
+        $tbody = $subjects_table->find('tbody',0);
+        $tbody_rows = $tbody->find('tr');
+        $this->assertEquals(count($tbody_rows), count($subjectsFixture));
 
-        //foreach ($iterator as $values) {
-        //$fixtureRecord = $values[0];
-        //$htmlRow = $values[1];
-        //$htmlColumns = $htmlRow->find('td');
-        //$this->assertEqual($fixtureRecord['id'],        $htmlColumns[0]->plaintext);
-        //$this->assertEqual($fixtureRecord['title'],  $htmlColumns[1]->plaintext);
-        //$this->assertEqual($fixtureRecord['is_active'], $htmlColumns[2]->plaintext);
-        //$this->assertEqual($fixtureRecord['is_admin'],  $htmlColumns[3]->plaintext);
-        //}
+        // 4. Ensure that the values displayed in each row, match the values from
+        //    the fixture.  The values should be presented in a particular order
+        //    with nothing else thereafter.  In order to do this we'll also need
+        //    to read from the Majors table.
+        $subjects = TableRegistry::get('Subjects');
+        $iterator = new \MultipleIterator();
+        $iterator->attachIterator(new \ArrayIterator($subjectsFixture->records));
+        $iterator->attachIterator(new \ArrayIterator($tbody_rows));
+
+        foreach ($iterator as $values) {
+            $fixtureRecord = $values[0];
+            $htmlRow = $values[1];
+            $htmlColumns = $htmlRow->find('td');
+            $this->assertEquals($fixtureRecord['id'], $htmlColumns[0]->plaintext);
+            $this->assertEquals($fixtureRecord['title'],  $htmlColumns[1]->plaintext);
+
+            // Ignore the action links
+        }
     }
 
     public function testViewGET() {
@@ -173,7 +183,7 @@ class SubjectsControllerTest extends DMIntegrationTestCase {
 
         $this->fakeLogin();
         $this->get('/subjects/view/' . $subjectsFixture->subject1Record['id']);
-        $this->assertResponseOk();
+        $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();
 
         // Make sure this view var is set
@@ -182,14 +192,13 @@ class SubjectsControllerTest extends DMIntegrationTestCase {
         // Parse the html from the response
         $html = str_get_html($this->_response->body());
 
-        // Ensure that the correct form exists
-        //$form = $html->find('form[id=SubjectEditForm]')[0];
-        //$this->assertNotNull($form);
+        // How shall we test the view?  It doesn't have any enclosing table or structure so just
+        // ignore that part.  Instead, look for individual display fields.
+        $field = $html->find('td#id',0);
+        $this->assertEquals($subjectsFixture->subject1Record['id'], $field->plaintext);
 
-        // Omit the id field
-        // Ensure that there's a field for title, that is correctly set
-        //$input = $form->find('input[id=SubjectTitle]')[0];
-        //$this->assertEquals($input->value, $subjectsFixture->subject1Record['title']);
+        $field = $html->find('td#title',0);
+        $this->assertEquals($subjectsFixture->subject1Record['title'], $field->plaintext);
 
     }
 
