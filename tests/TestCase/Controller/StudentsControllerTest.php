@@ -98,7 +98,6 @@ class StudentsControllerTest extends DMIntegrationTestCase {
 
     public function testEditGET() {
 
-        $cohortsFixture = new CohortsFixture();
         $studentsFixture = new StudentsFixture();
 
         $this->fakeLogin();
@@ -125,14 +124,17 @@ class StudentsControllerTest extends DMIntegrationTestCase {
 
         // Ensure that there's an input field for giv_name, of type text, and that it is correctly set
         $input = $form->find('input#StudentGivName',0);
+        $this->assertEquals($input->type, "text");
         $this->assertEquals($input->value, $studentsFixture->student1Record['giv_name']);
 
         // Ensure that there's an input field for fam_name, of type text, and that it is correctly set
         $input = $form->find('input#StudentFamName',0);
+        $this->assertEquals($input->type, "text");
         $this->assertEquals($input->value,  $studentsFixture->student1Record['fam_name']);
 
         // Ensure that there's an input field for sid, of type text, and that it is correctly set
         $input = $form->find('input#StudentSid',0);
+        $this->assertEquals($input->type, "text");
         $this->assertEquals($input->value,  $studentsFixture->student1Record['sid']);
 
         // Ensure that there's a select field for cohort_id and that it is correctly set
@@ -160,11 +162,11 @@ class StudentsControllerTest extends DMIntegrationTestCase {
 
         // Now verify what we think just got written
         $students = TableRegistry::get('Students');
-        $query = $students->find()->where(['id' => $studentsFixture->student1Record['id']]);
+        $query = $students->find()->where(['id' => $student_id]);
         $this->assertEquals(1, $query->count());
 
         // Now retrieve that 1 record and compare to what we expect
-        $student = $students->get($studentsFixture->student1Record['id']);
+        $student = $students->get($student_id);
         $this->assertEquals($student['giv_name'],$studentsFixture->newStudentRecord['giv_name']);
         $this->assertEquals($student['fam_name'],$studentsFixture->newStudentRecord['fam_name']);
         $this->assertEquals($student['sid'],$studentsFixture->newStudentRecord['sid']);

@@ -10,8 +10,7 @@ use Cake\ORM\Entity;
  * @property string $desc
  * @property \App\Model\Entity\Section[] $sections
  */
-class Subject extends Entity
-{
+class Subject extends Entity {
 
     /**
      * Fields that can be mass assigned using newEntity() or patchEntity().

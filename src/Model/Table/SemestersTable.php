@@ -23,7 +23,7 @@ class SemestersTable extends Table {
         parent::initialize($config);
 
         //$this->table('semesters');
-        //$this->displayField('id');
+        $this->displayField('nickname');
         //$this->primaryKey('id');
         $this->hasMany('Sections', [
             'foreignKey' => 'section_id'

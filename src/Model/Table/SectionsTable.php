@@ -32,20 +32,20 @@ class SectionsTable extends Table {
             //'foreignKey' => 'clazz_id'
         ]);
 
-        //$this->belongsTo('Cohorts', [
+        $this->belongsTo('Cohorts', [
             //'foreignKey' => 'cohort_id',
             //'joinType' => 'INNER'
-        //]);
+        ]);
 
-        //$this->belongsTo('Semester', [
+        $this->belongsTo('Semesters', [
             //'foreignKey' => 'semester_id',
             //'joinType' => 'INNER'
-        //]);
+        ]);
 
-        //$this->belongsTo('Subjects', [
+        $this->belongsTo('Subjects', [
             //'foreignKey' => 'subject_id',
             //'joinType' => 'INNER'
-        //]);
+        ]);
 
         //$this->belongsTo('Teachers', [
             //'foreignKey' => 'teacher_id',

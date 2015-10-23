@@ -22,4 +22,11 @@ class SubjectsFixture extends TestFixture {
         ];
         parent::init();
     }
+
+    // Given an id, return the first fixture record found with that id, or null if not found.
+    public function get($id) {
+        foreach ($this->records as $record)
+            if ($record['id'] == $id) return $record;
+        return null;
+    }
 }

@@ -6,16 +6,30 @@ use Cake\TestSuite\Fixture\TestFixture;
 class SectionsFixture extends TestFixture {
     public $import = ['table' => 'sections'];
 
-    // Specify id because later we'll try to specifically find this record in the db
-    public $section1Record = ['id'=>5,  'weekday' => 1];
+    // This record is injected into the db before the tests.  We need to specify the
+    // id to ensure the test records are properly related.
+    public $section1Record = [
+        'id'=>FixtureConstants::section1_id,
+        'cohort_id'=>FixtureConstants::cohort1_id,
+        'semester_id'=>FixtureConstants::semester1_id,
+        'subject_id'=>FixtureConstants::subject1_id,
+        'weekday' => 'mon',
+        'start_time' => '08:30',
+        'thours' => '2'
+    ];
 
-    // This is a new record to be inserted by Cake's patchEntity method. We can't
-    // feasibly control the id, so go with the flow.  But we _can_ predict what
-    // the new ID will be, and we'll need that to read back this record.
-    public $newSectionRecord = ['id'=>6,  'weekday' => 2];
+    // This record will be added during a test.  We don't need or want to control the id here, so omit it.
 
-    public function init()
-    {
+    public $newSectionRecord = [
+        'cohort_id'=>FixtureConstants::cohort2_id,
+        'semester_id'=>FixtureConstants::semester2_id,
+        'subject_id'=>FixtureConstants::subject2_id,
+        'weekday' => 'tue',
+        'start_time' => '09:30',
+        'thours' => '3'
+    ];
+
+    public function init() {
         $this->records = [
             $this->section1Record
         ];

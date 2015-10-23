@@ -28,7 +28,7 @@ class SubjectsTable extends Table {
         //$this->primaryKey('id');
 
         $this->hasMany('Sections', [
-            'foreignKey' => 'subject_id'
+            //'foreignKey' => 'subject_id'
         ]);
     }
 

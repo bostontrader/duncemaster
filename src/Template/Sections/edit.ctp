@@ -7,10 +7,12 @@
     <fieldset>
         <legend><?= __('Edit Section') ?></legend>
         <?php
-            //echo $this->Form->input('cohort_id', ['options' => $cohorts]);
-            //echo $this->Form->input('subject_id', ['options' => $subjects]);
-            echo $this->Form->input('weekday',['id'=>'SectionWeekday']);
-            echo $this->Form->input('time');
+        echo $this->Form->input('cohort_id', ['id'=>'SectionCohortId', 'options' => $cohorts, 'empty' => '(none selected)']);
+        echo $this->Form->input('subject_id', ['id'=>'SectionSubjectId', 'options' => $subjects, 'empty' => '(none selected)']);
+        echo $this->Form->input('semester_id', ['id'=>'SectionSemesterId', 'options' => $semesters, 'empty' => '(none selected)']);
+        echo $this->Form->input('weekday',['id'=>'SectionWeekday']);
+        echo $this->Form->input('start_time',['id'=>'SectionStartTime','type'=>'text']);
+        echo $this->Form->input('thours',['id'=>'SectionTHours','type'=>'text']);
         ?>
     </fieldset>
     <?= $this->Form->button(__('Submit')) ?>

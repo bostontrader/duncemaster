@@ -11,15 +11,14 @@ class SectionsController extends AppController {
             if ($this->Sections->save($section)) {
                 //$this->Flash->success(__('The section has been saved.'));
                 return $this->redirect(['action' => 'index']);
-                //} else {
+            } else {
                 //$this->Flash->error(__('The section could not be saved. Please, try again.'));
             }
         }
-        //$cohorts = $this->Sections->Cohorts->find('list', ['limit' => 200])->select(['id', 'start_year']);
-        //$subjects = $this->Sections->Subjects->find('list', ['limit' => 200]);
-        //$list = $articles->find('list')->select(['id', 'title']);
-        //$this->set(compact('section', 'cohorts', 'subjects'));
-        $this->set(compact('section'));
+        $cohorts = $this->Sections->Cohorts->find('list',['contain' => ['Majors']]);
+        $semesters = $this->Sections->Semesters->find('list');
+        $subjects = $this->Sections->Subjects->find('list');
+        $this->set(compact('cohorts','section','semesters','subjects'));
     }
 
     public function delete($id = null) {
@@ -34,35 +33,31 @@ class SectionsController extends AppController {
     }
 
     public function edit($id = null) {
-        $this->request->allowMethod(['get', 'post']);
+        $this->request->allowMethod(['get', 'put']);
         $section = $this->Sections->get($id);
-        if ($this->request->is(['post'])) {
+        if ($this->request->is(['put'])) {
             $section = $this->Sections->patchEntity($section, $this->request->data);
             if ($this->Sections->save($section)) {
                 //$this->Flash->success(__('The section has been saved.'));
-                //return $this->redirect(['action' => 'index']);
-                //} else {
+                return $this->redirect(['action' => 'index']);
+            } else {
                 //$this->Flash->error(__('The section could not be saved. Please, try again.'));
             }
         }
-        //$cohorts = $this->Sections->Cohorts->find('list', ['limit' => 200]);
-        //$subjects = $this->Sections->Subjects->find('list', ['limit' => 200]);
-        //$this->set(compact('section', 'cohorts', 'subjects'));
-        $this->set(compact('section'));
-    }
-    public function index() {
-        $this->request->allowMethod(['get']);
-        //$this->set('sections', $this->Sections->find('all', ['contain' => ['Cohorts.Majors','Subjects']]));
-        $this->set('sections', $this->Sections->find());
+        $cohorts = $this->Sections->Cohorts->find('list',['contain' => ['Majors']]);
+        $semesters = $this->Sections->Semesters->find('list');
+        $subjects = $this->Sections->Subjects->find('list');
+        $this->set(compact('cohorts','section','semesters','subjects'));
     }
 
+    public function index() {
+        $this->request->allowMethod(['get']);
+        $this->set('sections', $this->Sections->find('all', ['contain' => ['Cohorts.Majors','Subjects']]));
+    }
 
     public function view($id = null) {
         $this->request->allowMethod(['get']);
-        $section = $this->Sections->get($id);
+        $section = $this->Sections->get($id,['contain'=>['Cohorts.Majors','Subjects']]);
         $this->set('section', $section);
     }
-
-
-
 }

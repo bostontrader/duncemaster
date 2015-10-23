@@ -7,11 +7,14 @@ namespace App\Test\Fixture;
 // are properly related.
 class FixtureConstants {
     const cohort1_id = 1;
-    const cohort2_id = 1;
+    const cohort2_id = 2;
     const major1_id = 1;
     const major2_id = 2;
+    const section1_id = 1;
     const semester1_id = 1;
+    const semester2_id = 2;
     const student1_id = 1;
     const subject1_id = 1;
+    const subject2_id = 2;
     const teacher1_id = 1;
 }

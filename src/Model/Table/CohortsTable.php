@@ -21,9 +21,9 @@ class CohortsTable extends Table {
             //'joinType' => 'INNER'
         ]);
 
-        //$this->hasMany('Sections', [
+        $this->hasMany('Sections', [
             //'foreignKey' => 'cohort_id'
-        //]);
+        ]);
 
         //$this->hasMany('Students', [
             //'foreignKey' => 'cohort_id'

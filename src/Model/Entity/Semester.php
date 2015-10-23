@@ -10,8 +10,7 @@ use Cake\ORM\Entity;
  * @property int $year
  * @property int $seq
  */
-class Semester extends Entity
-{
+class Semester extends Entity {
 
     /**
      * Fields that can be mass assigned using newEntity() or patchEntity().
@@ -26,4 +25,10 @@ class Semester extends Entity
         '*' => true,
         'id' => false,
     ];
+
+    protected function _getNickname() {
+        $s1 = $this->_properties['year'];
+        $s2 = $this->_properties['seq'];
+        return $s1 . '-' . $s2;
+    }
 }
