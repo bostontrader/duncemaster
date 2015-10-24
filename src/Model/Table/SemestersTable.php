@@ -26,7 +26,7 @@ class SemestersTable extends Table {
         $this->displayField('nickname');
         //$this->primaryKey('id');
         $this->hasMany('Sections', [
-            'foreignKey' => 'section_id'
+            //'foreignKey' => 'section_id'
         ]);
     }
 

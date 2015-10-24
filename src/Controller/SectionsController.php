@@ -52,12 +52,12 @@ class SectionsController extends AppController {
 
     public function index() {
         $this->request->allowMethod(['get']);
-        $this->set('sections', $this->Sections->find('all', ['contain' => ['Cohorts.Majors','Subjects']]));
+        $this->set('sections', $this->Sections->find('all', ['contain' => ['Cohorts.Majors','Semesters','Subjects']]));
     }
 
     public function view($id = null) {
         $this->request->allowMethod(['get']);
-        $section = $this->Sections->get($id,['contain'=>['Cohorts.Majors','Subjects']]);
+        $section = $this->Sections->get($id,['contain'=>['Cohorts.Majors','Semesters','Subjects']]);
         $this->set('section', $section);
     }
 }

@@ -11,24 +11,32 @@
     <h3><?= h($section->id) ?></h3>
     <table class="vertical-table">
         <tr>
+            <th><?= __('Id') ?></th>
+            <td id="id"><?= $section->id ?></td>
+        </tr>
+        <tr>
             <th><?= __('Cohort') ?></th>
-            <td><?= $section->has('cohort') ? $this->Html->link($section->cohort->id, ['controller' => 'Cohorts', 'action' => 'view', $section->cohort->id]) : '' ?></td>
+            <td id="cohort"><?= $section->has('cohort') ? $this->Html->link($section->cohort->id, ['controller' => 'Cohorts', 'action' => 'view', $section->cohort->id]) : '' ?></td>
         </tr>
         <tr>
             <th><?= __('Subject') ?></th>
-            <td><?= $section->has('subject') ? $this->Html->link($section->subject->id, ['controller' => 'Subjects', 'action' => 'view', $section->subject->id]) : '' ?></td>
+            <td id="subject"><?= $section->has('subject') ? $this->Html->link($section->subject->id, ['controller' => 'Subjects', 'action' => 'view', $section->subject->title]) : '' ?></td>
         </tr>
         <tr>
-            <th><?= __('Id') ?></th>
-            <td><?= $section->id ?></td>
+            <th><?= __('Semester') ?></th>
+            <td id="semester"><?= $section->has('semester') ? $this->Html->link($section->semester->id, ['controller' => 'Semesters', 'action' => 'view', $section->semester->nickname]) : '' ?></td>
         </tr>
         <tr>
             <th><?= __('Weekday') ?></th>
-            <td><?= $this->Time->format($section->time,'E') ?></td>
+            <td id="weekday"><?= $section->weekday ?></td>
         </tr>
         <tr>
-            <th><?= __('Time') ?></th>
-            <td><?= $this->Time->format($section->time,'hh:m') ?></tr>
+            <th><?= __('Start time') ?></th>
+            <td id="start_time"><?= $section->start_time ?></tr>
+        </tr>
+        <tr>
+            <th><?= __('Teaching hours') ?></th>
+            <td id="thours"><?= $section->thours ?></tr>
         </tr>
     </table>
 </div>

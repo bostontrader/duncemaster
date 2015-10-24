@@ -1,6 +1,7 @@
 <?php
 namespace App\Test\TestCase\Controller;
 
+use App\Test\Fixture\CohortsFixture;
 use App\Test\Fixture\FixtureConstants;
 use App\Test\Fixture\SectionsFixture;
 use App\Test\Fixture\SemestersFixture;
@@ -216,56 +217,98 @@ class SectionsControllerTest extends DMIntegrationTestCase {
 
     public function testIndexGET() {
 
+        $subjectsFixture = new SubjectsFixture();
+
         $this->fakeLogin();
-        $result = $this->get('/sections/index');
-        $this->assertResponseOk();
+        $this->get('/sections/index');
+        $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();
 
+        // Make sure these view vars are set.
+        // I'd like to check that cohorts contains majors.  But...
+        // doing so has proven to be too complicated and not worth the effort.
+        // Just make sure cohorts contains majors.
+        //$this->assertNotNull($this->viewVariable('cohorts'));
+        $this->assertNotNull($this->viewVariable('sections'));
+        //$this->assertNotNull($this->viewVariable('semesters'));
+        //$this->assertNotNull($this->viewVariable('subjects'));
+
         // Parse the html from the response
-        $html = str_get_html($result);
+        $html = str_get_html($this->_response->body());
 
-        // 1. Ensure that the single row of the thead section
-        //    has a column for id and title, in that order
-        //$rows = $html->find('table[id=sections]',0)->find('thead',0)->find('tr');
-        //$row_cnt = count($rows);
-        //$this->assertEqual($row_cnt, 1);
+        // How shall we test the index?
 
-        // 2. Ensure that the thead section has a heading
-        //    for id, title, is_active, and is_admin.
-        //$columns = $rows[0]->find('td');
-        //$this->assertEqual($columns[0]->plaintext, 'id');
-        //$this->assertEqual($columns[1]->plaintext, 'title');
-        //$this->assertEqual($columns[2]->plaintext, 'is_active');
-        //$this->assertEqual($columns[3]->plaintext, 'is_admin');
+        // 1. Ensure that there is a suitably named table to display the results.
+        $sections_table = $html->find('table#sections',0);
+        $this->assertNotNull($sections_table);
+
+        // 2. Ensure that said table's thead element contains the correct
+        //    headings, in the correct order, and nothing else.
+        $thead = $sections_table->find('thead',0);
+        $thead_ths = $thead->find('tr th');
+
+        $this->assertEquals($thead_ths[0]->id, 'id');
+        $this->assertEquals($thead_ths[1]->id, 'cohort');
+        $this->assertEquals($thead_ths[2]->id, 'subject');
+        $this->assertEquals($thead_ths[3]->id, 'semester');
+        $this->assertEquals($thead_ths[4]->id, 'weekday');
+        $this->assertEquals($thead_ths[5]->id, 'start_time');
+        $this->assertEquals($thead_ths[6]->id, 'thours');
+        $this->assertEquals($thead_ths[7]->id, 'actions');
+        $this->assertEquals(count($thead_ths),8); // no other columns
 
         // 3. Ensure that the tbody section has the same
         //    quantity of rows as the count of section records in the fixture.
-        //    For each of these rows, ensure that the id and title match
-        //$sectionFixture = new SectionsFixture();
-        //$rowsInHTMLTable = $html->find('table[id=sections]',0)->find('tbody',0)->find('tr');
-        //$this->assertEqual(count($sectionFixture->records), count($rowsInHTMLTable));
-        //$iterator = new MultipleIterator;
-        //$iterator->attachIterator(new ArrayIterator($sectionFixture->records));
-        //$iterator->attachIterator(new ArrayIterator($rowsInHTMLTable));
+        $sectionsFixture = new SectionsFixture();
+        //$studentsFixture = new StudentsFixture();
+        $tbody = $sections_table->find('tbody',0);
+        $tbody_rows = $tbody->find('tr');
+        $this->assertEquals(count($tbody_rows), count($sectionsFixture));
 
-        //foreach ($iterator as $values) {
-        //$fixtureRecord = $values[0];
-        //$htmlRow = $values[1];
-        //$htmlColumns = $htmlRow->find('td');
-        //$this->assertEqual($fixtureRecord['id'],        $htmlColumns[0]->plaintext);
-        //$this->assertEqual($fixtureRecord['title'],  $htmlColumns[1]->plaintext);
-        //$this->assertEqual($fixtureRecord['is_active'], $htmlColumns[2]->plaintext);
-        //$this->assertEqual($fixtureRecord['is_admin'],  $htmlColumns[3]->plaintext);
-        //}
+        // 4. Ensure that the values displayed in each row, match the values from
+        //    the fixture.  The values should be presented in a particular order
+        //    with nothing else thereafter.
+        $sections = TableRegistry::get('Sections');
+        $iterator = new \MultipleIterator();
+        $iterator->attachIterator(new \ArrayIterator($sectionsFixture->records));
+        $iterator->attachIterator(new \ArrayIterator($tbody_rows));
+
+        foreach ($iterator as $values) {
+            $fixtureRecord = $values[0];
+            $htmlRow = $values[1];
+            $htmlColumns = $htmlRow->find('td');
+            $this->assertEquals($fixtureRecord['id'], $htmlColumns[0]->plaintext);
+
+            // cohort_nickname
+            $cohorts = TableRegistry::get('Cohorts');
+            $cohort = $cohorts->get($fixtureRecord['cohort_id'],['contain' => ['Majors']]);
+            $this->assertEquals($cohort->nickname, $htmlColumns[1]->plaintext);
+
+            // subject
+            $subject = $subjectsFixture->get($fixtureRecord['subject_id']);
+            $this->assertEquals($subject['title'], $htmlColumns[2]->plaintext);
+
+            // semester_nickname
+            $semesters = TableRegistry::get('Semesters');
+            $semester = $semesters->get($fixtureRecord['semester_id']);
+            $this->assertEquals($semester->nickname, $htmlColumns[3]->plaintext);
+
+            $this->assertEquals($fixtureRecord['weekday'], $htmlColumns[4]->plaintext);
+            $this->assertEquals($fixtureRecord['start_time'], $htmlColumns[5]->plaintext);
+            $this->assertEquals($fixtureRecord['thours'], $htmlColumns[6]->plaintext);
+
+            // Ignore the action links
+        }
     }
 
     public function testViewGET() {
 
         $sectionsFixture = new SectionsFixture();
+        $cohortsFixture = new CohortsFixture();
 
         $this->fakeLogin();
         $this->get('/sections/view/' . $sectionsFixture->section1Record['id']);
-        $this->assertResponseOk();
+        $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();
 
         // Make sure this view var is set
@@ -274,18 +317,32 @@ class SectionsControllerTest extends DMIntegrationTestCase {
         // Parse the html from the response
         $html = str_get_html($this->_response->body());
 
-        // Ensure that the correct form exists
-        //$form = $html->find('form[id=SectionsEditForm]')[0];
-        //$this->assertNotNull($form);
+        // How shall we test the view?  It doesn't have any enclosing table or structure so just
+        // ignore that part.  Instead, look for individual display fields.
+        $field = $html->find('td#id',0);
+        $this->assertEquals($sectionsFixture->section1Record['id'], $field->plaintext);
 
-        // Omit the id field
-        // Ensure that there's a field for title, that is correctly set
-        //$input = $form->find('input[id=SectionsTitle]')[0];
-        //$this->assertEquals($input->value, $sectionsFixture->section1Record['title']);
+        $field = $html->find('td#weekday',0);
+        $this->assertEquals($sectionsFixture->section1Record['weekday'], $field->plaintext);
 
-        // Ensure that there's a field for sdesc, that is empty
-        //$input = $form->find('input[id=SectionsSDesc]')[0];
-        //$this->assertEquals($input->value, false);
+        $field = $html->find('td#start_time',0);
+        $this->assertEquals($sectionsFixture->section1Record['start_time'], $field->plaintext);
+
+        $field = $html->find('td#thours',0);
+        $this->assertEquals($sectionsFixture->section1Record['thours'], $field->plaintext);
+
+        // subject requires finding the related value in the SubjectsFixture
+        $field = $html->find('td#subject',0);
+        $subjectsFixture = new SubjectsFixture();
+        $subject_id = $sectionsFixture->section1Record['subject_id'];
+        $subject = $subjectsFixture->get($subject_id);
+        $this->assertEquals($subject['title'], $field->plaintext);
+
+        // cohort requires finding the nickname, which is computed by the Cohort Entity.
+        $field = $html->find('td#cohort',0);
+        $cohorts = TableRegistry::get('Cohorts');
+        $cohort = $cohorts->get($sectionsFixture->section1Record['id'], ['contain' => ['Majors']]);
+        $this->assertEquals($cohort->nickname, $field->plaintext);
     }
 
 }
