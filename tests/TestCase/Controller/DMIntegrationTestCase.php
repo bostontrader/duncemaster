@@ -7,13 +7,12 @@ use Cake\TestSuite\IntegrationTestCase;
 require_once 'simple_html_dom.php';
 
 /**
- * App\Controller\UsersController Test Case
  *
  * In these tests I generally want to test that:
  *
  * 1. A controller method exists...
  *
- * 2. Said method returns ResponseOK.
+ * 2. Said method returns the correct response code.
  *
  * 3. Said method does or does not redirect.  If it redirects, then where to?
  *
@@ -33,6 +32,9 @@ require_once 'simple_html_dom.php';
  *
  * These items should be tested elsewhere.
  *
+ * Although tempting to test for viewVars, resist the urge.  If they are not set correctly then
+ * there will be actual consequences that the testing will catch.  At best looking for viewVars
+ * is a debugging aid.  At worst, we'll eat a lot of time picking them apart.  Just say No.
  */
 
 class DMIntegrationTestCase extends IntegrationTestCase {

@@ -18,6 +18,11 @@ class SectionsControllerTest extends DMIntegrationTestCase {
         'app.subjects'
     ];
 
+    public function setUp()
+    {
+
+    }
+
     public function testAddGET() {
 
         $this->fakeLogin();
@@ -25,47 +30,78 @@ class SectionsControllerTest extends DMIntegrationTestCase {
         $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();
 
-        // Make sure these view vars are set.
-        // I'd like to check that cohorts contains majors.  But...
-        // doing so has proven to be too complicated and not worth the effort.
-        // Just make sure cohorts contains majors.
-        $this->assertNotNull($this->viewVariable('cohorts'));
-        $this->assertNotNull($this->viewVariable('section'));
-        $this->assertNotNull($this->viewVariable('semesters'));
-        $this->assertNotNull($this->viewVariable('subjects'));
-
         // Parse the html from the response
         $html = str_get_html($this->_response->body());
 
         // Ensure that the correct form exists
-        $form = $html->find('form#SectionAddForm',0);
+        $form = $html->find('form#SectionAddForm', 0);
         $this->assertNotNull($form);
 
-        // Omit the id field
+        // Now inspect the fields on the form.  We want to know that:
+        // 1. The correct fields are there and no other fields.
+        // 2. The fields have correct values. This includes verifying that select
+        //    lists contain options.
+        //
+        //  The actual order the fields are listed is hereby deemed unimportant.
 
-        // Ensure that there's a select field for cohort_id and that is has no selection
-        $option = $form->find('select#SectionCohortId option[selected]',0);
+        // These are counts of the select and input fields on the form.  They
+        // are presently unaccounted for.
+        $unknownSelectCnt = count($form->find('select'));
+        $unknownInputCnt = count($form->find('input'));
+
+        // 1. Look for the hidden input POST
+        $input = $form->find('input[type=hidden]', 0);
+        $this->assertEquals($input->value, 'POST');
+        $this->assertEquals($input->name, '_method');
+        $unknownInputCnt--;
+
+        // 2. Ensure that there's a select field for cohort_id, that it has no selection,
+        //    and that it has the correct quantity of available choices.
+        $option = $form->find('select#SectionCohortId option[selected]', 0);
         $this->assertNull($option);
+        $option_cnt = count($form->find('select#SectionCohortId option'));
+        $cohort_cnt = $this->viewVariable('cohorts')->count();
+        $this->assertEquals($cohort_cnt + 1, $option_cnt);
+        $unknownSelectCnt--;
 
-        // Ensure that there's a select field for subject_id and that is has no selection
-        $option = $form->find('select#SectionSubjectId option[selected]',0);
+        // 3. Ensure that there's a select field for subject_id, that it has no selection,
+        //    and that it has the correct quantity of available choices.
+        $option = $form->find('select#SectionSubjectId option[selected]', 0);
         $this->assertNull($option);
+        $option_cnt = count($form->find('select#SectionSubjectId option'));
+        $subject_cnt = $this->viewVariable('subjects')->count();
+        $this->assertEquals($subject_cnt + 1, $option_cnt);
+        $unknownSelectCnt--;
 
-        // Ensure that there's a select field for semester_id and that is has no selection
-        $option = $form->find('select#SectionSemesterId option[selected]',0);
+        // 4. Ensure that there's a select field for semester_id, that it has no selection,
+        //    and that it has the correct quantity of available choices.
+        $option = $form->find('select#SectionSemesterId option[selected]', 0);
         $this->assertNull($option);
+        $option_cnt = count($form->find('select#SectionSemesterId option'));
+        $semester_cnt = $this->viewVariable('semesters')->count();
+        $this->assertEquals($semester_cnt + 1, $option_cnt);
+        $unknownSelectCnt--;
 
-        // Ensure that there's an input field for weekday, of type text, and that it is empty
+        // 5. Ensure that there's an input field for weekday, of type text, and that it is empty
         $input = $form->find('input[id=SectionWeekday]')[0];
         $this->assertEquals($input->value, false);
+        $unknownInputCnt--;
 
-        // Ensure that there's an input field for start_time, of type text, and that it is empty
+        // 6. Ensure that there's an input field for start_time, of type text, and that it is empty
         $input = $form->find('input[id=SectionStartTime]')[0];
         $this->assertEquals($input->value, false);
+        $unknownInputCnt--;
 
-        // Ensure that there's an input field for thours, of type text, and that it is empty
+        // 7. Ensure that there's an input field for thours, of type text, and that it is empty
         $input = $form->find('input[id=SectionTHours]')[0];
-        $this->assertEquals($input->value, false);    }
+        $this->assertEquals($input->value, false);
+        $unknownInputCnt--;
+
+        // Have all the input and select fields been accounted for?  Are there
+        // any extras?
+        $this->assertEquals(0, $unknownInputCnt);
+        $this->assertEquals(0, $unknownSelectCnt);
+    }
 
     public function testAddPOST() {
 
@@ -129,6 +165,8 @@ class SectionsControllerTest extends DMIntegrationTestCase {
         $this->assertNotNull($this->viewVariable('section'));
         $this->assertNotNull($this->viewVariable('semesters'));
         $this->assertNotNull($this->viewVariable('subjects'));
+        $n = $this->viewVariable('section');
+        //$n1 = $n->fetch();
 
         // Parse the html from the response
         $html = str_get_html($this->_response->body());
