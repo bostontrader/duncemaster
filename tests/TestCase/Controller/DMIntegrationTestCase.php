@@ -57,12 +57,12 @@ class DMIntegrationTestCase extends IntegrationTestCase {
     // Many forms have a hidden input for tunneling various http verbs using POST.
     // Look for the first one.  If found, return true, else fail.
     //
-    protected function lookForHiddenPOST($form) {
+    protected function lookForHiddenInput($form, $verb='POST') {
         $input = $form->find('input[type=hidden]', 0);
         if ($input == NULL) {
             $this->fail();
         } else {
-            $this->assertEquals($input->value, 'POST');
+            $this->assertEquals($input->value, $verb);
             $this->assertEquals($input->name, '_method');
             return true;
         }
@@ -72,6 +72,25 @@ class DMIntegrationTestCase extends IntegrationTestCase {
     // The selection is what is expected and that the selection control
     // has the correct quantity of choices.  If the control passes, return true, else fail.
     protected function lookForSelect($form, $selectID, $vvName) {
+        $option = $form->find('select#'.$selectID.' option[selected]', 0);
+        $this->assertNull($option);
+        $option_cnt = count($form->find('select#'.$selectID. ' option'));
+        $record_cnt = $this->viewVariable($vvName)->count();
+        $this->assertEquals($record_cnt + 1, $option_cnt);
+        return true;
+    }
+
+    // Look for a particular select input and ensure that:
+    // The selection is what is expected and that the selection control
+    // has the correct quantity of choices.  If the inspection passes, return true, else fail.
+    //
+    // In order to do this, we'll need:
+    // simple_html_dom $form - the form that contains the select
+    // string $selectID - the html id of the select of interest
+    // string $vvName - the name of the view var that contains the into to populate the select
+    // string $expectedValue - the expected value of what is displayed in the select, or null if nothing sb selected
+    //
+    protected function validateSelect($form, $selectID, $vvName) {
         $option = $form->find('select#'.$selectID.' option[selected]', 0);
         $this->assertNull($option);
         $option_cnt = count($form->find('select#'.$selectID. ' option'));
