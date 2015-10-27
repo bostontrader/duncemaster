@@ -17,7 +17,8 @@ require_once 'simple_html_dom.php';
  * 3. Said method does or does not redirect.  If it redirects, then where to?
  *
  * 4. A bare minimum of html structure required to reasonably verify correct operation
- *    and to facilitate TDD.  For example, the add method should return a form with certain fields.
+ *    and to facilitate TDD.  For example, the add method should return a form with certain fields,
+ *    and particular <A> tag should exist.
  *
  * 5. Verify that the db has changed as expected, if applicable.
  *
@@ -29,6 +30,8 @@ require_once 'simple_html_dom.php';
  *
  * 3. Any html structure, formatting, css, scripts, tags, krakens, or whatever, beyond the bare minimum
  *    listed above.
+ *
+ * 4. Whether or not following an <A> tag actually works as expected.
  *
  * These items should be tested elsewhere.
  *
@@ -71,6 +74,11 @@ class DMIntegrationTestCase extends IntegrationTestCase {
     // Look for a particular select input and ensure that:
     // The selection is what is expected and that the selection control
     // has the correct quantity of choices.  If the control passes, return true, else fail.
+    //
+    // In order to do this, we'll need:
+    // simple_html_dom $form - the form that contains the select
+    // string $selectID - the html id of the select of interest
+    // string $vvName - the name of the view var that contains the into to populate the select
     protected function lookForSelect($form, $selectID, $vvName) {
         $option = $form->find('select#'.$selectID.' option[selected]', 0);
         $this->assertNull($option);
@@ -80,22 +88,4 @@ class DMIntegrationTestCase extends IntegrationTestCase {
         return true;
     }
 
-    // Look for a particular select input and ensure that:
-    // The selection is what is expected and that the selection control
-    // has the correct quantity of choices.  If the inspection passes, return true, else fail.
-    //
-    // In order to do this, we'll need:
-    // simple_html_dom $form - the form that contains the select
-    // string $selectID - the html id of the select of interest
-    // string $vvName - the name of the view var that contains the into to populate the select
-    // string $expectedValue - the expected value of what is displayed in the select, or null if nothing sb selected
-    //
-    protected function validateSelect($form, $selectID, $vvName) {
-        $option = $form->find('select#'.$selectID.' option[selected]', 0);
-        $this->assertNull($option);
-        $option_cnt = count($form->find('select#'.$selectID. ' option'));
-        $record_cnt = $this->viewVariable($vvName)->count();
-        $this->assertEquals($record_cnt + 1, $option_cnt);
-        return true;
-    }
 }

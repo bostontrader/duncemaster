@@ -258,88 +258,87 @@ class SectionsControllerTest extends DMIntegrationTestCase {
 
     public function testIndexGET() {
 
-        $subjectsFixture = new SubjectsFixture();
-
         $this->fakeLogin();
         $this->get('/sections/index');
         $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();
 
-        // Make sure these view vars are set.
-        // I'd like to check that cohorts contains majors.  But...
-        // doing so has proven to be too complicated and not worth the effort.
-        // Just make sure cohorts contains majors.
-        //$this->assertNotNull($this->viewVariable('cohorts'));
-        $this->assertNotNull($this->viewVariable('sections'));
-        //$this->assertNotNull($this->viewVariable('semesters'));
-        //$this->assertNotNull($this->viewVariable('subjects'));
-
         // Parse the html from the response
         $html = str_get_html($this->_response->body());
 
-        // How shall we test the index?
+        // 1. Get a the count of all <A> tags that are presently unaccounted for.
+        $unknownATag = count($html->find('div#sectionsIndex a'));
 
-        // 1. Ensure that there is a suitably named table to display the results.
-        $sections_table = $html->find('table#sections',0);
+        // 2. Look for the create new section link
+        $this->assertEquals(1, count($html->find('a#sectionAdd')));
+        $unknownATag--;
+
+        // 3. Ensure that there is a suitably named table to display the results.
+        $sections_table = $html->find('table#sectionsTable',0);
         $this->assertNotNull($sections_table);
 
-        // 2. Ensure that said table's thead element contains the correct
+        // 4. Ensure that said table's thead element contains the correct
         //    headings, in the correct order, and nothing else.
         $thead = $sections_table->find('thead',0);
         $thead_ths = $thead->find('tr th');
 
-        $this->assertEquals($thead_ths[0]->id, 'id');
-        $this->assertEquals($thead_ths[1]->id, 'cohort');
-        $this->assertEquals($thead_ths[2]->id, 'subject');
-        $this->assertEquals($thead_ths[3]->id, 'semester');
-        $this->assertEquals($thead_ths[4]->id, 'weekday');
-        $this->assertEquals($thead_ths[5]->id, 'start_time');
-        $this->assertEquals($thead_ths[6]->id, 'thours');
-        $this->assertEquals($thead_ths[7]->id, 'actions');
-        $this->assertEquals(count($thead_ths),8); // no other columns
+        $this->assertEquals($thead_ths[0]->id, 'cohort');
+        $this->assertEquals($thead_ths[1]->id, 'subject');
+        $this->assertEquals($thead_ths[2]->id, 'semester');
+        $this->assertEquals($thead_ths[3]->id, 'weekday');
+        $this->assertEquals($thead_ths[4]->id, 'start_time');
+        $this->assertEquals($thead_ths[5]->id, 'thours');
+        $this->assertEquals($thead_ths[6]->id, 'actions');
+        $this->assertEquals(count($thead_ths),7); // no other columns
 
-        // 3. Ensure that the tbody section has the same
+        // 5. Ensure that the tbody section has the same
         //    quantity of rows as the count of section records in the fixture.
-        $sectionsFixture = new SectionsFixture();
-        //$studentsFixture = new StudentsFixture();
         $tbody = $sections_table->find('tbody',0);
         $tbody_rows = $tbody->find('tr');
-        $this->assertEquals(count($tbody_rows), count($sectionsFixture));
+        $this->assertEquals(count($tbody_rows), count($this->sectionsFixture));
 
-        // 4. Ensure that the values displayed in each row, match the values from
+        // 6. Ensure that the values displayed in each row, match the values from
         //    the fixture.  The values should be presented in a particular order
         //    with nothing else thereafter.
-        $sections = TableRegistry::get('Sections');
         $iterator = new \MultipleIterator();
-        $iterator->attachIterator(new \ArrayIterator($sectionsFixture->records));
+        $iterator->attachIterator(new \ArrayIterator($this->sectionsFixture->records));
         $iterator->attachIterator(new \ArrayIterator($tbody_rows));
 
         foreach ($iterator as $values) {
             $fixtureRecord = $values[0];
             $htmlRow = $values[1];
             $htmlColumns = $htmlRow->find('td');
-            $this->assertEquals($fixtureRecord['id'], $htmlColumns[0]->plaintext);
 
-            // cohort_nickname
+            // 6.0 cohort_nickname
             $cohorts = TableRegistry::get('Cohorts');
             $cohort = $cohorts->get($fixtureRecord['cohort_id'],['contain' => ['Majors']]);
-            $this->assertEquals($cohort->nickname, $htmlColumns[1]->plaintext);
+            $this->assertEquals($cohort->nickname, $htmlColumns[0]->plaintext);
 
-            // subject
-            $subject = $subjectsFixture->get($fixtureRecord['subject_id']);
-            $this->assertEquals($subject['title'], $htmlColumns[2]->plaintext);
+            // 6.1 subject
+            $subject = $this->subjectsFixture->get($fixtureRecord['subject_id']);
+            $this->assertEquals($subject['title'], $htmlColumns[1]->plaintext);
 
-            // semester_nickname
+            // 6.2 semester_nickname
             $semesters = TableRegistry::get('Semesters');
             $semester = $semesters->get($fixtureRecord['semester_id']);
-            $this->assertEquals($semester->nickname, $htmlColumns[3]->plaintext);
+            $this->assertEquals($semester->nickname, $htmlColumns[2]->plaintext);
 
-            $this->assertEquals($fixtureRecord['weekday'], $htmlColumns[4]->plaintext);
-            $this->assertEquals($fixtureRecord['start_time'], $htmlColumns[5]->plaintext);
-            $this->assertEquals($fixtureRecord['thours'], $htmlColumns[6]->plaintext);
+            $this->assertEquals($fixtureRecord['weekday'], $htmlColumns[3]->plaintext);
+            $this->assertEquals($fixtureRecord['start_time'], $htmlColumns[4]->plaintext);
+            $this->assertEquals($fixtureRecord['thours'], $htmlColumns[5]->plaintext);
 
-            // Ignore the action links
+            // 6.6 Now examine the action links
+            $actionLinks = $htmlRow->find('a');
+            $this->assertEquals('sectionView', $actionLinks[0]->name);
+            $unknownATag--;
+            $this->assertEquals('sectionEdit', $actionLinks[1]->name);
+            $unknownATag--;
+            $this->assertEquals('sectionDelete', $actionLinks[2]->name);
+            $unknownATag--;
         }
+
+        // 7. Ensure that all the <A> tags have been accounted for
+        $this->assertEquals(0, $unknownATag);
     }
 
     public function testViewGET() {
