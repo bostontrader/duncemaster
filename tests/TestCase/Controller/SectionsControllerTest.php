@@ -18,13 +18,17 @@ class SectionsControllerTest extends DMIntegrationTestCase {
         'app.subjects'
     ];
 
+    public $cohorts;
     public $sections;
+    public $semesters;
     public $sectionsFixture;
     public $semestersFixture;
     public $subjectsFixture;
 
     public function setUp() {
+        $this->cohorts = TableRegistry::get('Cohorts');
         $this->sections = TableRegistry::get('Sections');
+        $this->semesters = TableRegistry::get('Semesters');
         $this->sectionsFixture = new SectionsFixture();
         $this->semestersFixture = new SemestersFixture();
         $this->subjectsFixture = new SubjectsFixture();
@@ -50,7 +54,7 @@ class SectionsControllerTest extends DMIntegrationTestCase {
         // B. The fields have correct values. This includes verifying that select
         //    lists contain options.
         //
-        //  The actual order the fields are listed is hereby deemed unimportant.
+        //  The actual order that the fields are listed is hereby deemed unimportant.
 
         // These are counts of the select and input fields on the form.  They
         // are presently unaccounted for.
@@ -158,7 +162,7 @@ class SectionsControllerTest extends DMIntegrationTestCase {
         // B. The fields have correct values. This includes verifying that select
         //    lists contain options.
         //
-        //  The actual order the fields are listed is hereby deemed unimportant.
+        //  The actual order that the fields are listed is hereby deemed unimportant.
 
         // These are counts of the select and input fields on the form.  They
         // are presently unaccounted for.
@@ -351,37 +355,60 @@ class SectionsControllerTest extends DMIntegrationTestCase {
         // Parse the html from the response
         $html = str_get_html($this->_response->body());
 
-        // 1. How shall we test the view?  It doesn't have any enclosing table or structure so just
-        // ignore that part.  Instead, look for individual display fields.
-        $field = $html->find('td#id',0);
-        $this->assertEquals($this->sectionsFixture->section1Record['id'], $field->plaintext);
+        // 1.  Look for the table that contains the view fields.
+        $table = $html->find('table#SectionViewTable',0);
+        $this->assertNotNull($table);
 
-        $field = $html->find('td#weekday',0);
-        $this->assertEquals($this->sectionsFixture->section1Record['weekday'], $field->plaintext);
+        // 1. Now inspect the fields on the form.  We want to know that:
+        // A. The correct fields are there and no other fields.
+        // B. The fields have correct values.
+        //
+        //  The actual order that the fields are listed is hereby deemed unimportant.
 
-        $field = $html->find('td#start_time',0);
-        $this->assertEquals($this->sectionsFixture->section1Record['start_time'], $field->plaintext);
+        // This is the count of the table rows that are presently unaccounted for.
+        $unknownRowCnt = count($table->find('tr'));
 
-        $field = $html->find('td#thours',0);
-        $this->assertEquals($this->sectionsFixture->section1Record['thours'], $field->plaintext);
-
-        // subject requires finding the related value in the SubjectsFixture
-        $field = $html->find('td#subject',0);
-        $subjectsFixture = new SubjectsFixture();
-        $subject_id = $this->sectionsFixture->section1Record['subject_id'];
-        $subject = $subjectsFixture->get($subject_id);
-        $this->assertEquals($subject['title'], $field->plaintext);
-
-        // cohort requires finding the nickname, which is computed by the Cohort Entity.
-        $field = $html->find('td#cohort',0);
-        $cohorts = TableRegistry::get('Cohorts');
-        $cohort = $cohorts->get($this->sectionsFixture->section1Record['id'], ['contain' => ['Majors']]);
+        // 2.1 cohort requires finding the nickname, which is computed by the Cohort Entity.
+        $field = $html->find('tr#cohort td',0);
+        $cohort = $this->cohorts->get($this->sectionsFixture->section1Record['id'], ['contain' => ['Majors']]);
         $this->assertEquals($cohort->nickname, $field->plaintext);
+        $unknownRowCnt--;
+
+        // 2.2 subject requires finding the related value in the SubjectsFixture
+        $field = $html->find('tr#subject td',0);
+        $subject_id = $this->sectionsFixture->section1Record['subject_id'];
+        $subject = $this->subjectsFixture->get($subject_id);
+        $this->assertEquals($subject['title'], $field->plaintext);
+        $unknownRowCnt--;
+
+        // 2.3 semester requires finding the nickname, which is computed by the Semester Entity.
+        $field = $html->find('tr#semester td',0);
+        $semester = $this->semesters->get($this->sectionsFixture->section1Record['id']);
+        $this->assertEquals($semester->nickname, $field->plaintext);
+        $unknownRowCnt--;
+
+        // 2.4 weekday
+        $field = $html->find('tr#weekday td',0);
+        $this->assertEquals($this->sectionsFixture->section1Record['weekday'], $field->plaintext);
+        $unknownRowCnt--;
+
+        // 2.5 start_time
+        $field = $html->find('tr#start_time td',0);
+        $this->assertEquals($this->sectionsFixture->section1Record['start_time'], $field->plaintext);
+        $unknownRowCnt--;
+
+        // 2.6 thours
+        $field = $html->find('tr#thours td',0);
+        $this->assertEquals($this->sectionsFixture->section1Record['thours'], $field->plaintext);
+        $unknownRowCnt--;
+
+        // Have all the rows been accounted for?  Are there
+        // any extras?
+        $this->assertEquals(0, $unknownRowCnt);
 
         // 2. Examine the links on this page.  There should be zero links.
-        $links = $html->find('a');
+        $links = $table->find('a');
         $this->assertEquals(0,count($links));
-
     }
 
 }
