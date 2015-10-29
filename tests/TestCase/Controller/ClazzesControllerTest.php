@@ -198,7 +198,9 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
         $html = str_get_html($this->_response->body());
 
         // 3. Get a the count of all <A> tags that are presently unaccounted for.
-        $unknownATag = count($html->find('div#clazzesIndex a'));
+        $content = $html->find('div#clazzesIndex',0);
+        $this->assertNotNull($content);
+        $unknownATag = count($content->find('a'));
 
         // 4. Look for the create new section link
         $this->assertEquals(1, count($html->find('a#clazzAdd')));
@@ -288,7 +290,7 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
 
         // 2.2 event_datetime
         $field = $html->find('tr#event_datetime td',0);
-        $this->assertEquals($this->sectionsFixture->section1Record['event_datetime'], $field->plaintext);
+        $this->assertEquals($this->clazzesFixture->clazz1Record['event_datetime'], $field->plaintext);
         $unknownRowCnt--;
 
         // Have all the rows been accounted for?  Are there

@@ -274,7 +274,9 @@ class SectionsControllerTest extends DMIntegrationTestCase {
         $html = str_get_html($this->_response->body());
 
         // 3. Get a the count of all <A> tags that are presently unaccounted for.
-        $unknownATag = count($html->find('div#sectionsIndex a'));
+        $content = $html->find('div#sectionsIndex',0);
+        $this->assertNotNull($content);
+        $unknownATag = count($content->find('a'));
 
         // 4. Look for the create new section link
         $this->assertEquals(1, count($html->find('a#sectionAdd')));
@@ -409,8 +411,10 @@ class SectionsControllerTest extends DMIntegrationTestCase {
         // any extras?
         $this->assertEquals(0, $unknownRowCnt);
 
-        // 3. Examine the links on this page.  There should be zero links.
-        $links = $table->find('a');
+        // 3. Examine the <A> tags on this page.  There should be zero links.
+        $content = $html->find('div#sectionsView',0);
+        $this->assertNotNull($content);
+        $links = $content->find('a');
         $this->assertEquals(0,count($links));
     }
 
