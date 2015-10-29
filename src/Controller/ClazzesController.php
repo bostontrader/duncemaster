@@ -36,12 +36,13 @@ class ClazzesController extends AppController {
         if ($this->request->is(['put'])) {
             $clazz = $this->Clazzes->patchEntity($clazz, $this->request->data);
             if ($this->Clazzes->save($clazz)) {
-                $this->Flash->success(__('The clazz has been saved.'));
-                //return $this->redirect(['action' => 'index']);
+                //$this->Flash->success(__('The clazz has been saved.'));
+                return $this->redirect(['action' => 'index']);
             } else {
-                $this->Flash->error(__('The clazz could not be saved. Please, try again.'));
+                //$this->Flash->error(__('The clazz could not be saved. Please, try again.'));
             }
         }
+        $sections = $this->Clazzes->Sections->find('list');
         $this->set(compact('clazz', 'sections'));
     }
 

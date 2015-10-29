@@ -181,8 +181,7 @@ class SectionsControllerTest extends DMIntegrationTestCase {
         // Even though cohort_id is correct, we don't display cohort_id.  Instead we display the
         // nickname from the related Cohorts table.  But nickname is a virtual field so we must
         // read the record in order to get the nickname, instead of looking it up in the fixture records.
-        $cohorts = TableRegistry::get('Cohorts');
-        $cohort = $cohorts->get($cohort_id,['contain' => ['Majors']]);
+        $cohort = $this->cohorts->get($cohort_id,['contain' => ['Majors']]);
         $this->assertEquals($cohort->nickname, $option->plaintext);
         $unknownSelectCnt--;
 
@@ -205,8 +204,7 @@ class SectionsControllerTest extends DMIntegrationTestCase {
         // Even though semester_id is correct, we don't display semester_id.  Instead we display the
         // nickname from the related Semesters table.  But nickname is a virtual field so we must
         // read the record in order to get the nickname, instead of looking it up in the fixture records.
-        $semesters = TableRegistry::get('Semesters');
-        $semester = $semesters->get($semester_id);
+        $semester = $this->semesters->get($semester_id);
         $this->assertEquals($semester->nickname, $option->plaintext);
         $unknownSelectCnt--;
 
@@ -357,9 +355,6 @@ class SectionsControllerTest extends DMIntegrationTestCase {
         $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();
 
-        // Make sure this view var is set
-        $this->assertNotNull($this->viewVariable('section'));
-
         // Parse the html from the response
         $html = str_get_html($this->_response->body());
 
@@ -367,7 +362,7 @@ class SectionsControllerTest extends DMIntegrationTestCase {
         $table = $html->find('table#SectionViewTable',0);
         $this->assertNotNull($table);
 
-        // 1. Now inspect the fields on the form.  We want to know that:
+        // 2. Now inspect the fields on the form.  We want to know that:
         // A. The correct fields are there and no other fields.
         // B. The fields have correct values.
         //
@@ -414,7 +409,7 @@ class SectionsControllerTest extends DMIntegrationTestCase {
         // any extras?
         $this->assertEquals(0, $unknownRowCnt);
 
-        // 2. Examine the links on this page.  There should be zero links.
+        // 3. Examine the links on this page.  There should be zero links.
         $links = $table->find('a');
         $this->assertEquals(0,count($links));
     }
