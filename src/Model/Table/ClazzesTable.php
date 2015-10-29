@@ -1,18 +1,18 @@
 <?php
 namespace App\Model\Table;
 
-//use App\Model\Entity\Clazz;
+//use App\Model\Entity\Clazze;
 //use Cake\ORM\Query;
 //use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 //use Cake\Validation\Validator;
 
 /**
- * Clazzs Model
+ * Clazzes Model
  *
  * @property \Cake\ORM\Association\BelongsTo $Sections
  */
-class ClazzsTable extends Table {
+class ClazzesTable extends Table {
 
     /**
      * Initialize method

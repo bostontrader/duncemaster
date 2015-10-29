@@ -1,7 +1,6 @@
 <?php
 namespace App\Test\TestCase\Controller;
 
-use App\Test\Fixture\CohortsFixture;
 use App\Test\Fixture\FixtureConstants;
 use App\Test\Fixture\SectionsFixture;
 use App\Test\Fixture\SemestersFixture;
@@ -37,76 +36,80 @@ class SectionsControllerTest extends DMIntegrationTestCase {
 
     public function testAddGET() {
 
+        // 1. Simulate login, submit request, examine response.
         $this->fakeLogin();
         $this->get('/sections/add');
         $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();
 
-        // Parse the html from the response
+        // 2. Parse the html from the response
         $html = str_get_html($this->_response->body());
 
-        // Ensure that the correct form exists
+        // 3. Ensure that the correct form exists
         $form = $html->find('form#SectionAddForm', 0);
         $this->assertNotNull($form);
 
-        // 1. Now inspect the fields on the form.  We want to know that:
+        // 4. Now inspect the fields on the form.  We want to know that:
         // A. The correct fields are there and no other fields.
         // B. The fields have correct values. This includes verifying that select
         //    lists contain options.
         //
         //  The actual order that the fields are listed is hereby deemed unimportant.
 
-        // These are counts of the select and input fields on the form.  They
+        // 4.1 These are counts of the select and input fields on the form.  They
         // are presently unaccounted for.
         $unknownSelectCnt = count($form->find('select'));
         $unknownInputCnt = count($form->find('input'));
 
-        // 1.1 Look for the hidden POST input
+        // 4.2 Look for the hidden POST input
         if($this->lookForHiddenInput($form)) $unknownInputCnt--;
 
-        // 1.2 Ensure that there's a select field for cohort_id, that it has no selection,
+        // 4.3 Ensure that there's a select field for cohort_id, that it has no selection,
         //    and that it has the correct quantity of available choices.
         if($this->lookForSelect($form,'SectionCohortId','cohorts')) $unknownSelectCnt--;
 
-        // 1.3 Ensure that there's a select field for subject_id, that it has no selection,
+        // 4.4 Ensure that there's a select field for subject_id, that it has no selection,
         //    and that it has the correct quantity of available choices.
         if($this->lookForSelect($form,'SectionSubjectId','subjects')) $unknownSelectCnt--;
 
-        // 1.4 Ensure that there's a select field for semester_id, that it has no selection,
+        // 4.5 Ensure that there's a select field for semester_id, that it has no selection,
         //    and that it has the correct quantity of available choices.
         if($this->lookForSelect($form,'SectionSemesterId','semesters')) $unknownSelectCnt--;
 
-        // 1.5 Ensure that there's an input field for weekday, of type text, and that it is empty
-        $input = $form->find('input[id=SectionWeekday]')[0];
+        // 4.6 Ensure that there's an input field for weekday, of type text, and that it is empty
+        $input = $form->find('input#SectionWeekday',0);
+        $this->assertEquals($input->type, "text");
         $this->assertEquals($input->value, false);
         $unknownInputCnt--;
 
-        // 1.6 Ensure that there's an input field for start_time, of type text, and that it is empty
-        $input = $form->find('input[id=SectionStartTime]')[0];
+        // 4.7 Ensure that there's an input field for start_time, of type text, and that it is empty
+        $input = $form->find('input#SectionStartTime',0);
+        $this->assertEquals($input->type, "text");
         $this->assertEquals($input->value, false);
         $unknownInputCnt--;
 
-        // 1.7 Ensure that there's an input field for thours, of type text, and that it is empty
-        $input = $form->find('input[id=SectionTHours]')[0];
+        // 4.8 Ensure that there's an input field for thours, of type text, and that it is empty
+        $input = $form->find('input#SectionTHours',0);
+        $this->assertEquals($input->type, "text");
         $this->assertEquals($input->value, false);
         $unknownInputCnt--;
 
-        // Have all the input and select fields been accounted for?  Are there
+        // 4.9 Have all the input and select fields been accounted for?  Are there
         // any extras?
         $this->assertEquals(0, $unknownInputCnt);
         $this->assertEquals(0, $unknownSelectCnt);
 
-        // 2. Examine the links on this page.  There should be zero links.
-        $links = $form->find('a');
+        // 5. Examine the <A> tags on this page.  There should be zero links.
+        $content = $html->find('div#sectionsAdd',0);
+        $this->assertNotNull($content);
+        $links = $content->find('a');
         $this->assertEquals(0,count($links));
     }
 
     public function testAddPOST() {
 
-        $sectionsFixture = new SectionsFixture();
-
         $this->fakeLogin();
-        $this->post('/sections/add', $sectionsFixture->newSectionRecord);
+        $this->post('/sections/add', $this->sectionsFixture->newSectionRecord);
         $this->assertResponseSuccess(); // 2xx, 3xx
         $this->assertRedirect( '/sections' );
 
@@ -117,62 +120,60 @@ class SectionsControllerTest extends DMIntegrationTestCase {
 
         // Now retrieve that 1 record and compare to what we expect
         $new_section = $this->sections->get($new_id);
-        $this->assertEquals($new_section['cohort_id'],$sectionsFixture->newSectionRecord['cohort_id']);
-        $this->assertEquals($new_section['subject_id'],$sectionsFixture->newSectionRecord['subject_id']);
-        $this->assertEquals($new_section['semester_id'],$sectionsFixture->newSectionRecord['semester_id']);
+        $this->assertEquals($new_section['cohort_id'],$this->sectionsFixture->newSectionRecord['cohort_id']);
+        $this->assertEquals($new_section['subject_id'],$this->sectionsFixture->newSectionRecord['subject_id']);
+        $this->assertEquals($new_section['semester_id'],$this->sectionsFixture->newSectionRecord['semester_id']);
 
-        $this->assertEquals($new_section['weekday'],$sectionsFixture->newSectionRecord['weekday']);
-        $this->assertEquals($new_section['start_time'],$sectionsFixture->newSectionRecord['start_time']);
-        $this->assertEquals($new_section['thours'],$sectionsFixture->newSectionRecord['thours']);
+        $this->assertEquals($new_section['weekday'],$this->sectionsFixture->newSectionRecord['weekday']);
+        $this->assertEquals($new_section['start_time'],$this->sectionsFixture->newSectionRecord['start_time']);
+        $this->assertEquals($new_section['thours'],$this->sectionsFixture->newSectionRecord['thours']);
     }
 
     public function testDeletePOST() {
 
-        $sectionsFixture = new SectionsFixture();
-
         $this->fakeLogin();
-        $section_id = $sectionsFixture->section1Record['id'];
-        $this->post('/sections/delete/' . $sectionsFixture->section1Record['id']);
+        $section_id = $this->sectionsFixture->section1Record['id'];
+        $this->post('/sections/delete/' . $section_id);
         $this->assertResponseSuccess(); // 2xx, 3xx
         $this->assertRedirect( '/sections' );
 
         // Now verify that the record no longer exists
-        $sections = TableRegistry::get('Sections');
-        $query = $sections->find()->where(['id' => $section_id]);
+        $query = $this->sections->find()->where(['id' => $section_id]);
         $this->assertEquals(0, $query->count());
     }
 
     public function testEditGET() {
 
+        // 1. Simulate login, submit request, examine response.
         $this->fakeLogin();
         $section_id = $this->sectionsFixture->section1Record['id'];
         $this->get('/sections/edit/' . $section_id);
         $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();
 
-        // Parse the html from the response
+        // 2. Parse the html from the response
         $html = str_get_html($this->_response->body());
 
-        // Ensure that the correct form exists
+        // 3. Ensure that the correct form exists
         $form = $html->find('form#SectionEditForm',0);
         $this->assertNotNull($form);
 
-        // 1. Now inspect the fields on the form.  We want to know that:
+        // 4. Now inspect the fields on the form.  We want to know that:
         // A. The correct fields are there and no other fields.
         // B. The fields have correct values. This includes verifying that select
         //    lists contain options.
         //
         //  The actual order that the fields are listed is hereby deemed unimportant.
 
-        // These are counts of the select and input fields on the form.  They
+        // 4.1 These are counts of the select and input fields on the form.  They
         // are presently unaccounted for.
         $unknownSelectCnt = count($form->find('select'));
         $unknownInputCnt = count($form->find('input'));
 
-        // 1.1 Look for the hidden POST input
+        // 4.2 Look for the hidden POST input
         if($this->lookForHiddenInput($form,'PUT')) $unknownInputCnt--;
 
-        // 1.2 Ensure that there's a select field for cohort_id and that it is correctly set
+        // 4.3 Ensure that there's a select field for cohort_id and that it is correctly set
         $option = $form->find('select#SectionCohortId option[selected]',0);
         $cohort_id = $this->sectionsFixture->section1Record['cohort_id'];
         $this->assertEquals($option->value, $cohort_id);
@@ -185,7 +186,7 @@ class SectionsControllerTest extends DMIntegrationTestCase {
         $this->assertEquals($cohort->nickname, $option->plaintext);
         $unknownSelectCnt--;
 
-        // 1.3. Ensure that there's a select field for subject_id and that it is correctly set
+        // 4.4. Ensure that there's a select field for subject_id and that it is correctly set
         $option = $form->find('select#SectionSubjectId option[selected]',0);
         $subject_id = $this->sectionsFixture->section1Record['subject_id'];
         $this->assertEquals($option->value, $subject_id);
@@ -196,7 +197,7 @@ class SectionsControllerTest extends DMIntegrationTestCase {
         $this->assertEquals($subject['title'], $option->plaintext);
         $unknownSelectCnt--;
 
-        // 1.4. Ensure that there's a select field for semester_id and that it is correctly set
+        // 4.5. Ensure that there's a select field for semester_id and that it is correctly set
         $option = $form->find('select#SectionSemesterId option[selected]',0);
         $semester_id = $this->sectionsFixture->section1Record['semester_id'];
         $this->assertEquals($option->value, $semester_id);
@@ -209,26 +210,33 @@ class SectionsControllerTest extends DMIntegrationTestCase {
         $this->assertEquals($semester->nickname, $option->plaintext);
         $unknownSelectCnt--;
 
-        // 1.5 Ensure that there's a field for weekday, of type text, and that it is correctly set
+        // 4.6 Ensure that there's a field for weekday, of type text, and that it is correctly set
         $input = $form->find('input#SectionWeekday',0);
         $this->assertEquals($input->type, "text");
         $this->assertEquals($input->value, $this->sectionsFixture->section1Record['weekday']);
-        $unknownSelectCnt--;
+        $unknownInputCnt--;
 
-        // 1.6 Ensure that there's a field for start_time, of type text, and that it is correctly set
+        // 4.7 Ensure that there's a field for start_time, of type text, and that it is correctly set
         $input = $form->find('input#SectionStartTime',0);
         $this->assertEquals($input->type, "text");
         $this->assertEquals($input->value, $this->sectionsFixture->section1Record['start_time']);
-        $unknownSelectCnt--;
+        $unknownInputCnt--;
 
-        // 1.7 Ensure that there's a field for weekday, of type text, and that it is correctly set
+        // 4.8 Ensure that there's a field for weekday, of type text, and that it is correctly set
         $input = $form->find('input#SectionTHours',0);
         $this->assertEquals($input->type, "text");
         $this->assertEquals($input->value, $this->sectionsFixture->section1Record['thours']);
-        $unknownSelectCnt--;
+        $unknownInputCnt--;
 
-        // 2. Examine the links on this page.  There should be zero links.
-        $links = $form->find('a');
+        // 4.9 Have all the input and select fields been accounted for?  Are there
+        // any extras?
+        $this->assertEquals(0, $unknownInputCnt);
+        $this->assertEquals(0, $unknownSelectCnt);
+
+        // 5. Examine the <A> tags on this page.  There should be zero links.
+        $content = $html->find('div#sectionsEdit',0);
+        $this->assertNotNull($content);
+        $links = $content->find('a');
         $this->assertEquals(0,count($links));
 
     }
@@ -258,26 +266,27 @@ class SectionsControllerTest extends DMIntegrationTestCase {
 
     public function testIndexGET() {
 
+        // 1. Simulate login, submit request, examine response.
         $this->fakeLogin();
         $this->get('/sections/index');
         $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();
 
-        // Parse the html from the response
+        // 2. Parse the html from the response
         $html = str_get_html($this->_response->body());
 
-        // 1. Get a the count of all <A> tags that are presently unaccounted for.
+        // 3. Get a the count of all <A> tags that are presently unaccounted for.
         $unknownATag = count($html->find('div#sectionsIndex a'));
 
-        // 2. Look for the create new section link
+        // 4. Look for the create new section link
         $this->assertEquals(1, count($html->find('a#sectionAdd')));
         $unknownATag--;
 
-        // 3. Ensure that there is a suitably named table to display the results.
+        // 5. Ensure that there is a suitably named table to display the results.
         $sections_table = $html->find('table#sectionsTable',0);
         $this->assertNotNull($sections_table);
 
-        // 4. Ensure that said table's thead element contains the correct
+        // 6. Ensure that said table's thead element contains the correct
         //    headings, in the correct order, and nothing else.
         $thead = $sections_table->find('thead',0);
         $thead_ths = $thead->find('tr th');
@@ -291,13 +300,13 @@ class SectionsControllerTest extends DMIntegrationTestCase {
         $this->assertEquals($thead_ths[6]->id, 'actions');
         $this->assertEquals(count($thead_ths),7); // no other columns
 
-        // 5. Ensure that the tbody section has the same
+        // 7. Ensure that the tbody section has the same
         //    quantity of rows as the count of section records in the fixture.
         $tbody = $sections_table->find('tbody',0);
         $tbody_rows = $tbody->find('tr');
         $this->assertEquals(count($tbody_rows), count($this->sectionsFixture));
 
-        // 6. Ensure that the values displayed in each row, match the values from
+        // 8. Ensure that the values displayed in each row, match the values from
         //    the fixture.  The values should be presented in a particular order
         //    with nothing else thereafter.
         $iterator = new \MultipleIterator();
@@ -309,16 +318,16 @@ class SectionsControllerTest extends DMIntegrationTestCase {
             $htmlRow = $values[1];
             $htmlColumns = $htmlRow->find('td');
 
-            // 6.0 cohort_nickname
+            // 8.0 cohort_nickname
             $cohorts = TableRegistry::get('Cohorts');
             $cohort = $cohorts->get($fixtureRecord['cohort_id'],['contain' => ['Majors']]);
             $this->assertEquals($cohort->nickname, $htmlColumns[0]->plaintext);
 
-            // 6.1 subject
+            // 8.1 subject
             $subject = $this->subjectsFixture->get($fixtureRecord['subject_id']);
             $this->assertEquals($subject['title'], $htmlColumns[1]->plaintext);
 
-            // 6.2 semester_nickname
+            // 8.2 semester_nickname
             $semesters = TableRegistry::get('Semesters');
             $semester = $semesters->get($fixtureRecord['semester_id']);
             $this->assertEquals($semester->nickname, $htmlColumns[2]->plaintext);
@@ -327,7 +336,7 @@ class SectionsControllerTest extends DMIntegrationTestCase {
             $this->assertEquals($fixtureRecord['start_time'], $htmlColumns[4]->plaintext);
             $this->assertEquals($fixtureRecord['thours'], $htmlColumns[5]->plaintext);
 
-            // 6.6 Now examine the action links
+            // 8.6 Now examine the action links
             $actionLinks = $htmlRow->find('a');
             $this->assertEquals('sectionView', $actionLinks[0]->name);
             $unknownATag--;
@@ -337,7 +346,7 @@ class SectionsControllerTest extends DMIntegrationTestCase {
             $unknownATag--;
         }
 
-        // 7. Ensure that all the <A> tags have been accounted for
+        // 9. Ensure that all the <A> tags have been accounted for
         $this->assertEquals(0, $unknownATag);
     }
 

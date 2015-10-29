@@ -28,7 +28,7 @@ class SectionsTable extends Table {
         //$this->displayField('id');
         //$this->primaryKey('id');
 
-        $this->hasMany('Clazzs', [
+        $this->hasMany('Clazzes', [
             //'foreignKey' => 'clazz_id'
         ]);
 
