@@ -14,8 +14,7 @@ use Cake\ORM\Entity;
  * @property int $weekday
  * @property \Cake\I18n\Time $time
  */
-class Section extends Entity
-{
+class Section extends Entity {
 
     /**
      * Fields that can be mass assigned using newEntity() or patchEntity().
@@ -30,4 +29,9 @@ class Section extends Entity
         '*' => true,
         'id' => false,
     ];
-}
+
+    protected function _getNickname() {
+        $s1 = $this->_properties['weekday'];
+        $s2 = $this->_properties['start_time'];
+        return $s1 . '-' . $s2;
+    }}

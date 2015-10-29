@@ -25,7 +25,7 @@ class SectionsTable extends Table {
         parent::initialize($config);
 
         //$this->table('sections');
-        //$this->displayField('id');
+        $this->displayField('nickname');
         //$this->primaryKey('id');
 
         $this->hasMany('Clazzes', [
