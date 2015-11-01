@@ -31,6 +31,10 @@ class ClazzesTable extends Table {
             //'foreignKey' => 'section_id',
             //'joinType' => 'INNER'
         ]);
+
+        $this->hasMany('Interactions', [
+            //'foreignKey' => 'clazz_id'
+        ]);
     }
 
     /**

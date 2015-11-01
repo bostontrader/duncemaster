@@ -28,14 +28,14 @@ class InteractionsTable extends Table {
         //$this->displayField('id');
         //$this->primaryKey('id');
 
-        $this->belongsTo('Classes', [
-            'foreignKey' => 'class_id',
-            'joinType' => 'INNER'
+        $this->belongsTo('Clazzes', [
+            //'foreignKey' => 'class_id',
+            //'joinType' => 'INNER'
         ]);
 
         $this->belongsTo('Students', [
-            'foreignKey' => 'student_id',
-            'joinType' => 'INNER'
+            //'foreignKey' => 'student_id',
+            //'joinType' => 'INNER'
         ]);
     }
 

@@ -19,7 +19,6 @@ class SectionsFixture extends TestFixture {
     ];
 
     // This record will be added during a test.  We don't need or want to control the id here, so omit it.
-
     public $newSectionRecord = [
         'cohort_id'=>FixtureConstants::cohort2_id,
         'semester_id'=>FixtureConstants::semester2_id,

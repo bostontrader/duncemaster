@@ -27,12 +27,12 @@ class StudentsTable extends Table {
         //$this->primaryKey('id');
 
         $this->belongsTo('Cohorts', [
-            'foreignKey' => 'cohort_id',
-            'joinType' => 'INNER'
+            //'foreignKey' => 'cohort_id',
+            //'joinType' => 'INNER'
         ]);
 
         $this->hasMany('Interactions', [
-            'foreignKey' => 'interaction_id'
+            //'foreignKey' => 'interaction_id'
         ]);
     }
 

@@ -11,11 +11,13 @@ class InteractionsController extends AppController {
             if ($this->Interactions->save($interaction)) {
                 //$this->Flash->success(__('The interaction has been saved.'));
                 return $this->redirect(['action' => 'index']);
-                //} else {
+            } else {
                 //$this->Flash->error(__('The interaction could not be saved. Please, try again.'));
             }
         }
-        $this->set(compact('interaction'));
+        $clazzes = $this->Interactions->Clazzes->find('list');
+        $students = $this->Interactions->Students->find('list');
+        $this->set(compact('clazzes','interaction','students'));
     }
 
     public function delete($id = null) {
@@ -46,7 +48,7 @@ class InteractionsController extends AppController {
 
     public function index() {
         $this->request->allowMethod(['get']);
-        $this->set('interactions', $this->Interactions->find());
+        $this->set('interactions', $this->Interactions->find('all', ['contain' => ['Clazzez','Students']]));
     }
 
     public function view($id = null) {
