@@ -4,15 +4,14 @@ namespace App\Model\Entity;
 use Cake\ORM\Entity;
 
 /**
- * Clazze Entity.
+ * Clazz Entity.
  *
  * @property int $id
  * @property int $section_id
  * @property \App\Model\Entity\Section $section
  * @property \Cake\I18n\Time $datetime
  */
-class Clazze extends Entity
-{
+class Clazz extends Entity {
 
     /**
      * Fields that can be mass assigned using newEntity() or patchEntity().
@@ -27,4 +26,9 @@ class Clazze extends Entity
         '*' => true,
         'id' => false,
     ];
+
+    protected function _getNickname() {
+        $s1 = $this->_properties['id'];;
+        return $s1;
+    }
 }

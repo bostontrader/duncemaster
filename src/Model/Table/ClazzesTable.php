@@ -1,7 +1,7 @@
 <?php
 namespace App\Model\Table;
 
-//use App\Model\Entity\Clazze;
+//use App\Model\Entity\Clazz;
 //use Cake\ORM\Query;
 //use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
@@ -10,7 +10,6 @@ use Cake\ORM\Table;
 /**
  * Clazzes Model
  *
- * @property \Cake\ORM\Association\BelongsTo $Sections
  */
 class ClazzesTable extends Table {
 
