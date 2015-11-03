@@ -55,7 +55,7 @@ class InteractionsController extends AppController {
 
     public function view($id = null) {
         $this->request->allowMethod(['get']);
-        $interaction = $this->Interactions->get($id);
+        $interaction = $this->Interactions->get($id, ['contain' => ['Clazzes','Students']]);
         $this->set('interaction', $interaction);
     }
 }

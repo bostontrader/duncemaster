@@ -275,35 +275,54 @@ class InteractionsControllerTest extends DMIntegrationTestCase {
         // 9. Ensure that all the <A> tags have been accounted for
         $this->assertEquals(0, $unknownATag);
     }
-
-
-    /*public function testViewGET() {
-
-        $interactionsFixture = new InteractionsFixture();
+    
+    public function testViewGET() {
 
         $this->fakeLogin();
-        $this->get('/interactions/view/' . $interactionsFixture->interaction1Record['id']);
-        $this->assertResponseOk();
+        $this->get('/interactions/view/' . $this->interactionsFixture->interaction1Record['id']);
+        $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();
-
-        // Make sure this view var is set
-        $this->assertNotNull($this->viewVariable('interaction'));
 
         // Parse the html from the response
         $html = str_get_html($this->_response->body());
 
-        // Ensure that the correct form exists
-        //$form = $html->find('form[id=InteractionEditForm]')[0];
-        //$this->assertNotNull($form);
+        // 1.  Look for the table that contains the view fields.
+        $table = $html->find('table#InteractionViewTable',0);
+        $this->assertNotNull($table);
 
-        // Omit the id field
-        // Ensure that there's a field for class_id, that is correctly set
-        //$input = $form->find('input[id=InteractionTitle]')[0];
-        //$this->assertEquals($input->value, $interactionsFixture->interaction1Record['title']);
+        // 2. Now inspect the fields on the form.  We want to know that:
+        // A. The correct fields are there and no other fields.
+        // B. The fields have correct values.
+        //
+        //  The actual order that the fields are listed is hereby deemed unimportant.
 
-        // Ensure that there's a field for sdesc, that is empty
-        //$input = $form->find('input[id=InteractionSDesc]')[0];
-        //$this->assertEquals($input->value, false);
-    }*/
+        // This is the count of the table rows that are presently unaccounted for.
+        $unknownRowCnt = count($table->find('tr'));
+
+        // 2.1 clazz requires finding the nickname, which is computed by the Clazz Entity.
+        $field = $html->find('tr#clazz td',0);
+        $clazz = $this->clazzes->get($this->interactionsFixture->interaction1Record['clazz_id']);
+        $s1 = $clazz->nickname;
+        $s2 = $field->plaintext;
+        $this->assertEquals($clazz->nickname, $field->plaintext);
+        $unknownRowCnt--;
+
+        // 2.2 student requires finding the nickname, which is computed by the Semester Entity.
+        $field = $html->find('tr#student td',0);
+        $student = $this->students->get($this->interactionsFixture->interaction1Record['student_id']);
+        $this->assertEquals($student->fullname, $field->plaintext);
+        $unknownRowCnt--;
+
+        // Have all the rows been accounted for?  Are there
+        // any extras?
+        $this->assertEquals(0, $unknownRowCnt);
+
+        // 3. Examine the <A> tags on this page.  There should be zero links.
+        $content = $html->find('div#interactionsView',0);
+        $this->assertNotNull($content);
+        $links = $content->find('a');
+        $this->assertEquals(0,count($links));
+
+    }
 
 }

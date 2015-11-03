@@ -6,7 +6,7 @@
         </ul>
     </nav>
     <div class="interactions index large-9 medium-8 columns content">
-        <h3><?= __('Interacctions') ?></h3>
+        <h3><?= __('Interactions') ?></h3>
         <table id="interactionsTable" cellpadding="0" cellspacing="0">
             <thead>
             <tr>
