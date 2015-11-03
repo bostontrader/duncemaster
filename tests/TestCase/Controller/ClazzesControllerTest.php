@@ -13,10 +13,6 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
         'app.sections'
     ];
 
-    public $clazzes;
-    public $sections;
-    public $clazzesFixture;
-
     public function setUp() {
         $this->clazzes = TableRegistry::get('Clazzes');
         $this->sections = TableRegistry::get('Sections');
@@ -44,7 +40,7 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
         // B. The fields have correct values. This includes verifying that select
         //    lists contain options.
         //
-        //  The actual order that the fields are listed is hereby deemed unimportant.
+        //  The actual order that the fields are listed on the form is hereby deemed unimportant.
 
         // 4.1 These are counts of the select and input fields on the form.  They
         // are presently unaccounted for.
@@ -57,20 +53,26 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
         // 4.3 Ensure that there's a select field for section_id, that it has no selection,
         //    and that it has the correct quantity of available choices.
         if($this->lookForSelect($form,'ClazzSectionId','sections')) $unknownSelectCnt--;
-        
-        // 4.4 Ensure that there's an input field for event_datetime, of type text, and that it is empty
+
+        // 4.4 Ensure that there's an input field for week, of type text, and that it is empty
+        $input = $form->find('input#ClazzWeek',0);
+        $this->assertEquals($input->type, "text");
+        $this->assertEquals($input->value, false);
+        $unknownInputCnt--;
+
+        // 4.5 Ensure that there's an input field for event_datetime, of type text, and that it is empty
         $input = $form->find('input#ClazzDatetime',0);
         $this->assertEquals($input->type, "text");
         $this->assertEquals($input->value, false);
         $unknownInputCnt--;
 
-        // 4.5 Have all the input and select fields been accounted for?  Are there
+        // 4.6 Have all the input and select fields been accounted for?  Are there
         // any extras?
         $this->assertEquals(0, $unknownInputCnt);
         $this->assertEquals(0, $unknownSelectCnt);
 
         // 5. Examine the <A> tags on this page.  There should be zero links.
-        $content = $html->find('div#clazzesAdd',0);
+        $content = $html->find('div#ClazzesAdd',0);
         $this->assertNotNull($content);
         $links = $content->find('a');
         $this->assertEquals(0,count($links));
@@ -91,6 +93,7 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
         // Now retrieve that 1 record and compare to what we expect
         $new_clazz = $this->clazzes->get($new_id);
         $this->assertEquals($new_clazz['section_id'],$this->clazzesFixture->newClazzRecord['section_id']);
+        $this->assertEquals($new_clazz['week'],$this->clazzesFixture->newClazzRecord['week']);
         $this->assertEquals($new_clazz['event_datetime'],$this->clazzesFixture->newClazzRecord['event_datetime']);
     }
 
@@ -127,7 +130,7 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
         // B. The fields have correct values. This includes verifying that select
         //    lists contain options.
         //
-        //  The actual order that the fields are listed is hereby deemed unimportant.
+        //  The actual order that the fields are listed on the form is hereby deemed unimportant.
 
         // 4.1 These are counts of the select and input fields on the form.  They
         // are presently unaccounted for.
@@ -149,7 +152,13 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
         $this->assertEquals($section->nickname, $option->plaintext);
         $unknownSelectCnt--;
 
-        // 4.4 Ensure that there's an input field for event_datetime, of type text, and that it is correctly set
+        // 4.4 Ensure that there's an input field for week, of type text, and that it is correctly set
+        $input = $form->find('input#ClazzWeek',0);
+        $this->assertEquals($input->type, "text");
+        $this->assertEquals($input->value, $this->clazzesFixture->clazz1Record['week']);
+        $unknownInputCnt--;
+
+        // 4.5 Ensure that there's an input field for event_datetime, of type text, and that it is correctly set
         $input = $form->find('input#ClazzDatetime',0);
         $this->assertEquals($input->type, "text");
         $this->assertEquals($input->value, $this->clazzesFixture->clazz1Record['event_datetime']);
@@ -161,7 +170,7 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
         $this->assertEquals(0, $unknownSelectCnt);
 
         // 5. Examine the <A> tags on this page.  There should be zero links.
-        $content = $html->find('div#clazzesEdit',0);
+        $content = $html->find('div#ClazzesEdit',0);
         $this->assertNotNull($content);
         $links = $content->find('a');
         $this->assertEquals(0,count($links));
@@ -182,8 +191,8 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
         // Now retrieve that 1 record and compare to what we expect
         $clazz = $this->clazzes->get($clazz_id);
         $this->assertEquals($clazz['section_id'],$this->clazzesFixture->newClazzRecord['section_id']);
+        $this->assertEquals($clazz['week'],$this->clazzesFixture->newClazzRecord['week']);
         $this->assertEquals($clazz['event_datetime'],$this->clazzesFixture->newClazzRecord['event_datetime']);
-
     }
 
     public function testIndexGET() {
@@ -198,16 +207,16 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
         $html = str_get_html($this->_response->body());
 
         // 3. Get a the count of all <A> tags that are presently unaccounted for.
-        $content = $html->find('div#clazzesIndex',0);
+        $content = $html->find('div#ClazzesIndex',0);
         $this->assertNotNull($content);
         $unknownATag = count($content->find('a'));
 
         // 4. Look for the create new section link
-        $this->assertEquals(1, count($html->find('a#clazzAdd')));
+        $this->assertEquals(1, count($html->find('a#ClazzAdd')));
         $unknownATag--;
 
         // 5. Ensure that there is a suitably named table to display the results.
-        $sections_table = $html->find('table#clazzesTable',0);
+        $sections_table = $html->find('table#ClazzesTable',0);
         $this->assertNotNull($sections_table);
 
         // 6. Ensure that said table's thead element contains the correct
@@ -216,9 +225,10 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
         $thead_ths = $thead->find('tr th');
 
         $this->assertEquals($thead_ths[0]->id, 'section');
-        $this->assertEquals($thead_ths[1]->id, 'event_datetime');
-        $this->assertEquals($thead_ths[2]->id, 'actions');
-        $this->assertEquals(count($thead_ths),3); // no other columns
+        $this->assertEquals($thead_ths[1]->id, 'week');
+        $this->assertEquals($thead_ths[2]->id, 'event_datetime');
+        $this->assertEquals($thead_ths[3]->id, 'actions');
+        $this->assertEquals(count($thead_ths),4); // no other columns
 
         // 7. Ensure that the tbody section has the same
         //    quantity of rows as the count of section records in the fixture.
@@ -242,16 +252,19 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
             $section = $this->sections->get($fixtureRecord['section_id']);
             $this->assertEquals($section->nickname, $htmlColumns[0]->plaintext);
 
-            // 8.1 event_datetime
-            $this->assertEquals($fixtureRecord['event_datetime'], $htmlColumns[1]->plaintext);
+            // 8.1 week
+            $this->assertEquals($fixtureRecord['week'], $htmlColumns[1]->plaintext);
 
-            // 8.2 Now examine the action links
+            // 8.2 event_datetime
+            $this->assertEquals($fixtureRecord['event_datetime'], $htmlColumns[2]->plaintext);
+
+            // 8.3 Now examine the action links
             $actionLinks = $htmlRow->find('a');
-            $this->assertEquals('clazzView', $actionLinks[0]->name);
+            $this->assertEquals('ClazzView', $actionLinks[0]->name);
             $unknownATag--;
-            $this->assertEquals('clazzEdit', $actionLinks[1]->name);
+            $this->assertEquals('ClazzEdit', $actionLinks[1]->name);
             $unknownATag--;
-            $this->assertEquals('clazzDelete', $actionLinks[2]->name);
+            $this->assertEquals('ClazzDelete', $actionLinks[2]->name);
             $unknownATag--;
         }
 
@@ -288,17 +301,23 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
         $this->assertEquals($section->nickname, $field->plaintext);
         $unknownRowCnt--;
 
-        // 2.2 event_datetime
+        // 2.2 week
+        $field = $html->find('tr#week td',0);
+        $this->assertEquals($this->clazzesFixture->clazz1Record['week'], $field->plaintext);
+        $unknownRowCnt--;
+
+        // 2.3 event_datetime
         $field = $html->find('tr#event_datetime td',0);
         $this->assertEquals($this->clazzesFixture->clazz1Record['event_datetime'], $field->plaintext);
         $unknownRowCnt--;
 
-        // Have all the rows been accounted for?  Are there
-        // any extras?
+        // Have all the rows been accounted for?  Are there any extras?
         $this->assertEquals(0, $unknownRowCnt);
 
-        // 3. Examine the links on this page.  There should be zero links.
-        $links = $table->find('a');
+        // 3. Examine the <A> tags on this page.  There should be zero links.
+        $content = $html->find('div#ClazzesView',0);
+        $this->assertNotNull($content);
+        $links = $content->find('a');
         $this->assertEquals(0,count($links));
     }
 
