@@ -23,7 +23,7 @@ class StudentsTable extends Table {
         parent::initialize($config);
 
         //$this->table('students');
-        //$this->displayField('id');
+        $this->displayField('fullname');
         //$this->primaryKey('id');
 
         $this->belongsTo('Cohorts', [

@@ -148,33 +148,14 @@ class InteractionsControllerTest extends DMIntegrationTestCase {
         $clazz_id = $this->interactionsFixture->interaction1Record['clazz_id'];
         $this->assertEquals($option->value, $clazz_id);
 
-        // Even though clazz_id is correct, we don't display clazz_id.  Instead we display the nickname
-        // from the related Clazzes table. But nickname is a virtual field so we must
-        // read the record in order to get the nickname, instead of looking it up in the fixture records.
-        //
-        // Note: Something is mysteriousl wrong here.  Get return ORM\Entity only, instead of an
-        // instance of Clazz.  Can't figure out now, don't have time to wrestle with it.  Skip
-        // it for now.
-        //$clazz = $this->clazzes->get($clazz_id);
-        //$s1 = $clazz->nickname;
-        //$s2 = $option->plaintext;
-        //$this->assertEquals($clazz->nickname, $option->plaintext);
-        //$unknownSelectCnt--;
-
-        // 4.3 Ensure that there's a select field for clazz_id and that it is correctly set
-        // This has the same problem.  Is this a problem of inflection?
-        //$option = $form->find('select#InteractionClazzId option[selected]',0);
-        //$clazz_id = $this->interactionsFixture->interaction1Record['clazz_id'];
-        //$this->assertEquals($option->value, $clazz_id);
-
         // Even though clazz_id is correct, we don't display clazz_id.  Instead we display the
         // nickname from the related Clazzes table.  But nickname is a virtual field so we must
         // read the record in order to get the nickname, instead of looking it up in the fixture records.
-        //$clazz = $this->clazzes->get($clazz_id);
-        //$this->assertEquals($clazz->nickname, $option->plaintext);
-        //$unknownSelectCnt--;
+        $clazz = $this->clazzes->get($clazz_id);
+        $this->assertEquals($clazz->nickname, $option->plaintext);
+        $unknownSelectCnt--;
 
-        // 4.3 Ensure that there's a select field for student_id and that it is correctly set
+        // 4.4 Ensure that there's a select field for student_id and that it is correctly set
         $option = $form->find('select#InteractionStudentId option[selected]',0);
         $student_id = $this->interactionsFixture->interaction1Record['student_id'];
         $this->assertEquals($option->value, $student_id);
@@ -185,8 +166,6 @@ class InteractionsControllerTest extends DMIntegrationTestCase {
         $student = $this->students->get($student_id);
         $this->assertEquals($student->fullname, $option->plaintext);
         $unknownSelectCnt--;
-        
-
 
         // 4.9 Have all the input and select fields been accounted for?  Are there
         // any extras?
@@ -202,23 +181,20 @@ class InteractionsControllerTest extends DMIntegrationTestCase {
 
     public function testEditPOST() {
 
-        $interactionsFixture = new InteractionsFixture();
-
         $this->fakeLogin();
-        $this->post('/interactions/edit/' . $interactionsFixture->interaction1Record['id'], $interactionsFixture->newInteractionRecord);
-        $this->assertResponseOk();
-        $this->assertNoRedirect();
+        $interaction_id = $this->interactionsFixture->interaction1Record['id'];
+        $this->post('/interactions/edit/' . $interaction_id, $this->interactionsFixture->newInteractionRecord);
+        $this->assertResponseSuccess(); // 2xx, 3xx
+        $this->assertRedirect('/interactions');
 
         // Now verify what we think just got written
-        $interactions = TableRegistry::get('Interactions');
-        $query = $interactions->find()->where(['id' => $interactionsFixture->interaction1Record['id']]);
-        $c = $query->count();
-        $this->assertEquals(1, $c);
+        $query = $this->interactions->find()->where(['id' => $interaction_id]);
+        $this->assertEquals(1, $query->count());
 
         // Now retrieve that 1 record and compare to what we expect
-        $interaction = $interactions->get($interactionsFixture->interaction1Record['id']);
-        $this->assertEquals($interaction['clazz_id'],$interactionsFixture->newInteractionRecord['clazz_id']);
-        $this->assertEquals($interaction['student_id'],$interactionsFixture->newInteractionRecord['student_id']);
+        $interaction = $this->interactions->get($interaction_id);
+        $this->assertEquals($interaction['clazz_id'],$this->interactionsFixture->newInteractionRecord['clazz_id']);
+        $this->assertEquals($interaction['student_id'],$this->interactionsFixture->newInteractionRecord['student_id']);
 
     }
 
@@ -251,14 +227,10 @@ class InteractionsControllerTest extends DMIntegrationTestCase {
         $thead = $interactions_table->find('thead',0);
         $thead_ths = $thead->find('tr th');
 
-        $this->assertEquals($thead_ths[0]->id, 'cohort');
-        $this->assertEquals($thead_ths[1]->id, 'subject');
-        $this->assertEquals($thead_ths[2]->id, 'semester');
-        $this->assertEquals($thead_ths[3]->id, 'weekday');
-        $this->assertEquals($thead_ths[4]->id, 'start_time');
-        $this->assertEquals($thead_ths[5]->id, 'thours');
-        $this->assertEquals($thead_ths[6]->id, 'actions');
-        $this->assertEquals(count($thead_ths),7); // no other columns
+        $this->assertEquals($thead_ths[0]->id, 'clazz');
+        $this->assertEquals($thead_ths[1]->id, 'student');
+        $this->assertEquals($thead_ths[2]->id, 'actions');
+        $this->assertEquals(count($thead_ths),3); // no other columns
 
         // 7. Ensure that the tbody section has the same
         //    quantity of rows as the count of interaction records in the fixture.
@@ -278,25 +250,19 @@ class InteractionsControllerTest extends DMIntegrationTestCase {
             $htmlRow = $values[1];
             $htmlColumns = $htmlRow->find('td');
 
-            // 8.0 cohort_nickname
-            $cohorts = TableRegistry::get('Cohorts');
-            $cohort = $cohorts->get($fixtureRecord['cohort_id'],['contain' => ['Majors']]);
-            $this->assertEquals($cohort->nickname, $htmlColumns[0]->plaintext);
+            // 8.0 clazz_nickname. read from Table because we need to compute
+            // the 'nickname' virtual field.
+            $clazz = $this->clazzes->get($fixtureRecord['clazz_id']);
+            $this->assertEquals($clazz->nickname, $htmlColumns[0]->plaintext);
 
-            // 8.1 subject
-            $subject = $this->subjectsFixture->get($fixtureRecord['subject_id']);
-            $this->assertEquals($subject['title'], $htmlColumns[1]->plaintext);
+            // 8.1 student_fullname. read from Table because we need to compute
+            // the 'fullname' virtual field.
+            $student = $this->students->get($fixtureRecord['student_id']);
+            $s1 = $student->fullname;
+            $s2 = $htmlColumns[0]->plaintext;
+            $this->assertEquals($student->fullname, $htmlColumns[1]->plaintext);
 
-            // 8.2 semester_nickname
-            $semesters = TableRegistry::get('Semesters');
-            $semester = $semesters->get($fixtureRecord['semester_id']);
-            $this->assertEquals($semester->nickname, $htmlColumns[2]->plaintext);
-
-            $this->assertEquals($fixtureRecord['weekday'], $htmlColumns[3]->plaintext);
-            $this->assertEquals($fixtureRecord['start_time'], $htmlColumns[4]->plaintext);
-            $this->assertEquals($fixtureRecord['thours'], $htmlColumns[5]->plaintext);
-
-            // 8.6 Now examine the action links
+            // 8.2 Now examine the action links
             $actionLinks = $htmlRow->find('a');
             $this->assertEquals('interactionView', $actionLinks[0]->name);
             $unknownATag--;
@@ -309,6 +275,7 @@ class InteractionsControllerTest extends DMIntegrationTestCase {
         // 9. Ensure that all the <A> tags have been accounted for
         $this->assertEquals(0, $unknownATag);
     }
+
 
     /*public function testViewGET() {
 

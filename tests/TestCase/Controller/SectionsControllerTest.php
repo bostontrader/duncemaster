@@ -318,18 +318,18 @@ class SectionsControllerTest extends DMIntegrationTestCase {
             $htmlRow = $values[1];
             $htmlColumns = $htmlRow->find('td');
 
-            // 8.0 cohort_nickname
-            $cohorts = TableRegistry::get('Cohorts');
-            $cohort = $cohorts->get($fixtureRecord['cohort_id'],['contain' => ['Majors']]);
+            // 8.0 cohort_nickname. read from Table because we need to compute
+            // the 'nickname' virtual field.
+            $cohort = $this->cohorts->get($fixtureRecord['cohort_id'],['contain' => ['Majors']]);
             $this->assertEquals($cohort->nickname, $htmlColumns[0]->plaintext);
 
-            // 8.1 subject
+            // 8.1 subject. all info is available via fixture.
             $subject = $this->subjectsFixture->get($fixtureRecord['subject_id']);
             $this->assertEquals($subject['title'], $htmlColumns[1]->plaintext);
 
-            // 8.2 semester_nickname
-            $semesters = TableRegistry::get('Semesters');
-            $semester = $semesters->get($fixtureRecord['semester_id']);
+            // 8.2 semester_nickname. read from Table because we need to compute
+            // the 'nickname' virtual field.
+            $semester = $this->semesters->get($fixtureRecord['semester_id']);
             $this->assertEquals($semester->nickname, $htmlColumns[2]->plaintext);
 
             $this->assertEquals($fixtureRecord['weekday'], $htmlColumns[3]->plaintext);

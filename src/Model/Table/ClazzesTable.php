@@ -23,7 +23,7 @@ class ClazzesTable extends Table {
         parent::initialize($config);
 
         //$this->table('clazzs');
-        //$this->displayField('id');
+        $this->displayField('nickname');
         //$this->primaryKey('id');
 
         $this->belongsTo('Sections', [

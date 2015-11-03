@@ -38,8 +38,8 @@ class InteractionsController extends AppController {
             $interaction = $this->Interactions->patchEntity($interaction, $this->request->data);
             if ($this->Interactions->save($interaction)) {
                 //$this->Flash->success(__('The interaction has been saved.'));
-                //return $this->redirect(['action' => 'index']);
-                //} else {
+                return $this->redirect(['action' => 'index']);
+            } else {
                 //$this->Flash->error(__('The interaction could not be saved. Please, try again.'));
             }
         }
@@ -50,7 +50,6 @@ class InteractionsController extends AppController {
 
     public function index() {
         $this->request->allowMethod(['get']);
-        $n = $this->Interactions->find('all', ['contain' => ['Clazzes','Students']]);
         $this->set('interactions', $this->Interactions->find('all', ['contain' => ['Clazzes','Students']]));
     }
 
