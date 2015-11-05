@@ -11,210 +11,296 @@ class SemestersControllerTest extends DMIntegrationTestCase {
         'app.semesters'
     ];
 
+    public function setUp() {
+        //$this->clazzes = TableRegistry::get('Clazzes');
+        $this->semesters = TableRegistry::get('Semesters');
+        //$this->clazzesFixture = new ClazzesFixture();
+        $this->semestersFixture = new SemestersFixture();
+    }
+
     public function testAddGET() {
 
+        // 1. Simulate login, submit request, examine response.
         $this->fakeLogin();
         $this->get('/semesters/add');
         $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();
 
-        // Make sure this view var is set, to keep the FormHelper happy
-        $this->assertNotNull($this->viewVariable('semester'));
-
-        // Parse the html from the response
+        // 2. Parse the html from the response
         $html = str_get_html($this->_response->body());
 
-        // Ensure that the correct form exists
+        // 3. Ensure that the correct form exists
         $form = $html->find('form#SemesterAddForm',0);
         $this->assertNotNull($form);
 
-        // Omit the id field
+        // 4. Now inspect the fields on the form.  We want to know that:
+        // A. The correct fields are there and no other fields.
+        // B. The fields have correct values. This includes verifying that select
+        //    lists contain options.
+        //
+        //  The actual order that the fields are listed on the form is hereby deemed unimportant.
 
-        // Ensure that there's an input field for year, of type text, and that it is empty
+        // 4.1 These are counts of the select and input fields on the form.  They
+        // are presently unaccounted for.
+        $unknownSelectCnt = count($form->find('select'));
+        $unknownInputCnt = count($form->find('input'));
+
+        // 4.2 Look for the hidden POST input
+        if($this->lookForHiddenInput($form)) $unknownInputCnt--;
+
+        // 4.3 Ensure that there's an input field for year, of type text, and that it is empty
         $input = $form->find('input#SemesterYear',0);
         $this->assertEquals($input->type, "text");
         $this->assertEquals($input->value, false);
+        $unknownInputCnt--;
 
-        // Ensure that there's an input field for seq, of type text, and that it is empty
+        // 4.4 Ensure that there's an input field for seq, of type text, and that it is empty
         $input = $form->find('input#SemesterSeq',0);
         $this->assertEquals($input->type, "text");
         $this->assertEquals($input->value, false);
+        $unknownInputCnt--;
+
+        // 4.5 Ensure that there's an input field for firstday, of type text, and that it is empty
+        $input = $form->find('input#SemesterFirstday',0);
+        $this->assertEquals($input->type, "text");
+        $this->assertEquals($input->value, false);
+        $unknownInputCnt--;
+
+        // 4.9 Have all the input and select fields been accounted for?  Are there
+        // any extras?
+        $this->assertEquals(0, $unknownInputCnt);
+        $this->assertEquals(0, $unknownSelectCnt);
+
+        // 5. Examine the <A> tags on this page.  There should be zero links.
+        $content = $html->find('div#ClazzesAdd',0);
+        $this->assertNotNull($content);
+        $links = $content->find('a');
+        $this->assertEquals(0,count($links));
     }
 
     public function testAddPOST() {
 
-        $semestersFixture = new SemestersFixture();
-
         $this->fakeLogin();
-        $this->post('/semesters/add', $semestersFixture->newSemesterRecord);
+        $this->post('/semesters/add', $this->semestersFixture->newSemesterRecord);
         $this->assertResponseSuccess(); // 2xx, 3xx
         $this->assertRedirect( '/semesters' );
 
         // Now verify what we think just got written
-        $semesters = TableRegistry::get('Semesters');
         $new_id = FixtureConstants::semester1_id + 1;
-        $query = $semesters->find()->where(['id' => $new_id]);
+        $query = $this->semesters->find()->where(['id' => $new_id]);
         $this->assertEquals(1, $query->count());
 
         // Now retrieve that 1 record and compare to what we expect
-        $new_semester = $semesters->get($new_id);
-        $this->assertEquals($new_semester['year'],$semestersFixture->newSemesterRecord['year']);
-        $this->assertEquals($new_semester['seq'],$semestersFixture->newSemesterRecord['seq']);
+        $new_semester = $this->semesters->get($new_id);
+        $this->assertEquals($new_semester['year'],$this->semestersFixture->newSemesterRecord['year']);
+        $this->assertEquals($new_semester['seq'],$this->semestersFixture->newSemesterRecord['seq']);
+        $this->assertEquals($new_semester['firstday'],$this->semestersFixture->newSemesterRecord['firstday']);
     }
 
     public function testDeletePOST() {
 
-        $semestersFixture = new SemestersFixture();
-
         $this->fakeLogin();
-        $semester_id = $semestersFixture->semester1Record['id'];
+        $semester_id = $this->semestersFixture->semester1Record['id'];
         $this->post('/semesters/delete/' . $semester_id);
         $this->assertResponseSuccess(); // 2xx, 3xx
         $this->assertRedirect( '/semesters' );
 
         // Now verify that the record no longer exists
-        $semesters = TableRegistry::get('Semesters');
-        $query = $semesters->find()->where(['id' => $semester_id]);
+        $query = $this->semesters->find()->where(['id' => $semester_id]);
         $this->assertEquals(0, $query->count());
     }
 
     public function testEditGET() {
 
-        $semestersFixture = new SemestersFixture();
-
+        // 1. Simulate login, submit request, examine response.
         $this->fakeLogin();
-        $semester_id = $semestersFixture->semester1Record['id'];
-        $this->get('/semesters/edit/' . $semester_id);
+        $this->get('/semesters/edit/' . $this->semestersFixture->semester1Record['id']);
         $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();
 
-        // Make sure this view var is set, to keep the FormHelper happy
-        $this->assertNotNull($this->viewVariable('semester'));
-
-        // Parse the html from the response
+        // 2. Parse the html from the response
         $html = str_get_html($this->_response->body());
 
-        // Ensure that the correct form exists
+        // 3. Ensure that the correct form exists
         $form = $html->find('form#SemesterEditForm',0);
         $this->assertNotNull($form);
 
-        // Omit the id field
+        // 4. Now inspect the fields on the form.  We want to know that:
+        // A. The correct fields are there and no other fields.
+        // B. The fields have correct values. This includes verifying that select
+        //    lists contain options.
+        //
+        //  The actual order that the fields are listed on the form is hereby deemed unimportant.
 
-        // Ensure that there's an input field for year, of type text, and that it is correctly set
+        // 4.1 These are counts of the select and input fields on the form.  They
+        // are presently unaccounted for.
+        $unknownSelectCnt = count($form->find('select'));
+        $unknownInputCnt = count($form->find('input'));
+
+        // 4.2 Look for the hidden POST input
+        if($this->lookForHiddenInput($form,'PUT')) $unknownInputCnt--;
+
+        // 4.3 Ensure that there's an input field for year, of type text, and that it is correctly set
         $input = $form->find('input#SemesterYear',0);
         $this->assertEquals($input->type, "text");
-        $this->assertEquals($input->value, $semestersFixture->semester1Record['year']);
+        $this->assertEquals($input->value, $this->semestersFixture->semester1Record['year']);
+        $unknownInputCnt--;
 
-        // Ensure that there's an input field for seq, of type text, and that it is correctly set
+        // 4.4 Ensure that there's an input field for seq, of type text, and that it is correctly set
         $input = $form->find('input#SemesterSeq',0);
         $this->assertEquals($input->type, "text");
-        $this->assertEquals($input->value,  $semestersFixture->semester1Record['seq']);
+        $this->assertEquals($input->value,  $this->semestersFixture->semester1Record['seq']);
+        $unknownInputCnt--;
+
+        // 4.5 Ensure that there's an input field for seq, of type text, and that it is correctly set
+        $input = $form->find('input#SemesterFirstday',0);
+        $this->assertEquals($input->type, "text");
+        $this->assertEquals($input->value,  $this->semestersFixture->semester1Record['firstday']);
+        $unknownInputCnt--;
+
+        // 4.9 Have all the input and select fields been accounted for?  Are there
+        // any extras?
+        $this->assertEquals(0, $unknownInputCnt);
+        $this->assertEquals(0, $unknownSelectCnt);
+
+        // 5. Examine the <A> tags on this page.  There should be zero links.
+        $content = $html->find('div#SemestersEdit',0);
+        $this->assertNotNull($content);
+        $links = $content->find('a');
+        $this->assertEquals(0,count($links));
     }
 
     public function testEditPOST() {
 
-        $semestersFixture = new SemestersFixture();
-
         $this->fakeLogin();
-        $semester_id = $semestersFixture->semester1Record['id'];
-        $this->put('/semesters/edit/' . $semester_id, $semestersFixture->newSemesterRecord);
+        $semester_id = $this->semestersFixture->semester1Record['id'];
+        $this->put('/semesters/edit/' . $semester_id, $this->semestersFixture->newSemesterRecord);
         $this->assertResponseSuccess(); // 2xx, 3xx
         $this->assertRedirect('/semesters');
 
         // Now verify what we think just got written
-        $semesters = TableRegistry::get('Semesters');
-        $query = $semesters->find()->where(['id' => $semester_id]);
+        $query = $this->semesters->find()->where(['id' => $semester_id]);
         $this->assertEquals(1, $query->count());
 
         // Now retrieve that 1 record and compare to what we expect
-        $semester = $semesters->get($semestersFixture->semester1Record['id']);
-        $this->assertEquals($semester['year'],$semestersFixture->newSemesterRecord['year']);
-        $this->assertEquals($semester['seq'],$semestersFixture->newSemesterRecord['seq']);
+        $semester = $this->semesters->get($semester_id);
+        $this->assertEquals($semester['year'],$this->semestersFixture->newSemesterRecord['year']);
+        $this->assertEquals($semester['seq'],$this->semestersFixture->newSemesterRecord['seq']);
+        $this->assertEquals($semester['firstday'],$this->semestersFixture->newSemesterRecord['firstday']);
     }
 
     public function testIndexGET() {
 
+        // 1. Simulate login, submit request, examine response.
         $this->fakeLogin();
         $this->get('/semesters/index');
         $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();
 
-        // Make sure this view var is set
-        $this->assertNotNull($this->viewVariable('semesters'));
-
-        // Parse the html from the response
+        // 2. Parse the html from the response
         $html = str_get_html($this->_response->body());
+        
+        // 3. Get a the count of all <A> tags that are presently unaccounted for.
+        $content = $html->find('div#SemestersIndex',0);
+        $this->assertNotNull($content);
+        $unknownATag = count($content->find('a'));
 
-        // How shall we test the index?
+        // 4. Look for the create new semester link
+        $this->assertEquals(1, count($html->find('a#SemesterAdd')));
+        $unknownATag--;
 
-        // 1. Ensure that there is a suitably named table to display the results.
-        $semesters_table = $html->find('table#semesters',0);
+        // 5. Ensure that there is a suitably named table to display the results.
+        $semesters_table = $html->find('table#SemestersTable',0);
         $this->assertNotNull($semesters_table);
 
-        // 2. Ensure that said table's thead element contains the correct
+        // 6. Ensure that said table's thead element contains the correct
         //    headings, in the correct order, and nothing else.
         $thead = $semesters_table->find('thead',0);
         $thead_ths = $thead->find('tr th');
 
-        $this->assertEquals($thead_ths[0]->id, 'id');
-        $this->assertEquals($thead_ths[1]->id, 'year');
-        $this->assertEquals($thead_ths[2]->id, 'seq');
+        $this->assertEquals($thead_ths[0]->id, 'year');
+        $this->assertEquals($thead_ths[1]->id, 'seq');
+        $this->assertEquals($thead_ths[2]->id, 'firstday');
         $this->assertEquals($thead_ths[3]->id, 'actions');
         $this->assertEquals(count($thead_ths),4); // no other columns
 
-        // 3. Ensure that the tbody section has the same
+        // 7. Ensure that the tbody section has the same
         //    quantity of rows as the count of semester records in the fixture.
-        $semestersFixture = new SemestersFixture();
         $tbody = $semesters_table->find('tbody',0);
         $tbody_rows = $tbody->find('tr');
-        $this->assertEquals(count($tbody_rows), count($semestersFixture));
+        $this->assertEquals(count($tbody_rows), count($this->semestersFixture));
 
-        // 4. Ensure that the values displayed in each row, match the values from
+        // 8. Ensure that the values displayed in each row, match the values from
         //    the fixture.  The values should be presented in a particular order
-        //    with nothing else thereafter.  In order to do this we'll also need
-        //    to read from the Semesters table.
-        $semesters = TableRegistry::get('Semesters');
+        //    with nothing else thereafter.
         $iterator = new \MultipleIterator();
-        $iterator->attachIterator(new \ArrayIterator($semestersFixture->records));
+        $iterator->attachIterator(new \ArrayIterator($this->semestersFixture->records));
         $iterator->attachIterator(new \ArrayIterator($tbody_rows));
 
         foreach ($iterator as $values) {
             $fixtureRecord = $values[0];
             $htmlRow = $values[1];
             $htmlColumns = $htmlRow->find('td');
-            $this->assertEquals($fixtureRecord['id'], $htmlColumns[0]->plaintext);
-            $this->assertEquals($fixtureRecord['year'],  $htmlColumns[1]->plaintext);
-            $this->assertEquals($fixtureRecord['seq'],  $htmlColumns[2]->plaintext);
+            $this->assertEquals($fixtureRecord['year'],  $htmlColumns[0]->plaintext);
+            $this->assertEquals($fixtureRecord['seq'],  $htmlColumns[1]->plaintext);
+            $this->assertEquals($fixtureRecord['firstday'],  $htmlColumns[2]->plaintext);
 
-            // Ignore the action links
+            // Now examine the action links
+            $actionLinks = $htmlRow->find('a');
+            $this->assertEquals('SemesterView', $actionLinks[0]->name);
+            $unknownATag--;
+            $this->assertEquals('SemesterEdit', $actionLinks[1]->name);
+            $unknownATag--;
+            $this->assertEquals('SemesterDelete', $actionLinks[2]->name);
+            $unknownATag--;
         }
+        // 9. Ensure that all the <A> tags have been accounted for
+        $this->assertEquals(0, $unknownATag);
     }
 
     public function testViewGET() {
 
-        $semestersFixture = new SemestersFixture();
-
         $this->fakeLogin();
-        $this->get('/semesters/view/' . $semestersFixture->semester1Record['id']);
+        $this->get('/semesters/view/' . $this->semestersFixture->semester1Record['id']);
         $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();
-
-        // Make sure this view var is set
-        $this->assertNotNull($this->viewVariable('semester'));
 
         // Parse the html from the response
         $html = str_get_html($this->_response->body());
 
-        // How shall we test the view?  It doesn't have any enclosing table or structure so just
-        // ignore that part.  Instead, look for individual display fields.
-        $field = $html->find('td#id',0);
-        $this->assertEquals($semestersFixture->semester1Record['id'], $field->plaintext);
+        // 1.  Look for the table that contains the view fields.
+        $table = $html->find('table#SemesterViewTable',0);
+        $this->assertNotNull($table);
 
-        $field = $html->find('td#year',0);
-        $this->assertEquals($semestersFixture->semester1Record['year'], $field->plaintext);
+        // 2. Now inspect the fields on the form.  We want to know that:
+        // A. The correct fields are there and no other fields.
+        // B. The fields have correct values.
+        //
+        //  The actual order that the fields are listed is hereby deemed unimportant.
 
-        $field = $html->find('td#seq',0);
-        $this->assertEquals($semestersFixture->semester1Record['seq'], $field->plaintext);
+        // This is the count of the table rows that are presently unaccounted for.
+        $unknownRowCnt = count($table->find('tr'));
+
+        $field = $html->find('tr#year td',0);
+        $this->assertEquals($this->semestersFixture->semester1Record['year'], $field->plaintext);
+        $unknownRowCnt--;
+
+        $field = $html->find('tr#seq td',0);
+        $this->assertEquals($this->semestersFixture->semester1Record['seq'], $field->plaintext);
+        $unknownRowCnt--;
+
+        $field = $html->find('tr#firstday td',0);
+        $this->assertEquals($this->semestersFixture->semester1Record['firstday'], $field->plaintext);
+        $unknownRowCnt--;
+
+        // Have all the rows been accounted for?  Are there any extras?
+        $this->assertEquals(0, $unknownRowCnt);
+
+        // 3. Examine the <A> tags on this page.  There should be zero links.
+        $content = $html->find('div#SemestersView',0);
+        $this->assertNotNull($content);
+        $links = $content->find('a');
+        $this->assertEquals(0,count($links));
     }
 
 }

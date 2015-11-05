@@ -96,7 +96,7 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
         $this->fakeLogin();
         $clazz_id = $this->clazzesFixture->clazz1Record['id'];
         $this->post('/clazzes/delete/' . $clazz_id);
-        $this->assertResponseSuccess();
+        $this->assertResponseSuccess(); // 2xx, 3xx
         $this->assertRedirect( '/clazzes' );
 
         // Now verify that the record no longer exists
@@ -109,7 +109,7 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
         // 1. Simulate login, submit request, examine response.
         $this->fakeLogin();
         $this->get('/clazzes/edit/' . $this->clazzesFixture->clazz1Record['id']);
-        $this->assertResponseOk();
+        $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();
 
         // 2. Parse the html from the response
@@ -158,7 +158,7 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
         $this->assertEquals($input->value, $this->clazzesFixture->clazz1Record['event_datetime']);
         $unknownInputCnt--;
 
-        // 4.5 Have all the input and select fields been accounted for?  Are there
+        // 4.9 Have all the input and select fields been accounted for?  Are there
         // any extras?
         $this->assertEquals(0, $unknownInputCnt);
         $this->assertEquals(0, $unknownSelectCnt);
@@ -193,7 +193,7 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
 
         // 1. Simulate login, submit request, examine response.
         $this->fakeLogin();
-        $result = $this->get('/clazzes/index');
+        $this->get('/clazzes/index');
         $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();
 

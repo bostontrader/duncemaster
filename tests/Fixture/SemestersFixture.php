@@ -10,11 +10,15 @@ class SemestersFixture extends TestFixture {
     // id to ensure the test records are properly related.
     public $semester1Record = [
         'id'=>FixtureConstants::semester1_id,
-        'year' => 2015, 'seq' => 1
+        'year' => 2015, 'seq' => 1,
+        'firstday'=>'2015-09-07'
     ];
 
     // This record will be added during a test.  We don't need or want to control the id here, so omit it.
-    public $newSemesterRecord = ['year' => 2016, 'seq' => 2];
+    public $newSemesterRecord = [
+        'year' => 2016, 'seq' => 2,
+        'firstday'=>'2015-09-08'
+    ];
 
     public function init() {
         $this->records = [
