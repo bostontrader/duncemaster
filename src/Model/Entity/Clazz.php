@@ -28,7 +28,19 @@ class Clazz extends Entity {
     ];
 
     protected function _getNickname() {
-        $s1 = $this->_properties['id'];;
+        $s1 = $this->_properties['id'];
         return $s1;
     }
+
+    // Compute 1-based "week" of a given semester that this class occurs in.
+    // Yes, yes, I know... don't hardwire the semester starting date here.  I'll move this soon.
+    protected function _getWeek() {
+        $d1 = new \DateTime("2015-09-07"); // first day of the semester
+        $d2 = new \DateTime($this->_properties['event_datetime']);
+        $s1 = $d1->diff($d2)->days;
+        $s2 = $s1 / 7;
+        $s3 = round($s2)+1;
+        return $s3;
+    }
+
 }

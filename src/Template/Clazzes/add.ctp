@@ -9,7 +9,6 @@
             <legend><?= __('Add Class') ?></legend>
             <?php
                 echo $this->Form->input('section_id', ['id'=>'ClazzSectionId', 'options' => $sections, 'empty' => '(none selected)']);
-                echo $this->Form->input('week', ['id'=>'ClazzWeek','type'=>'text']);
                 echo $this->Form->input('event_datetime', ['id'=>'ClazzDatetime','type'=>'text']);
             ?>
         </fieldset>

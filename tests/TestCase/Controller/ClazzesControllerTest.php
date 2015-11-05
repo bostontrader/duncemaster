@@ -54,19 +54,13 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
         //    and that it has the correct quantity of available choices.
         if($this->lookForSelect($form,'ClazzSectionId','sections')) $unknownSelectCnt--;
 
-        // 4.4 Ensure that there's an input field for week, of type text, and that it is empty
-        $input = $form->find('input#ClazzWeek',0);
-        $this->assertEquals($input->type, "text");
-        $this->assertEquals($input->value, false);
-        $unknownInputCnt--;
-
-        // 4.5 Ensure that there's an input field for event_datetime, of type text, and that it is empty
+        // 4.4 Ensure that there's an input field for event_datetime, of type text, and that it is empty
         $input = $form->find('input#ClazzDatetime',0);
         $this->assertEquals($input->type, "text");
         $this->assertEquals($input->value, false);
         $unknownInputCnt--;
 
-        // 4.6 Have all the input and select fields been accounted for?  Are there
+        // 4.9 Have all the input and select fields been accounted for?  Are there
         // any extras?
         $this->assertEquals(0, $unknownInputCnt);
         $this->assertEquals(0, $unknownSelectCnt);

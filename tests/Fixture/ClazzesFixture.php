@@ -11,7 +11,6 @@ class ClazzesFixture extends TestFixture {
     public $clazz1Record = [
         'id'=>FixtureConstants::clazz1_id,
         'section_id' => FixtureConstants::section1_id,
-        'week' => '5',
         'event_datetime' => '2015-10-15 00:00:00'
     ];
 
@@ -19,7 +18,6 @@ class ClazzesFixture extends TestFixture {
 
     public $newClazzRecord = [
         'section_id' => FixtureConstants::section2_id,
-        'week' => '6',
         'event_datetime' => '2015-10-16 00:00:00'
     ];
 
