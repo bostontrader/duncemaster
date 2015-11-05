@@ -10,10 +10,6 @@
                 <th><?= __('Section') ?></th>
                 <td><?= $clazz->section->nickname ?></td>
             </tr>
-            <tr id="week">
-                <th><?= __('Week') ?></th>
-                <td><?= $clazz->week ?></tr>
-            </tr>
             <tr id="event_datetime">
                 <th><?= __('Datetime') ?></th>
                 <td><?= $clazz->event_datetime ?></tr>

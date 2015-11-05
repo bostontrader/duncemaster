@@ -87,7 +87,6 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
         // Now retrieve that 1 record and compare to what we expect
         $new_clazz = $this->clazzes->get($new_id);
         $this->assertEquals($new_clazz['section_id'],$this->clazzesFixture->newClazzRecord['section_id']);
-        $this->assertEquals($new_clazz['week'],$this->clazzesFixture->newClazzRecord['week']);
         $this->assertEquals($new_clazz['event_datetime'],$this->clazzesFixture->newClazzRecord['event_datetime']);
     }
 
@@ -146,13 +145,7 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
         $this->assertEquals($section->nickname, $option->plaintext);
         $unknownSelectCnt--;
 
-        // 4.4 Ensure that there's an input field for week, of type text, and that it is correctly set
-        $input = $form->find('input#ClazzWeek',0);
-        $this->assertEquals($input->type, "text");
-        $this->assertEquals($input->value, $this->clazzesFixture->clazz1Record['week']);
-        $unknownInputCnt--;
-
-        // 4.5 Ensure that there's an input field for event_datetime, of type text, and that it is correctly set
+        // 4.4 Ensure that there's an input field for event_datetime, of type text, and that it is correctly set
         $input = $form->find('input#ClazzDatetime',0);
         $this->assertEquals($input->type, "text");
         $this->assertEquals($input->value, $this->clazzesFixture->clazz1Record['event_datetime']);
@@ -185,7 +178,6 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
         // Now retrieve that 1 record and compare to what we expect
         $clazz = $this->clazzes->get($clazz_id);
         $this->assertEquals($clazz['section_id'],$this->clazzesFixture->newClazzRecord['section_id']);
-        $this->assertEquals($clazz['week'],$this->clazzesFixture->newClazzRecord['week']);
         $this->assertEquals($clazz['event_datetime'],$this->clazzesFixture->newClazzRecord['event_datetime']);
     }
 
@@ -242,12 +234,13 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
             $htmlRow = $values[1];
             $htmlColumns = $htmlRow->find('td');
 
-            // 8.0 section_nickname
+            // 8.0 section_nickname (virtual field of Section)
             $section = $this->sections->get($fixtureRecord['section_id']);
             $this->assertEquals($section->nickname, $htmlColumns[0]->plaintext);
 
-            // 8.1 week
-            $this->assertEquals($fixtureRecord['week'], $htmlColumns[1]->plaintext);
+            // 8.1 week (virtual field of Clazz)
+            $clazz = $this->clazzes->get($fixtureRecord['id']);
+            $this->assertEquals($clazz->week, $htmlColumns[1]->plaintext);
 
             // 8.2 event_datetime
             $this->assertEquals($fixtureRecord['event_datetime'], $htmlColumns[2]->plaintext);
@@ -295,12 +288,7 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
         $this->assertEquals($section->nickname, $field->plaintext);
         $unknownRowCnt--;
 
-        // 2.2 week
-        $field = $html->find('tr#week td',0);
-        $this->assertEquals($this->clazzesFixture->clazz1Record['week'], $field->plaintext);
-        $unknownRowCnt--;
-
-        // 2.3 event_datetime
+        // 2.2 event_datetime
         $field = $html->find('tr#event_datetime td',0);
         $this->assertEquals($this->clazzesFixture->clazz1Record['event_datetime'], $field->plaintext);
         $unknownRowCnt--;

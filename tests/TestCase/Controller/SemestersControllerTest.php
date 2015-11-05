@@ -12,9 +12,7 @@ class SemestersControllerTest extends DMIntegrationTestCase {
     ];
 
     public function setUp() {
-        //$this->clazzes = TableRegistry::get('Clazzes');
         $this->semesters = TableRegistry::get('Semesters');
-        //$this->clazzesFixture = new ClazzesFixture();
         $this->semestersFixture = new SemestersFixture();
     }
 
