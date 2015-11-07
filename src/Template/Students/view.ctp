@@ -1,30 +1,47 @@
-<nav class="large-3 medium-4 columns" id="actions-sidebar">
-    <ul class="side-nav">
-    </ul>
-</nav>
-<div class="students view large-9 medium-8 columns content">
-    <h3><?= h($student->id) ?></h3>
-    <table class="vertical-table">
-        <tr>
-            <th><?= __('Id') ?></th>
-            <td id="id"><?= $student->id ?></td>
-        </tr>
-        <tr>
-            <th><?= __('SID') ?></th>
-            <td id="sid"><?= $student->sid ?></td>
-        </tr>
-        <tr>
-            <th><?= __('Family name') ?></th>
-            <td id="fam_name"><?= $student->fam_name ?></td>
-        </tr>
-        <tr>
-            <th><?= __('Given name') ?></th>
-            <td id="giv_name"><?= $student->giv_name ?></td>
-        </tr>
-        <tr>
-            <th><?= __('Cohort') ?></th>
-            <td id="cohort_nickname"><?= $student->has('cohort') ? $this->Html->link($student->cohort->nickname, ['controller' => 'Cohorts', 'action' => 'view', $student->cohort->id]) : '' ?></td>
-        </tr>
-    </table>
+<div id="StudentsView">
+    <nav class="large-3 medium-4 columns" id="actions-sidebar">
+        <ul class="side-nav">
+        </ul>
+    </nav>
+    <div class="students view large-9 medium-8 columns content">
+        <h3><?= h($student->id) ?></h3>
+        <table id="StudentViewTable" class="vertical-table">
+            <tr id="sid">
+                <th><?= __('SID') ?></th>
+                <td><?= $student->sid ?></td>
+            </tr>
+            <tr id="fam_name">
+                <th><?= __('Family name') ?></th>
+                <td><?= $student->fam_name ?></td>
+            </tr>
+            <tr  id="giv_name">
+                <th><?= __('Given name') ?></th>
+                <td><?= $student->giv_name ?></td>
+            </tr>
+            <tr id="cohort_nickname">
+                <th><?= __('Cohort') ?></th>
+                <td><?= $student->cohort->nickname ?></td>
+            </tr>
+        </table>
 
+        <h3><?= __('Scoring') ?></h3>
+        <table id="StudentScoreTable" class="vertical-table">
+            <tr>
+                <th><?= __('Total classes for this section') ?></th>
+                <td><?= 666 ?></td>
+            </tr>
+            <tr>
+                <th><?= __('Total attendance, this semester') ?></th>
+                <td><?= 666 ?></td>
+            </tr>
+            <tr>
+                <th><?= __('Excused absences, this semester') ?></th>
+                <td><?= 666 ?></td>
+            </tr>
+            <tr>
+                <th><?= __('Ejected from class, this semester') ?></th>
+                <td><?= 666 ?></td>
+            </tr>
+        </table>
+    </div>
 </div>

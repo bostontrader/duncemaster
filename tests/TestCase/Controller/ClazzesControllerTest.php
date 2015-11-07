@@ -197,28 +197,29 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
         $this->assertNotNull($content);
         $unknownATag = count($content->find('a'));
 
-        // 4. Look for the create new section link
+        // 4. Look for the create new clazz link
         $this->assertEquals(1, count($html->find('a#ClazzAdd')));
         $unknownATag--;
 
         // 5. Ensure that there is a suitably named table to display the results.
-        $sections_table = $html->find('table#ClazzesTable',0);
-        $this->assertNotNull($sections_table);
+        $clazzes_table = $html->find('table#ClazzesTable',0);
+        $this->assertNotNull($clazzes_table);
 
         // 6. Ensure that said table's thead element contains the correct
         //    headings, in the correct order, and nothing else.
-        $thead = $sections_table->find('thead',0);
+        $thead = $clazzes_table->find('thead',0);
         $thead_ths = $thead->find('tr th');
 
         $this->assertEquals($thead_ths[0]->id, 'section');
         $this->assertEquals($thead_ths[1]->id, 'week');
         $this->assertEquals($thead_ths[2]->id, 'event_datetime');
         $this->assertEquals($thead_ths[3]->id, 'actions');
-        $this->assertEquals(count($thead_ths),4); // no other columns
+        $column_count = count($thead_ths);
+        $this->assertEquals($column_count,4); // no other columns
 
         // 7. Ensure that the tbody section has the same
-        //    quantity of rows as the count of section records in the fixture.
-        $tbody = $sections_table->find('tbody',0);
+        //    quantity of rows as the count of clazz records in the fixture.
+        $tbody = $clazzes_table->find('tbody',0);
         $tbody_rows = $tbody->find('tr');
         $this->assertEquals(count($tbody_rows), count($this->clazzesFixture));
 
@@ -246,13 +247,16 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
             $this->assertEquals($fixtureRecord['event_datetime'], $htmlColumns[2]->plaintext);
 
             // 8.3 Now examine the action links
-            $actionLinks = $htmlRow->find('a');
+            $actionLinks = $htmlColumns[3]->find('a');
             $this->assertEquals('ClazzView', $actionLinks[0]->name);
             $unknownATag--;
             $this->assertEquals('ClazzEdit', $actionLinks[1]->name);
             $unknownATag--;
             $this->assertEquals('ClazzDelete', $actionLinks[2]->name);
             $unknownATag--;
+
+            // 8.9 No other columns
+            $this->assertEquals(count($htmlColumns),$column_count);
         }
 
         // 9. Ensure that all the <A> tags have been accounted for
