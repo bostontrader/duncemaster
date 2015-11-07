@@ -11,6 +11,7 @@ class StudentsControllerTest extends DMIntegrationTestCase {
     public $fixtures = [
         'app.cohorts',
         'app.majors',
+        'app.sections',
         'app.students'
     ];
 
@@ -291,6 +292,20 @@ class StudentsControllerTest extends DMIntegrationTestCase {
         // 9. Ensure that all the <A> tags have been accounted for
         $this->assertEquals(0, $unknownATag);
     }
+
+    // The view method will display the basic information about the student.  It will also
+    // display information about his grades. This is easier said than done because now we must
+    // determine which section to display the grades for.
+    //
+    // In order to determine which section, we use a select input. The information from the select input
+    // is submitted to the view method via GET (because this is idempotent, nothing changes.)
+    //
+    // We therefore have the following testing scenarios.
+    //
+    // 1. A view with no request parameters: The section select is set to "nothing selected" and no grade
+    // information is displayed.
+    //
+    // 2. A view with request parameters: The grades are displayed for that particular section.
 
     public function testViewGET() {
 

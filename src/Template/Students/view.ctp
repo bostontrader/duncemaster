@@ -24,11 +24,21 @@
             </tr>
         </table>
 
+        <?= $this->Form->create(null, ['id'=>'StudentViewGradeForm','type'=>'get']) ?>
+        <fieldset>
+            <legend><?= __('My Grade') ?></legend>
+            <?php
+            echo $this->Form->input('section_id', ['id'=>'StudentViewSectionId', 'options' => $sections_list, 'val'=>2, 'empty' => '(none selected)']);
+            ?>
+        </fieldset>
+        <?= $this->Form->button(__('Submit')) ?>
+        <?= $this->Form->end() ?>
+
         <h3><?= __('Scoring') ?></h3>
         <table id="StudentScoreTable" class="vertical-table">
             <tr>
                 <th><?= __('Total classes for this section') ?></th>
-                <td><?= 666 ?></td>
+                <td><?= $grade['class_cnt'] ?></td>
             </tr>
             <tr>
                 <th><?= __('Total attendance, this semester') ?></th>

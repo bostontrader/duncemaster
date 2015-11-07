@@ -1,5 +1,6 @@
 <?php
 namespace App\Controller;
+use Cake\ORM\TableRegistry;
 
 class StudentsController extends AppController {
 
@@ -52,8 +53,24 @@ class StudentsController extends AppController {
     }
 
     public function view($id = null) {
+
         $this->request->allowMethod(['get']);
+
         $student = $this->Students->get($id,['contain' => ['Cohorts.Majors']]);
+
+        $Sections = TableRegistry::get('Sections');
+        $sections_list = $Sections->find('list');
+
+
+        if(array_key_exists('section_id', $this->request->data)) {
+            $this->loadComponent('Grader');
+            $grade = $this->Grader->getGradeInfo(null, null);
+            $this->set('grade', $grade);
+        } else {
+
+        }
+
+        $this->set('sections_list', $sections_list);
         $this->set('student', $student);
     }
 }
