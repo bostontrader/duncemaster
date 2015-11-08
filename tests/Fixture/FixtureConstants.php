@@ -13,6 +13,7 @@ class FixtureConstants {
     const interaction1_id = 1;
     const major1_id = 1;
     const major2_id = 2;
+    const role1_id = 1;
     const section1_id = 1;
     const section2_id = 2;
     const semester1_id = 1;

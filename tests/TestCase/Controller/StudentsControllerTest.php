@@ -1,7 +1,6 @@
 <?php
 namespace App\Test\TestCase\Controller;
 
-use App\Test\Fixture\CohortsFixture;
 use App\Test\Fixture\FixtureConstants;
 use App\Test\Fixture\StudentsFixture;
 use Cake\ORM\TableRegistry;
@@ -19,7 +18,6 @@ class StudentsControllerTest extends DMIntegrationTestCase {
         $this->cohorts = TableRegistry::get('Cohorts');
         $this->students = TableRegistry::get('Students');
         $this->studentsFixture = new StudentsFixture();
-        //$this->sectionsFixture = new SectionsFixture();
     }
 
     public function testAddGET() {
@@ -294,7 +292,7 @@ class StudentsControllerTest extends DMIntegrationTestCase {
     }
 
     // The view method will display the basic information about the student.  It will also
-    // display information about his grades. This is easier said than done because now we must
+    // display information about his grades. This is easier said than done because we must
     // determine which section to display the grades for.
     //
     // In order to determine which section, we use a select input. The information from the select input
@@ -303,7 +301,8 @@ class StudentsControllerTest extends DMIntegrationTestCase {
     // We therefore have the following testing scenarios.
     //
     // 1. A view with no request parameters: The section select is set to "nothing selected" and no grade
-    // information is displayed.
+    // information is displayed.  We default to "nothing selected" because we cannot think
+    // of a better default choice.
     //
     // 2. A view with request parameters: The grades are displayed for that particular section.
 
