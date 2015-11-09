@@ -11,6 +11,9 @@ class RolesControllerTest extends DMIntegrationTestCase {
         'app.roles'
     ];
 
+    private $roles;
+    private $rolesFixture;
+
     public function setUp() {
         $this->roles = TableRegistry::get('Roles');
         $this->rolesFixture = new RolesFixture();

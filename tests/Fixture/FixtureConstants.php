@@ -23,4 +23,5 @@ class FixtureConstants {
     const subject1_id = 1;
     const subject2_id = 2;
     const teacher1_id = 1;
+    const user1_id = 1;
 }

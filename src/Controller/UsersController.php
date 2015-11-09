@@ -13,7 +13,7 @@ class UsersController extends AppController {
             if ($this->Users->save($user)) {
                 //$this->Flash->success(__('The user has been saved.'));
                 return $this->redirect(['action' => 'index']);
-                //} else {
+            } else {
                 //$this->Flash->error(__('The user could not be saved. Please, try again.'));
             }
         }
@@ -40,15 +40,15 @@ class UsersController extends AppController {
     }
 
     public function edit($id = null) {
-        $this->request->allowMethod(['get', 'post']);
+        $this->request->allowMethod(['get', 'put']);
         $user = $this->Users->get($id);
-        if ($this->request->is(['post'])) {
+        if ($this->request->is(['put'])) {
             $user = $this->Users->patchEntity($user, $this->request->data);
             if ($this->Users->save($user)) {
                 //$this->Flash->success(__('The user has been saved.'));
-                //return $this->redirect(['action' => 'index']);
-                //} else {
-                //$this->Flash->error(__('The user could not be saved. Please, try again.'));
+                return $this->redirect(['action' => 'index']);
+            } else {
+                $this->Flash->error(__('The user could not be saved. Please, try again.'));
             }
         }
         $this->set(compact('user'));
