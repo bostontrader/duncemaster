@@ -13,7 +13,7 @@ class GraderComponent extends Component {
 
     // Get the grades for a particular student from a particular section.
     // If $student == null then all students for that section.
-    public function getGradeInfo($section, $student) {
+    public function getGradeInfo($section = null, $student = null) {
 
         // 1. How many times has this particular section met?
         // select count(*) from clazzes where section_id = section

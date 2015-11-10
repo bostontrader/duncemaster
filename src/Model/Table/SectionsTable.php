@@ -47,10 +47,10 @@ class SectionsTable extends Table {
             //'joinType' => 'INNER'
         ]);
 
-        //$this->belongsTo('Teachers', [
+        $this->belongsTo('Teachers', [
             //'foreignKey' => 'teacher_id',
             //'joinType' => 'INNER'
-        //]);
+        ]);
     }
 
     /**

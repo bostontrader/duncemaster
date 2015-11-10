@@ -38,7 +38,7 @@
         <table id="StudentScoreTable" class="vertical-table">
             <tr>
                 <th><?= __('Total classes for this section') ?></th>
-                <td><?= $grade['class_cnt'] ?></td>
+                <td><?= 666 ?></td>
             </tr>
             <tr>
                 <th><?= __('Total attendance, this semester') ?></th>

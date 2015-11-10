@@ -25,9 +25,9 @@ class CohortsTable extends Table {
             //'foreignKey' => 'cohort_id'
         ]);
 
-        //$this->hasMany('Students', [
+        $this->hasMany('Students', [
             //'foreignKey' => 'cohort_id'
-        //]);
+        ]);
     }
 
     /**
