@@ -82,7 +82,7 @@ class UsersControllerTest extends DMIntegrationTestCase {
         $this->assertRedirect( '/users' );
 
         // Now verify what we think just got written
-        $new_id = FixtureConstants::user1_id + 1;
+        $new_id = count($this->usersFixture->records) + 1;
         $query = $this->users->find()->where(['id' => $new_id]);
         $this->assertEquals(1, $query->count());
 
@@ -98,7 +98,7 @@ class UsersControllerTest extends DMIntegrationTestCase {
     public function testDeletePOST() {
 
         $this->fakeLogin();
-        $user_id = $this->usersFixture->user1Record['id'];
+        $user_id = $this->usersFixture->userAndyRecord['id'];
         $this->post('/users/delete/' . $user_id);
         $this->assertResponseSuccess(); // 2xx, 3xx
         $this->assertRedirect( '/users' );
@@ -112,7 +112,7 @@ class UsersControllerTest extends DMIntegrationTestCase {
 
         // 1. Simulate login, submit request, examine response.
         $this->fakeLogin();
-        $this->get('/users/edit/' . $this->usersFixture->user1Record['id']);
+        $this->get('/users/edit/' . $this->usersFixture->userAndyRecord['id']);
         $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();
 
@@ -141,7 +141,7 @@ class UsersControllerTest extends DMIntegrationTestCase {
         // 4.3 Ensure that there's an input field for username, of type text, and that it is correctly set
         $input = $form->find('input#UserUsername',0);
         $this->assertEquals($input->type, "text");
-        $this->assertEquals($input->value, $this->usersFixture->user1Record['username']);
+        $this->assertEquals($input->value, $this->usersFixture->userAndyRecord['username']);
         $unknownInputCnt--;
 
         // 4.4 Ensure that there's an input field for password, of type text, and that it is correctly
@@ -150,7 +150,7 @@ class UsersControllerTest extends DMIntegrationTestCase {
         // The password is hashed and needs to be checked using the hashed-password checking mechanism.
         $input = $form->find('input#UserPassword',0);
         $this->assertEquals($input->type, "text");
-        $this->assertEquals($input->value, $this->usersFixture->user1Record['password']);
+        $this->assertEquals($input->value, $this->usersFixture->userAndyRecord['password']);
         $unknownInputCnt--;
 
         // 4.9 Have all the input and select fields been accounted for?  Are there
@@ -168,7 +168,7 @@ class UsersControllerTest extends DMIntegrationTestCase {
     public function testEditPOST() {
 
         $this->fakeLogin();
-        $user_id = $this->usersFixture->user1Record['id'];
+        $user_id = $this->usersFixture->userAndyRecord['id'];
         $this->put('/users/edit/' . $user_id, $this->usersFixture->newUserRecord);
         $this->assertResponseSuccess(); // 2xx, 3xx
         $this->assertRedirect('/users');
@@ -226,7 +226,7 @@ class UsersControllerTest extends DMIntegrationTestCase {
         //    quantity of rows as the count of users records in the fixture.
         $tbody = $users_table->find('tbody',0);
         $tbody_rows = $tbody->find('tr');
-        $this->assertEquals(count($tbody_rows), count($this->usersFixture));
+        $this->assertEquals(count($tbody_rows), count($this->usersFixture->records));
 
         // 8. Ensure that the values displayed in each row, match the values from
         //    the fixture.  The values should be presented in a particular order
@@ -265,7 +265,7 @@ class UsersControllerTest extends DMIntegrationTestCase {
     public function testViewGET() {
 
         $this->fakeLogin();
-        $user_id = $this->usersFixture->user1Record['id'];
+        $user_id = $this->usersFixture->userAndyRecord['id'];
         $this->get('/users/view/' . $user_id);
         $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();
@@ -288,7 +288,7 @@ class UsersControllerTest extends DMIntegrationTestCase {
 
         // 2.1 username
         $field = $html->find('tr#username td',0);
-        $this->assertEquals($this->usersFixture->user1Record['username'], $field->plaintext);
+        $this->assertEquals($this->usersFixture->userAndyRecord['username'], $field->plaintext);
         $unknownRowCnt--;
 
         // We don't need to display a password.  What's the point of displaying a long hashed, password?
@@ -303,7 +303,4 @@ class UsersControllerTest extends DMIntegrationTestCase {
         $links = $content->find('a');
         $this->assertEquals(0,count($links));
     }
-
- 
-
 }

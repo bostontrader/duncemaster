@@ -51,24 +51,8 @@ class RolesController extends AppController {
     }
 
     public function view($id = null) {
-
         $this->request->allowMethod(['get']);
-
         $role = $this->Roles->get($id);
-
-        $Sections = TableRegistry::get('Sections');
-        $sections_list = $Sections->find('list');
-
-
-        if(array_key_exists('section_id', $this->request->data)) {
-            $this->loadComponent('Grader');
-            $grade = $this->Grader->getGradeInfo(null, null);
-            $this->set('grade', $grade);
-        } else {
-
-        }
-
-        $this->set('sections_list', $sections_list);
         $this->set('role', $role);
     }
 }

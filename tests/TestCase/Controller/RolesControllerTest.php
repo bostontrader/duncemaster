@@ -75,7 +75,7 @@ class RolesControllerTest extends DMIntegrationTestCase {
         $this->assertRedirect( '/roles' );
 
         // Now verify what we think just got written
-        $new_id = FixtureConstants::role1_id + 1;
+        $new_id = count($this->rolesFixture->records) + 1;
         $query = $this->roles->find()->where(['id' => $new_id]);
         $this->assertEquals(1, $query->count());
 
@@ -87,7 +87,7 @@ class RolesControllerTest extends DMIntegrationTestCase {
     public function testDeletePOST() {
 
         $this->fakeLogin();
-        $role_id = $this->rolesFixture->role1Record['id'];
+        $role_id = $this->rolesFixture->roleAdminRecord['id'];
         $this->post('/roles/delete/' . $role_id);
         $this->assertResponseSuccess(); // 2xx, 3xx
         $this->assertRedirect( '/roles' );
@@ -101,7 +101,7 @@ class RolesControllerTest extends DMIntegrationTestCase {
 
         // 1. Simulate login, submit request, examine response.
         $this->fakeLogin();
-        $this->get('/roles/edit/' . $this->rolesFixture->role1Record['id']);
+        $this->get('/roles/edit/' . $this->rolesFixture->roleAdminRecord['id']);
         $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();
 
@@ -130,7 +130,7 @@ class RolesControllerTest extends DMIntegrationTestCase {
         // 4.3 Ensure that there's an input field for title, of type text, and that it is correctly set
         $input = $form->find('input#RoleTitle',0);
         $this->assertEquals($input->type, "text");
-        $this->assertEquals($input->value, $this->rolesFixture->role1Record['title']);
+        $this->assertEquals($input->value, $this->rolesFixture->roleAdminRecord['title']);
         $unknownInputCnt--;
 
         // 4.9 Have all the input and select fields been accounted for?  Are there
@@ -148,7 +148,7 @@ class RolesControllerTest extends DMIntegrationTestCase {
     public function testEditPOST() {
 
         $this->fakeLogin();
-        $role_id = $this->rolesFixture->role1Record['id'];
+        $role_id = $this->rolesFixture->roleAdminRecord['id'];
         $this->put('/roles/edit/' . $role_id, $this->rolesFixture->newRoleRecord);
         $this->assertResponseSuccess(); // 2xx, 3xx
         $this->assertRedirect('/roles');
@@ -200,7 +200,7 @@ class RolesControllerTest extends DMIntegrationTestCase {
         //    quantity of rows as the count of roles records in the fixture.
         $tbody = $roles_table->find('tbody',0);
         $tbody_rows = $tbody->find('tr');
-        $this->assertEquals(count($tbody_rows), count($this->rolesFixture));
+        $this->assertEquals(count($tbody_rows), count($this->rolesFixture->records));
 
         // 8. Ensure that the values displayed in each row, match the values from
         //    the fixture.  The values should be presented in a particular order
@@ -237,7 +237,7 @@ class RolesControllerTest extends DMIntegrationTestCase {
     public function testViewGET() {
 
         $this->fakeLogin();
-        $role_id = $this->rolesFixture->role1Record['id'];
+        $role_id = $this->rolesFixture->roleAdminRecord['id'];
         $this->get('/roles/view/' . $role_id);
         $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();
@@ -260,7 +260,7 @@ class RolesControllerTest extends DMIntegrationTestCase {
 
         // 2.1 title
         $field = $html->find('tr#title td',0);
-        $this->assertEquals($this->rolesFixture->role1Record['title'], $field->plaintext);
+        $this->assertEquals($this->rolesFixture->roleAdminRecord['title'], $field->plaintext);
         $unknownRowCnt--;
 
         // Have all the rows been accounted for?  Are there any extras?
