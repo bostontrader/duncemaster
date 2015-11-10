@@ -3,6 +3,7 @@ namespace App\Test\TestCase\Controller;
 
 use App\Test\Fixture\FixtureConstants;
 use App\Test\Fixture\UsersFixture;
+use Cake\Auth\DefaultPasswordHasher;
 use Cake\ORM\TableRegistry;
 
 class UsersControllerTest extends DMIntegrationTestCase {
@@ -88,6 +89,10 @@ class UsersControllerTest extends DMIntegrationTestCase {
         // Now retrieve that 1 record and compare to what we expect
         $new_user = $this->users->get($new_id);
         $this->assertEquals($new_user['username'],$this->usersFixture->newUserRecord['username']);
+
+        // The password is hashed and needs to be checked using the hashed-password checking mechanism
+        $dph = new DefaultPasswordHasher();
+        $this->assertTrue($dph->check($this->usersFixture->newUserRecord['password'], $new_user['password']));
     }
 
     public function testDeletePOST() {
@@ -139,9 +144,13 @@ class UsersControllerTest extends DMIntegrationTestCase {
         $this->assertEquals($input->value, $this->usersFixture->user1Record['username']);
         $unknownInputCnt--;
 
-        // Ensure that there's a field for password, that is empty
-        //$input = $form->find('input[id=UserPassword]')[0];
-        //$this->assertEquals($input->value, false);
+        // 4.4 Ensure that there's an input field for password, of type text, and that it is correctly
+        // set. Note: In this special case, the password is not hashed, because the record was injected
+        // by the FixtureManager, which apparently doesn't bother with such nicities.
+        // The password is hashed and needs to be checked using the hashed-password checking mechanism.
+        $input = $form->find('input#UserPassword',0);
+        $this->assertEquals($input->type, "text");
+        $this->assertEquals($input->value, $this->usersFixture->user1Record['password']);
         $unknownInputCnt--;
 
         // 4.9 Have all the input and select fields been accounted for?  Are there
@@ -160,7 +169,7 @@ class UsersControllerTest extends DMIntegrationTestCase {
 
         $this->fakeLogin();
         $user_id = $this->usersFixture->user1Record['id'];
-        $this->put('/users/edit/' . $user_id);
+        $this->put('/users/edit/' . $user_id, $this->usersFixture->newUserRecord);
         $this->assertResponseSuccess(); // 2xx, 3xx
         $this->assertRedirect('/users');
 
@@ -170,8 +179,13 @@ class UsersControllerTest extends DMIntegrationTestCase {
 
         // Now retrieve that 1 record and compare to what we expect
         $user = $this->users->get($user_id);
+
+        // Username
         $this->assertEquals($user['username'],$this->usersFixture->newUserRecord['username']);
 
+        // The password is hashed and needs to be checked using the hashed-password checking mechanism.
+        $dph = new DefaultPasswordHasher();
+        $this->assertTrue($dph->check($this->usersFixture->newUserRecord['password'], $user['password']));
     }
 
     public function testIndexGET() {
@@ -226,8 +240,10 @@ class UsersControllerTest extends DMIntegrationTestCase {
             $htmlRow = $values[1];
             $htmlColumns = $htmlRow->find('td');
 
-            // 8.0 title
+            // 8.0 username
             $this->assertEquals($fixtureRecord['username'],  $htmlColumns[0]->plaintext);
+
+            // We don't need to display a password.  What's the point of displaying a long hashed, password?
 
             // 8.1 Now examine the action links
             $actionLinks = $htmlColumns[1]->find('a');
@@ -274,6 +290,8 @@ class UsersControllerTest extends DMIntegrationTestCase {
         $field = $html->find('tr#username td',0);
         $this->assertEquals($this->usersFixture->user1Record['username'], $field->plaintext);
         $unknownRowCnt--;
+
+        // We don't need to display a password.  What's the point of displaying a long hashed, password?
 
         // Have all the rows been accounted for?  Are there any extras?
         $this->assertEquals(0, $unknownRowCnt);

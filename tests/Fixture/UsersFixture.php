@@ -10,11 +10,12 @@ class UsersFixture extends TestFixture {
     // id to ensure the test records are properly related.
     public $user1Record = [
         'id'=>FixtureConstants::user1_id,
-        'username' => 'admin'
+        'username' => 'admin',
+        'password' => 'password1'
     ];
 
     // This record will be added during a test.  We don't need or want to control the id here, so omit it.
-    public $newUserRecord = ['username' => 'billy'];
+    public $newUserRecord = ['username' => 'billy', 'password' => 'passwordNew'];
 
     public function init()
     {

@@ -10,7 +10,7 @@
             <legend><?= __('Edit User') ?></legend>
             <?php
                 echo $this->Form->input('username',['id'=>'UserUsername']);
-                echo $this->Form->input('password',['id'=>'UserPassword']);
+                echo $this->Form->input('password',['id'=>'UserPassword', 'type'=>'text']);
             ?>
         </fieldset>
         <?= $this->Form->button(__('Submit')) ?>
