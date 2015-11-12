@@ -1,0 +1,40 @@
+<?php
+namespace App\Test\Fixture;
+
+use Cake\TestSuite\Fixture\TestFixture;
+
+class RolesUsersFixture extends TestFixture {
+    public $import = ['table' => 'roles_users'];
+
+    // These records are injected into the db before the tests.  We need to specify the
+    // id to ensure the test records are properly related.
+    //public $roleAdminRecord = [
+    //'id'=>FixtureConstants::roleAdminId,
+    //'title'=>'admin'
+    //];
+
+    //public $roleTeacherRecord = [
+    //'id'=>FixtureConstants::roleTeacherId,
+    //'title'=>'teacher'
+    //];
+
+    //public $roleStudentRecord = [
+    //'id'=>FixtureConstants::roleStudentId,
+    //'title'=>'student'
+    //];
+
+    // This record will be added during a test.  We don't need or want to control the id here, so omit it.
+    //public $newRoleRecord = [
+    //'title'=>'workerBee'
+    //];
+
+    //public function init() {
+    //$this->records = [
+    //$this->roleAdminRecord,
+    //$this->roleTeacherRecord,
+    //$this->roleStudentRecord
+    //];
+    //parent::init();
+    //}
+
+}

@@ -40,18 +40,37 @@ class UsersController extends AppController {
     }
 
     public function edit($id = null) {
+
         $this->request->allowMethod(['get', 'put']);
-        $user = $this->Users->get($id);
+        $user = $this->Users->find()->where(['id'=>$id])->contain('Roles')->first();
+
         if ($this->request->is(['put'])) {
-            $user = $this->Users->patchEntity($user, $this->request->data);
-            if ($this->Users->save($user)) {
-                //$this->Flash->success(__('The user has been saved.'));
+            $this->Users->patchEntity($user, $this->request->data(), ['associated'=>['Roles']]);
+            if ($result = $this->Users->save($user, ['associated'=>['Roles']])) {
+                //$this->Flash->success(__('The user has been updated.'));
                 return $this->redirect(['action' => 'index']);
             } else {
-                $this->Flash->error(__('The user could not be saved. Please, try again.'));
+                //$this->Flash->error(__('Unable to update the user.'));
             }
         }
-        $this->set(compact('user'));
+
+        //$roles = $this->Users->Roles->getRolesList();
+        $roles = $this->Users->Roles->find('list');
+
+        $this->set(compact('user', 'roles'));
+
+        //$this->request->allowMethod(['get', 'put']);
+        //$user = $this->Users->get($id);
+        //if ($this->request->is(['put'])) {
+        //$user = $this->Users->patchEntity($user, $this->request->data);
+        //if ($this->Users->save($user)) {
+        //$this->Flash->success(__('The user has been saved.'));
+        //return $this->redirect(['action' => 'index']);
+        //} else {
+        //$this->Flash->error(__('The user could not be saved. Please, try again.'));
+        //}
+        //}
+        //$this->set(compact('user'));
     }
 
     public function index() {

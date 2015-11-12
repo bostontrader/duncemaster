@@ -8,7 +8,8 @@ use Cake\ORM\TableRegistry;
 class RolesControllerTest extends DMIntegrationTestCase {
 
     public $fixtures = [
-        'app.roles'
+        'app.roles',
+        'app.roles_users'
     ];
 
     private $roles;

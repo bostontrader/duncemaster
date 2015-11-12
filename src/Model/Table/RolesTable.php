@@ -1,29 +1,32 @@
 <?php
 namespace App\Model\Table;
 
-//use App\Model\Entity\User;
+//use App\Model\Entity\Role;
 //use Cake\ORM\Query;
 //use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 //use Cake\Validation\Validator;
 
-class UsersTable extends Table {
+/**
+ * Roles Model
+ *
+ */
+class RolesTable extends Table {
 
+    /**
+     * Initialize method
+     *
+     * @param array $config The configuration for the Table.
+     * @return void
+     */
     public function initialize(array $config) {
         parent::initialize($config);
-
-        $this->belongsToMany('Roles',
+        $this->belongsToMany('Users',
             [
-                'targetForeignKey' => 'role_id',
-                'foreignKey' => 'user_id',
+                'targetForeignKey' => 'user_id',
+                'foreignKey' => 'role_id',
                 'joinTable' => 'roles_users',
             ]);
-        //$this->table('users');
-        //$this->displayField('id');
-        //$this->primaryKey('id');
-
-        //$this->addBehavior('Timestamp');
-
     }
 
     /**
@@ -36,7 +39,7 @@ class UsersTable extends Table {
 
 
         //$validator
-            //->notEmpty('username', 'A username is required')
+            //->notEmpty('rolename', 'A rolename is required')
             //->notEmpty('password', 'A password is required')
             //->notEmpty('role', 'A role is required')
             //->add('role', 'inList', [

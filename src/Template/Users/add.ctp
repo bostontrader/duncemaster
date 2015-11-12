@@ -10,6 +10,7 @@
             <?php
                 echo $this->Form->input('username',['id'=>'UserUsername']);
                 echo $this->Form->input('password',['id'=>'UserPassword','type'=>'text']);
+                echo $this->Form->input('roles._ids', ['id'=>'UserRoles', 'options' => $roles, 'multiple'=>true, 'empty' => '(none selected)']);
             ?>
         </fieldset>
         <?= $this->Form->button(__('Submit')) ?>

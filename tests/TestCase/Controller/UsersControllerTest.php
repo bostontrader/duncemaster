@@ -9,6 +9,8 @@ use Cake\ORM\TableRegistry;
 class UsersControllerTest extends DMIntegrationTestCase {
 
     public $fixtures = [
+        'app.roles',
+        'app.roles_users',
         'app.users'
     ];
 
@@ -56,11 +58,15 @@ class UsersControllerTest extends DMIntegrationTestCase {
         $this->assertEquals($input->value, false);
         $unknownInputCnt--;
 
-        // Ensure that there's an input field for password, of type text, and that it is empty
+        // 4.4 Ensure that there's an input field for password, of type text, and that it is empty
         $input = $form->find('input#UserPassword',0);
         $this->assertEquals($input->type, "text");
         $this->assertEquals($input->value, false);
         $unknownInputCnt--;
+
+        // 4.5 Ensure that there's a select field for roles.ids, that it has no selection,
+        //    and that it has the correct quantity of available choices.
+        if($this->lookForSelect($form,'UserRoles','sections')) $unknownSelectCnt--;
 
         // 4.9 Have all the input and select fields been accounted for?  Are there
         // any extras?
