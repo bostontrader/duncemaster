@@ -171,7 +171,7 @@ class SectionsControllerTest extends DMIntegrationTestCase {
         $unknownInputCnt = count($form->find('input'));
 
         // 4.2 Look for the hidden POST input
-        if($this->lookForHiddenInput($form,'PUT')) $unknownInputCnt--;
+        if($this->lookForHiddenInput($form,'_method','PUT')) $unknownInputCnt--;
 
         // 4.3 Ensure that there's a select field for cohort_id and that it is correctly set
         $option = $form->find('select#SectionCohortId option[selected]',0);

@@ -57,18 +57,18 @@ class DMIntegrationTestCase extends IntegrationTestCase {
         );
     }
 
-    // Many forms have a hidden input for tunneling various http verbs using POST.
-    // Look for the first one.  If found, return true, else fail.
-    //
-    protected function lookForHiddenInput($form, $verb='POST') {
-        $input = $form->find('input[type=hidden]', 0);
-        if ($input == NULL) {
-            $this->fail();
-        } else {
-            $this->assertEquals($input->value, $verb);
-            $this->assertEquals($input->name, '_method');
-            return true;
+    // Many forms have a hidden input for various reasons, such as for tunneling various http verbs using POST,
+    // or for implementing multi-select lists.
+    // Look for the first one of these present.  If found, return true, else fail.
+    // simple_html_dom $form - the form that contains the select
+    // String $name - the name attribute of the input
+    // String $value - the value of the input
+    protected function lookForHiddenInput($form, $name='_method', $value='POST') {
+        foreach($form->find('input[type=hidden]') as $input) {
+            if($input->value == $value && $input->name == $name)
+                return true;
         }
+        $this->fail();
     }
 
     // Look for a particular select input and ensure that:

@@ -17,7 +17,8 @@ class UsersController extends AppController {
                 //$this->Flash->error(__('The user could not be saved. Please, try again.'));
             }
         }
-        $this->set(compact('user'));
+        $roles = $this->Users->Roles->find('list');
+        $this->set(compact('user', 'roles'));
     }
 
     public function beforeFilter(Event $event) {
@@ -54,23 +55,8 @@ class UsersController extends AppController {
             }
         }
 
-        //$roles = $this->Users->Roles->getRolesList();
         $roles = $this->Users->Roles->find('list');
-
         $this->set(compact('user', 'roles'));
-
-        //$this->request->allowMethod(['get', 'put']);
-        //$user = $this->Users->get($id);
-        //if ($this->request->is(['put'])) {
-        //$user = $this->Users->patchEntity($user, $this->request->data);
-        //if ($this->Users->save($user)) {
-        //$this->Flash->success(__('The user has been saved.'));
-        //return $this->redirect(['action' => 'index']);
-        //} else {
-        //$this->Flash->error(__('The user could not be saved. Please, try again.'));
-        //}
-        //}
-        //$this->set(compact('user'));
     }
 
     public function index() {

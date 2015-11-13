@@ -136,7 +136,7 @@ class SemestersControllerTest extends DMIntegrationTestCase {
         $unknownInputCnt = count($form->find('input'));
 
         // 4.2 Look for the hidden POST input
-        if($this->lookForHiddenInput($form,'PUT')) $unknownInputCnt--;
+        if($this->lookForHiddenInput($form,'_method','PUT')) $unknownInputCnt--;
 
         // 4.3 Ensure that there's an input field for year, of type text, and that it is correctly set
         $input = $form->find('input#SemesterYear',0);
