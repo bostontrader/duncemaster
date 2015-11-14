@@ -4,6 +4,7 @@ namespace App\Test\TestCase\Controller;
 use App\Test\Fixture\CohortsFixture;
 use App\Test\Fixture\FixtureConstants;
 use App\Test\Fixture\MajorsFixture;
+use App\Test\Fixture\UsersFixture;
 use Cake\ORM\TableRegistry;
 
 class CohortsControllerTest extends DMIntegrationTestCase {
@@ -13,76 +14,116 @@ class CohortsControllerTest extends DMIntegrationTestCase {
         'app.majors'
     ];
 
+    private $cohorts;
+    private $cohortsFixture;
+    private $majors;
+    private $majorsFixture;
+    private $usersFixture;
+
+    public function setUp() {
+        $this->cohorts = TableRegistry::get('Cohorts');
+        $this->majors = TableRegistry::get('Majors');
+        $this->cohortsFixture = new CohortsFixture();
+        $this->majorsFixture = new MajorsFixture();
+        $this->usersFixture = new UsersFixture();
+    }
+
+    public function testAddGETAnon() {
+        $this->tstUnauthorizedRequest('get', '/cohorts/add');
+    }
+
+    public function testAddGETAdvisor() {
+        $this->fakeLogin(FixtureConstants::userSallyId, $this->usersFixture->userSallyRecord['username']);
+        $this->tstUnauthorizedRequest('get', '/cohorts/add');
+    }
+
     public function testAddGET() {
 
+        // 1. Simulate login, submit request, examine response.
         $this->fakeLogin();
         $this->get('/cohorts/add');
         $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();
 
-        // Make sure these view vars are set, to keep the FormHelper happy
-        $this->assertNotNull($this->viewVariable('cohort'));
-        $this->assertNotNull($this->viewVariable('majors'));
-
-        // Parse the html from the response
+        // 2. Parse the html from the response
         $html = str_get_html($this->_response->body());
 
-        // Ensure that the correct form exists
+        // 3. Ensure that the correct form exists
         $form = $html->find('form#CohortAddForm',0);
         $this->assertNotNull($form);
 
-        // Omit the id field
+        // 4. Now inspect the fields on the form.  We want to know that:
+        // A. The correct fields are there and no other fields.
+        // B. The fields have correct values. This includes verifying that select
+        //    lists contain options.
+        //
+        //  The actual order that the fields are listed on the form is hereby deemed unimportant.
 
-        // Ensure that there's an input field for start_year, of type text, and that it is empty
+        // 4.1 These are counts of the select and input fields on the form.  They
+        // are presently unaccounted for.
+        $unknownSelectCnt = count($form->find('select'));
+        $unknownInputCnt = count($form->find('input'));
+
+        // 4.2 Look for the hidden POST input
+        if($this->lookForHiddenInput($form)) $unknownInputCnt--;
+
+        // 4.3 Ensure that there's an input field for start_year, of type text, and that it is empty
         $input = $form->find('input#CohortStartYear',0);
         $this->assertEquals($input->type, "text");
         $this->assertEquals($input->value, false);
+        $unknownInputCnt--;
 
-        // Ensure that there's an input field for seq, of type text, and that it is empty
+        // 4.4 Ensure that there's an input field for seq, of type text, and that it is empty
         $input = $form->find('input#CohortSeq',0);
         $this->assertEquals($input->type, "text");
         $this->assertEquals($input->value, false);
+        $unknownInputCnt--;
 
-        // Ensure that there's a select field for major_id and that is has no selection
-        $option = $form->find('select#CohortMajorId option[selected]',0);
-        $this->assertNull($option);
+        // 4.5 Ensure that there's a select field for major_id, that it has no selection,
+        // and that it has the correct quantity of available choices.
+        if($this->lookForSelect($form,'CohortMajorId','majors')) $unknownSelectCnt--;
+
+        // 4.9 Have all the input and select fields been accounted for?  Are there
+        // any extras?
+        $this->assertEquals(0, $unknownInputCnt);
+        $this->assertEquals(0, $unknownSelectCnt);
+
+        // 5. Examine the <A> tags on this page.  There should be zero links.
+        $content = $html->find('div#CohortsAdd',0);
+        $this->assertNotNull($content);
+        $links = $content->find('a');
+        $this->assertEquals(0,count($links));
     }
 
     public function testAddPOST() {
 
-        $cohortsFixture = new CohortsFixture();
-
         $this->fakeLogin();
-        $this->post('/cohorts/add', $cohortsFixture->newCohortRecord);
+        $this->post('/cohorts/add', $this->cohortsFixture->newCohortRecord);
         $this->assertResponseSuccess(); // 2xx,3xx
         $this->assertRedirect( '/cohorts' );
 
         // Now verify what we think just got written
-        $cohorts = TableRegistry::get('Cohorts');
         $new_id = FixtureConstants::cohort1_id + 1;
-        $query = $cohorts->find()->where(['id' => $new_id]);
+        $query = $this->cohorts->find()->where(['id' => $new_id]);
         $this->assertEquals(1, $query->count());
 
         // Now retrieve that 1 record and compare to what we expect
-        $new_cohort = $cohorts->get($new_id);
-        $this->assertEquals($new_cohort['start_year'],$cohortsFixture->newCohortRecord['start_year']);
-        $this->assertEquals($new_cohort['seq'],$cohortsFixture->newCohortRecord['seq']);
-        $this->assertEquals($new_cohort['major_id'],$cohortsFixture->newCohortRecord['major_id']);
+        $new_cohort = $this->cohorts->get($new_id);
+        $this->assertEquals($new_cohort['start_year'],$this->cohortsFixture->newCohortRecord['start_year']);
+        $this->assertEquals($new_cohort['seq'],$this->cohortsFixture->newCohortRecord['seq']);
+        $this->assertEquals($new_cohort['major_id'],$this->cohortsFixture->newCohortRecord['major_id']);
     }
 
     public function testDeletePOST() {
 
-        $cohortsFixture = new CohortsFixture();
-
         $this->fakeLogin();
-        $cohort_id = $cohortsFixture->cohort1Record['id'];
+        $cohort_id = $this->cohortsFixture->cohort1Record['id'];
         $this->post('/cohorts/delete/' . $cohort_id);
         $this->assertResponseSuccess(); // 2xx, 3xx
         $this->assertRedirect( '/cohorts' );
 
         // Now verify that the record no longer exists
-        $cohorts = TableRegistry::get('Cohorts');
-        $query = $cohorts->find()->where(['id' => $cohort_id]);
+        $query = $this->cohorts->find()->where(['id' => $cohort_id]);
         $this->assertEquals(0, $query->count());
     }
 

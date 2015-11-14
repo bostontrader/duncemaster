@@ -5,6 +5,16 @@ use Cake\Event\Event;
 
 class UsersController extends AppController {
 
+    public function isAuthorized($user) {
+        $action = $this->request->params['action'];
+        // The login action is always allowed.
+        if ($action == 'login') {
+            return true;
+        }
+
+        return false;
+    }
+
     public function add() {
         $this->request->allowMethod(['get', 'post']);
         $user = $this->Users->newEntity();

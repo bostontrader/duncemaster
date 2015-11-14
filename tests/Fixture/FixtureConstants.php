@@ -15,8 +15,9 @@ class FixtureConstants {
     const major2_id = 2;
 
     const roleAdminId = 1;
-    const roleTeacherId = 2;
+    const roleAdvisorId = 2;
     const roleStudentId = 3;
+    const roleTeacherId = 4;
 
     const section1_id = 1;
     const section2_id = 2;

@@ -43,14 +43,14 @@ require_once 'simple_html_dom.php';
 class DMIntegrationTestCase extends IntegrationTestCase {
 
     // Hack the session to make it look as if we're properly logged in.
-    protected function fakeLogin() {
+    protected function fakeLogin($userId=1, $userName='testing') {
         // Set session data
         $this->session(
             [
                 'Auth' => [
                     'User' => [
-                        'id' => 1,
-                        'username' => 'testing',
+                        'id' => $userId,
+                        'username' => $userName,
                     ]
                 ]
             ]
@@ -86,6 +86,22 @@ class DMIntegrationTestCase extends IntegrationTestCase {
         $record_cnt = $this->viewVariable($vvName)->count();
         $this->assertEquals($record_cnt + 1, $option_cnt);
         return true;
+    }
+
+    // There are many tests that try to submit an html request to a controller method,
+    // where the user is not authorized to access said page. This method will submit the
+    // request and assert redirection to the login page.
+    protected function tstUnauthorizedRequest($verb, $url) {
+
+        if($verb=='get')
+            $this->get($url);
+        else if($verb=='post')
+            $this->post($url);
+        else if($verb=='put')
+            $this->put($url);
+
+        $this->assertResponseSuccess(); // 2xx, 3xx
+        $this->assertRedirect( '/users/login' );
     }
 
 }

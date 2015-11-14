@@ -13,14 +13,19 @@ class RolesFixture extends TestFixture {
         'title'=>'admin'
     ];
 
-    public $roleTeacherRecord = [
-        'id'=>FixtureConstants::roleTeacherId,
-        'title'=>'teacher'
+    public $roleAdvisorRecord = [
+        'id'=>FixtureConstants::roleAdvisorId,
+        'title'=>'advisor'
     ];
 
     public $roleStudentRecord = [
         'id'=>FixtureConstants::roleStudentId,
         'title'=>'student'
+    ];
+
+    public $roleTeacherRecord = [
+        'id'=>FixtureConstants::roleTeacherId,
+        'title'=>'teacher'
     ];
 
     // This record will be added during a test.  We don't need or want to control the id here, so omit it.

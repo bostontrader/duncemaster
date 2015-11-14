@@ -6,7 +6,6 @@ use Cake\Controller\Controller;
 use Cake\Event\Event;
 use Cake\I18n\I18n;
 
-
 class AppController extends Controller {
 
     public function initialize() {
@@ -19,7 +18,8 @@ class AppController extends Controller {
                     'controller' => 'Pages',
                     'action' => 'display',
                     'home'
-                ]
+                ],
+                'authorize' => 'Controller',
             ]
         );
 
@@ -41,18 +41,17 @@ class AppController extends Controller {
         }
     }
 
+    // Nothing is authorized unless a controller says so.
+    public function isAuthorized($user) {
+        return false;
+    }
+
     /**
      *
      * @param \Cake\Event\Event $event The beforeRender event.
      * @return void
      */
     public function beforeRender(Event $event) {
-        if (!array_key_exists('_serialize', $this->viewVars) &&
-            in_array($this->response->type(), ['application/json', 'application/xml'])
-        ) {
-            $this->set('_serialize', true);
-        }
-        $username = $this->Auth->user('username');
-        $this->set('currentUser',$username);
+        $this->set('currentUser',$this->Auth->user('username'));
     }
 }

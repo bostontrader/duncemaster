@@ -13,6 +13,11 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
         'app.sections'
     ];
 
+    private $clazzes;
+    private $clazzesFixture;
+    private $sections;
+    private $sectionsFixture;
+
     public function setUp() {
         $this->clazzes = TableRegistry::get('Clazzes');
         $this->sections = TableRegistry::get('Sections');
