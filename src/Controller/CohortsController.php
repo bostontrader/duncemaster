@@ -47,7 +47,6 @@ class CohortsController extends AppController {
         $this->set(compact('cohort', 'majors'));
     }
 
-
     public function index() {
         $this->request->allowMethod(['get']);
         $this->set('cohorts', $this->Cohorts->find()->contain(['Majors']));

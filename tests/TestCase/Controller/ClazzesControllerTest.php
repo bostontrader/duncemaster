@@ -10,7 +10,10 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
 
     public $fixtures = [
         'app.clazzes',
-        'app.sections'
+        'app.roles',
+        'app.roles_users',
+        'app.sections',
+        'app.users'
     ];
 
     private $clazzes;
@@ -19,16 +22,46 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
     private $sectionsFixture;
 
     public function setUp() {
+        parent::setUp();
         $this->clazzes = TableRegistry::get('Clazzes');
         $this->sections = TableRegistry::get('Sections');
         $this->clazzesFixture = new ClazzesFixture();
         $this->sectionsFixture = new SectionsFixture();
     }
 
+    // Test that users who do not have correct roles, when submitting a request to
+    // an action, will get redirected to the login url.
+    public function testUnauthorizedActionsAndUsers() {
+
+        $requests2Try=[
+            ['method'=>'add','verb'=>'get'],
+            ['method'=>'add','verb'=>'post'],
+            ['method'=>'delete','verb'=>'post'],
+            ['method'=>'edit','verb'=>'get'],
+            ['method'=>'edit','verb'=>'put'],
+            ['method'=>'index','verb'=>'get'],
+            ['method'=>'view','verb'=>'get']
+        ];
+
+        $unauthorizedUserIds = [
+            null, // no user, not logged in
+            FixtureConstants::userArnoldAdvisorId,
+            FixtureConstants::userSallyStudentId,
+            FixtureConstants::userTommyTeacherId,
+        ];
+
+        foreach($requests2Try as $request2Try) {
+            foreach($unauthorizedUserIds as $userId) {
+                $this->fakeLogin($userId);
+                $this->tstUnauthorizedRequest($request2Try['verb'], '/cohorts/'.$request2Try['method']);
+            }
+        }
+    }
+
     public function testAddGET() {
 
         // 1. Simulate login, submit request, examine response.
-        $this->fakeLogin();
+        $this->fakeLogin(FixtureConstants::userAndyAdminId);
         $this->get('/clazzes/add');
         $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();
@@ -79,7 +112,7 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
 
     public function testAddPOST() {
 
-        $this->fakeLogin();
+        $this->fakeLogin(FixtureConstants::userAndyAdminId);
         $this->post('/clazzes/add', $this->clazzesFixture->newClazzRecord);
         $this->assertResponseSuccess(); // 2xx, 3xx
         $this->assertRedirect( '/clazzes' );
@@ -97,7 +130,7 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
 
     public function testDeletePOST() {
 
-        $this->fakeLogin();
+        $this->fakeLogin(FixtureConstants::userAndyAdminId);
         $clazz_id = $this->clazzesFixture->clazz1Record['id'];
         $this->post('/clazzes/delete/' . $clazz_id);
         $this->assertResponseSuccess(); // 2xx, 3xx
@@ -111,7 +144,7 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
     public function testEditGET() {
 
         // 1. Simulate login, submit request, examine response.
-        $this->fakeLogin();
+        $this->fakeLogin(FixtureConstants::userAndyAdminId);
         $this->get('/clazzes/edit/' . $this->clazzesFixture->clazz1Record['id']);
         $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();
@@ -170,7 +203,7 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
 
     public function testEditPOST() {
 
-        $this->fakeLogin();
+        $this->fakeLogin(FixtureConstants::userAndyAdminId);
         $clazz_id = $this->clazzesFixture->clazz1Record['id'];
         $this->put('/clazzes/edit/' . $clazz_id, $this->clazzesFixture->newClazzRecord);
         $this->assertResponseSuccess(); // 2xx, 3xx
@@ -189,7 +222,7 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
     public function testIndexGET() {
 
         // 1. Simulate login, submit request, examine response.
-        $this->fakeLogin();
+        $this->fakeLogin(FixtureConstants::userAndyAdminId);
         $this->get('/clazzes/index');
         $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();
@@ -270,7 +303,7 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
 
     public function testViewGET() {
 
-        $this->fakeLogin();
+        $this->fakeLogin(FixtureConstants::userAndyAdminId);
         $this->get('/clazzes/view/' . $this->clazzesFixture->clazz1Record['id']);
         $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();

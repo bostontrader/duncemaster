@@ -46,7 +46,10 @@ class DMIntegrationTestCase extends IntegrationTestCase {
     protected $usersFixture;
 
     // Hack the session to make it look as if we're properly logged in.
-    protected function fakeLogin($userId=1) {
+    protected function fakeLogin($userId) {
+
+        if($userId==null) return; // anonymous user, not logged in
+
         // Set session data
         $username = $this->usersFixture->get($userId)['username'];
         $this->session(
