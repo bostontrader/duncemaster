@@ -20,6 +20,7 @@ class AppController extends Controller {
                     'home'
                 ],
                 'authorize' => 'Controller',
+                'unauthorizedRedirect' => '/users/login'
             ]
         );
 

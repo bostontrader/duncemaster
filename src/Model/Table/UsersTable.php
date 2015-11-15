@@ -14,9 +14,15 @@ class UsersTable extends Table {
 
         $this->belongsToMany('Roles',
             [
-                'targetForeignKey' => 'role_id',
+                //'targetForeignKey' => 'role_id',
+                //'foreignKey' => 'user_id',
+                //'joinTable' => 'roles_users',
+
+                'through' => 'RolesUsers',
+                'alias' => 'Roles',
                 'foreignKey' => 'user_id',
                 'joinTable' => 'roles_users',
+                'targetForeignKey' => 'role_id'
             ]);
         //$this->table('users');
         //$this->displayField('id');

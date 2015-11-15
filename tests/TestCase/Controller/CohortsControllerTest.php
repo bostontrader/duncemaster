@@ -4,39 +4,51 @@ namespace App\Test\TestCase\Controller;
 use App\Test\Fixture\CohortsFixture;
 use App\Test\Fixture\FixtureConstants;
 use App\Test\Fixture\MajorsFixture;
-use App\Test\Fixture\UsersFixture;
 use Cake\ORM\TableRegistry;
 
 class CohortsControllerTest extends DMIntegrationTestCase {
 
     public $fixtures = [
         'app.cohorts',
-        'app.majors'
+        'app.majors',
+        'app.roles',
+        'app.roles_users',
+        'app.users'
     ];
 
     private $cohorts;
     private $cohortsFixture;
     private $majors;
     private $majorsFixture;
-    private $usersFixture;
+    //private $usersFixture;
 
     public function setUp() {
+        parent::setUp();
         $this->cohorts = TableRegistry::get('Cohorts');
         $this->majors = TableRegistry::get('Majors');
         $this->cohortsFixture = new CohortsFixture();
         $this->majorsFixture = new MajorsFixture();
-        $this->usersFixture = new UsersFixture();
+        //$this->usersFixture = new UsersFixture();
     }
 
-    public function testAddGETAnon() {
+    // Try the roles that should _not_ be authorized for add get
+    public function testAddGETUnauthorized() {
+
+        // Anonymous users should not be authorized.
+        $this->tstUnauthorizedRequest('get', '/cohorts/add');
+
+        $this->fakeLogin(FixtureConstants::userArnoldAdvisorId);
+        $this->tstUnauthorizedRequest('get', '/cohorts/add');
+
+        $this->fakeLogin(FixtureConstants::userSallyStudentId);
+        $this->tstUnauthorizedRequest('get', '/cohorts/add');
+
+        $this->fakeLogin(FixtureConstants::userTommyTeacherId);
         $this->tstUnauthorizedRequest('get', '/cohorts/add');
     }
 
-    public function testAddGETAdvisor() {
-        $this->fakeLogin(FixtureConstants::userSallyId, $this->usersFixture->userSallyRecord['username']);
-        $this->tstUnauthorizedRequest('get', '/cohorts/add');
-    }
-
+    // test that a logged in user with zero roles will not work
+    // test that a logged in user with two roles will have all roles considered
     public function testAddGET() {
 
         // 1. Simulate login, submit request, examine response.

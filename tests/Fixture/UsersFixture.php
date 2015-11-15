@@ -8,22 +8,28 @@ class UsersFixture extends TestFixture {
 
     // These records are injected into the db before the tests.  We need to specify the
     // id to ensure the test records are properly related.
-    public $userAndyRecord = [
-        'id'=>FixtureConstants::userAndyId,
-        'username' => 'andy',
-        'password' => 'passwordAndy'
+    public $userAndyAdminRecord = [
+        'id'=>FixtureConstants::userAndyAdminId,
+        'username' => 'AndyAdmin',
+        'password' => 'passwordAndyAdmin'
     ];
 
-    public $userSallyRecord = [
-        'id'=>FixtureConstants::userSallyId,
-        'username' => 'sally',
-        'password' => 'passwordSally'
+    public $userArnoldAdvisorRecord = [
+        'id'=>FixtureConstants::userArnoldAdvisorId,
+        'username' => 'ArnoldAdvisor',
+        'password' => 'passwordArnoldAdvisor'
     ];
 
-    public $userTommyRecord = [
-        'id'=>FixtureConstants::userTommyId,
-        'username' => 'tommy',
-        'password' => 'passwordTommy'
+    public $userSallyStudentRecord = [
+        'id'=>FixtureConstants::userSallyStudentId,
+        'username' => 'SallyStudent',
+        'password' => 'passwordSallyStudent'
+    ];
+
+    public $userTommyTeacherRecord = [
+        'id'=>FixtureConstants::userTommyTeacherId,
+        'username' => 'TommyTeacher',
+        'password' => 'passwordTommyTeacher'
     ];
 
     // This record will be added during a test.  We don't need or want to control the id here, so omit it.
@@ -32,10 +38,19 @@ class UsersFixture extends TestFixture {
     public function init()
     {
         $this->records = [
-            $this->userAndyRecord,
-            $this->userSallyRecord,
-            $this->userTommyRecord
+            $this->userAndyAdminRecord,
+            $this->userArnoldAdvisorRecord,
+            $this->userSallyStudentRecord,
+            $this->userTommyTeacherRecord
         ];
         parent::init();
     }
+
+    // Given an id, return the first fixture record found with that id, or null if not found.
+    public function get($id) {
+        foreach ($this->records as $record)
+            if ($record['id'] == $id) return $record;
+        return null;
+    }
+
 }

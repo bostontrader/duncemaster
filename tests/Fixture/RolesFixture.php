@@ -36,6 +36,7 @@ class RolesFixture extends TestFixture {
     public function init() {
         $this->records = [
             $this->roleAdminRecord,
+            $this->roleAdvisorRecord,
             $this->roleTeacherRecord,
             $this->roleStudentRecord
         ];

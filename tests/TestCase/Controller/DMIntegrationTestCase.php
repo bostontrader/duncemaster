@@ -2,6 +2,7 @@
 
 namespace App\Test\TestCase\Controller;
 
+use App\Test\Fixture\UsersFixture;
 use Cake\TestSuite\IntegrationTestCase;
 
 require_once 'simple_html_dom.php';
@@ -42,15 +43,18 @@ require_once 'simple_html_dom.php';
 
 class DMIntegrationTestCase extends IntegrationTestCase {
 
+    protected $usersFixture;
+
     // Hack the session to make it look as if we're properly logged in.
-    protected function fakeLogin($userId=1, $userName='testing') {
+    protected function fakeLogin($userId=1) {
         // Set session data
+        $username = $this->usersFixture->get($userId)['username'];
         $this->session(
             [
                 'Auth' => [
                     'User' => [
                         'id' => $userId,
-                        'username' => $userName,
+                        'username' => $username
                     ]
                 ]
             ]
@@ -86,6 +90,11 @@ class DMIntegrationTestCase extends IntegrationTestCase {
         $record_cnt = $this->viewVariable($vvName)->count();
         $this->assertEquals($record_cnt + 1, $option_cnt);
         return true;
+    }
+
+    public function setUp() {
+        parent::setUp();
+        $this->usersFixture = new UsersFixture();
     }
 
     // There are many tests that try to submit an html request to a controller method,

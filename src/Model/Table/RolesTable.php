@@ -23,9 +23,16 @@ class RolesTable extends Table {
         parent::initialize($config);
         $this->belongsToMany('Users',
             [
-                'targetForeignKey' => 'user_id',
+                //'targetForeignKey' => 'user_id',
+                //'foreignKey' => 'role_id',
+                //'joinTable' => 'roles_users',
+
+                'through' => 'RolesUsers',
+                'alias' => 'Users',
                 'foreignKey' => 'role_id',
                 'joinTable' => 'roles_users',
+                'targetForeignKey' => 'user_id'
+
             ]);
     }
 

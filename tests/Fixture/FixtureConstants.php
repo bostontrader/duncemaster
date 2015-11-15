@@ -29,7 +29,8 @@ class FixtureConstants {
     const subject2_id = 2;
     const teacher1_id = 1;
 
-    const userAndyId = 1;
-    const userSallyId = 2;
-    const userTommyId = 3;
+    const userAndyAdminId = 1;
+    const userArnoldAdvisorId = 2;
+    const userSallyStudentId = 3;
+    const userTommyTeacherId = 4;
 }

@@ -8,26 +8,18 @@ class RolesUsersFixture extends TestFixture {
 
     //        admin advisor teacher student
     // andy     x
-    // sally          x
-    // tommy                 x        x
-
-    // These records are injected into the db before the tests.  We need to specify the
-    // id to ensure the test records are properly related.
-    //public $roleAdminRecord = [
-    //'id'=>FixtureConstants::roleAdminId,
-    //'title'=>'admin'
-    //];
-
-
+    // arnold        x
+    // tommy                 x
+    // sally                            x
 
     public function init() {
         $this->records = [
-            ['id'=>1,'role_id'=>FixtureConstants::roleAdminId,'user_id'=>'',],
-        //$this->roleAdminRecord,
-        //$this->roleTeacherRecord,
-        //$this->roleStudentRecord
+            ['id'=>1,'role_id'=>FixtureConstants::roleAdminId,'user_id'=>FixtureConstants::userAndyAdminId],
+            ['id'=>2,'role_id'=>FixtureConstants::roleAdvisorId,'user_id'=>FixtureConstants::userArnoldAdvisorId],
+            ['id'=>3,'role_id'=>FixtureConstants::roleStudentId,'user_id'=>FixtureConstants::userSallyStudentId],
+            ['id'=>4,'role_id'=>FixtureConstants::roleTeacherId,'user_id'=>FixtureConstants::userTommyTeacherId]
         ];
-        //parent::init();
+        parent::init();
     }
 
 }
