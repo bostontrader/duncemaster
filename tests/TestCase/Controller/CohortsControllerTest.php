@@ -315,6 +315,8 @@ class CohortsControllerTest extends DMIntegrationTestCase {
             $this->assertEquals(count($htmlColumns),$column_count);
         }
 
+        // 9. Ensure that all the <A> tags have been accounted for
+        $this->assertEquals(0, $unknownATag);
     }
 
     public function testViewGET() {
@@ -354,8 +356,6 @@ class CohortsControllerTest extends DMIntegrationTestCase {
 
         // 2.3 seq
         $field = $html->find('tr#seq td',0);
-        $s1=$this->cohortsFixture->cohort1Record['seq'];
-        $s2=$field->plaintext;
         $this->assertEquals($this->cohortsFixture->cohort1Record['seq'], $field->plaintext);
         $unknownRowCnt--;
 

@@ -12,17 +12,21 @@ class InteractionsControllerTest extends DMIntegrationTestCase {
     public $fixtures = [
         'app.clazzes',
         'app.interactions',
-        'app.students'
+        'app.roles',
+        'app.roles_users',
+        'app.students',
+        'app.users'
     ];
 
-    public $clazzes;
-    public $interactions;
-    public $students;
-    public $clazzesFixture;
-    public $interactionsFixture;
-    public $studentsFixture;
+    private $clazzes;
+    private $interactions;
+    private $students;
+    private $clazzesFixture;
+    private $interactionsFixture;
+    private $studentsFixture;
 
     public function setUp() {
+        parent::setUp();
         $this->clazzes = TableRegistry::get('Clazzes');
         $this->interactions = TableRegistry::get('Interactions');
         $this->students = TableRegistry::get('Students');
@@ -31,10 +35,39 @@ class InteractionsControllerTest extends DMIntegrationTestCase {
         $this->studentsFixture = new StudentsFixture();
     }
 
+    // Test that users who do not have correct roles, when submitting a request to
+    // an action, will get redirected to the login url.
+    public function testUnauthorizedActionsAndUsers() {
+
+        $requests2Try=[
+            ['method'=>'add','verb'=>'get'],
+            ['method'=>'add','verb'=>'post'],
+            ['method'=>'delete','verb'=>'post'],
+            ['method'=>'edit','verb'=>'get'],
+            ['method'=>'edit','verb'=>'put'],
+            ['method'=>'index','verb'=>'get'],
+            ['method'=>'view','verb'=>'get']
+        ];
+
+        $unauthorizedUserIds = [
+            null, // no user, not logged in
+            FixtureConstants::userArnoldAdvisorId,
+            FixtureConstants::userSallyStudentId,
+            FixtureConstants::userTommyTeacherId,
+        ];
+
+        foreach($requests2Try as $request2Try) {
+            foreach($unauthorizedUserIds as $userId) {
+                $this->fakeLogin($userId);
+                $this->tstUnauthorizedRequest($request2Try['verb'], '/interactions/'.$request2Try['method']);
+            }
+        }
+    }
+
     public function testAddGET() {
 
         // 1. Simulate login, submit request, examine response.
-        $this->fakeLogin();
+        $this->fakeLogin(FixtureConstants::userAndyAdminId);
         $this->get('/interactions/add');
         $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();
@@ -83,7 +116,7 @@ class InteractionsControllerTest extends DMIntegrationTestCase {
 
     public function testAddPOST() {
 
-        $this->fakeLogin();
+        $this->fakeLogin(FixtureConstants::userAndyAdminId);
         $this->post('/interactions/add', $this->interactionsFixture->newInteractionRecord);
         $this->assertResponseSuccess(); // 2xx, 3xx
         $this->assertRedirect( '/interactions' );
@@ -101,7 +134,7 @@ class InteractionsControllerTest extends DMIntegrationTestCase {
 
     public function testDeletePOST() {
 
-        $this->fakeLogin();
+        $this->fakeLogin(FixtureConstants::userAndyAdminId);
         $interaction_id = $this->interactionsFixture->interaction1Record['id'];
         $this->post('/interactions/delete/' . $interaction_id);
         $this->assertResponseSuccess(); // 2xx, 3xx
@@ -115,9 +148,8 @@ class InteractionsControllerTest extends DMIntegrationTestCase {
     public function testEditGET() {
 
         // 1. Simulate login, submit request, examine response.
-        $this->fakeLogin();
-        $interaction_id = $this->interactionsFixture->interaction1Record['id'];
-        $this->get('/interactions/edit/' . $interaction_id);
+        $this->fakeLogin(FixtureConstants::userAndyAdminId);
+        $this->get('/interactions/edit/' . $this->interactionsFixture->interaction1Record['id']);
         $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();
 
@@ -181,7 +213,7 @@ class InteractionsControllerTest extends DMIntegrationTestCase {
 
     public function testEditPOST() {
 
-        $this->fakeLogin();
+        $this->fakeLogin(FixtureConstants::userAndyAdminId);
         $interaction_id = $this->interactionsFixture->interaction1Record['id'];
         $this->post('/interactions/edit/' . $interaction_id, $this->interactionsFixture->newInteractionRecord);
         $this->assertResponseSuccess(); // 2xx, 3xx
@@ -201,7 +233,7 @@ class InteractionsControllerTest extends DMIntegrationTestCase {
     public function testIndexGET() {
 
         // 1. Simulate login, submit request, examine response.
-        $this->fakeLogin();
+        $this->fakeLogin(FixtureConstants::userAndyAdminId);
         $this->get('/interactions/index');
         $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();
@@ -210,16 +242,16 @@ class InteractionsControllerTest extends DMIntegrationTestCase {
         $html = str_get_html($this->_response->body());
 
         // 3. Get a the count of all <A> tags that are presently unaccounted for.
-        $content = $html->find('div#interactionsIndex',0);
+        $content = $html->find('div#InteractionsIndex',0);
         $this->assertNotNull($content);
         $unknownATag = count($content->find('a'));
 
         // 4. Look for the create new interaction link
-        $this->assertEquals(1, count($html->find('a#interactionAdd')));
+        $this->assertEquals(1, count($html->find('a#InteractionAdd')));
         $unknownATag--;
 
         // 5. Ensure that there is a suitably named table to display the results.
-        $interactions_table = $html->find('table#interactionsTable',0);
+        $interactions_table = $html->find('table#InteractionsTable',0);
         $this->assertNotNull($interactions_table);
 
         // 6. Ensure that said table's thead element contains the correct
@@ -230,7 +262,8 @@ class InteractionsControllerTest extends DMIntegrationTestCase {
         $this->assertEquals($thead_ths[0]->id, 'clazz');
         $this->assertEquals($thead_ths[1]->id, 'student');
         $this->assertEquals($thead_ths[2]->id, 'actions');
-        $this->assertEquals(count($thead_ths),3); // no other columns
+        $column_count = count($thead_ths);
+        $this->assertEquals($column_count,3); // no other columns
 
         // 7. Ensure that the tbody section has the same
         //    quantity of rows as the count of interaction records in the fixture.
@@ -264,12 +297,15 @@ class InteractionsControllerTest extends DMIntegrationTestCase {
 
             // 8.2 Now examine the action links
             $actionLinks = $htmlRow->find('a');
-            $this->assertEquals('interactionView', $actionLinks[0]->name);
+            $this->assertEquals('InteractionView', $actionLinks[0]->name);
             $unknownATag--;
-            $this->assertEquals('interactionEdit', $actionLinks[1]->name);
+            $this->assertEquals('InteractionEdit', $actionLinks[1]->name);
             $unknownATag--;
-            $this->assertEquals('interactionDelete', $actionLinks[2]->name);
+            $this->assertEquals('InteractionDelete', $actionLinks[2]->name);
             $unknownATag--;
+
+            // 8.9 No other columns
+            $this->assertEquals(count($htmlColumns),$column_count);
         }
 
         // 9. Ensure that all the <A> tags have been accounted for
@@ -278,7 +314,7 @@ class InteractionsControllerTest extends DMIntegrationTestCase {
     
     public function testViewGET() {
 
-        $this->fakeLogin();
+        $this->fakeLogin(FixtureConstants::userAndyAdminId);
         $this->get('/interactions/view/' . $this->interactionsFixture->interaction1Record['id']);
         $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();
@@ -322,7 +358,6 @@ class InteractionsControllerTest extends DMIntegrationTestCase {
         $this->assertNotNull($content);
         $links = $content->find('a');
         $this->assertEquals(0,count($links));
-
     }
 
 }

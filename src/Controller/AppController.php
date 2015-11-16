@@ -5,6 +5,7 @@ namespace App\Controller;
 use Cake\Controller\Controller;
 use Cake\Event\Event;
 use Cake\I18n\I18n;
+use Cake\ORM\TableRegistry;
 
 class AppController extends Controller {
 
@@ -43,7 +44,13 @@ class AppController extends Controller {
     }
 
     // Nothing is authorized unless a controller says so.
-    public function isAuthorized($user) {
+    // Admin is always authorized.
+    public function isAuthorized($userArray) {
+        $users = TableRegistry::get('Users');
+        $user=$users->get($userArray['id'], ['contain' => ['Roles']]);
+        foreach($user->roles as $role) {
+            if($role->title=='admin') return true;
+        }
         return false;
     }
 

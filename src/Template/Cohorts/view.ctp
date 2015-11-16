@@ -14,9 +14,9 @@
                 <th><?= __('Start Year') ?></th>
                 <td><?= $cohort->start_year ?></td>
             </tr>
-            <tr id="seq>
+            <tr id="seq">
                 <th><?= __('Seq') ?></th>
-                <td"><?= $cohort->seq ?></td>
+                <td><?= $cohort->seq ?></td>
             </tr>
             <tr id="nickname">
                 <th><?= __('Nickname') ?></th>

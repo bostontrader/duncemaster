@@ -1,6 +1,5 @@
 <?php
 namespace App\Controller;
-use Cake\ORM\TableRegistry;
 
 class ClazzesController extends AppController {
 
@@ -50,16 +49,6 @@ class ClazzesController extends AppController {
     public function index() {
         $this->request->allowMethod(['get']);
         $this->set('clazzes', $this->Clazzes->find('all', ['contain' => ['Sections']]));
-    }
-
-    // Only admin users can work with clazzes
-    public function isAuthorized($userArray) {
-        $users = TableRegistry::get('Users');
-        $user=$users->get($userArray['id'], ['contain' => ['Roles']]);
-        foreach($user->roles as $role) {
-            if($role->title=='admin') return true;
-        }
-        return false;
     }
 
     public function view($id = null) {
