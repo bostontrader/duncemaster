@@ -101,7 +101,7 @@ class CohortsControllerTest extends DMIntegrationTestCase {
         $this->assertRedirect( '/cohorts' );
 
         // Now verify what we think just got written
-        $new_id = FixtureConstants::cohort1_id + 1;
+        $new_id = count($this->cohortsFixture->records) + 1;
         $query = $this->cohorts->find()->where(['id' => $new_id]);
         $this->assertEquals(1, $query->count());
 

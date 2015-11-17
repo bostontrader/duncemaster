@@ -95,7 +95,7 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
         $this->assertRedirect( '/clazzes' );
 
         // Now verify what we think just got written
-        $new_id = FixtureConstants::clazz1_id + 1;
+        $new_id = count($this->clazzesFixture->records) + 1;
         $query = $this->clazzes->find()->where(['id' => $new_id]);
         $this->assertEquals(1, $query->count());
 

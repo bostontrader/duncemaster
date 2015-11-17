@@ -99,7 +99,7 @@ class InteractionsControllerTest extends DMIntegrationTestCase {
         $this->assertRedirect( '/interactions' );
 
         // Now verify what we think just got written
-        $new_id = FixtureConstants::interaction1_id + 1;
+        $new_id = count($this->interactionsFixture->records) + 1;
         $query = $this->interactions->find()->where(['id' => $new_id]);
         $this->assertEquals(1, $query->count());
 
@@ -142,7 +142,7 @@ class InteractionsControllerTest extends DMIntegrationTestCase {
         // B. The fields have correct values. This includes verifying that select
         //    lists contain options.
         //
-        //  The actual order that the fields are listed is hereby deemed unimportant.
+        //  The actual order that the fields are listed on the form is hereby deemed unimportant.
 
         // 4.1 These are counts of the select and input fields on the form.  They
         // are presently unaccounted for.

@@ -37,8 +37,8 @@ class RolesFixture extends TestFixture {
         $this->records = [
             $this->roleAdminRecord,
             $this->roleAdvisorRecord,
-            $this->roleTeacherRecord,
-            $this->roleStudentRecord
+            $this->roleStudentRecord,
+            $this->roleTeacherRecord
         ];
         parent::init();
     }

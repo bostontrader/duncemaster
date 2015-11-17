@@ -9,21 +9,29 @@ class RolesControllerTest extends DMIntegrationTestCase {
 
     public $fixtures = [
         'app.roles',
-        'app.roles_users'
+        'app.roles_users',
+        'app.users'
     ];
 
     private $roles;
     private $rolesFixture;
 
     public function setUp() {
+        parent::setUp();
         $this->roles = TableRegistry::get('Roles');
         $this->rolesFixture = new RolesFixture();
+    }
+
+    // Test that users who do not have correct roles, when submitting a request to
+    // an action, will get redirected to the login url.
+    public function testUnauthorizedActionsAndUsers() {
+        $this->tstUnauthorizedActionsAndUsers('roles');
     }
 
     public function testAddGET() {
 
         // 1. Simulate login, submit request, examine response.
-        $this->fakeLogin();
+        $this->fakeLogin(FixtureConstants::userAndyAdminId);
         $this->get('/roles/add');
         $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();
@@ -70,7 +78,7 @@ class RolesControllerTest extends DMIntegrationTestCase {
 
     public function testAddPOST() {
 
-        $this->fakeLogin();
+        $this->fakeLogin(FixtureConstants::userAndyAdminId);
         $this->post('/roles/add', $this->rolesFixture->newRoleRecord);
         $this->assertResponseSuccess(); // 2xx, 3xx
         $this->assertRedirect( '/roles' );
@@ -87,7 +95,7 @@ class RolesControllerTest extends DMIntegrationTestCase {
 
     public function testDeletePOST() {
 
-        $this->fakeLogin();
+        $this->fakeLogin(FixtureConstants::userAndyAdminId);
         $role_id = $this->rolesFixture->roleAdminRecord['id'];
         $this->post('/roles/delete/' . $role_id);
         $this->assertResponseSuccess(); // 2xx, 3xx
@@ -101,7 +109,7 @@ class RolesControllerTest extends DMIntegrationTestCase {
     public function testEditGET() {
 
         // 1. Simulate login, submit request, examine response.
-        $this->fakeLogin();
+        $this->fakeLogin(FixtureConstants::userAndyAdminId);
         $this->get('/roles/edit/' . $this->rolesFixture->roleAdminRecord['id']);
         $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();
@@ -148,7 +156,7 @@ class RolesControllerTest extends DMIntegrationTestCase {
 
     public function testEditPOST() {
 
-        $this->fakeLogin();
+        $this->fakeLogin(FixtureConstants::userAndyAdminId);
         $role_id = $this->rolesFixture->roleAdminRecord['id'];
         $this->put('/roles/edit/' . $role_id, $this->rolesFixture->newRoleRecord);
         $this->assertResponseSuccess(); // 2xx, 3xx
@@ -166,7 +174,7 @@ class RolesControllerTest extends DMIntegrationTestCase {
     public function testIndexGET() {
 
         // 1. Simulate login, submit request, examine response.
-        $this->fakeLogin();
+        $this->fakeLogin(FixtureConstants::userAndyAdminId);
         $this->get('/roles/index');
         $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();
@@ -237,9 +245,8 @@ class RolesControllerTest extends DMIntegrationTestCase {
 
     public function testViewGET() {
 
-        $this->fakeLogin();
-        $role_id = $this->rolesFixture->roleAdminRecord['id'];
-        $this->get('/roles/view/' . $role_id);
+        $this->fakeLogin(FixtureConstants::userAndyAdminId);
+        $this->get('/roles/view/' . $this->rolesFixture->roleAdminRecord['id']);
         $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();
 
@@ -264,7 +271,8 @@ class RolesControllerTest extends DMIntegrationTestCase {
         $this->assertEquals($this->rolesFixture->roleAdminRecord['title'], $field->plaintext);
         $unknownRowCnt--;
 
-        // Have all the rows been accounted for?  Are there any extras?
+        // Have all the rows been accounted for?  Are there
+        // any extras?
         $this->assertEquals(0, $unknownRowCnt);
 
         // 3. Examine the <A> tags on this page.  There should be zero links.
