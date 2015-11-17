@@ -32,30 +32,7 @@ class CohortsControllerTest extends DMIntegrationTestCase {
     // Test that users who do not have correct roles, when submitting a request to
     // an action, will get redirected to the login url.
     public function testUnauthorizedActionsAndUsers() {
-
-        $requests2Try=[
-            ['method'=>'add','verb'=>'get'],
-            ['method'=>'add','verb'=>'post'],
-            ['method'=>'delete','verb'=>'post'],
-            ['method'=>'edit','verb'=>'get'],
-            ['method'=>'edit','verb'=>'put'],
-            ['method'=>'index','verb'=>'get'],
-            ['method'=>'view','verb'=>'get']
-        ];
-
-        $unauthorizedUserIds = [
-            null, // no user, not logged in
-            FixtureConstants::userArnoldAdvisorId,
-            FixtureConstants::userSallyStudentId,
-            FixtureConstants::userTommyTeacherId,
-        ];
-
-        foreach($requests2Try as $request2Try) {
-            foreach($unauthorizedUserIds as $userId) {
-                $this->fakeLogin($userId);
-                $this->tstUnauthorizedRequest($request2Try['verb'], '/cohorts/'.$request2Try['method']);
-            }
-        }
+        $this->tstUnauthorizedActionsAndUsers('cohorts');
     }
 
     public function testAddGET() {

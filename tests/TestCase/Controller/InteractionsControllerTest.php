@@ -38,30 +38,7 @@ class InteractionsControllerTest extends DMIntegrationTestCase {
     // Test that users who do not have correct roles, when submitting a request to
     // an action, will get redirected to the login url.
     public function testUnauthorizedActionsAndUsers() {
-
-        $requests2Try=[
-            ['method'=>'add','verb'=>'get'],
-            ['method'=>'add','verb'=>'post'],
-            ['method'=>'delete','verb'=>'post'],
-            ['method'=>'edit','verb'=>'get'],
-            ['method'=>'edit','verb'=>'put'],
-            ['method'=>'index','verb'=>'get'],
-            ['method'=>'view','verb'=>'get']
-        ];
-
-        $unauthorizedUserIds = [
-            null, // no user, not logged in
-            FixtureConstants::userArnoldAdvisorId,
-            FixtureConstants::userSallyStudentId,
-            FixtureConstants::userTommyTeacherId,
-        ];
-
-        foreach($requests2Try as $request2Try) {
-            foreach($unauthorizedUserIds as $userId) {
-                $this->fakeLogin($userId);
-                $this->tstUnauthorizedRequest($request2Try['verb'], '/interactions/'.$request2Try['method']);
-            }
-        }
+        $this->tstUnauthorizedActionsAndUsers('interactions');
     }
 
     public function testAddGET() {
@@ -102,13 +79,13 @@ class InteractionsControllerTest extends DMIntegrationTestCase {
         //    and that it has the correct quantity of available choices.
         if($this->lookForSelect($form,'InteractionStudentId','students')) $unknownSelectCnt--;
 
-        // 4.4 Have all the input and select fields been accounted for?  Are there
+        // 4.9 Have all the input and select fields been accounted for?  Are there
         // any extras?
         $this->assertEquals(0, $unknownInputCnt);
         $this->assertEquals(0, $unknownSelectCnt);
 
         // 5. Examine the <A> tags on this page.  There should be zero links.
-        $content = $html->find('div#interactionsAdd',0);
+        $content = $html->find('div#InteractionsAdd',0);
         $this->assertNotNull($content);
         $links = $content->find('a');
         $this->assertEquals(0,count($links));
@@ -205,7 +182,7 @@ class InteractionsControllerTest extends DMIntegrationTestCase {
         $this->assertEquals(0, $unknownSelectCnt);
 
         // 5. Examine the <A> tags on this page.  There should be zero links.
-        $content = $html->find('div#interactionsEdit',0);
+        $content = $html->find('div#InteractionsEdit',0);
         $this->assertNotNull($content);
         $links = $content->find('a');
         $this->assertEquals(0,count($links));
@@ -354,7 +331,7 @@ class InteractionsControllerTest extends DMIntegrationTestCase {
         $this->assertEquals(0, $unknownRowCnt);
 
         // 3. Examine the <A> tags on this page.  There should be zero links.
-        $content = $html->find('div#interactionsView',0);
+        $content = $html->find('div#InteractionsView',0);
         $this->assertNotNull($content);
         $links = $content->find('a');
         $this->assertEquals(0,count($links));
