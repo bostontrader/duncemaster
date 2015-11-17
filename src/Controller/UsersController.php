@@ -6,6 +6,9 @@ use Cake\Event\Event;
 class UsersController extends AppController {
 
     public function isAuthorized($user) {
+
+        if(parent::isAuthorized($user)) return true;
+
         $action = $this->request->params['action'];
         // The login action is always allowed.
         if ($action == 'login') {

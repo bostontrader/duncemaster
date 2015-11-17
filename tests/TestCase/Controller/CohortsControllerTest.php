@@ -250,7 +250,7 @@ class CohortsControllerTest extends DMIntegrationTestCase {
         //    quantity of rows as the count of cohort records in the fixture.
         $tbody = $cohorts_table->find('tbody',0);
         $tbody_rows = $tbody->find('tr');
-        $this->assertEquals(count($tbody_rows), count($this->cohortsFixture));
+        $this->assertEquals(count($tbody_rows), count($this->cohortsFixture->records));
 
         // 8. Ensure that the values displayed in each row, match the values from
         //    the fixture.  The values should be presented in a particular order

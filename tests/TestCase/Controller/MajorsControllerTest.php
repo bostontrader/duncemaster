@@ -224,7 +224,7 @@ class MajorsControllerTest extends DMIntegrationTestCase {
         //    quantity of rows as the count of major records in the fixture.
         $tbody = $majors_table->find('tbody',0);
         $tbody_rows = $tbody->find('tr');
-        $this->assertEquals(count($tbody_rows), count($this->majorsFixture));
+        $this->assertEquals(count($tbody_rows), count($this->majorsFixture->records));
 
         // 8. Ensure that the values displayed in each row, match the values from
         //    the fixture.  The values should be presented in a particular order

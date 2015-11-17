@@ -12,19 +12,23 @@ class SectionsControllerTest extends DMIntegrationTestCase {
     public $fixtures = [
         'app.cohorts',
         'app.majors',
+        'app.roles',
+        'app.roles_users',
         'app.sections',
         'app.semesters',
-        'app.subjects'
+        'app.subjects',
+        'app.users'
     ];
 
-    public $cohorts;
-    public $sections;
-    public $semesters;
-    public $sectionsFixture;
-    public $semestersFixture;
-    public $subjectsFixture;
+    private $cohorts;
+    private $sections;
+    private $semesters;
+    private $sectionsFixture;
+    private $semestersFixture;
+    private $subjectsFixture;
 
     public function setUp() {
+        parent::setUp();
         $this->cohorts = TableRegistry::get('Cohorts');
         $this->sections = TableRegistry::get('Sections');
         $this->semesters = TableRegistry::get('Semesters');
@@ -33,11 +37,16 @@ class SectionsControllerTest extends DMIntegrationTestCase {
         $this->subjectsFixture = new SubjectsFixture();
     }
 
+    // Test that users who do not have correct roles, when submitting a request to
+    // an action, will get redirected to the login url.
+    public function testUnauthorizedActionsAndUsers() {
+        $this->tstUnauthorizedActionsAndUsers('sections');
+    }
 
     public function testAddGET() {
 
         // 1. Simulate login, submit request, examine response.
-        $this->fakeLogin();
+        $this->fakeLogin(FixtureConstants::userAndyAdminId);
         $this->get('/sections/add');
         $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();
@@ -100,7 +109,7 @@ class SectionsControllerTest extends DMIntegrationTestCase {
         $this->assertEquals(0, $unknownSelectCnt);
 
         // 5. Examine the <A> tags on this page.  There should be zero links.
-        $content = $html->find('div#sectionsAdd',0);
+        $content = $html->find('div#SectionsAdd',0);
         $this->assertNotNull($content);
         $links = $content->find('a');
         $this->assertEquals(0,count($links));
@@ -108,7 +117,7 @@ class SectionsControllerTest extends DMIntegrationTestCase {
 
     public function testAddPOST() {
 
-        $this->fakeLogin();
+        $this->fakeLogin(FixtureConstants::userAndyAdminId);
         $this->post('/sections/add', $this->sectionsFixture->newSectionRecord);
         $this->assertResponseSuccess(); // 2xx, 3xx
         $this->assertRedirect( '/sections' );
@@ -123,7 +132,6 @@ class SectionsControllerTest extends DMIntegrationTestCase {
         $this->assertEquals($new_section['cohort_id'],$this->sectionsFixture->newSectionRecord['cohort_id']);
         $this->assertEquals($new_section['subject_id'],$this->sectionsFixture->newSectionRecord['subject_id']);
         $this->assertEquals($new_section['semester_id'],$this->sectionsFixture->newSectionRecord['semester_id']);
-
         $this->assertEquals($new_section['weekday'],$this->sectionsFixture->newSectionRecord['weekday']);
         $this->assertEquals($new_section['start_time'],$this->sectionsFixture->newSectionRecord['start_time']);
         $this->assertEquals($new_section['thours'],$this->sectionsFixture->newSectionRecord['thours']);
@@ -131,7 +139,7 @@ class SectionsControllerTest extends DMIntegrationTestCase {
 
     public function testDeletePOST() {
 
-        $this->fakeLogin();
+        $this->fakeLogin(FixtureConstants::userAndyAdminId);
         $section_id = $this->sectionsFixture->section1Record['id'];
         $this->post('/sections/delete/' . $section_id);
         $this->assertResponseSuccess(); // 2xx, 3xx
@@ -145,9 +153,8 @@ class SectionsControllerTest extends DMIntegrationTestCase {
     public function testEditGET() {
 
         // 1. Simulate login, submit request, examine response.
-        $this->fakeLogin();
-        $section_id = $this->sectionsFixture->section1Record['id'];
-        $this->get('/sections/edit/' . $section_id);
+        $this->fakeLogin(FixtureConstants::userAndyAdminId);
+        $this->get('/sections/edit/' . $this->sectionsFixture->section1Record['id']);
         $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();
 
@@ -232,16 +239,15 @@ class SectionsControllerTest extends DMIntegrationTestCase {
         $this->assertEquals(0, $unknownSelectCnt);
 
         // 5. Examine the <A> tags on this page.  There should be zero links.
-        $content = $html->find('div#sectionsEdit',0);
+        $content = $html->find('div#SectionsEdit',0);
         $this->assertNotNull($content);
         $links = $content->find('a');
         $this->assertEquals(0,count($links));
-
     }
 
     public function testEditPOST() {
 
-        $this->fakeLogin();
+        $this->fakeLogin(FixtureConstants::userAndyAdminId);
         $section_id = $this->sectionsFixture->section1Record['id'];
         $this->put('/sections/edit/' . $section_id, $this->sectionsFixture->newSectionRecord);
         $this->assertResponseSuccess(); // 2xx, 3xx
@@ -265,7 +271,7 @@ class SectionsControllerTest extends DMIntegrationTestCase {
     public function testIndexGET() {
 
         // 1. Simulate login, submit request, examine response.
-        $this->fakeLogin();
+        $this->fakeLogin(FixtureConstants::userAndyAdminId);
         $this->get('/sections/index');
         $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();
@@ -274,16 +280,16 @@ class SectionsControllerTest extends DMIntegrationTestCase {
         $html = str_get_html($this->_response->body());
 
         // 3. Get a the count of all <A> tags that are presently unaccounted for.
-        $content = $html->find('div#sectionsIndex',0);
+        $content = $html->find('div#SectionsIndex',0);
         $this->assertNotNull($content);
         $unknownATag = count($content->find('a'));
 
         // 4. Look for the create new section link
-        $this->assertEquals(1, count($html->find('a#sectionAdd')));
+        $this->assertEquals(1, count($html->find('a#SectionAdd')));
         $unknownATag--;
 
         // 5. Ensure that there is a suitably named table to display the results.
-        $sections_table = $html->find('table#sectionsTable',0);
+        $sections_table = $html->find('table#SectionsTable',0);
         $this->assertNotNull($sections_table);
 
         // 6. Ensure that said table's thead element contains the correct
@@ -304,7 +310,7 @@ class SectionsControllerTest extends DMIntegrationTestCase {
         //    quantity of rows as the count of section records in the fixture.
         $tbody = $sections_table->find('tbody',0);
         $tbody_rows = $tbody->find('tr');
-        $this->assertEquals(count($tbody_rows), count($this->sectionsFixture));
+        $this->assertEquals(count($tbody_rows), count($this->sectionsFixture->records));
 
         // 8. Ensure that the values displayed in each row, match the values from
         //    the fixture.  The values should be presented in a particular order
@@ -338,11 +344,11 @@ class SectionsControllerTest extends DMIntegrationTestCase {
 
             // 8.6 Now examine the action links
             $actionLinks = $htmlRow->find('a');
-            $this->assertEquals('sectionView', $actionLinks[0]->name);
+            $this->assertEquals('SectionView', $actionLinks[0]->name);
             $unknownATag--;
-            $this->assertEquals('sectionEdit', $actionLinks[1]->name);
+            $this->assertEquals('SectionEdit', $actionLinks[1]->name);
             $unknownATag--;
-            $this->assertEquals('sectionDelete', $actionLinks[2]->name);
+            $this->assertEquals('SectionDelete', $actionLinks[2]->name);
             $unknownATag--;
         }
 
@@ -352,7 +358,7 @@ class SectionsControllerTest extends DMIntegrationTestCase {
 
     public function testViewGET() {
 
-        $this->fakeLogin();
+        $this->fakeLogin(FixtureConstants::userAndyAdminId);
         $this->get('/sections/view/' . $this->sectionsFixture->section1Record['id']);
         $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();
@@ -412,7 +418,7 @@ class SectionsControllerTest extends DMIntegrationTestCase {
         $this->assertEquals(0, $unknownRowCnt);
 
         // 3. Examine the <A> tags on this page.  There should be zero links.
-        $content = $html->find('div#sectionsView',0);
+        $content = $html->find('div#SectionsView',0);
         $this->assertNotNull($content);
         $links = $content->find('a');
         $this->assertEquals(0,count($links));

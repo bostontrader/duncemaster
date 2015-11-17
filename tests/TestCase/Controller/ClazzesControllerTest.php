@@ -236,7 +236,7 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
         //    quantity of rows as the count of clazz records in the fixture.
         $tbody = $clazzes_table->find('tbody',0);
         $tbody_rows = $tbody->find('tr');
-        $this->assertEquals(count($tbody_rows), count($this->clazzesFixture));
+        $this->assertEquals(count($tbody_rows), count($this->clazzesFixture->records));
 
         // 8. Ensure that the values displayed in each row, match the values from
         //    the fixture.  The values should be presented in a particular order

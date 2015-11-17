@@ -2,7 +2,6 @@
 namespace App\Test\TestCase\Controller;
 
 use App\Test\Fixture\FixtureConstants;
-use App\Test\Fixture\UsersFixture;
 use Cake\Auth\DefaultPasswordHasher;
 use Cake\ORM\TableRegistry;
 
@@ -15,17 +14,22 @@ class UsersControllerTest extends DMIntegrationTestCase {
     ];
 
     private $users;
-    private $usersFixture;
 
     public function setUp() {
+        parent::setUp();
         $this->users = TableRegistry::get('Users');
-        $this->usersFixture = new UsersFixture();
+    }
+
+    // Test that users who do not have correct roles, when submitting a request to
+    // an action, will get redirected to the login url.
+    public function testUnauthorizedActionsAndUsers() {
+        $this->tstUnauthorizedActionsAndUsers('users');
     }
 
     public function testAddGET() {
 
         // 1. Simulate login, submit request, examine response.
-        $this->fakeLogin();
+        $this->fakeLogin(FixtureConstants::userAndyAdminId);
         $this->get('/users/add');
         $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();
@@ -87,7 +91,7 @@ class UsersControllerTest extends DMIntegrationTestCase {
 
     public function testAddPOST() {
 
-        $this->fakeLogin();
+        $this->fakeLogin(FixtureConstants::userAndyAdminId);
         $this->post('/users/add', $this->usersFixture->newUserRecord);
         $this->assertResponseSuccess(); // 2xx, 3xx
         $this->assertRedirect( '/users' );
@@ -108,8 +112,8 @@ class UsersControllerTest extends DMIntegrationTestCase {
 
     public function testDeletePOST() {
 
-        $this->fakeLogin();
-        $user_id = $this->usersFixture->userAndyRecord['id'];
+        $this->fakeLogin(FixtureConstants::userAndyAdminId);
+        $user_id = $this->usersFixture->userSallyStudentRecord['id'];
         $this->post('/users/delete/' . $user_id);
         $this->assertResponseSuccess(); // 2xx, 3xx
         $this->assertRedirect( '/users' );
@@ -122,8 +126,8 @@ class UsersControllerTest extends DMIntegrationTestCase {
     public function testEditGET() {
 
         // 1. Simulate login, submit request, examine response.
-        $this->fakeLogin();
-        $this->get('/users/edit/' . $this->usersFixture->userAndyRecord['id']);
+        $this->fakeLogin(FixtureConstants::userAndyAdminId);
+        $this->get('/users/edit/' . $this->usersFixture->userSallyStudentRecord['id']);
         $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();
 
@@ -152,7 +156,7 @@ class UsersControllerTest extends DMIntegrationTestCase {
         // 4.3 Ensure that there's an input field for username, of type text, and that it is correctly set
         $input = $form->find('input#UserUsername',0);
         $this->assertEquals($input->type, "text");
-        $this->assertEquals($input->value, $this->usersFixture->userAndyRecord['username']);
+        $this->assertEquals($input->value, $this->usersFixture->userSallyStudentRecord['username']);
         $unknownInputCnt--;
 
         // 4.4 Ensure that there's an input field for password, of type text, and that it is correctly
@@ -161,7 +165,7 @@ class UsersControllerTest extends DMIntegrationTestCase {
         // The password is hashed and needs to be checked using the hashed-password checking mechanism.
         $input = $form->find('input#UserPassword',0);
         $this->assertEquals($input->type, "text");
-        $this->assertEquals($input->value, $this->usersFixture->userAndyRecord['password']);
+        $this->assertEquals($input->value, $this->usersFixture->userSallyStudentRecord['password']);
         $unknownInputCnt--;
 
         // 4.6 Becuase UserRoles is a multi-select, there should also be an associated
@@ -172,7 +176,7 @@ class UsersControllerTest extends DMIntegrationTestCase {
         // 4.9 Have all the input and select fields been accounted for?  Are there
         // any extras?
         $this->assertEquals(0, $unknownInputCnt);
-        //$this->assertEquals(0, $unknownSelectCnt);
+        $this->assertEquals(0, $unknownSelectCnt);
 
         // 5. Examine the <A> tags on this page.  There should be zero links.
         $content = $html->find('div#UsersEdit',0);
@@ -183,8 +187,8 @@ class UsersControllerTest extends DMIntegrationTestCase {
 
     public function testEditPOST() {
 
-        $this->fakeLogin();
-        $user_id = $this->usersFixture->userAndyRecord['id'];
+        $this->fakeLogin(FixtureConstants::userAndyAdminId);
+        $user_id = $this->usersFixture->userSallyStudentRecord['id'];
         $this->put('/users/edit/' . $user_id, $this->usersFixture->newUserRecord);
         $this->assertResponseSuccess(); // 2xx, 3xx
         $this->assertRedirect('/users');
@@ -207,7 +211,7 @@ class UsersControllerTest extends DMIntegrationTestCase {
     public function testIndexGET() {
 
         // 1. Simulate login, submit request, examine response.
-        $this->fakeLogin();
+        $this->fakeLogin(FixtureConstants::userAndyAdminId);
         $this->get('/users/index');
         $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();
@@ -280,9 +284,8 @@ class UsersControllerTest extends DMIntegrationTestCase {
 
     public function testViewGET() {
 
-        $this->fakeLogin();
-        $user_id = $this->usersFixture->userAndyRecord['id'];
-        $this->get('/users/view/' . $user_id);
+        $this->fakeLogin(FixtureConstants::userAndyAdminId);
+        $this->get('/users/view/' . $this->usersFixture->userSallyStudentRecord['id']);
         $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();
 
@@ -304,7 +307,7 @@ class UsersControllerTest extends DMIntegrationTestCase {
 
         // 2.1 username
         $field = $html->find('tr#username td',0);
-        $this->assertEquals($this->usersFixture->userAndyRecord['username'], $field->plaintext);
+        $this->assertEquals($this->usersFixture->userSallyStudentRecord['username'], $field->plaintext);
         $unknownRowCnt--;
 
         // We don't need to display a password.  What's the point of displaying a long hashed, password?

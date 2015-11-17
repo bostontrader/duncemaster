@@ -246,7 +246,7 @@ class InteractionsControllerTest extends DMIntegrationTestCase {
         //    quantity of rows as the count of interaction records in the fixture.
         $tbody = $interactions_table->find('tbody',0);
         $tbody_rows = $tbody->find('tr');
-        $this->assertEquals(count($tbody_rows), count($this->interactionsFixture));
+        $this->assertEquals(count($tbody_rows), count($this->interactionsFixture->records));
 
         // 8. Ensure that the values displayed in each row, match the values from
         //    the fixture.  The values should be presented in a particular order
