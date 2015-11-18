@@ -59,10 +59,22 @@ class TeachersControllerTest extends DMIntegrationTestCase {
         // 4.2 Look for the hidden POST input
         if($this->lookForHiddenInput($form)) $unknownInputCnt--;
 
-        // Ensure that there's an input field for giv_name, of type text, and that it is empty
+        // 4.3 Ensure that there's an input field for giv_name, of type text, and that it is empty
         $input = $form->find('input#TeacherGivName',0);
         $this->assertEquals($input->type, "text");
         $this->assertEquals($input->value, false);
+        $unknownInputCnt--;
+
+        // 4.9 Have all the input and select fields been accounted for?  Are there
+        // any extras?
+        $this->assertEquals(0, $unknownInputCnt);
+        $this->assertEquals(0, $unknownSelectCnt);
+
+        // 5. Examine the <A> tags on this page.  There should be zero links.
+        $content = $html->find('div#TeachersAdd',0);
+        $this->assertNotNull($content);
+        $links = $content->find('a');
+        $this->assertEquals(0,count($links));
     }
 
     public function testAddPOST() {
@@ -91,34 +103,56 @@ class TeachersControllerTest extends DMIntegrationTestCase {
         $this->assertRedirect( '/teachers' );
 
         // Now verify that the record no longer exists
-        $teachers = TableRegistry::get('Teachers');
-        $query = $teachers->find()->where(['id' => $teacher_id]);
+        $query = $this->teachers->find()->where(['id' => $teacher_id]);
         $this->assertEquals(0, $query->count());
     }
 
     public function testEditGET() {
 
+        // 1. Simulate login, submit request, examine response.
         $this->fakeLogin(FixtureConstants::userAndyAdminId);
-        $teacher_id = $this->teachersFixture->teacher1Record['id'];
-        $this->get('/teachers/edit/' . $teacher_id);
+        $this->get('/teachers/edit/' . $this->teachersFixture->teacher1Record['id']);
         $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();
 
-        // Make sure this view var is set, to keep the FormHelper happy
-        $this->assertNotNull($this->viewVariable('teacher'));
-
-        // Parse the html from the response
+        // 2. Parse the html from the response
         $html = str_get_html($this->_response->body());
 
-        // Ensure that the correct form exists
+        // 3. Ensure that the correct form exists
         $form = $html->find('form#TeacherEditForm',0);
         $this->assertNotNull($form);
 
-        // Omit the id field
+        // 4. Now inspect the fields on the form.  We want to know that:
+        // A. The correct fields are there and no other fields.
+        // B. The fields have correct values. This includes verifying that select
+        //    lists contain options.
+        //
+        //  The actual order that the fields are listed on the form is hereby deemed unimportant.
 
-        // Ensure that there's an input field for giv_name, of type text, and that it is correctly set
+        // 4.1 These are counts of the select and input fields on the form.  They
+        // are presently unaccounted for.
+        $unknownSelectCnt = count($form->find('select'));
+        $unknownInputCnt = count($form->find('input'));
+
+        // 4.2 Look for the hidden POST input
+        if($this->lookForHiddenInput($form,'_method','PUT')) $unknownInputCnt--;
+
+        // 4.3 Ensure that there's an input field for giv_name, of type text, and that it is correctly set
         $input = $form->find('input#TeacherGivName',0);
+        $this->assertEquals($input->type, "text");
         $this->assertEquals($input->value, $this->teachersFixture->teacher1Record['giv_name']);
+        $unknownInputCnt--;
+
+        // 4.9 Have all the input and select fields been accounted for?  Are there
+        // any extras?
+        $this->assertEquals(0, $unknownInputCnt);
+        $this->assertEquals(0, $unknownSelectCnt);
+
+        // 5. Examine the <A> tags on this page.  There should be zero links.
+        $content = $html->find('div#TeachersEdit',0);
+        $this->assertNotNull($content);
+        $links = $content->find('a');
+        $this->assertEquals(0,count($links));
     }
 
     public function testEditPOST() {
@@ -130,56 +164,58 @@ class TeachersControllerTest extends DMIntegrationTestCase {
         $this->assertRedirect('/teachers');
 
         // Now verify what we think just got written
-        $teachers = TableRegistry::get('Teachers');
-        $query = $teachers->find()->where(['id' => $this->teachersFixture->teacher1Record['id']]);
+        $query = $this->teachers->find()->where(['id' => $this->teachersFixture->teacher1Record['id']]);
         $this->assertEquals(1, $query->count());
 
         // Now retrieve that 1 record and compare to what we expect
-        $teacher = $teachers->get($this->teachersFixture->teacher1Record['id']);
+        $teacher = $this->teachers->get($this->teachersFixture->teacher1Record['id']);
         $this->assertEquals($teacher['giv_name'],$this->teachersFixture->newTeacherRecord['giv_name']);
 
     }
 
     public function testIndexGET() {
 
+        // 1. Simulate login, submit request, examine response.
         $this->fakeLogin(FixtureConstants::userAndyAdminId);
         $this->get('/teachers/index');
         $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();
 
-        // Make sure this view var is set
-        $this->assertNotNull($this->viewVariable('teachers'));
-
-        // Parse the html from the response
+        // 2. Parse the html from the response
         $html = str_get_html($this->_response->body());
 
-        // How shall we test the index?
+        // 3. Get a the count of all <A> tags that are presently unaccounted for.
+        $content = $html->find('div#TeachersIndex',0);
+        $this->assertNotNull($content);
+        $unknownATag = count($content->find('a'));
 
-        // 1. Ensure that there is a suitably named table to display the results.
-        $teachers_table = $html->find('table#teachers',0);
+        // 4. Look for the create new subject link
+        $this->assertEquals(1, count($html->find('a#TeacherAdd')));
+        $unknownATag--;
+
+        // 5. Ensure that there is a suitably named table to display the results.
+        $teachers_table = $html->find('table#TeachersTable',0);
         $this->assertNotNull($teachers_table);
 
-        // 2. Ensure that said table's thead element contains the correct
+        // 6. Ensure that said table's thead element contains the correct
         //    headings, in the correct order, and nothing else.
         $thead = $teachers_table->find('thead',0);
         $thead_ths = $thead->find('tr th');
 
-        $this->assertEquals($thead_ths[0]->id, 'id');
-        $this->assertEquals($thead_ths[1]->id, 'giv_name');
-        $this->assertEquals($thead_ths[2]->id, 'actions');
-        $this->assertEquals(count($thead_ths),3); // no other columns
+        $this->assertEquals($thead_ths[0]->id, 'giv_name');
+        $this->assertEquals($thead_ths[1]->id, 'actions');
+        $column_count = count($thead_ths);
+        $this->assertEquals($column_count,2); // no other columns
 
-        // 3. Ensure that the tbody section has the same
-        //    quantity of rows as the count of teacher records in the fixture.
+        // 7. Ensure that the tbody section has the same
+        //    quantity of rows as the count of subject records in the fixture.
         $tbody = $teachers_table->find('tbody',0);
         $tbody_rows = $tbody->find('tr');
-        $this->assertEquals(count($tbody_rows), count($this->teachersFixture));
-
-        // 4. Ensure that the values displayed in each row, match the values from
+        $this->assertEquals(count($tbody_rows), count($this->teachersFixture->records));
+        
+        // 8. Ensure that the values displayed in each row, match the values from
         //    the fixture.  The values should be presented in a particular order
-        //    with nothing else thereafter.  In order to do this we'll also need
-        //    to read from the Teachers table.
-        $teachers = TableRegistry::get('Teachers');
+        //    with nothing else thereafter.
         $iterator = new \MultipleIterator();
         $iterator->attachIterator(new \ArrayIterator($this->teachersFixture->records));
         $iterator->attachIterator(new \ArrayIterator($tbody_rows));
@@ -188,11 +224,25 @@ class TeachersControllerTest extends DMIntegrationTestCase {
             $fixtureRecord = $values[0];
             $htmlRow = $values[1];
             $htmlColumns = $htmlRow->find('td');
-            $this->assertEquals($fixtureRecord['id'], $htmlColumns[0]->plaintext);
-            $this->assertEquals($fixtureRecord['giv_name'],  $htmlColumns[1]->plaintext);
 
-            // Ignore the action links
+            // 8.0 giv_name
+            $this->assertEquals($fixtureRecord['giv_name'],  $htmlColumns[0]->plaintext);
+
+            // 8.1 Now examine the action links
+            $actionLinks = $htmlColumns[1]->find('a');
+            $this->assertEquals('TeacherView', $actionLinks[0]->name);
+            $unknownATag--;
+            $this->assertEquals('TeacherEdit', $actionLinks[1]->name);
+            $unknownATag--;
+            $this->assertEquals('TeacherDelete', $actionLinks[2]->name);
+            $unknownATag--;
+
+            // 8.9 No other columns
+            $this->assertEquals(count($htmlColumns),$column_count);
         }
+
+        // 9. Ensure that all the <A> tags have been accounted for
+        $this->assertEquals(0, $unknownATag);
     }
 
     public function testViewGET() {
@@ -202,19 +252,35 @@ class TeachersControllerTest extends DMIntegrationTestCase {
         $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();
 
-        // Make sure this view var is set
-        $this->assertNotNull($this->viewVariable('teacher'));
-
         // Parse the html from the response
         $html = str_get_html($this->_response->body());
 
-        // How shall we test the view?  It doesn't have any enclosing table or structure so just
-        // ignore that part.  Instead, look for individual display fields.
-        $field = $html->find('tr#id td',0);
-        $this->assertEquals($this->teachersFixture->teacher1Record['id'], $field->plaintext);
+        // 1.  Look for the table that contains the view fields.
+        $table = $html->find('table#TeacherViewTable',0);
+        $this->assertNotNull($table);
 
-        $field = $html->find('tr#giv_name td',0);
+        // 2. Now inspect the fields on the form.  We want to know that:
+        // A. The correct fields are there and no other fields.
+        // B. The fields have correct values.
+        //
+        //  The actual order that the fields are listed is hereby deemed unimportant.
+
+        // This is the count of the table rows that are presently unaccounted for.
+        $unknownRowCnt = count($table->find('tr'));
+
+        // 2.1 giv_name
+        $field = $table->find('tr#giv_name td',0);
         $this->assertEquals($this->teachersFixture->teacher1Record['giv_name'], $field->plaintext);
+        $unknownRowCnt--;
+
+        // 2.9 Have all the rows been accounted for?  Are there any extras?
+        $this->assertEquals(0, $unknownRowCnt);
+
+        // 3. Examine the <A> tags on this page.  There should be zero links.
+        $content = $html->find('div#TeachersView',0);
+        $this->assertNotNull($content);
+        $links = $content->find('a');
+        $this->assertEquals(0,count($links));
     }
 
 }
