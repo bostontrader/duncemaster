@@ -8,18 +8,31 @@ use Cake\ORM\TableRegistry;
 class SemestersControllerTest extends DMIntegrationTestCase {
 
     public $fixtures = [
-        'app.semesters'
+        'app.roles',
+        'app.roles_users',
+        'app.semesters',
+        'app.users'
     ];
 
+    private $semesters;
+    private $semestersFixture;
+
     public function setUp() {
+        parent::setUp();
         $this->semesters = TableRegistry::get('Semesters');
         $this->semestersFixture = new SemestersFixture();
+    }
+
+    // Test that users who do not have correct roles, when submitting a request to
+    // an action, will get redirected to the login url.
+    public function testUnauthorizedActionsAndUsers() {
+        $this->tstUnauthorizedActionsAndUsers('semesters');
     }
 
     public function testAddGET() {
 
         // 1. Simulate login, submit request, examine response.
-        $this->fakeLogin();
+        $this->fakeLogin(FixtureConstants::userAndyAdminId);
         $this->get('/semesters/add');
         $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();
@@ -78,13 +91,13 @@ class SemestersControllerTest extends DMIntegrationTestCase {
 
     public function testAddPOST() {
 
-        $this->fakeLogin();
+        $this->fakeLogin(FixtureConstants::userAndyAdminId);
         $this->post('/semesters/add', $this->semestersFixture->newSemesterRecord);
         $this->assertResponseSuccess(); // 2xx, 3xx
         $this->assertRedirect( '/semesters' );
 
         // Now verify what we think just got written
-        $new_id = FixtureConstants::semester1_id + 1;
+        $new_id = count($this->semestersFixture->records) + 1;
         $query = $this->semesters->find()->where(['id' => $new_id]);
         $this->assertEquals(1, $query->count());
 
@@ -97,7 +110,7 @@ class SemestersControllerTest extends DMIntegrationTestCase {
 
     public function testDeletePOST() {
 
-        $this->fakeLogin();
+        $this->fakeLogin(FixtureConstants::userAndyAdminId);
         $semester_id = $this->semestersFixture->semester1Record['id'];
         $this->post('/semesters/delete/' . $semester_id);
         $this->assertResponseSuccess(); // 2xx, 3xx
@@ -111,7 +124,7 @@ class SemestersControllerTest extends DMIntegrationTestCase {
     public function testEditGET() {
 
         // 1. Simulate login, submit request, examine response.
-        $this->fakeLogin();
+        $this->fakeLogin(FixtureConstants::userAndyAdminId);
         $this->get('/semesters/edit/' . $this->semestersFixture->semester1Record['id']);
         $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();
@@ -170,7 +183,7 @@ class SemestersControllerTest extends DMIntegrationTestCase {
 
     public function testEditPOST() {
 
-        $this->fakeLogin();
+        $this->fakeLogin(FixtureConstants::userAndyAdminId);
         $semester_id = $this->semestersFixture->semester1Record['id'];
         $this->put('/semesters/edit/' . $semester_id, $this->semestersFixture->newSemesterRecord);
         $this->assertResponseSuccess(); // 2xx, 3xx
@@ -190,7 +203,7 @@ class SemestersControllerTest extends DMIntegrationTestCase {
     public function testIndexGET() {
 
         // 1. Simulate login, submit request, examine response.
-        $this->fakeLogin();
+        $this->fakeLogin(FixtureConstants::userAndyAdminId);
         $this->get('/semesters/index');
         $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();
@@ -220,13 +233,14 @@ class SemestersControllerTest extends DMIntegrationTestCase {
         $this->assertEquals($thead_ths[1]->id, 'seq');
         $this->assertEquals($thead_ths[2]->id, 'firstday');
         $this->assertEquals($thead_ths[3]->id, 'actions');
-        $this->assertEquals(count($thead_ths),4); // no other columns
+        $column_count = count($thead_ths);
+        $this->assertEquals($column_count,4); // no other columns
 
         // 7. Ensure that the tbody section has the same
         //    quantity of rows as the count of semester records in the fixture.
         $tbody = $semesters_table->find('tbody',0);
         $tbody_rows = $tbody->find('tr');
-        $this->assertEquals(count($tbody_rows), count($this->semestersFixture));
+        $this->assertEquals(count($tbody_rows), count($this->semestersFixture->records));
 
         // 8. Ensure that the values displayed in each row, match the values from
         //    the fixture.  The values should be presented in a particular order
@@ -251,14 +265,18 @@ class SemestersControllerTest extends DMIntegrationTestCase {
             $unknownATag--;
             $this->assertEquals('SemesterDelete', $actionLinks[2]->name);
             $unknownATag--;
+
+            // 8.9 No other columns
+            $this->assertEquals(count($htmlColumns),$column_count);
         }
+
         // 9. Ensure that all the <A> tags have been accounted for
         $this->assertEquals(0, $unknownATag);
     }
 
     public function testViewGET() {
 
-        $this->fakeLogin();
+        $this->fakeLogin(FixtureConstants::userAndyAdminId);
         $this->get('/semesters/view/' . $this->semestersFixture->semester1Record['id']);
         $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();
