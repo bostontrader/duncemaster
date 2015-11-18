@@ -312,7 +312,7 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
         $this->assertEquals($this->clazzesFixture->clazz1Record['event_datetime'], $field->plaintext);
         $unknownRowCnt--;
 
-        // Have all the rows been accounted for?  Are there any extras?
+        // 2.9 Have all the rows been accounted for?  Are there any extras?
         $this->assertEquals(0, $unknownRowCnt);
 
         // 3. Examine the <A> tags on this page.  There should be zero links.

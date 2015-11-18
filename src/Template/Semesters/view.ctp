@@ -6,7 +6,7 @@
     <div class="semesters view large-9 medium-8 columns content">
         <h3><?= h($semester->id) ?></h3>
         <table id="SemesterViewTable" class="vertical-table">
-            <tr  id="year">
+            <tr id="year">
                 <th><?= __('Year') ?></th>
                 <td><?= $semester->year ?></td>
             </tr>
