@@ -21,7 +21,7 @@ class AppController extends Controller {
                     'home'
                 ],
                 'authorize' => 'Controller',
-                'unauthorizedRedirect' => '/users/login'
+                'unauthorizedRedirect' => '/'  // authenticated, but unauthorized
             ]
         );
 

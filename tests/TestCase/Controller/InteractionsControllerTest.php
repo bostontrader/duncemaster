@@ -35,8 +35,14 @@ class InteractionsControllerTest extends DMIntegrationTestCase {
         $this->studentsFixture = new StudentsFixture();
     }
 
-    // Test that users who do not have correct roles, when submitting a request to
+    // Test that unauthenticated users, when submitting a request to
     // an action, will get redirected to the login url.
+    public function testUnauthenticatedActionsAndUsers() {
+        $this->tstUnauthenticatedActionsAndUsers('interactions');
+    }
+
+    // Test that users who do not have correct roles, when submitting a request to
+    // an action, will get redirected to the home page.
     public function testUnauthorizedActionsAndUsers() {
         $this->tstUnauthorizedActionsAndUsers('interactions');
     }

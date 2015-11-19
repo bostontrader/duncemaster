@@ -101,39 +101,49 @@ class DMIntegrationTestCase extends IntegrationTestCase {
         $this->usersFixture = new UsersFixture();
     }
 
-    // Test that users who do not have correct roles, when submitting a request to
+    private $requests2Try=[
+        ['method'=>'add','verb'=>'get'],
+        ['method'=>'add','verb'=>'post'],
+        ['method'=>'delete','verb'=>'post'],
+        ['method'=>'edit','verb'=>'get'],
+        ['method'=>'edit','verb'=>'put'],
+        ['method'=>'index','verb'=>'get'],
+        ['method'=>'view','verb'=>'get']
+    ];
+
+    private $userIds = [
+        FixtureConstants::userArnoldAdvisorId,
+        FixtureConstants::userSallyStudentId,
+        FixtureConstants::userTommyTeacherId,
+    ];
+
+    // Test that unauthenticated users, when submitting a request to
     // an action, will get redirected to the login url.
+    protected function tstUnauthenticatedActionsAndUsers($controller) {
+        foreach($this->requests2Try as $request2Try) {
+            foreach($this->userIds as $userId) {
+                //$this->fakeLogin($userId); don't login
+                $this->tstNotAllowedRequest($request2Try['verb'], '/'.$controller.'/'.$request2Try['method'], '/users/login');
+            }
+        }
+    }
+
+    // Test that users who do not have correct roles, when submitting a request to
+    // an action, will get redirected to the home page.
     protected function tstUnauthorizedActionsAndUsers($controller) {
-
-        $requests2Try=[
-            ['method'=>'add','verb'=>'get'],
-            ['method'=>'add','verb'=>'post'],
-            ['method'=>'delete','verb'=>'post'],
-            ['method'=>'edit','verb'=>'get'],
-            ['method'=>'edit','verb'=>'put'],
-            ['method'=>'index','verb'=>'get'],
-            ['method'=>'view','verb'=>'get']
-        ];
-
-        $unauthorizedUserIds = [
-            null, // no user, not logged in
-            FixtureConstants::userArnoldAdvisorId,
-            FixtureConstants::userSallyStudentId,
-            FixtureConstants::userTommyTeacherId,
-        ];
-
-        foreach($requests2Try as $request2Try) {
-            foreach($unauthorizedUserIds as $userId) {
+        foreach($this->requests2Try as $request2Try) {
+            foreach($this->userIds as $userId) {
                 $this->fakeLogin($userId);
-                $this->tstUnauthorizedRequest($request2Try['verb'], '/'.$controller.'/'.$request2Try['method']);
+                $this->tstNotAllowedRequest($request2Try['verb'], '/'.$controller.'/'.$request2Try['method'], '/');
             }
         }
     }
 
     // There are many tests that try to submit an html request to a controller method,
-    // where the user is not authorized to access said page. This method will submit the
+    // where the user is not allowed to access said page. Either because he's unauthenticated
+    // or not authorized. This method will submit the
     // request and assert redirection to the login page.
-    protected function tstUnauthorizedRequest($verb, $url) {
+    protected function tstNotAllowedRequest($verb, $url, $redirection_target) {
 
         if($verb=='get')
             $this->get($url);
@@ -143,7 +153,7 @@ class DMIntegrationTestCase extends IntegrationTestCase {
             $this->put($url);
 
         $this->assertResponseSuccess(); // 2xx, 3xx
-        $this->assertRedirect( '/users/login' );
+        $this->assertRedirect( $redirection_target );
     }
 
 }

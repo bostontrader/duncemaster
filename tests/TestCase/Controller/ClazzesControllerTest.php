@@ -29,8 +29,14 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
         $this->sectionsFixture = new SectionsFixture();
     }
 
-    // Test that users who do not have correct roles, when submitting a request to
+    // Test that unauthenticated users, when submitting a request to
     // an action, will get redirected to the login url.
+    public function testUnauthenticatedActionsAndUsers() {
+        $this->tstUnauthenticatedActionsAndUsers('clazzes');
+    }
+
+    // Test that users who do not have correct roles, when submitting a request to
+    // an action, will get redirected to the home page.
     public function testUnauthorizedActionsAndUsers() {
         $this->tstUnauthorizedActionsAndUsers('clazzes');
     }

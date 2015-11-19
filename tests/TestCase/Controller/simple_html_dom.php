@@ -498,7 +498,7 @@ class simple_html_dom_node
     protected function seek($selector, &$ret, $lowercase=false)
     {
         global $debug_object;
-        if (is_object($debug_object)) { $debug_object->debug_log_entry(1); }
+        //if (is_object($debug_object)) { $debug_object->debug_log_entry(1); }
         list($tag, $key, $val, $exp, $no_key) = $selector;
         // xpath index
         if ($tag && $key && is_numeric($key))

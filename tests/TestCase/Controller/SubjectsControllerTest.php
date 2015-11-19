@@ -23,8 +23,14 @@ class SubjectsControllerTest extends DMIntegrationTestCase {
         $this->subjectsFixture = new SubjectsFixture();
     }
 
-    // Test that users who do not have correct roles, when submitting a request to
+    // Test that unauthenticated users, when submitting a request to
     // an action, will get redirected to the login url.
+    public function testUnauthenticatedActionsAndUsers() {
+        $this->tstUnauthenticatedActionsAndUsers('subjects');
+    }
+
+    // Test that users who do not have correct roles, when submitting a request to
+    // an action, will get redirected to the home page.
     public function testUnauthorizedActionsAndUsers() {
         $this->tstUnauthorizedActionsAndUsers('subjects');
     }
