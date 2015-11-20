@@ -25,7 +25,7 @@ class UsersTable extends Table {
                 'targetForeignKey' => 'role_id'
             ]);
         //$this->table('users');
-        //$this->displayField('id');
+        $this->displayField('username');
         //$this->primaryKey('id');
 
         //$this->addBehavior('Timestamp');

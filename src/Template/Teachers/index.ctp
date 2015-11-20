@@ -10,14 +10,18 @@
     <table id="TeachersTable" cellpadding="0" cellspacing="0">
         <thead>
             <tr>
+                <th id="fam_name"><?= __('family name') ?></th>
                 <th id="giv_name"><?= __('given name') ?></th>
+                <th id="username"><?= __('username') ?></th>
                 <th id="actions" class="actions"><?= __('Actions') ?></th>
             </tr>
         </thead>
         <tbody>
             <?php foreach ($teachers as $teacher): ?>
             <tr>
+                <td><?= $teacher->fam_name ?></td>
                 <td><?= $teacher->giv_name ?></td>
+                <td><?= is_null($teacher->user)?'':$teacher->user->username ?></td>
                 <td class="actions">
                     <?= $this->Html->link(__('View'), ['action' => 'view', $teacher->id],['name'=>'TeacherView']) ?>
                     <?= $this->Html->link(__('Edit'), ['action' => 'edit', $teacher->id],['name'=>'TeacherEdit']) ?>

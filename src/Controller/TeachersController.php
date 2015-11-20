@@ -15,7 +15,8 @@ class TeachersController extends AppController {
                 //$this->Flash->error(__('The teacher could not be saved. Please, try again.'));
             }
         }
-        $this->set(compact('teacher'));
+        $users = $this->Teachers->Users->find('list');
+        $this->set(compact('teacher','users'));
     }
 
     public function delete($id = null) {
@@ -41,17 +42,18 @@ class TeachersController extends AppController {
                 //$this->Flash->error(__('The teacher could not be saved. Please, try again.'));
             }
         }
-        $this->set(compact('teacher'));
+        $users = $this->Teachers->Users->find('list');
+        $this->set(compact('teacher','users'));
     }
 
     public function index() {
         $this->request->allowMethod(['get']);
-        $this->set('teachers', $this->paginate($this->Teachers));
+        $this->set('teachers', $this->Teachers->find()->contain(['Users']));
     }
 
     public function view($id = null) {
         $this->request->allowMethod(['get']);
-        $teacher = $this->Teachers->get($id);
+        $teacher = $this->Teachers->get($id, ['contain' => ['Users']]);
         $this->set('teacher', $teacher);
     }
 }

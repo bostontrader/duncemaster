@@ -875,6 +875,7 @@ class simple_html_dom_node
  * Paperg - added ForceTagsClosed in the constructor which tells us whether we trust the html or not.  Default is to NOT trust it.
  *
  * @package PlaceLocalInclude
+ *
  */
 class simple_html_dom
 {

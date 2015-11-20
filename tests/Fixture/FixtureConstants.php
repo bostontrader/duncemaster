@@ -21,13 +21,18 @@ class FixtureConstants {
 
     const section1_id = 1;
     const section2_id = 2;
+
     const semester1_id = 1;
     const semester2_id = 2;
+
     const student1_id = 1;
     const student2_id = 2;
+
     const subject1_id = 1;
     const subject2_id = 2;
+
     const teacher1_id = 1;
+    const teacher2_id = 2;
 
     const userAndyAdminId = 1;
     const userArnoldAdvisorId = 2;

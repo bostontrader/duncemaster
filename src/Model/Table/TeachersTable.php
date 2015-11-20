@@ -27,7 +27,12 @@ class TeachersTable extends Table {
         //$this->primaryKey('id');
 
         $this->hasMany('Sections', [
-            'foreignKey' => 'section_id'
+            //'foreignKey' => 'section_id'
+        ]);
+
+        $this->hasOne('Users', [
+            'foreignKey' => 'id',
+            'bindingKey' => 'user_id'
         ]);
     }
 

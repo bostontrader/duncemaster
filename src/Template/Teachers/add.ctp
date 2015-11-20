@@ -8,7 +8,9 @@
         <fieldset>
             <legend><?= __('Add Teacher') ?></legend>
             <?php
+                echo $this->Form->input('fam_name',['id'=>'TeacherFamName']);
                 echo $this->Form->input('giv_name',['id'=>'TeacherGivName']);
+                echo $this->Form->input('user_id', ['id'=>'TeacherUserId', 'options' => $users, 'empty' => '(none selected)']);
             ?>
         </fieldset>
         <?= $this->Form->button(__('Submit')) ?>

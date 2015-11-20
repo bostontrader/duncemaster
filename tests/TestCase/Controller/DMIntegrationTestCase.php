@@ -44,6 +44,7 @@ require_once 'simple_html_dom.php';
 
 class DMIntegrationTestCase extends IntegrationTestCase {
 
+    /* @var \App\Test\Fixture\UsersFixture */
     protected $usersFixture;
 
     // Hack the session to make it look as if we're properly logged in.
@@ -65,28 +66,33 @@ class DMIntegrationTestCase extends IntegrationTestCase {
         );
     }
 
-    // Many forms have a hidden input for various reasons, such as for tunneling various http verbs using POST,
-    // or for implementing multi-select lists.
-    // Look for the first one of these present.  If found, return true, else fail.
-    // simple_html_dom $form - the form that contains the select
-    // String $name - the name attribute of the input
-    // String $value - the value of the input
+    /**
+     * Many forms have a hidden input for various reasons, such as for tunneling various http verbs using POST,
+     * or for implementing multi-select lists.
+     * Look for the first one of these present.  If found, return true, return false.
+     * @param \simple_html_dom_node $form the form that contains the select
+     * @param String $name the name attribute of the input
+     * @param String $value the value of the input
+     * @return boolean
+     */
     protected function lookForHiddenInput($form, $name='_method', $value='POST') {
         foreach($form->find('input[type=hidden]') as $input) {
             if($input->value == $value && $input->name == $name)
                 return true;
         }
-        $this->fail();
+        return false;
     }
 
-    // Look for a particular select input and ensure that:
-    // The selection is what is expected and that the selection control
-    // has the correct quantity of choices.  If the control passes, return true, else fail.
-    //
-    // In order to do this, we'll need:
-    // simple_html_dom $form - the form that contains the select
-    // string $selectID - the html id of the select of interest
-    // string $vvName - the name of the view var that contains the into to populate the select
+    /**
+     * Look for a particular select input and ensure that:
+     * The selection is what is expected and that the selection control
+     * has the correct quantity of choices.  If the control passes, return true, else fail.
+     *
+     * @param \simple_html_dom_node $form the form that contains the select
+     * @param string $selectID the html id of the select of interest
+     * @param string $vvName the name of the view var that contains the into to populate the select
+     * @return boolean
+     */
     protected function lookForSelect($form, $selectID, $vvName) {
         $option = $form->find('select#'.$selectID.' option[selected]', 0);
         $this->assertNull($option);
@@ -111,28 +117,26 @@ class DMIntegrationTestCase extends IntegrationTestCase {
         ['method'=>'view','verb'=>'get']
     ];
 
-    private $userIds = [
-        FixtureConstants::userArnoldAdvisorId,
-        FixtureConstants::userSallyStudentId,
-        FixtureConstants::userTommyTeacherId,
-    ];
-
     // Test that unauthenticated users, when submitting a request to
     // an action, will get redirected to the login url.
     protected function tstUnauthenticatedActionsAndUsers($controller) {
         foreach($this->requests2Try as $request2Try) {
-            foreach($this->userIds as $userId) {
-                //$this->fakeLogin($userId); don't login
-                $this->tstNotAllowedRequest($request2Try['verb'], '/'.$controller.'/'.$request2Try['method'], '/users/login');
-            }
+            $this->tstNotAllowedRequest($request2Try['verb'], '/'.$controller.'/'.$request2Try['method'], '/users/login');
         }
     }
 
     // Test that users who do not have correct roles, when submitting a request to
     // an action, will get redirected to the home page.
     protected function tstUnauthorizedActionsAndUsers($controller) {
+
+        $userIds = [
+            FixtureConstants::userArnoldAdvisorId,
+            FixtureConstants::userSallyStudentId,
+            FixtureConstants::userTommyTeacherId,
+        ];
+
         foreach($this->requests2Try as $request2Try) {
-            foreach($this->userIds as $userId) {
+            foreach($userIds as $userId) {
                 $this->fakeLogin($userId);
                 $this->tstNotAllowedRequest($request2Try['verb'], '/'.$controller.'/'.$request2Try['method'], '/');
             }
