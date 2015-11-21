@@ -17,7 +17,8 @@ class StudentsController extends AppController {
             }
         }
         $cohorts = $this->Students->Cohorts->find('list',['contain' => ['Majors']]);
-        $this->set(compact('student','cohorts'));
+        $users = $this->Students->Users->find('list');
+        $this->set(compact('cohorts','student','users'));
     }
 
     public function delete($id = null) {
@@ -44,19 +45,20 @@ class StudentsController extends AppController {
             }
         }
         $cohorts = $this->Students->Cohorts->find('list',['contain' => ['Majors']]);
-        $this->set(compact('cohorts','student'));
+        $users = $this->Students->Users->find('list');
+        $this->set(compact('cohorts','student','users'));
     }
 
     public function index() {
         $this->request->allowMethod(['get']);
-        $this->set('students', $this->Students->find('all', ['contain' => ['Cohorts.Majors']]));
+        $this->set('students', $this->Students->find('all', ['contain' => ['Cohorts.Majors','Users']]));
     }
 
     public function view($id = null) {
 
         $this->request->allowMethod(['get']);
 
-        $student = $this->Students->get($id,['contain' => ['Cohorts.Majors']]);
+        $student = $this->Students->get($id,['contain' => ['Cohorts.Majors','Users']]);
 
         $Sections = TableRegistry::get('Sections');
         $sections_list = $Sections->find('list');

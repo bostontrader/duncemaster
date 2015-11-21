@@ -12,19 +12,30 @@ class StudentsFixture extends TestFixture {
         'id'=>FixtureConstants::student1_id,
         'cohort_id'=>FixtureConstants::cohort1_id,
         'sid'=>'2014010101',
-        'fam_name' => 'Smith', 'giv_name' => 'John'
+        'fam_name' => 'Smith', 'giv_name' => 'John',
+        'user_id'=>FixtureConstants::userSallyStudentId
+    ];
+
+    public $student2Record = [
+        'id'=>FixtureConstants::student2_id,
+        'cohort_id'=>FixtureConstants::cohort1_id,
+        'sid'=>'2015010101',
+        'fam_name' => 'Jones', 'giv_name' => 'Billy',
+        'user_id'=>FixtureConstants::userTommyTeacherId
     ];
 
     // This record will be added during a test.  We don't need or want to control the id here, so omit it.
     public $newStudentRecord = [
         'cohort_id'=>FixtureConstants::cohort2_id,
         'sid'=>'2014010202',
-        'fam_name' => 'Jones', 'giv_name' => 'Billy'
+        'fam_name' => 'Heinlein', 'giv_name' => 'Robert',
+        'user_id'=>FixtureConstants::userSallyStudentId
     ];
 
     public function init() {
         $this->records = [
-            $this->student1Record
+            $this->student1Record,
+            $this->student2Record
         ];
         parent::init();
     }

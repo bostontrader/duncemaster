@@ -34,6 +34,12 @@ class StudentsTable extends Table {
         $this->hasMany('Interactions', [
             //'foreignKey' => 'interaction_id'
         ]);
+
+        $this->hasOne('Users', [
+            'foreignKey' => 'id',
+            'bindingKey' => 'user_id'
+        ]);
+
     }
 
     /**

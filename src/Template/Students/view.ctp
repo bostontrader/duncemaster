@@ -22,6 +22,10 @@
                 <th><?= __('Cohort') ?></th>
                 <td><?= $student->cohort->nickname ?></td>
             </tr>
+            <tr id="username">
+                <th><?= __('User') ?></th>
+                <td><?= is_null($student->user)?'':$student->user->username ?></td>
+            </tr>
         </table>
 
         <?= $this->Form->create(null, ['id'=>'StudentViewGradeForm','type'=>'get']) ?>
