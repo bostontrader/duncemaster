@@ -17,6 +17,7 @@ class StudentsControllerTest extends DMIntegrationTestCase {
         'app.users'
     ];
 
+    /* @var \App\Model\Table\CohortsTable */
     private $cohorts;
 
     /* @var \App\Model\Table\TeachersTable */
@@ -331,7 +332,8 @@ class StudentsControllerTest extends DMIntegrationTestCase {
             $this->assertEquals($expectedValue, $htmlColumns[3]->plaintext);
 
             // 8.4 Now examine the action links
-            $actionLinks = $htmlColumns[4]->find('a');
+            $this->td = $htmlColumns[4];
+            $actionLinks = $this->td->find('a');
             $this->assertEquals('StudentView', $actionLinks[0]->name);
             $unknownATag--;
             $this->assertEquals('StudentEdit', $actionLinks[1]->name);
@@ -354,17 +356,24 @@ class StudentsControllerTest extends DMIntegrationTestCase {
     // In order to determine which section, we use a select input. The information from the select input
     // is submitted to the view method via GET (because this is idempotent, nothing changes.)
     //
+    // In addition, a student may optionally have an associated User. This should also be
+    // tested.
+    //
     // We therefore have the following testing scenarios.
     //
-    // 1. A view with no request parameters: The section select is set to "nothing selected" and no grade
-    // information is displayed.  We default to "nothing selected" because we cannot think
-    // of a better default choice.
+    // 1. The view request references a Student that has a User, but has no request parameters.
+    // Validate the body of the Student info and that the Section select is "nothing selected".
+    // Hence no other grading info.
     //
-    // 2. A view with request parameters: The grades are displayed for that particular section.
+    // 2. The view request references a Student that does not have a User, and has no request parameters.
+    // Validate the body of the Student info and that the Section select is "nothing selected".
+    // Hence no other grading info.
+    //
+    // 3. The view request has request parameters. Whether the Student has a User is unimportant.
+    // Only validate the grading info.
+    //
 
-    // We need two tests for View:
-    // View a student with an associated user
-    // View a student without an associated user
+    // Scenario 1.
     public function testViewGETWithUser() {
         $this->fakeLogin(FixtureConstants::userAndyAdminId);
         $fixtureRecord=$this->studentsFixture->student1Record;
@@ -372,13 +381,72 @@ class StudentsControllerTest extends DMIntegrationTestCase {
         $this->tstViewGet($fixtureRecord);
     }
 
+    // Scenario 2.
     public function testViewGETWithOutUser() {
         $this->fakeLogin(FixtureConstants::userAndyAdminId);
         $fixtureRecord=$this->studentsFixture->student2Record;
         $this->get('/students/view/' . $fixtureRecord['id']);
         $this->tstViewGet($fixtureRecord);
     }
-    
+
+    // Scenario 3. Don't care which student. Send a section_id as a request
+    // param. Examine grading info.
+    public function testViewGETWithRequestParameters() {
+        $this->fakeLogin(FixtureConstants::userAndyAdminId);
+        $fixtureRecord=$this->studentsFixture->student1Record;
+        $this->get('/students/view/' . $fixtureRecord['id'],['section_id'=>2]);
+        $this->assertResponseOk(); // 2xx
+        $this->assertNoRedirect();
+
+        // Parse the html from the response
+        $html = str_get_html($this->_response->body());
+
+        // 1.  Look for the form that contains the Section selector.
+        $this->form = $html->find('form#StudentViewGradeForm',0);
+        $this->assertNotNull($this->form);
+
+        // 2. Now inspect the fields on the form.  We want to know that:
+        // A. The correct fields are there and no other fields.
+        // B. The fields have correct values. This includes verifying that select
+        //    lists contain options.
+        //
+        //  The actual order that the fields are listed on the form is hereby deemed unimportant.
+
+        // 2.1 These are counts of the select and input fields on the form.  They
+        // are presently unaccounted for.
+        $unknownSelectCnt = count($this->form->find('select'));
+        $unknownInputCnt = count($this->form->find('input'));
+
+        // 2.2 Look for the hidden POST input
+        if($this->lookForHiddenInput($this->form,'_method','PUT')) $unknownInputCnt--;
+
+        // 4.3 Ensure that there's a select field for major_id, that it has no selection,
+        // and that it has the correct quantity of available choices.
+        //if($this->lookForSelect($this->form,'StudentViewSectionId','sections_list')) $unknownSelectCnt--;
+
+        // Even though cohort_id is correct, we don't display cohort_id.  Instead we display the
+        // nickname from the related Cohorts table.  But nickname is a virtual field so we must
+        // read the record in order to get the nickname, instead of looking it up in the fixture records.
+        //$cohort = $this->cohorts->get($cohort_id,['contain' => ['Majors']]);
+        //$this->assertEquals($cohort->nickname, $option->plaintext);
+
+        // 4.7. Ensure that there's a select field for user_id and that it is correctly set
+        //$option = $this->form->find('select#StudentUserId option[selected]',0);
+        //$user_id = $this->studentsFixture->student1Record['user_id'];
+        //$this->assertEquals($option->value, $user_id);
+
+        // Even though user_id is correct, we don't display user_id.  Instead we display the username
+        // from the related Users table. Verify that username is displayed correctly.
+        //$user = $this->usersFixture->get($user_id);
+        //$this->assertEquals($user['username'], $option->plaintext);
+        //$unknownSelectCnt--;
+
+        // 2.9 Have all the input and select fields been accounted for?  Are there
+        // any extras?
+        $this->assertEquals(0, $unknownInputCnt);
+        $this->assertEquals(0, $unknownSelectCnt);
+    }
+
     public function tstViewGET($fixtureRecord) {
 
         $this->assertResponseOk(); // 2xx
@@ -391,7 +459,7 @@ class StudentsControllerTest extends DMIntegrationTestCase {
         $this->table = $html->find('table#StudentViewTable',0);
         $this->assertNotNull($this->table);
 
-        // 2. Now inspect the fields on the form.  We want to know that:
+        // 2. Now inspect the fields in the table.  We want to know that:
         // A. The correct fields are there and no other fields.
         // B. The fields have correct values.
         //
@@ -429,10 +497,38 @@ class StudentsControllerTest extends DMIntegrationTestCase {
         $this->assertEquals($user['username'], $this->field->plaintext);
         $unknownRowCnt--;
 
-        // Have all the rows been accounted for?  Are there any extras?
+        // 2.9 Have all the rows been accounted for?  Are there any extras?
         $this->assertEquals(0, $unknownRowCnt);
 
-        // 3. Examine the <A> tags on this page.  There should be zero links.
+        // 3.  Look for the form that contains the Section selector.
+        $this->form = $html->find('form#StudentViewGradeForm',0);
+        $this->assertNotNull($this->form);
+
+        // 4. Now inspect the fields on the form.  We want to know that:
+        // A. The correct fields are there and no other fields.
+        // B. The fields have correct values. This includes verifying that select
+        //    lists contain options.
+        //
+        //  The actual order that the fields are listed on the form is hereby deemed unimportant.
+
+        // 4.1 These are counts of the select and input fields on the form.  They
+        // are presently unaccounted for.
+        $unknownSelectCnt = count($this->form->find('select'));
+        $unknownInputCnt = count($this->form->find('input'));
+
+        // 4.2 Look for the hidden POST input
+        if($this->lookForHiddenInput($this->form,'_method','PUT')) $unknownInputCnt--;
+
+        // 4.3 Ensure that there's a select field for major_id, that it has no selection,
+        // and that it has the correct quantity of available choices.
+        if($this->lookForSelect($this->form,'StudentViewSectionId','sections_list')) $unknownSelectCnt--;
+
+        // 4.9 Have all the input and select fields been accounted for?  Are there
+        // any extras?
+        $this->assertEquals(0, $unknownInputCnt);
+        $this->assertEquals(0, $unknownSelectCnt);
+
+        // 5. Examine the <A> tags on this page.  There should be zero links.
         $this->content = $html->find('div#StudentsView',0);
         $this->assertNotNull($this->content);
         $links = $this->content->find('a');
