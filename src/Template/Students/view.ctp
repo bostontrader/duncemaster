@@ -28,11 +28,12 @@
             </tr>
         </table>
 
-        <?= $this->Form->create(null, ['id'=>'StudentViewGradeForm','type'=>'get']) ?>
+        <?= $this->Form->create(null, ['action'=>'/view','id'=>'StudentViewGradeForm','type'=>'get']) ?>
         <fieldset>
             <legend><?= __('My Grade') ?></legend>
             <?php
-            echo $this->Form->input('section_id', ['id'=>'StudentViewSectionId', 'options' => $sections_list, 'val'=>2, 'empty' => '(none selected)']);
+                $n=$this->Form->input('section_id', ['id'=>'StudentViewSectionId', 'options' => $sections_list, 'val'=>$section_id, 'empty' => '(none selected)']);
+                echo $n;
             ?>
         </fieldset>
         <?= $this->Form->button(__('Submit')) ?>

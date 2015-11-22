@@ -377,7 +377,9 @@ class StudentsControllerTest extends DMIntegrationTestCase {
     public function testViewGETWithUser() {
         $this->fakeLogin(FixtureConstants::userAndyAdminId);
         $fixtureRecord=$this->studentsFixture->student1Record;
-        $this->get('/students/view/' . $fixtureRecord['id']);
+        $a=['controller'=>'students','action'=>'view','id'=>$fixtureRecord['id'],'catfood'=>'yum'];
+        $this->get($a);
+        //$this->get('/students/view/' . $fixtureRecord['id'],['catfood'=>'yum']);
         $this->tstViewGet($fixtureRecord);
     }
 
@@ -519,7 +521,7 @@ class StudentsControllerTest extends DMIntegrationTestCase {
         // 4.2 Look for the hidden POST input
         if($this->lookForHiddenInput($this->form,'_method','PUT')) $unknownInputCnt--;
 
-        // 4.3 Ensure that there's a select field for major_id, that it has no selection,
+        // 4.3 Ensure that there's a select field for section_id, that it has no selection,
         // and that it has the correct quantity of available choices.
         if($this->lookForSelect($this->form,'StudentViewSectionId','sections_list')) $unknownSelectCnt--;
 
