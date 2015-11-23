@@ -40,8 +40,9 @@
         <?= $this->Form->button(__('Submit')) ?>
         <?= $this->Form->end() ?>
 
+        <?php if(!is_null($section_id)) { ?>
         <h3><?= __('Scoring') ?></h3>
-        <table id="StudentScoreTable" class="vertical-table">
+        <table id="StudentGradingTable" class="vertical-table">
             <tr>
                 <th><?= __('Total classes for this section') ?></th>
                 <td><?= 666 ?></td>
@@ -59,5 +60,6 @@
                 <td><?= 666 ?></td>
             </tr>
         </table>
+        <?php } ?>
     </div>
 </div>

@@ -42,7 +42,7 @@ class StudentsControllerTest extends DMIntegrationTestCase {
         $this->sectionsFixture = new SectionsFixture();
         $this->studentsFixture = new StudentsFixture();
     }
-
+/*
     // Test that unauthenticated users, when submitting a request to
     // an action, will get redirected to the login url.
     public function testUnauthenticatedActionsAndUsers() {
@@ -318,10 +318,10 @@ class StudentsControllerTest extends DMIntegrationTestCase {
 
         // 9. Ensure that all the <A> tags have been accounted for
         $this->assertEquals(0, $unknownATag);
-    }
+    }*/
 
     // The view method will display the basic information about the student.  It will also
-    // display information about his grades. This is easier said than done because we must
+    // optionally display information about his grades. This is easier said than done because we must
     // determine which section to display the grades for.
     //
     // In order to determine which section, we use a select input. The information from the select input
@@ -333,15 +333,15 @@ class StudentsControllerTest extends DMIntegrationTestCase {
     // We therefore have the following testing scenarios.
     //
     // 1. The view request references a Student that has a User, but has no request parameters.
-    // Validate the body of the Student info and that the Section select is "nothing selected".
-    // Hence no other grading info.
-    //
     // 2. The view request references a Student that does not have a User, and has no request parameters.
-    // Validate the body of the Student info and that the Section select is "nothing selected".
-    // Hence no other grading info.
+    // In both cases verify:
+    //   A. The body of the Student info
+    //   B. That the Section select is "nothing selected".
+    //   C. That the grading info section is not present.
     //
-    // 3. The view request has request parameters. Whether the Student has a User is unimportant.
-    // Only validate the grading info.
+    // 3. The view request has a request parameter specifying a section_id. Whether or not
+    // the Student has a User is unimportant. In this case verify the existance and correctness
+    // of the grading info section.
     //
 
     // Scenario 1.
@@ -364,8 +364,6 @@ class StudentsControllerTest extends DMIntegrationTestCase {
     // param. Examine grading info.
     public function testViewGETWithRequestParameters() {
         $this->fakeLogin(FixtureConstants::userAndyAdminId);
-        //$fixtureRecord=$this->studentsFixture->student1Record;
-        //$this->get('/students/view/' . $fixtureRecord['id']);
         $section_id=$this->sectionsFixture->section1Record['id'];
         $this->get(
             '/students/view/'.$this->studentsFixture->student1Record['id'].
@@ -397,7 +395,6 @@ class StudentsControllerTest extends DMIntegrationTestCase {
         if($this->lookForHiddenInput($this->form,'_method','PUT')) $unknownInputCnt--;
 
         // 2.3 section_id / $section['nickname']
-        //$section_id = $this->studentsFixture->student1Record['cohort_id'];
         $section = $this->sections->get($section_id);
         if($this->inputCheckerB($this->form,'select#StudentViewSectionId option[selected]',$section_id,$section['nickname'])) $unknownSelectCnt--;
 
@@ -405,6 +402,10 @@ class StudentsControllerTest extends DMIntegrationTestCase {
         // any extras?
         $this->assertEquals(0, $unknownInputCnt);
         $this->assertEquals(0, $unknownSelectCnt);
+
+        // 3.  Look for the table that contains the grading info.
+        $this->table = $html->find('table#StudentGradingTable',0);
+        $this->assertNotNull($this->table);
     }
 
     public function tstViewGET($fixtureRecord) {
@@ -480,7 +481,6 @@ class StudentsControllerTest extends DMIntegrationTestCase {
 
         // 4.3 Ensure that there's a select field for section_id, that it has no selection,
         // and that it has the correct quantity of available choices.
-        //if($this->lookForSelect($this->form,'StudentViewSectionId','sections_list')) $unknownSelectCnt--;
         if($this->selectCheckerA($this->form,'StudentViewSectionId','sections_list')) $unknownSelectCnt--;
 
         // 4.9 Have all the input and select fields been accounted for?  Are there
@@ -488,7 +488,12 @@ class StudentsControllerTest extends DMIntegrationTestCase {
         $this->assertEquals(0, $unknownInputCnt);
         $this->assertEquals(0, $unknownSelectCnt);
 
-        // 5. Examine the <A> tags on this page.  There should be zero links.
+        // 5.  Look for the table that contains the grading info.
+        // It should _not_ be visible.
+        $this->table = $html->find('table#StudentGradingTable',0);
+        $this->assertNull($this->table);
+
+        // 6. Examine the <A> tags on this page.  There should be zero links.
         $this->content = $html->find('div#StudentsView',0);
         $this->assertNotNull($this->content);
         $links = $this->content->find('a');
