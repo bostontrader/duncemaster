@@ -32,7 +32,7 @@ class StudentsControllerTest extends DMIntegrationTestCase {
 
     // If I put this in the super-class phpstorm won't understand their types
     /* @var \simple_html_dom_node */
-    private $content,$field,$form,$htmlRow,$input,$table,$tbody,$td,$thead;
+    private $content,$field,$form,$htmlRow,$table,$tbody,$td,$thead;
 
     public function setUp() {
         parent::setUp();
@@ -42,7 +42,7 @@ class StudentsControllerTest extends DMIntegrationTestCase {
         $this->sectionsFixture = new SectionsFixture();
         $this->studentsFixture = new StudentsFixture();
     }
-/*
+
     // Test that unauthenticated users, when submitting a request to
     // an action, will get redirected to the login url.
     public function testUnauthenticatedActionsAndUsers() {
@@ -90,11 +90,11 @@ class StudentsControllerTest extends DMIntegrationTestCase {
         if($this->inputCheckerA($this->form,'input#StudentSid')) $unknownInputCnt--;
 
         // 4.6 Ensure that there's a select field for cohort_id and that is has no selection
-        if($this->lookForSelect($this->form,'StudentCohortId','cohorts')) $unknownSelectCnt--;
+        if($this->selectCheckerA($this->form, 'StudentCohortId','cohorts')) $unknownSelectCnt--;
 
         // 4.7 Ensure that there's a select field for user_id, that it has no selection,
         //    and that it has the correct quantity of available choices.
-        if($this->lookForSelect($this->form,'StudentUserId','users')) $unknownSelectCnt--;
+        if($this->selectCheckerA($this->form, 'StudentUserId','users')) $unknownSelectCnt--;
 
         // 4.9 Have all the input and select fields been accounted for?  Are there
         // any extras?
@@ -318,7 +318,7 @@ class StudentsControllerTest extends DMIntegrationTestCase {
 
         // 9. Ensure that all the <A> tags have been accounted for
         $this->assertEquals(0, $unknownATag);
-    }*/
+    }
 
     // The view method will display the basic information about the student.  It will also
     // optionally display information about his grades. This is easier said than done because we must
