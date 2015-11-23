@@ -63,7 +63,6 @@ class StudentsController extends AppController {
         $Sections = TableRegistry::get('Sections');
         $sections_list = $Sections->find('list');
 
-        $b=array_key_exists('section_id', $this->request->query);
         if(array_key_exists('section_id', $this->request->query)) {
             $this->loadComponent('Grader');
             $grade = $this->Grader->getGradeInfo(null, null);

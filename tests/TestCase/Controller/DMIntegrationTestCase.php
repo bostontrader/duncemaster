@@ -61,35 +61,53 @@ class DMIntegrationTestCase extends IntegrationTestCase {
     /**
      * A. The input has a given id, is of some given type, and has a specified value.
      * @param \simple_html_dom_node $html_node the form that contains the select
-     * @param String $css A css finder string to find the input of interest. Note: This only
+     * @param String $css_finder A css finder string to find the input of interest. Note: This only
      * does very simple css.
-     * @param String $type What is type attribute of the input?
      * @param mixed $expected_value What is the expected value of the input, or false if expected to be empty.
-     * @return boolean Returnb true if a matching input is found, else assertion errors.
+     * @param String $type What is type attribute of the input?
+     * @return boolean Return true if a matching input is found, else assertion errors.
      */
-    protected function inputCheckerA($html_node,$css,$expected_value=false,$type='text'){
-        $this->input = $html_node->find($css,0);
+    protected function inputCheckerA($html_node,$css_finder,$expected_value=false,$type='text'){
+        $this->input = $html_node->find($css_finder,0);
         $this->assertEquals($this->input->type, $type);
         $this->assertEquals($expected_value,$this->input->value);
         return true;
     }
 
-    // There is a select field, it is something is correctly set, and the display is correct.
-    // Virtual field
+    /**
+     * B.
+     * @param \simple_html_dom_node $html_node the form that contains the select
+     * @param String $css_finder A css finder string to find the input of interest. Note: This only
+     * does very simple css.
+     * @param String $expected_id The expected value of the select.
+     * @param String $expected_display. The expected value to be displayed.
+     * @return boolean Return true if a matching input is found, else assertion errors.
+     */
     protected function inputCheckerB($html_node,$css_finder,$expected_id,$expected_display){
         $option = $html_node->find($css_finder,0);
-        //$id = $this->studentsFixture->student1Record['cohort_id'];
-        $this->assertEquals($option->value, $expected_id);
-        //$unknownSelectCnt--;
-
-        // Even though expected_id is correct, we don't display expected_id.  Instead we display the
-        // nickname from the related table.  But nickname is a virtual field so we must
-        // read the record in order to get the nickname, instead of looking it up in the fixture records.
-        //$cohort = $this->cohorts->get($cohort_id,['contain' => ['Majors']]);
+        $this->assertEquals($expected_id, $option->value);
         $this->assertEquals($expected_display, $option->plaintext);
         return true;
     }
 
+    /**
+     * Look for a particular select input and ensure that:
+     * The selection is what is expected and that the selection control
+     * has the correct quantity of choices.  If the control passes, return true, else fail.
+     *
+     * @param \simple_html_dom_node $form the form that contains the select
+     * @param string $selectID the html id of the select of interest
+     * @param string $vvName the name of the view var that contains the into to populate the select
+     * @return boolean
+     */
+    protected function selectCheckerA($form, $selectID, $vvName) {
+        $option = $form->find('select#'.$selectID.' option[selected]', 0);
+        $this->assertNull($option);
+        $option_cnt = count($form->find('select#'.$selectID. ' option'));
+        $record_cnt = $this->viewVariable($vvName)->count();
+        $this->assertEquals($record_cnt + 1, $option_cnt);
+        return true;
+    }
 
     // Hack the session to make it look as if we're properly logged in.
     protected function fakeLogin($userId) {
@@ -128,6 +146,7 @@ class DMIntegrationTestCase extends IntegrationTestCase {
     }
 
     /**
+     * @deprecated use selectCheckerA
      * Look for a particular select input and ensure that:
      * The selection is what is expected and that the selection control
      * has the correct quantity of choices.  If the control passes, return true, else fail.

@@ -2,6 +2,7 @@
 namespace App\Test\TestCase\Controller;
 
 use App\Test\Fixture\FixtureConstants;
+use App\Test\Fixture\SectionsFixture;
 use App\Test\Fixture\StudentsFixture;
 use Cake\ORM\TableRegistry;
 
@@ -21,8 +22,12 @@ class StudentsControllerTest extends DMIntegrationTestCase {
     private $cohorts;
 
     /* @var \App\Model\Table\StudentsTable */
+    private $sections;
+
+    /* @var \App\Model\Table\StudentsTable */
     private $students;
 
+    private $sectionsFixture;
     private $studentsFixture;
 
     // If I put this in the super-class phpstorm won't understand their types
@@ -32,7 +37,9 @@ class StudentsControllerTest extends DMIntegrationTestCase {
     public function setUp() {
         parent::setUp();
         $this->cohorts = TableRegistry::get('Cohorts');
+        $this->sections = TableRegistry::get('Sections');
         $this->students = TableRegistry::get('Students');
+        $this->sectionsFixture = new SectionsFixture();
         $this->studentsFixture = new StudentsFixture();
     }
 
@@ -165,34 +172,27 @@ class StudentsControllerTest extends DMIntegrationTestCase {
         // 4.2 Look for the hidden POST input
         if($this->lookForHiddenInput($this->form,'_method','PUT')) $unknownInputCnt--;
 
+        // 4.3 giv_name
         if($this->inputCheckerA($this->form,'input#StudentGivName',
             $this->studentsFixture->student1Record['giv_name'])) $unknownInputCnt--;
 
+        // 4.4 fam_name
         if($this->inputCheckerA($this->form,'input#StudentFamName',
             $this->studentsFixture->student1Record['fam_name'])) $unknownInputCnt--;
 
+        // 4.5 sid
         if($this->inputCheckerA($this->form,'input#StudentSid',
             $this->studentsFixture->student1Record['sid'])) $unknownInputCnt--;
 
-        // 4.6 Ensure that there's a select field for cohort_id, that it is correctly set,
-        // and that the display is correct.
-        // Even though cohort_id is correct, we don't display cohort_id.  Instead we display the
-        // nickname from the related Cohorts table.  But nickname is a virtual field so we must
-        // read the record in order to get the nickname, instead of looking it up in the fixture records.
+        // 4.6 cohort_id / $cohort['nickname']
         $cohort_id = $this->studentsFixture->student1Record['cohort_id'];
         $cohort = $this->cohorts->get($cohort_id,['contain' => ['Majors']]);
         if($this->inputCheckerB($this->form,'select#StudentCohortId option[selected]',$cohort_id,$cohort['nickname'])) $unknownSelectCnt--;
 
-        // 4.7. Ensure that there's a select field for user_id and that it is correctly set
-        $option = $this->form->find('select#StudentUserId option[selected]',0);
+        // 4.7. user_id / $user_fixture_record['username']
         $user_id = $this->studentsFixture->student1Record['user_id'];
-        $this->assertEquals($option->value, $user_id);
-
-        // Even though user_id is correct, we don't display user_id.  Instead we display the username
-        // from the related Users table. Verify that username is displayed correctly.
         $user = $this->usersFixture->get($user_id);
-        $this->assertEquals($user['username'], $option->plaintext);
-        $unknownSelectCnt--;
+        if($this->inputCheckerB($this->form,'select#StudentUserId option[selected]',$user_id,$user['username'])) $unknownSelectCnt--;
 
         // 4.9 Have all the input and select fields been accounted for?  Are there
         // any extras?
@@ -364,8 +364,13 @@ class StudentsControllerTest extends DMIntegrationTestCase {
     // param. Examine grading info.
     public function testViewGETWithRequestParameters() {
         $this->fakeLogin(FixtureConstants::userAndyAdminId);
-        $fixtureRecord=$this->studentsFixture->student1Record;
-        $this->get('/students/view/' . $fixtureRecord['id'],['section_id'=>2]);
+        //$fixtureRecord=$this->studentsFixture->student1Record;
+        //$this->get('/students/view/' . $fixtureRecord['id']);
+        $section_id=$this->sectionsFixture->section1Record['id'];
+        $this->get(
+            '/students/view/'.$this->studentsFixture->student1Record['id'].
+            '?section_id='.$section_id
+        );
         $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();
 
@@ -391,26 +396,10 @@ class StudentsControllerTest extends DMIntegrationTestCase {
         // 2.2 Look for the hidden POST input
         if($this->lookForHiddenInput($this->form,'_method','PUT')) $unknownInputCnt--;
 
-        // 4.3 Ensure that there's a select field for major_id, that it has no selection,
-        // and that it has the correct quantity of available choices.
-        //if($this->lookForSelect($this->form,'StudentViewSectionId','sections_list')) $unknownSelectCnt--;
-
-        // Even though cohort_id is correct, we don't display cohort_id.  Instead we display the
-        // nickname from the related Cohorts table.  But nickname is a virtual field so we must
-        // read the record in order to get the nickname, instead of looking it up in the fixture records.
-        //$cohort = $this->cohorts->get($cohort_id,['contain' => ['Majors']]);
-        //$this->assertEquals($cohort->nickname, $option->plaintext);
-
-        // 4.7. Ensure that there's a select field for user_id and that it is correctly set
-        //$option = $this->form->find('select#StudentUserId option[selected]',0);
-        //$user_id = $this->studentsFixture->student1Record['user_id'];
-        //$this->assertEquals($option->value, $user_id);
-
-        // Even though user_id is correct, we don't display user_id.  Instead we display the username
-        // from the related Users table. Verify that username is displayed correctly.
-        //$user = $this->usersFixture->get($user_id);
-        //$this->assertEquals($user['username'], $option->plaintext);
-        //$unknownSelectCnt--;
+        // 2.3 section_id / $section['nickname']
+        //$section_id = $this->studentsFixture->student1Record['cohort_id'];
+        $section = $this->sections->get($section_id);
+        if($this->inputCheckerB($this->form,'select#StudentViewSectionId option[selected]',$section_id,$section['nickname'])) $unknownSelectCnt--;
 
         // 2.9 Have all the input and select fields been accounted for?  Are there
         // any extras?
@@ -464,7 +453,6 @@ class StudentsControllerTest extends DMIntegrationTestCase {
         $this->field = $html->find('tr#username td',0);
         $user_id = $fixtureRecord['user_id'];
         $user = $this->usersFixture->get($user_id);
-
         $this->assertEquals($user['username'], $this->field->plaintext);
         $unknownRowCnt--;
 
@@ -492,7 +480,8 @@ class StudentsControllerTest extends DMIntegrationTestCase {
 
         // 4.3 Ensure that there's a select field for section_id, that it has no selection,
         // and that it has the correct quantity of available choices.
-        if($this->lookForSelect($this->form,'StudentViewSectionId','sections_list')) $unknownSelectCnt--;
+        //if($this->lookForSelect($this->form,'StudentViewSectionId','sections_list')) $unknownSelectCnt--;
+        if($this->selectCheckerA($this->form,'StudentViewSectionId','sections_list')) $unknownSelectCnt--;
 
         // 4.9 Have all the input and select fields been accounted for?  Are there
         // any extras?
