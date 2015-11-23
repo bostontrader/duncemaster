@@ -24,28 +24,72 @@ require_once 'simple_html_dom.php';
  *
  * 5. Verify that the db has changed as expected, if applicable.
  *
+ * 6. Whether or not Auth prevents/allows access to a method.
+ *
  * I do not want to test:
  *
- * 1. Whether or not Auth prevents/allows access to a method.
+ * 1. How the method responds to badly formed requests, such as trying to submit a DELETE to the add method.
  *
- * 2. How the method responds to badly formed requests, such as trying to submit a DELETE to the add method.
- *
- * 3. Any html structure, formatting, css, scripts, tags, krakens, or whatever, beyond the bare minimum
+ * 2. Any html structure, formatting, css, scripts, tags, krakens, or whatever, beyond the bare minimum
  *    listed above.
  *
- * 4. Whether or not following an <A> tag actually works as expected.
+ * 3. Whether or not following an <A> tag actually works as expected.
  *
  * These items should be tested elsewhere.
  *
  * Although tempting to test for viewVars, resist the urge.  If they are not set correctly then
  * there will be actual consequences that the testing will catch.  At best looking for viewVars
  * is a debugging aid.  At worst, we'll eat a lot of time picking them apart.  Just say No.
+ *
+ * Input validation:
+ *
+ * There are several methods of verifying that a particular input or select control
+ * is correct.
+ *
+ * A. The input has a given css finder string, is of some given type, and has a specified value.
+ * B. The input is a select, with a given css finder string, and has a specified value.
  */
 
 class DMIntegrationTestCase extends IntegrationTestCase {
 
     /* @var \App\Test\Fixture\UsersFixture */
     protected $usersFixture;
+
+    /* @var \simple_html_dom_node */
+    private $input;
+
+    /**
+     * A. The input has a given id, is of some given type, and has a specified value.
+     * @param \simple_html_dom_node $html_node the form that contains the select
+     * @param String $css A css finder string to find the input of interest. Note: This only
+     * does very simple css.
+     * @param String $type What is type attribute of the input?
+     * @param mixed $expected_value What is the expected value of the input, or false if expected to be empty.
+     * @return boolean Returnb true if a matching input is found, else assertion errors.
+     */
+    protected function inputCheckerA($html_node,$css,$expected_value=false,$type='text'){
+        $this->input = $html_node->find($css,0);
+        $this->assertEquals($this->input->type, $type);
+        $this->assertEquals($expected_value,$this->input->value);
+        return true;
+    }
+
+    // There is a select field, it is something is correctly set, and the display is correct.
+    // Virtual field
+    protected function inputCheckerB($html_node,$css_finder,$expected_id,$expected_display){
+        $option = $html_node->find($css_finder,0);
+        //$id = $this->studentsFixture->student1Record['cohort_id'];
+        $this->assertEquals($option->value, $expected_id);
+        //$unknownSelectCnt--;
+
+        // Even though expected_id is correct, we don't display expected_id.  Instead we display the
+        // nickname from the related table.  But nickname is a virtual field so we must
+        // read the record in order to get the nickname, instead of looking it up in the fixture records.
+        //$cohort = $this->cohorts->get($cohort_id,['contain' => ['Majors']]);
+        $this->assertEquals($expected_display, $option->plaintext);
+        return true;
+    }
+
 
     // Hack the session to make it look as if we're properly logged in.
     protected function fakeLogin($userId) {

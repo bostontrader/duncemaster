@@ -20,7 +20,7 @@ class StudentsControllerTest extends DMIntegrationTestCase {
     /* @var \App\Model\Table\CohortsTable */
     private $cohorts;
 
-    /* @var \App\Model\Table\TeachersTable */
+    /* @var \App\Model\Table\StudentsTable */
     private $students;
 
     private $studentsFixture;
@@ -78,29 +78,12 @@ class StudentsControllerTest extends DMIntegrationTestCase {
         // 4.2 Look for the hidden POST input
         if($this->lookForHiddenInput($this->form)) $unknownInputCnt--;
 
-        // 4.3 Ensure that there's an input field for fam_name, of type text, and that it is empty
-        $this->input = $this->form->find('input#StudentFamName',0);
-        $this->assertEquals($this->input->type, "text");
-        $this->assertEquals($this->input->value, false);
-        $unknownInputCnt--;
-
-        // 4.4 Ensure that there's an input field for giv_name, of type text, and that it is empty
-        $this->input = $this->form->find('input#StudentGivName',0);
-        $this->assertEquals($this->input->type, "text");
-        $this->assertEquals($this->input->value, false);
-        $unknownInputCnt--;
-
-        // 4.5 Ensure that there's an input field for sid, of type text, and that it is empty
-        $this->input = $this->form->find('input#StudentSid',0);
-        $this->assertEquals($this->input->type, "text");
-        $this->assertEquals($this->input->value, false);
-        $unknownInputCnt--;
+        if($this->inputCheckerA($this->form,'input#StudentFamName')) $unknownInputCnt--;
+        if($this->inputCheckerA($this->form,'input#StudentGivName')) $unknownInputCnt--;
+        if($this->inputCheckerA($this->form,'input#StudentSid')) $unknownInputCnt--;
 
         // 4.6 Ensure that there's a select field for cohort_id and that is has no selection
         if($this->lookForSelect($this->form,'StudentCohortId','cohorts')) $unknownSelectCnt--;
-        //$option = $this->form->find('select#StudentCohortId option[selected]',0);
-        //$this->assertNull($option);
-        //$unknownSelectCnt--;
 
         // 4.7 Ensure that there's a select field for user_id, that it has no selection,
         //    and that it has the correct quantity of available choices.
@@ -182,35 +165,23 @@ class StudentsControllerTest extends DMIntegrationTestCase {
         // 4.2 Look for the hidden POST input
         if($this->lookForHiddenInput($this->form,'_method','PUT')) $unknownInputCnt--;
 
-        // 4.3 Ensure that there's an input field for giv_name, of type text, and that it is correctly set
-        $this->input = $this->form->find('input#StudentGivName',0);
-        $this->assertEquals($this->input->type, "text");
-        $this->assertEquals($this->input->value, $this->studentsFixture->student1Record['giv_name']);
-        $unknownInputCnt--;
+        if($this->inputCheckerA($this->form,'input#StudentGivName',
+            $this->studentsFixture->student1Record['giv_name'])) $unknownInputCnt--;
 
-        // 4.4 Ensure that there's an input field for fam_name, of type text, and that it is correctly set
-        $this->input = $this->form->find('input#StudentFamName',0);
-        $this->assertEquals($this->input->type, "text");
-        $this->assertEquals($this->input->value,  $this->studentsFixture->student1Record['fam_name']);
-        $unknownInputCnt--;
+        if($this->inputCheckerA($this->form,'input#StudentFamName',
+            $this->studentsFixture->student1Record['fam_name'])) $unknownInputCnt--;
 
-        // 4.5 Ensure that there's an input field for sid, of type text, and that it is correctly set
-        $this->input = $this->form->find('input#StudentSid',0);
-        $this->assertEquals($this->input->type, "text");
-        $this->assertEquals($this->input->value,  $this->studentsFixture->student1Record['sid']);
-        $unknownInputCnt--;
+        if($this->inputCheckerA($this->form,'input#StudentSid',
+            $this->studentsFixture->student1Record['sid'])) $unknownInputCnt--;
 
-        // 4.6 Ensure that there's a select field for cohort_id and that it is correctly set
-        $option = $this->form->find('select#StudentCohortId option[selected]',0);
-        $cohort_id = $this->studentsFixture->student1Record['cohort_id'];
-        $this->assertEquals($option->value, $cohort_id);
-        $unknownSelectCnt--;
-
+        // 4.6 Ensure that there's a select field for cohort_id, that it is correctly set,
+        // and that the display is correct.
         // Even though cohort_id is correct, we don't display cohort_id.  Instead we display the
         // nickname from the related Cohorts table.  But nickname is a virtual field so we must
         // read the record in order to get the nickname, instead of looking it up in the fixture records.
+        $cohort_id = $this->studentsFixture->student1Record['cohort_id'];
         $cohort = $this->cohorts->get($cohort_id,['contain' => ['Majors']]);
-        $this->assertEquals($cohort->nickname, $option->plaintext);
+        if($this->inputCheckerB($this->form,'select#StudentCohortId option[selected]',$cohort_id,$cohort['nickname'])) $unknownSelectCnt--;
 
         // 4.7. Ensure that there's a select field for user_id and that it is correctly set
         $option = $this->form->find('select#StudentUserId option[selected]',0);
@@ -377,9 +348,7 @@ class StudentsControllerTest extends DMIntegrationTestCase {
     public function testViewGETWithUser() {
         $this->fakeLogin(FixtureConstants::userAndyAdminId);
         $fixtureRecord=$this->studentsFixture->student1Record;
-        $a=['controller'=>'students','action'=>'view','id'=>$fixtureRecord['id'],'catfood'=>'yum'];
-        $this->get($a);
-        //$this->get('/students/view/' . $fixtureRecord['id'],['catfood'=>'yum']);
+        $this->get('/students/view/' . $fixtureRecord['id']);
         $this->tstViewGet($fixtureRecord);
     }
 
