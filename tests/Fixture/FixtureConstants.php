@@ -34,6 +34,9 @@ class FixtureConstants {
     const teacher1_id = 1;
     const teacher2_id = 2;
 
+    const tplan_element1_id =1;
+    const tplan_element2_id =2;
+
     const userAndyAdminId = 1;
     const userArnoldAdvisorId = 2;
     const userSallyStudentId = 3;
