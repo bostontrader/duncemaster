@@ -7,10 +7,6 @@ namespace App\Model\Table;
 use Cake\ORM\Table;
 //use Cake\Validation\Validator;
 
-/**
- * Students Model
- *
- */
 class TplanElementsTable extends Table {
 
     /**
@@ -23,22 +19,8 @@ class TplanElementsTable extends Table {
         parent::initialize($config);
 
         //$this->table('students');
-        $this->displayField('fullname');
+        //$this->displayField('fullname');
         //$this->primaryKey('id');
-
-        $this->belongsTo('Cohorts', [
-            //'foreignKey' => 'cohort_id',
-            //'joinType' => 'INNER'
-        ]);
-
-        $this->hasMany('Interactions', [
-            //'foreignKey' => 'interaction_id'
-        ]);
-
-        $this->hasOne('Users', [
-            'foreignKey' => 'id',
-            'bindingKey' => 'user_id'
-        ]);
 
     }
 

@@ -2,18 +2,14 @@
 namespace App\Test\TestCase\Controller;
 
 use App\Test\Fixture\FixtureConstants;
-//use App\Test\Fixture\SectionsFixture;
 use App\Test\Fixture\TplanElementsFixture;
 use Cake\ORM\TableRegistry;
 
 class TplanElementsControllerTest extends DMIntegrationTestCase {
 
     public $fixtures = [
-        //'app.cohorts',
-        //'app.majors',
         'app.roles',
         'app.roles_users',
-        //'app.sections',
         'app.tplan_elements',
         'app.users'
     ];
@@ -21,25 +17,17 @@ class TplanElementsControllerTest extends DMIntegrationTestCase {
     /* @var \App\Model\Table\TplanElementsTable */
     private $tplan_elements;
 
-    //private $sectionsFixture;
     private $tplan_elementsFixture;
-
-    // If I put this in the super-class phpstorm won't understand their types
-    /* @var \simple_html_dom_node */
-    //private $content,$field,$form,$htmlRow,$input,$table,$tbody,$td,$thead;
 
     public function setUp() {
         parent::setUp();
-        //$this->cohorts = TableRegistry::get('Cohorts');
-        //$this->sections = TableRegistry::get('Sections');
         $this->tplan_elements = TableRegistry::get('TplanElements');
-        //$this->sectionsFixture = new SectionsFixture();
         $this->tplan_elementsFixture = new TplanElementsFixture();
     }
 
     // Test that unauthenticated users, when submitting a request to
     // an action, will get redirected to the login url.
-/*    public function testUnauthenticatedActionsAndUsers() {
+    public function testUnauthenticatedActionsAndUsers() {
         $this->tstUnauthenticatedActionsAndUsers('tplan_elements');
     }
 
@@ -48,7 +36,7 @@ class TplanElementsControllerTest extends DMIntegrationTestCase {
     public function testUnauthorizedActionsAndUsers() {
         $this->tstUnauthorizedActionsAndUsers('tplan_elements');
     }
-*/
+
     public function testAddGET() {
 
         // 1. Simulate login, submit request, examine response.
@@ -155,11 +143,11 @@ class TplanElementsControllerTest extends DMIntegrationTestCase {
         // 4.2 Look for the hidden POST input
         if($this->lookForHiddenInput($this->form,'_method','PUT')) $unknownInputCnt--;
 
-        // 4.3 giv_name
+        // 4.3 col1
         if($this->inputCheckerA($this->form,'input#TplanElementCol1',
             $this->tplan_elementsFixture->tplan_element1Record['col1'])) $unknownInputCnt--;
 
-        // 4.4 fam_name
+        // 4.4 col2
         if($this->inputCheckerA($this->form,'input#TplanElementCol2',
             $this->tplan_elementsFixture->tplan_element1Record['col2'])) $unknownInputCnt--;
 
