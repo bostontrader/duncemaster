@@ -17,6 +17,11 @@ class FixtureConstants {
 
     const interaction1_id = 1;
 
+    const itypeAttend_id = 1;
+    const itypeEject_id = 2;
+    const itypeLeave_id = 3;
+    const itypeParticipate_id = 4;
+
     const major1_id = 1;
     const major2_id = 2;
 
