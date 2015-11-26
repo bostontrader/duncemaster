@@ -129,7 +129,8 @@ class SectionsControllerTest extends DMIntegrationTestCase {
         $this->assertRedirect( '/sections' );
 
         // Now verify what we think just got written
-        $new_id = FixtureConstants::section1_id + 1;
+        $new_id = count($this->sectionsFixture->records) + 1;
+        //$new_id = FixtureConstants::section1_id + 1;
         $query = $this->sections->find()->where(['id' => $new_id]);
         $this->assertEquals(1, $query->count());
 

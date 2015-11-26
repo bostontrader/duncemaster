@@ -6,11 +6,16 @@ use Cake\TestSuite\Fixture\TestFixture;
 class MajorsFixture extends TestFixture {
     public $import = ['table' => 'majors'];
 
-    // This record is injected into the db before the tests.  We need to specify the
+    // These records are injected into the db before the tests.  We need to specify the
     // id to ensure the test records are properly related.
     public $major1Record = [
         'id'=>FixtureConstants::major1_id,
         'title' => 'Lion Taming', 'sdesc' => 'LT'
+    ];
+
+    public $major2Record = [
+        'id'=>FixtureConstants::major2_id,
+        'title' => 'Cat Juggling', 'sdesc' => 'CJ'
     ];
 
     // This record will be added during a test.  We don't need or want to control the id here, so omit it.
@@ -18,7 +23,8 @@ class MajorsFixture extends TestFixture {
 
     public function init() {
         $this->records = [
-            $this->major1Record
+            $this->major1Record,
+            $this->major2Record,
         ];
         parent::init();
     }

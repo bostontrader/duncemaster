@@ -6,7 +6,7 @@ use Cake\TestSuite\Fixture\TestFixture;
 class SectionsFixture extends TestFixture {
     public $import = ['table' => 'sections'];
 
-    // This record is injected into the db before the tests.  We need to specify the
+    // These records are injected into the db before the tests.  We need to specify the
     // id to ensure the test records are properly related.
     public $section1Record = [
         'id'=>FixtureConstants::section1_id,
@@ -14,6 +14,16 @@ class SectionsFixture extends TestFixture {
         'semester_id'=>FixtureConstants::semester1_id,
         'subject_id'=>FixtureConstants::subject1_id,
         'weekday' => 'mon',
+        'start_time' => '08:30',
+        'thours' => '2'
+    ];
+
+    public $section2Record = [
+        'id'=>FixtureConstants::section2_id,
+        'cohort_id'=>FixtureConstants::cohort2_id,
+        'semester_id'=>FixtureConstants::semester2_id,
+        'subject_id'=>FixtureConstants::subject2_id,
+        'weekday' => 'tue',
         'start_time' => '08:30',
         'thours' => '2'
     ];
@@ -30,7 +40,8 @@ class SectionsFixture extends TestFixture {
 
     public function init() {
         $this->records = [
-            $this->section1Record
+            $this->section1Record,
+            $this->section2Record,
         ];
         parent::init();
     }
