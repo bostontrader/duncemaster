@@ -1,7 +1,7 @@
 <?php
 namespace App\Controller\Component;
 use Cake\Controller\Component;
-//use Cake\ORM\TableRegistry;
+use Cake\ORM\TableRegistry;
 
 class GraderComponent extends Component {
 
@@ -12,10 +12,13 @@ class GraderComponent extends Component {
     //
 
     // Get the grades for a particular student from a particular section.
-    // If $student == null then all students for that section.
-    public function getGradeInfo($section = null, $student = null) {
+    public function getGradeInfo($section_id = null, $student_id = null) {
 
         // 1. How many times has this particular section met?
+        $clazzes = TableRegistry::get('Clazzes');
+        $query = $clazzes->find()->where(['section_id' => $section_id]);
+        $clazzCnt=$query->count();
+
         // select count(*) from clazzes where section_id = section
 
         // 2. How many times has the student attended that section?
@@ -39,7 +42,7 @@ class GraderComponent extends Component {
         //$sections_list = $Sections->find('list');
 
         return [
-            'class_cnt'=>10,
+            'clazzCnt'=>$clazzCnt,
             'attendance'=>4,
             'excused_absence'=>4,
             'ejected'=>2,

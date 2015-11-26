@@ -9,6 +9,7 @@ use Cake\ORM\TableRegistry;
 class StudentsGradingTest extends DMIntegrationTestCase {
 
     public $fixtures = [
+        'app.clazzes',
         'app.cohorts',
         'app.majors',
         'app.roles',
@@ -37,7 +38,7 @@ class StudentsGradingTest extends DMIntegrationTestCase {
 
         // 1. Simulate login, submit request, examine response.
         $this->fakeLogin(FixtureConstants::userAndyAdminId);
-        $section_id=$this->sectionsFixture->section1Record['id'];
+        $section_id=FixtureConstants::sectionToGrade;
         $this->get(
             '/students/view/'.$this->studentsFixture->student1Record['id'].
             '?section_id='.$section_id
@@ -58,35 +59,15 @@ class StudentsGradingTest extends DMIntegrationTestCase {
         // 4. Now inspect the fields in the table.  We want to know that:
         // A. The correct fields are there and no other fields.
         // B. The fields have correct values.
-        //
-        //  In this case the actual order that the fields are listed is hereby deemed important.
 
-        // This is the count of the table rows that are presently unaccounted for.
-        $unknownRowCnt = count($this->table->find('tr'));
+        $rows=$this->table->find('tr');
 
-        // 2.1 sid
-        //$field = $html->find('tr#sid td',0);
-        //$this->assertEquals($fixtureRecord['sid'], $field->plaintext);
-        //$unknownRowCnt--;
+        // 4.0 clazzCnt
+        $row=$rows[0];
+        $field = $row->find('td',0);
+        $this->assertEquals(FixtureConstants::clazzCnt, $field->plaintext);
 
-        // 2.2 fam_name
-        //$field = $html->find('tr#fam_name td',0);
-        //$this->assertEquals($fixtureRecord['fam_name'], $field->plaintext);
-        //$unknownRowCnt--;
 
-        // 2.3 giv_name
-        //$field = $html->find('tr#giv_name td',0);
-        //$this->assertEquals($fixtureRecord['giv_name'], $field->plaintext);
-        //$unknownRowCnt--;
-
-        // 2.4 cohort_name
-        //$field = $html->find('tr#cohort_nickname td',0);
-        //$student = $this->students->get($fixtureRecord['id'],['contain' => ['Cohorts.Majors']]);
-        //$this->assertEquals($student->cohort->nickname, $field->plaintext);
-        //$unknownRowCnt--;
-
-        // 2.9 Have all the rows been accounted for?  Are there any extras?
-        //$this->assertEquals(0, $unknownRowCnt);
     }
 
 }

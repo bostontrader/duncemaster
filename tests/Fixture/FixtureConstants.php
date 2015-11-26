@@ -6,11 +6,17 @@ namespace App\Test\Fixture;
 // By storing the various Ids here, we can more easily ensure that the various records
 // are properly related.
 class FixtureConstants {
+
     const clazz1_id = 1;
     const clazz2_id = 2;
+    const clazz3_id = 3;
+    const clazz4_id = 4;
+
     const cohort1_id = 1;
     const cohort2_id = 2;
+
     const interaction1_id = 1;
+
     const major1_id = 1;
     const major2_id = 2;
 
@@ -44,4 +50,15 @@ class FixtureConstants {
     const userArnoldAdvisorId = 2;
     const userSallyStudentId = 3;
     const userTommyTeacherId = 4;
+
+    // When computing scores we need to very carefully weave the above records together such that
+    // the following grading results are produced (and thus testable)
+
+    // What are the grading stats for one student and one section?
+    const studentToGrade = FixtureConstants::student1_id;
+    const sectionToGrade = FixtureConstants::section1_id;
+
+    // How many times did this class meet for this section?
+    const clazzCnt = 3;
+
 }

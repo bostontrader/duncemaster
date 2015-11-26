@@ -65,9 +65,9 @@ class StudentsController extends AppController {
 
         if(array_key_exists('section_id', $this->request->query)) {
             $this->loadComponent('Grader');
-            $grade = $this->Grader->getGradeInfo(null, null);
-            $this->set('grade', $grade);
             $section_id=$this->request->query['section_id'];
+            $grade = $this->Grader->getGradeInfo($section_id, $id);
+            $this->set('grade', $grade);
         } else {
             $section_id=null;
         }
