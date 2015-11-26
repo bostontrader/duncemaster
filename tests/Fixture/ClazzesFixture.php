@@ -1,9 +1,7 @@
 <?php
 namespace App\Test\Fixture;
 
-use Cake\TestSuite\Fixture\TestFixture;
-
-class ClazzesFixture extends TestFixture {
+class ClazzesFixture extends DMFixture {
     public $import = ['table' => 'clazzes'];
 
     // These records are injected into the db before the tests.  We need to specify the
@@ -49,10 +47,4 @@ class ClazzesFixture extends TestFixture {
         parent::init();
     }
 
-    // Given an id, return the first fixture record found with that id, or null if not found.
-    public function get($id) {
-        foreach ($this->records as $record)
-            if ($record['id'] == $id) return $record;
-        return null;
-    }
 }

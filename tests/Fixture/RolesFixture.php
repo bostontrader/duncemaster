@@ -1,9 +1,7 @@
 <?php
 namespace App\Test\Fixture;
 
-use Cake\TestSuite\Fixture\TestFixture;
-
-class RolesFixture extends TestFixture {
+class RolesFixture extends DMFixture {
     public $import = ['table' => 'roles'];
 
     // These records are injected into the db before the tests.  We need to specify the

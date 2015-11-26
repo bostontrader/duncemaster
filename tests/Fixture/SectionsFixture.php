@@ -1,9 +1,7 @@
 <?php
 namespace App\Test\Fixture;
 
-use Cake\TestSuite\Fixture\TestFixture;
-
-class SectionsFixture extends TestFixture {
+class SectionsFixture extends DMFixture {
     public $import = ['table' => 'sections'];
 
     // These records are injected into the db before the tests.  We need to specify the

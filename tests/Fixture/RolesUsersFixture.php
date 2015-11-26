@@ -1,9 +1,7 @@
 <?php
 namespace App\Test\Fixture;
 
-use Cake\TestSuite\Fixture\TestFixture;
-
-class RolesUsersFixture extends TestFixture {
+class RolesUsersFixture extends DMFixture {
     public $import = ['table' => 'roles_users'];
 
     //        admin advisor teacher student
