@@ -10,8 +10,13 @@ use Cake\Network\Response;
 use Cake\TestSuite\TestCase;
 
 class GraderComponentTest extends TestCase {
-    //public $component = null;
-    //public $controller = null;
+
+    public $fixtures = [
+        'app.clazzes',
+        'app.interactions',
+        'app.sections',
+        'app.students',
+    ];
 
     public function setUp() {
         //parent::setUp();

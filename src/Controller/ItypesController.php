@@ -3,6 +3,9 @@ namespace App\Controller;
 
 class ItypesController extends AppController {
 
+    const ATTEND=1;
+    const EJECT=2;
+
     public function add() {
         $this->request->allowMethod(['get', 'post']);
         $itype = $this->Itypes->newEntity();

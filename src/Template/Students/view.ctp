@@ -49,15 +49,19 @@
             </tr>
             <tr>
                 <th><?= __('Total attendance, this semester') ?></th>
-                <td><?= 666 ?></td>
+                <td><?= $grade['attendCnt'] ?></td>
             </tr>
             <tr>
                 <th><?= __('Excused absences, this semester') ?></th>
-                <td><?= 666 ?></td>
+                <td><?= $grade['excusedAbsenceCnt'] ?></td>
             </tr>
             <tr>
                 <th><?= __('Ejected from class, this semester') ?></th>
-                <td><?= 666 ?></td>
+                <td><?= $grade['ejectedFromClassCnt'] ?></td>
+            </tr>
+            <tr>
+                <th><?= __('Left class early, this semester') ?></th>
+                <td><?= $grade['leftClassEarlyCnt'] ?></td>
             </tr>
         </table>
         <?php } ?>

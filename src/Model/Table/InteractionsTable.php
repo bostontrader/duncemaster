@@ -33,6 +33,11 @@ class InteractionsTable extends Table {
             //'joinType' => 'INNER'
         ]);
 
+        $this->belongsTo('Itypes', [
+            //'foreignKey' => 'student_id',
+            //'joinType' => 'INNER'
+        ]);
+
         $this->belongsTo('Students', [
             //'foreignKey' => 'student_id',
             //'joinType' => 'INNER'

@@ -14,6 +14,10 @@
                 <th><?= __('Student') ?></th>
                 <td><?= $interaction->student->fullname ?></td>
             </tr>
+            <tr id="itype">
+                <th><?= __('Itype') ?></th>
+                <td><?= $interaction->itype->title ?></td>
+            </tr>
         </table>
     </div>
 </div>

@@ -11,6 +11,7 @@ class StudentsGradingTest extends DMIntegrationTestCase {
     public $fixtures = [
         'app.clazzes',
         'app.cohorts',
+        'app.interactions',
         'app.majors',
         'app.roles',
         'app.roles_users',

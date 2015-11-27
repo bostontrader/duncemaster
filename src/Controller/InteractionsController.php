@@ -17,7 +17,8 @@ class InteractionsController extends AppController {
         }
         $clazzes = $this->Interactions->Clazzes->find('list');
         $students = $this->Interactions->Students->find('list');
-        $this->set(compact('clazzes','interaction','students'));
+        $itypes = $this->Interactions->Itypes->find('list');
+        $this->set(compact('clazzes','interaction','itypes','students'));
     }
 
     public function delete($id = null) {
@@ -44,18 +45,19 @@ class InteractionsController extends AppController {
             }
         }
         $clazzes = $this->Interactions->Clazzes->find('list');
+        $itypes = $this->Interactions->Itypes->find('list');
         $students = $this->Interactions->Students->find('list');
-        $this->set(compact('clazzes','interaction','students'));
+        $this->set(compact('clazzes','interaction','itypes','students'));
     }
 
     public function index() {
         $this->request->allowMethod(['get']);
-        $this->set('interactions', $this->Interactions->find('all', ['contain' => ['Clazzes','Students']]));
+        $this->set('interactions', $this->Interactions->find('all', ['contain' => ['Clazzes','Itypes','Students']]));
     }
 
     public function view($id = null) {
         $this->request->allowMethod(['get']);
-        $interaction = $this->Interactions->get($id, ['contain' => ['Clazzes','Students']]);
+        $interaction = $this->Interactions->get($id, ['contain' => ['Clazzes','Itypes','Students']]);
         $this->set('interaction', $interaction);
     }
 }

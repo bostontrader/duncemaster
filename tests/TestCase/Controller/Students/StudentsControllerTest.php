@@ -9,6 +9,7 @@ use Cake\ORM\TableRegistry;
 class StudentsControllerTest extends DMIntegrationTestCase {
 
     public $fixtures = [
+        'app.clazzes',
         'app.cohorts',
         'app.majors',
         'app.roles',
@@ -21,7 +22,7 @@ class StudentsControllerTest extends DMIntegrationTestCase {
     /* @var \App\Model\Table\CohortsTable */
     private $cohorts;
 
-    /* @var \App\Model\Table\StudentsTable */
+    /* @var \App\Model\Table\SectionsTable */
     private $sections;
 
     /* @var \App\Model\Table\StudentsTable */
@@ -29,10 +30,6 @@ class StudentsControllerTest extends DMIntegrationTestCase {
 
     private $sectionsFixture;
     private $studentsFixture;
-
-    // If I put this in the super-class phpstorm won't understand their types
-    /* @var \simple_html_dom_node */
-    private $content,$field,$form,$htmlRow,$table,$tbody,$td,$thead;
 
     public function setUp() {
         parent::setUp();

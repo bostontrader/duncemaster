@@ -3,6 +3,7 @@ namespace App\Test\TestCase\Controller;
 
 use App\Test\Fixture\FixtureConstants;
 use App\Test\Fixture\ClazzesFixture;
+use App\Test\Fixture\ItypesFixture;
 use App\Test\Fixture\InteractionsFixture;
 use App\Test\Fixture\StudentsFixture;
 use Cake\ORM\TableRegistry;
@@ -12,16 +13,24 @@ class InteractionsControllerTest extends DMIntegrationTestCase {
     public $fixtures = [
         'app.clazzes',
         'app.interactions',
+        'app.itypes',
         'app.roles',
         'app.roles_users',
         'app.students',
         'app.users'
     ];
 
+    /* @var \App\Model\Table\ClazzesTable */
     private $clazzes;
+
+    /* @var \App\Model\Table\InteractionsTable */
     private $interactions;
+
+    /* @var \App\Model\Table\StudentsTable */
     private $students;
+    
     private $clazzesFixture;
+    private $itypesFixture;
     private $interactionsFixture;
     private $studentsFixture;
 
@@ -31,6 +40,7 @@ class InteractionsControllerTest extends DMIntegrationTestCase {
         $this->interactions = TableRegistry::get('Interactions');
         $this->students = TableRegistry::get('Students');
         $this->clazzesFixture = new ClazzesFixture();
+        $this->itypesFixture = new ItypesFixture();
         $this->interactionsFixture = new InteractionsFixture();
         $this->studentsFixture = new StudentsFixture();
     }
@@ -59,8 +69,8 @@ class InteractionsControllerTest extends DMIntegrationTestCase {
         $html = str_get_html($this->_response->body());
 
         // 3. Ensure that the correct form exists
-        $form = $html->find('form#InteractionAddForm',0);
-        $this->assertNotNull($form);
+        $this->form = $html->find('form#InteractionAddForm',0);
+        $this->assertNotNull($this->form);
 
         // 4. Now inspect the fields on the form.  We want to know that:
         // A. The correct fields are there and no other fields.
@@ -71,19 +81,23 @@ class InteractionsControllerTest extends DMIntegrationTestCase {
 
         // 4.1 These are counts of the select and input fields on the form.  They
         // are presently unaccounted for.
-        $unknownSelectCnt = count($form->find('select'));
-        $unknownInputCnt = count($form->find('input'));
+        $unknownSelectCnt = count($this->form->find('select'));
+        $unknownInputCnt = count($this->form->find('input'));
 
         // 4.2 Look for the hidden POST input
-        if($this->lookForHiddenInput($form)) $unknownInputCnt--;
+        if($this->lookForHiddenInput($this->form)) $unknownInputCnt--;
 
         // 4.3 Ensure that there's a select field for clazz_id, that it has no selection,
         //    and that it has the correct quantity of available choices.
-        if($this->lookForSelect($form,'InteractionClazzId','clazzes')) $unknownSelectCnt--;
+        if($this->selectCheckerA($this->form, 'InteractionClazzId','clazzes')) $unknownSelectCnt--;
 
-        // 4.3 Ensure that there's a select field for student_id, that it has no selection,
+        // 4.4 Ensure that there's a select field for student_id, that it has no selection,
         //    and that it has the correct quantity of available choices.
-        if($this->lookForSelect($form,'InteractionStudentId','students')) $unknownSelectCnt--;
+        if($this->selectCheckerA($this->form, 'InteractionStudentId','students')) $unknownSelectCnt--;
+
+        // 4.4 Ensure that there's a select field for itype_id, that it has no selection,
+        //    and that it has the correct quantity of available choices.
+        if($this->selectCheckerA($this->form, 'InteractionItypeId','itypes')) $unknownSelectCnt--;
 
         // 4.9 Have all the input and select fields been accounted for?  Are there
         // any extras?
@@ -91,9 +105,9 @@ class InteractionsControllerTest extends DMIntegrationTestCase {
         $this->assertEquals(0, $unknownSelectCnt);
 
         // 5. Examine the <A> tags on this page.  There should be zero links.
-        $content = $html->find('div#InteractionsAdd',0);
-        $this->assertNotNull($content);
-        $links = $content->find('a');
+        $this->content = $html->find('div#InteractionsAdd',0);
+        $this->assertNotNull($this->content);
+        $links = $this->content->find('a');
         $this->assertEquals(0,count($links));
     }
 
@@ -113,6 +127,7 @@ class InteractionsControllerTest extends DMIntegrationTestCase {
         $new_interaction = $this->interactions->get($new_id);
         $this->assertEquals($new_interaction['clazz_id'],$this->interactionsFixture->newInteractionRecord['clazz_id']);
         $this->assertEquals($new_interaction['student_id'],$this->interactionsFixture->newInteractionRecord['student_id']);
+        $this->assertEquals($new_interaction['itype_id'],$this->interactionsFixture->newInteractionRecord['itype_id']);
     }
 
     public function testDeletePOST() {
@@ -140,8 +155,8 @@ class InteractionsControllerTest extends DMIntegrationTestCase {
         $html = str_get_html($this->_response->body());
 
         // 3. Ensure that the correct form exists
-        $form = $html->find('form#InteractionEditForm',0);
-        $this->assertNotNull($form);
+        $this->form = $html->find('form#InteractionEditForm', 0);
+        $this->assertNotNull($this->form);
 
         // 4. Now inspect the fields on the form.  We want to know that:
         // A. The correct fields are there and no other fields.
@@ -152,14 +167,14 @@ class InteractionsControllerTest extends DMIntegrationTestCase {
 
         // 4.1 These are counts of the select and input fields on the form.  They
         // are presently unaccounted for.
-        $unknownSelectCnt = count($form->find('select'));
-        $unknownInputCnt = count($form->find('input'));
+        $unknownSelectCnt = count($this->form->find('select'));
+        $unknownInputCnt = count($this->form->find('input'));
 
         // 4.2 Look for the hidden POST input
-        if($this->lookForHiddenInput($form,'_method','PUT')) $unknownInputCnt--;
+        if ($this->lookForHiddenInput($this->form, '_method', 'PUT')) $unknownInputCnt--;
 
         // 4.3. Ensure that there's a select field for clazz_id and that it is correctly set
-        $option = $form->find('select#InteractionClazzId option[selected]',0);
+        $option = $this->form->find('select#InteractionClazzId option[selected]', 0);
         $clazz_id = $this->interactionsFixture->interaction1Record['clazz_id'];
         $this->assertEquals($option->value, $clazz_id);
 
@@ -171,7 +186,7 @@ class InteractionsControllerTest extends DMIntegrationTestCase {
         $unknownSelectCnt--;
 
         // 4.4 Ensure that there's a select field for student_id and that it is correctly set
-        $option = $form->find('select#InteractionStudentId option[selected]',0);
+        $option = $this->form->find('select#InteractionStudentId option[selected]', 0);
         $student_id = $this->interactionsFixture->interaction1Record['student_id'];
         $this->assertEquals($option->value, $student_id);
 
@@ -182,16 +197,27 @@ class InteractionsControllerTest extends DMIntegrationTestCase {
         $this->assertEquals($student->fullname, $option->plaintext);
         $unknownSelectCnt--;
 
+        // 4.5 Ensure that there's a select field for itype_id and that it is correctly set
+        $option = $this->form->find('select#InteractionItypeId option[selected]', 0);
+        $itype_id = $this->interactionsFixture->interaction1Record['itype_id'];
+        $this->assertEquals($option->value, $itype_id);
+
+        // Even though itype_id is correct, we don't display itype_id.  Instead we display the title
+        // from the related Itypes table. Verify that title is displayed correctly.
+        $itype = $this->itypesFixture->get($itype_id);
+        $this->assertEquals($itype['title'], $option->plaintext);
+        $unknownSelectCnt--;
+
         // 4.9 Have all the input and select fields been accounted for?  Are there
         // any extras?
         $this->assertEquals(0, $unknownInputCnt);
         $this->assertEquals(0, $unknownSelectCnt);
 
         // 5. Examine the <A> tags on this page.  There should be zero links.
-        $content = $html->find('div#InteractionsEdit',0);
-        $this->assertNotNull($content);
-        $links = $content->find('a');
-        $this->assertEquals(0,count($links));
+        $this->content = $html->find('div#InteractionsEdit', 0);
+        $this->assertNotNull($this->content);
+        $links = $this->content->find('a');
+        $this->assertEquals(0, count($links));
     }
 
     public function testEditPOST() {
@@ -208,8 +234,9 @@ class InteractionsControllerTest extends DMIntegrationTestCase {
 
         // Now retrieve that 1 record and compare to what we expect
         $interaction = $this->interactions->get($interaction_id);
-        $this->assertEquals($interaction['clazz_id'],$this->interactionsFixture->newInteractionRecord['clazz_id']);
-        $this->assertEquals($interaction['student_id'],$this->interactionsFixture->newInteractionRecord['student_id']);
+        $this->assertEquals($interaction['clazz_id'], $this->interactionsFixture->newInteractionRecord['clazz_id']);
+        $this->assertEquals($interaction['student_id'], $this->interactionsFixture->newInteractionRecord['student_id']);
+        $this->assertEquals($interaction['itype_id'], $this->interactionsFixture->newInteractionRecord['itype_id']);
 
     }
 
@@ -225,46 +252,47 @@ class InteractionsControllerTest extends DMIntegrationTestCase {
         $html = str_get_html($this->_response->body());
 
         // 3. Get a the count of all <A> tags that are presently unaccounted for.
-        $content = $html->find('div#InteractionsIndex',0);
-        $this->assertNotNull($content);
-        $unknownATag = count($content->find('a'));
+        $this->content = $html->find('div#InteractionsIndex', 0);
+        $this->assertNotNull($this->content);
+        $unknownATag = count($this->content->find('a'));
 
         // 4. Look for the create new interaction link
         $this->assertEquals(1, count($html->find('a#InteractionAdd')));
         $unknownATag--;
 
         // 5. Ensure that there is a suitably named table to display the results.
-        $interactions_table = $html->find('table#InteractionsTable',0);
-        $this->assertNotNull($interactions_table);
+        $this->table = $html->find('table#InteractionsTable', 0);
+        $this->assertNotNull($this->table);
 
-        // 6. Ensure that said table's thead element contains the correct
+        // 6. Ensure that said table's thead element co`ntains the correct
         //    headings, in the correct order, and nothing else.
-        $thead = $interactions_table->find('thead',0);
-        $thead_ths = $thead->find('tr th');
+        $this->thead = $this->table->find('thead', 0);
+        $this->thead_ths = $this->thead->find('tr th');
 
-        $this->assertEquals($thead_ths[0]->id, 'clazz');
-        $this->assertEquals($thead_ths[1]->id, 'student');
-        $this->assertEquals($thead_ths[2]->id, 'actions');
-        $column_count = count($thead_ths);
-        $this->assertEquals($column_count,3); // no other columns
+        $this->assertEquals($this->thead_ths[0]->id, 'clazz');
+        $this->assertEquals($this->thead_ths[1]->id, 'student');
+        $this->assertEquals($this->thead_ths[2]->id, 'itype');
+        $this->assertEquals($this->thead_ths[3]->id, 'actions');
+        $column_count = count($this->thead_ths);
+        $this->assertEquals($column_count, 4); // no other columns
 
         // 7. Ensure that the tbody section has the same
         //    quantity of rows as the count of interaction records in the fixture.
-        $tbody = $interactions_table->find('tbody',0);
-        $tbody_rows = $tbody->find('tr');
-        $this->assertEquals(count($tbody_rows), count($this->interactionsFixture->records));
+        $this->tbody = $this->table->find('tbody', 0);
+        $this->tbody_rows = $this->tbody->find('tr');
+        $this->assertEquals(count($this->tbody_rows), count($this->interactionsFixture->records));
 
         // 8. Ensure that the values displayed in each row, match the values from
         //    the fixture.  The values should be presented in a particular order
         //    with nothing else thereafter.
         $iterator = new \MultipleIterator();
         $iterator->attachIterator(new \ArrayIterator($this->interactionsFixture->records));
-        $iterator->attachIterator(new \ArrayIterator($tbody_rows));
+        $iterator->attachIterator(new \ArrayIterator($this->tbody_rows));
 
         foreach ($iterator as $values) {
             $fixtureRecord = $values[0];
-            $htmlRow = $values[1];
-            $htmlColumns = $htmlRow->find('td');
+            $this->htmlRow = $values[1];
+            $htmlColumns = $this->htmlRow->find('td');
 
             // 8.0 clazz_nickname. read from Table because we need to compute
             // the 'nickname' virtual field.
@@ -274,12 +302,16 @@ class InteractionsControllerTest extends DMIntegrationTestCase {
             // 8.1 student_fullname. read from Table because we need to compute
             // the 'fullname' virtual field.
             $student = $this->students->get($fixtureRecord['student_id']);
-            $s1 = $student->fullname;
-            $s2 = $htmlColumns[0]->plaintext;
             $this->assertEquals($student->fullname, $htmlColumns[1]->plaintext);
 
+            // 8.2 itype_id requires finding the related value in the ItypesFixture
+            $itype_id = $fixtureRecord['itype_id'];
+            $itype = $this->itypesFixture->get($itype_id);
+            $this->assertEquals($itype['title'], $htmlColumns[2]->plaintext);
+
             // 8.2 Now examine the action links
-            $actionLinks = $htmlRow->find('a');
+            $this->td = $htmlColumns[3];
+            $actionLinks = $this->td->find('a');
             $this->assertEquals('InteractionView', $actionLinks[0]->name);
             $unknownATag--;
             $this->assertEquals('InteractionEdit', $actionLinks[1]->name);
@@ -288,13 +320,13 @@ class InteractionsControllerTest extends DMIntegrationTestCase {
             $unknownATag--;
 
             // 8.9 No other columns
-            $this->assertEquals(count($htmlColumns),$column_count);
+            $this->assertEquals(count($htmlColumns), $column_count);
         }
 
         // 9. Ensure that all the <A> tags have been accounted for
         $this->assertEquals(0, $unknownATag);
     }
-    
+
     public function testViewGET() {
 
         $this->fakeLogin(FixtureConstants::userAndyAdminId);
@@ -306,8 +338,8 @@ class InteractionsControllerTest extends DMIntegrationTestCase {
         $html = str_get_html($this->_response->body());
 
         // 1.  Look for the table that contains the view fields.
-        $table = $html->find('table#InteractionViewTable',0);
-        $this->assertNotNull($table);
+        $this->table = $html->find('table#InteractionViewTable', 0);
+        $this->assertNotNull($this->table);
 
         // 2. Now inspect the fields on the form.  We want to know that:
         // A. The correct fields are there and no other fields.
@@ -316,20 +348,25 @@ class InteractionsControllerTest extends DMIntegrationTestCase {
         //  The actual order that the fields are listed is hereby deemed unimportant.
 
         // This is the count of the table rows that are presently unaccounted for.
-        $unknownRowCnt = count($table->find('tr'));
+        $unknownRowCnt = count($this->table->find('tr'));
 
         // 2.1 clazz requires finding the nickname, which is computed by the Clazz Entity.
-        $field = $html->find('tr#clazz td',0);
+        $field = $html->find('tr#clazz td', 0);
         $clazz = $this->clazzes->get($this->interactionsFixture->interaction1Record['clazz_id']);
-        $s1 = $clazz->nickname;
-        $s2 = $field->plaintext;
         $this->assertEquals($clazz->nickname, $field->plaintext);
         $unknownRowCnt--;
 
         // 2.2 student requires finding the nickname, which is computed by the Semester Entity.
-        $field = $html->find('tr#student td',0);
+        $field = $html->find('tr#student td', 0);
         $student = $this->students->get($this->interactionsFixture->interaction1Record['student_id']);
         $this->assertEquals($student->fullname, $field->plaintext);
+        $unknownRowCnt--;
+
+        // 2.3 itype_id requires finding the related value in the ItypesFixture
+        $field = $html->find('tr#itype td', 0);
+        $itype_id = $this->interactionsFixture->interaction1Record['itype_id'];
+        $itype = $this->itypesFixture->get($itype_id);
+        $this->assertEquals($itype['title'], $field->plaintext);
         $unknownRowCnt--;
 
         // Have all the rows been accounted for?  Are there
@@ -337,10 +374,9 @@ class InteractionsControllerTest extends DMIntegrationTestCase {
         $this->assertEquals(0, $unknownRowCnt);
 
         // 3. Examine the <A> tags on this page.  There should be zero links.
-        $content = $html->find('div#InteractionsView',0);
-        $this->assertNotNull($content);
-        $links = $content->find('a');
-        $this->assertEquals(0,count($links));
+        $this->content = $html->find('div#InteractionsView', 0);
+        $this->assertNotNull($this->content);
+        $links = $this->content->find('a');
+        $this->assertEquals(0, count($links));
     }
-
 }
