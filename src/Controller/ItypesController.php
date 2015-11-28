@@ -5,6 +5,9 @@ class ItypesController extends AppController {
 
     const ATTEND=1;
     const EJECT=2;
+    const LEAVE=3;
+    const PARTICIPATE=4;
+    const EXCUSED=5;
 
     public function add() {
         $this->request->allowMethod(['get', 'post']);

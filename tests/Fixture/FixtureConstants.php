@@ -16,11 +16,16 @@ class FixtureConstants {
     const cohort2_id = 2;
 
     const interaction1_id = 1;
+    //const interaction2_id = 2;
+    //const interaction3_id = 3;
+    //const interaction4_id = 4;
+    //const interaction5_id = 5;
 
     const itypeAttend_id = 1;
     const itypeEject_id = 2;
     const itypeLeave_id = 3;
     const itypeParticipate_id = 4;
+    const itypeExcusedAbsence_id = 5;
 
     const major1_id = 1;
     const major2_id = 2;
@@ -65,5 +70,8 @@ class FixtureConstants {
 
     // How many times did this class meet for this section?
     const clazzCnt = 3;
-
+    const attendCnt = 1;
+    const excusedAbsenceCnt = 1;
+    const ejectedFromClassCnt = 1;
+    const leftClassCnt = 1;
 }

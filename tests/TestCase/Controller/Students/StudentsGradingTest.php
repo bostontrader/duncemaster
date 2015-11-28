@@ -68,7 +68,25 @@ class StudentsGradingTest extends DMIntegrationTestCase {
         $field = $row->find('td',0);
         $this->assertEquals(FixtureConstants::clazzCnt, $field->plaintext);
 
+        // 4.1 attendCnt
+        $row=$rows[1];
+        $field = $row->find('td',0);
+        $this->assertEquals(FixtureConstants::attendCnt, $field->plaintext);
 
+        // 4.2 excusedAbsenceCnt
+        $row=$rows[1];
+        $field = $row->find('td',0);
+        $this->assertEquals(FixtureConstants::excusedAbsenceCnt, $field->plaintext);
+
+        // 4.3 ejectedFromClassCnt
+        $row=$rows[1];
+        $field = $row->find('td',0);
+        $this->assertEquals(FixtureConstants::ejectedFromClassCnt, $field->plaintext);
+
+        // 4.4 leftClassCnt
+        $row=$rows[1];
+        $field = $row->find('td',0);
+        $this->assertEquals(FixtureConstants::leftClassCnt, $field->plaintext);
     }
 
 }

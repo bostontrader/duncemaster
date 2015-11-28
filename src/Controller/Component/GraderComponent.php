@@ -1,15 +1,31 @@
 <?php
 namespace App\Controller\Component;
+use App\Controller\ItypesController;
 use Cake\Controller\Component;
 use Cake\ORM\TableRegistry;
 
 class GraderComponent extends Component {
+
 
     // Get the grades for a given semester and teacher.
     // For all sections with a given semester and teacher...
     //     Get the grades for a particular section.
     //     (Given a section, we know the semester and teacher.)
     //
+
+    private function itypeCounter($interactions, $itype_id, $section_id, $student_id) {
+        $query = $interactions->
+            find()->
+            contain('Clazzes.Sections')->
+            where(
+                [
+                    'section_id' => $section_id,
+                    'student_id' => $student_id,
+                    'itype_id' => $itype_id
+                ]
+            );
+        return $query->count();
+    }
 
     // Get the grades for a particular student from a particular section.
     public function getGradeInfo($section_id = null, $student_id = null) {
@@ -21,23 +37,16 @@ class GraderComponent extends Component {
         $clazzCnt=$query->count();
 
         // 2. How many times has the student attended that section?
-        $query = $interactions->find()->contain('Clazzes.Sections')->where(['section_id' => $section_id,'student_id' => $student_id]);
-        $attendCnt=$query->count();
+        $attendCnt=$this->itypeCounter($interactions, ItypesController::ATTEND, $section_id, $student_id);
 
         // 3. How many excused absences does the student have?
-        // select count(*) from interactions where student_id = student and section_id = section and code=excused absence
-        $query = $interactions->find()->contain('Clazzes.Sections');
-        $excusedAbsenceCnt=$query->count();
+        $excusedAbsenceCnt=$this->itypeCounter($interactions, ItypesController::EXCUSED, $section_id, $student_id);
 
         // 4. How many times has the student been ejected from class?
-        // select count(*) from interactions where student_id = student and section_id = section and code=ejected
-        $query = $interactions->find()->contain('Clazzes.Sections');
-        $ejectedFromClassCnt=$query->count();
+        $ejectedFromClassCnt=$this->itypeCounter($interactions, ItypesController::EJECT, $section_id, $student_id);
 
-        // 5. How many times has the student voluntarily left class early?
-        // select count(*) from interactions where student_id = student and section_id = section and code=ejected
-        $query = $interactions->find()->contain('Clazzes.Sections');
-        $leftClassEarlyCnt=$query->count();
+        // 5. How many times has the student left the class?
+        $leftClassCnt=$this->itypeCounter($interactions, ItypesController::LEAVE, $section_id, $student_id);
 
         // A = 2 + 3 - 4 / 1
         // What is the average class participation ?
@@ -55,7 +64,7 @@ class GraderComponent extends Component {
             'attendCnt'=>$attendCnt,
             'excusedAbsenceCnt'=>$excusedAbsenceCnt,
             'ejectedFromClassCnt'=>$ejectedFromClassCnt,
-            'leftClassEarlyCnt'=>$leftClassEarlyCnt,
+            'leftClassCnt'=>$leftClassCnt,
             'classroom_participation'=>[1,2,3],
             'final_exam'=>8
         ];

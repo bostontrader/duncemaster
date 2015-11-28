@@ -25,6 +25,71 @@ class InteractionsFixture extends DMFixture {
         $this->records = [
             $this->interaction1Record
         ];
+
+        // Add additional records for the grading tests.
+        // We are tempted to omit the id because we don't directly need it.
+        // However, there is a bug whereby the ordinary auto-increment sequence
+        // will have a skipped value. This fubars our test.
+        $nextId=FixtureConstants::interaction1_id+1;
+        $this->records=array_merge(
+            [$this->interaction1Record],
+            [
+                [
+                    'id'=>$nextId++,
+                    'clazz_id'=>FixtureConstants::clazz1_id,
+                    'student_id'=>FixtureConstants::student1_id,
+                    'itype_id'=>ItypesController::EJECT
+                ],
+                [
+                    'id'=>$nextId++,
+                    'clazz_id'=>FixtureConstants::clazz1_id,
+                    'student_id'=>FixtureConstants::student1_id,
+                    'itype_id'=>ItypesController::LEAVE
+                ],
+                [
+                    'id'=>$nextId++,
+                    'clazz_id'=>FixtureConstants::clazz1_id,
+                    'student_id'=>FixtureConstants::student1_id,
+                    'itype_id'=>ItypesController::PARTICIPATE
+                ],/*
+                [
+                    'id'=>$nextId++,
+                    'clazz_id'=>FixtureConstants::clazz1_id,
+                    'student_id'=>FixtureConstants::student1_id,
+                    'itype_id'=>ItypesController::EXCUSED
+                ],*/
+                [
+                    'id'=>$nextId++,
+                    'clazz_id'=>FixtureConstants::clazz1_id,
+                    'student_id'=>FixtureConstants::student2_id,
+                    'itype_id'=>ItypesController::ATTEND
+                ],
+                [
+                    'id'=>$nextId++,
+                    'clazz_id'=>FixtureConstants::clazz1_id,
+                    'student_id'=>FixtureConstants::student2_id,
+                    'itype_id'=>ItypesController::EJECT
+                ]/*,
+                [
+                    'id'=>$nextId++,
+                    'clazz_id'=>FixtureConstants::clazz1_id,
+                    'studet_id'=>FixtureConstants::student2_id,
+                    'itype_id'=>ItypesController::LEAVE
+                ],
+                [
+                    'id'=>$nextId++,
+                    'clazz_id'=>FixtureConstants::clazz1_id,
+                    'student_id'=>FixtureConstants::student2_id,
+                    'itype_id'=>ItypesController::PARTICIPATE
+                ],
+                [
+                    'id'=>$nextId++,
+                    'clazz_id'=>FixtureConstants::clazz1_id,
+                    'student_id'=>FixtureConstants::student2_id,
+                    'itype_id'=>ItypesController::EXCUSED
+                ]*/
+            ]
+        );
         parent::init();
     }
 }

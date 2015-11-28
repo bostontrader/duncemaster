@@ -61,7 +61,7 @@
             </tr>
             <tr>
                 <th><?= __('Left class early, this semester') ?></th>
-                <td><?= $grade['leftClassEarlyCnt'] ?></td>
+                <td><?= $grade['leftClassCnt'] ?></td>
             </tr>
         </table>
         <?php } ?>

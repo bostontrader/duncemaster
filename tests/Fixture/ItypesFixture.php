@@ -22,7 +22,10 @@ class ItypesFixture extends DMFixture {
         'id'=>FixtureConstants::itypeParticipate_id,
         'title' => 'Participate'
     ];
-
+    public $itypeExcusedAbsenceRecord = [
+        'id'=>FixtureConstants::itypeExcusedAbsence_id,
+        'title' => 'Participate'
+    ];
     // This record will be added during a test.  We don't need or want to control the id here, so omit it.
     public $newItypeRecord = ['title' => 'Massacre class'];
 
