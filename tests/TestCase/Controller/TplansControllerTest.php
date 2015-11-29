@@ -8,11 +8,8 @@ use Cake\ORM\TableRegistry;
 class TplansControllerTest extends DMIntegrationTestCase {
 
     public $fixtures = [
-        //'app.cohorts',
-        //'app.majors',
         'app.roles',
         'app.roles_users',
-        //'app.sections',
         'app.tplans',
         'app.users'
     ];
@@ -23,22 +20,15 @@ class TplansControllerTest extends DMIntegrationTestCase {
     //private $sectionsFixture;
     private $tplansFixture;
 
-    // If I put this in the super-class phpstorm won't understand their types
-    /* @var \simple_html_dom_node */
-    //private $content,$field,$form,$htmlRow,$input,$table,$tbody,$td,$thead;
-
     public function setUp() {
         parent::setUp();
-        //$this->cohorts = TableRegistry::get('Cohorts');
-        //$this->sections = TableRegistry::get('Sections');
         $this->tplans = TableRegistry::get('Tplans');
-        //$this->sectionsFixture = new SectionsFixture();
         $this->tplansFixture = new TplansFixture();
     }
 
     // Test that unauthenticated users, when submitting a request to
     // an action, will get redirected to the login url.
-/*    public function testUnauthenticatedActionsAndUsers() {
+    public function testUnauthenticatedActionsAndUsers() {
         $this->tstUnauthenticatedActionsAndUsers('tplans');
     }
 
@@ -47,7 +37,7 @@ class TplansControllerTest extends DMIntegrationTestCase {
     public function testUnauthorizedActionsAndUsers() {
         $this->tstUnauthorizedActionsAndUsers('tplans');
     }
-*/
+
     public function testAddGET() {
 
         // 1. Simulate login, submit request, examine response.
@@ -260,20 +250,30 @@ class TplansControllerTest extends DMIntegrationTestCase {
     }
 
     public function testViewGET() {
+        // 1. Simulate login, submit request, examine response.
         $this->fakeLogin(FixtureConstants::userAndyAdminId);
         $fixtureRecord=$this->tplansFixture->tplan1Record;
         $this->get('/tplans/view/' . $fixtureRecord['id']);
         $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();
 
-        // Parse the html from the response
+        // 2. Parse the html from the response
         $html = str_get_html($this->_response->body());
 
-        // 1.  Look for the table that contains the view fields.
+        // 3. Get a the count of all <A> tags that are presently unaccounted for.
+        $this->content = $html->find('div#TplansView',0);
+        $this->assertNotNull($this->content);
+        $unknownATag = count($this->content->find('a'));
+
+        // 4. Look for the create new tplan_elements link
+        $this->assertEquals(1, count($html->find('a#TplanElementAdd')));
+        $unknownATag--;
+
+        // 5.  Look for the table that contains the view fields.
         $this->table = $html->find('table#TplanViewTable',0);
         $this->assertNotNull($this->table);
 
-        // 2. Now inspect the fields in the table.  We want to know that:
+        // 6. Now inspect the fields in the table.  We want to know that:
         // A. The correct fields are there and no other fields.
         // B. The fields have correct values.
         //
@@ -282,18 +282,100 @@ class TplansControllerTest extends DMIntegrationTestCase {
         // This is the count of the table rows that are presently unaccounted for.
         $unknownRowCnt = count($this->table->find('tr'));
 
-        // 2.1 title
+        // 6.1 title
         $field = $html->find('tr#title td',0);
         $this->assertEquals($fixtureRecord['title'], $field->plaintext);
         $unknownRowCnt--;
 
-        // 2.9 Have all the rows been accounted for?  Are there any extras?
+        // 6.9 Have all the rows been accounted for?  Are there any extras?
         $this->assertEquals(0, $unknownRowCnt);
 
-        // 3. Examine the <A> tags on this page.  There should be zero links.
-        $this->content = $html->find('div#TplansView',0);
-        $this->assertNotNull($this->content);
-        $links = $this->content->find('a');
-        $this->assertEquals(0,count($links));
+        // 7. Examine the table of related tplan_elements. This part is substantially
+        //    the same as the core of TplanElementsControllerTests::testIndexGet.
+        //    Hence a good candidate for refactoring.
+
+        // 1. Simulate login, submit request, examine response.
+        //$this->fakeLogin(FixtureConstants::userAndyAdminId);
+        //$this->get('/tplan-elements/index');
+        //$this->assertResponseOk(); // 2xx
+        //$this->assertNoRedirect();
+
+        // 2. Parse the html from the response
+        //$html = str_get_html($this->_response->body());
+
+        // 3. Get a the count of all <A> tags that are presently unaccounted for.
+        //$this->content = $html->find('div#TplanElementsIndex',0);
+        //$this->assertNotNull($this->content);
+        //$unknownATag = count($this->content->find('a'));
+
+        // 4. Look for the create new tplan_element link
+        //$this->assertEquals(1, count($html->find('a#TplanElementAdd')));
+        //$unknownATag--;
+
+        // 5. Ensure that there is a suitably named table to display the results.
+        $this->table = $html->find('table#TplanElementsTable',0);
+        $this->assertNotNull($this->table);
+
+        // 6. Ensure that said table's thead element contains the correct
+        //    headings, in the correct order, and nothing else.
+        $this->thead = $this->table->find('thead',0);
+        $thead_ths = $this->thead->find('tr th');
+
+        $this->assertEquals($thead_ths[0]->id, 'col1');
+        $this->assertEquals($thead_ths[1]->id, 'col2');
+        $this->assertEquals($thead_ths[2]->id, 'actions');
+        $column_count = count($thead_ths);
+        $this->assertEquals($column_count,3); // no other columns
+
+        // 7. Ensure that the tbody section has the same
+        //    quantity of rows as the count of tplan_elements records in the fixture.
+        $this->tbody = $this->table->find('tbody',0);
+        $tbody_rows = $this->tbody->find('tr');
+        $this->assertEquals(count($tbody_rows), count($this->tplan_elementsFixture->records));
+
+        // 8. Ensure that the values displayed in each row, match the values from
+        //    the fixture.  The values should be presented in a particular order
+        //    with nothing else thereafter.
+        $iterator = new \MultipleIterator();
+        $iterator->attachIterator(new \ArrayIterator($this->tplan_elementsFixture->records));
+        $iterator->attachIterator(new \ArrayIterator($tbody_rows));
+
+        foreach ($iterator as $values) {
+            $fixtureRecord = $values[0];
+            $this->htmlRow = $values[1];
+            $htmlColumns = $this->htmlRow->find('td');
+
+            // 8.0 col1
+            $this->assertEquals($fixtureRecord['col1'],  $htmlColumns[0]->plaintext);
+
+            // 8.1 col2
+            $this->assertEquals($fixtureRecord['col2'],  $htmlColumns[1]->plaintext);
+
+            // 8.2 Now examine the action links
+            $this->td = $htmlColumns[2];
+            $actionLinks = $this->td->find('a');
+            $this->assertEquals('TplanElementView', $actionLinks[0]->name);
+            $unknownATag--;
+            $this->assertEquals('TplanElementEdit', $actionLinks[1]->name);
+            $unknownATag--;
+            $this->assertEquals('TplanElementDelete', $actionLinks[2]->name);
+            $unknownATag--;
+
+            // 8.9 No other columns
+            $this->assertEquals(count($htmlColumns),$column_count);
+        }
+
+        // 9. Ensure that all the <A> tags have been accounted for
+        //$this->assertEquals(0, $unknownATag);
+
+
+
+
+
+
+
+
+        // 6. Ensure that all the <A> tags have been accounted for
+        $this->assertEquals(0, $unknownATag);
     }
 }
