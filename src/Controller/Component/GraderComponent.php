@@ -48,7 +48,12 @@ class GraderComponent extends Component {
         // 5. How many times has the student left the class?
         $leftClassCnt=$this->itypeCounter($interactions, ItypesController::LEAVE, $section_id, $student_id);
 
-        // A = 2 + 3 - 4 / 1
+        // A = sum(2+-5) / 1
+        if($clazzCnt == 0) {
+            $scoreAttendance=0;
+        } else {
+            $scoreAttendance=($attendCnt+$excusedAbsenceCnt-$ejectedFromClassCnt-$leftClassCnt)/$clazzCnt;
+        }
         // What is the average class participation ?
         // select avg from interactions where student_id = student and section_id = section and code=participation
 
@@ -65,6 +70,7 @@ class GraderComponent extends Component {
             'excusedAbsenceCnt'=>$excusedAbsenceCnt,
             'ejectedFromClassCnt'=>$ejectedFromClassCnt,
             'leftClassCnt'=>$leftClassCnt,
+            'scoreAttendance'=>$scoreAttendance,
             'classroom_participation'=>[1,2,3],
             'final_exam'=>8
         ];

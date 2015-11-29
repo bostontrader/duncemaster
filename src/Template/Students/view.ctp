@@ -63,6 +63,10 @@
                 <th><?= __('Left class early, this semester') ?></th>
                 <td><?= $grade['leftClassCnt'] ?></td>
             </tr>
+            <tr>
+                <th><?= __('Score- Attendance, this semester') ?></th>
+                <td><?= $grade['scoreAttendance'] ?></td>
+            </tr>
         </table>
         <?php } ?>
     </div>
