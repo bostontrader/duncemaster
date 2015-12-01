@@ -8,6 +8,7 @@
         <fieldset>
             <legend><?= __('Add TplanElement') ?></legend>
             <?php
+                echo $this->Form->input('tplan_id', ['id'=>'TplanElementTplanId', 'options' => $tplans, 'empty' => '(none selected)']);
                 echo $this->Form->input('col1',['id'=>'TplanElementCol1']);
                 echo $this->Form->input('col2',['id'=>'TplanElementCol2']);
             ?>

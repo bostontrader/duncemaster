@@ -10,6 +10,7 @@ class TplanElementsControllerTest extends DMIntegrationTestCase {
     public $fixtures = [
         'app.roles',
         'app.roles_users',
+        'app.tplans',
         'app.tplan_elements',
         'app.users'
     ];
@@ -67,7 +68,14 @@ class TplanElementsControllerTest extends DMIntegrationTestCase {
         // 4.2 Look for the hidden POST input
         if($this->lookForHiddenInput($this->form)) $unknownInputCnt--;
 
+        // 4.5 Ensure that there's a select field for tplan_id, that it has no selection,
+        // and that it has the correct quantity of available choices.
+        if($this->selectCheckerA($this->form, 'TplanElementTplanId', 'tplans')) $unknownSelectCnt--;
+
+        // 4.3 Ensure that there's an input field for col1, of type text, and that it is empty
         if($this->inputCheckerA($this->form,'input#TplanElementCol1')) $unknownInputCnt--;
+
+        // 4.4 Ensure that there's an input field for col2, of type text, and that it is empty
         if($this->inputCheckerA($this->form,'input#TplanElementCol2')) $unknownInputCnt--;
 
         // 4.9 Have all the input and select fields been accounted for?  Are there
@@ -96,6 +104,7 @@ class TplanElementsControllerTest extends DMIntegrationTestCase {
 
         // Now retrieve that 1 record and compare to what we expect
         $new_tplan_element = $this->tplan_elements->get($new_id);
+        $this->assertEquals($new_tplan_element['tplan_id'],$this->tplan_elementsFixture->newTplanElementRecord['tplan_id']);
         $this->assertEquals($new_tplan_element['col1'],$this->tplan_elementsFixture->newTplanElementRecord['col1']);
         $this->assertEquals($new_tplan_element['col2'],$this->tplan_elementsFixture->newTplanElementRecord['col2']);
     }
@@ -143,11 +152,22 @@ class TplanElementsControllerTest extends DMIntegrationTestCase {
         // 4.2 Look for the hidden POST input
         if($this->lookForHiddenInput($this->form,'_method','PUT')) $unknownInputCnt--;
 
-        // 4.3 col1
+        // 4.3 Ensure that there's a select field for tplan_id and that it is correctly set
+        $option = $this->form->find('select#TplanElementTplanId option[selected]',0);
+        $tplan_id = $this->tplan_elementsFixture->tplan_element1Record['tplan_id'];
+        $this->assertEquals($option->value, $tplan_id);
+
+        // Even though tplan_id is correct, we don't display tplan_id.  Instead we display the title
+        // from the related Tplans table. Verify that title is displayed correctly.
+        $tplan = $this->tplansFixture->get($tplan_id);
+        $this->assertEquals($tplan['title'], $option->plaintext);
+        $unknownSelectCnt--;
+
+        // 4.4 col1
         if($this->inputCheckerA($this->form,'input#TplanElementCol1',
             $this->tplan_elementsFixture->tplan_element1Record['col1'])) $unknownInputCnt--;
 
-        // 4.4 col2
+        // 4.5 col2
         if($this->inputCheckerA($this->form,'input#TplanElementCol2',
             $this->tplan_elementsFixture->tplan_element1Record['col2'])) $unknownInputCnt--;
 
@@ -177,6 +197,7 @@ class TplanElementsControllerTest extends DMIntegrationTestCase {
 
         // Now retrieve that 1 record and compare to what we expect
         $tplan_element = $this->tplan_elements->get($tplan_element_id);
+        $this->assertEquals($tplan_element['tplan_id'],$this->tplan_elementsFixture->newTplanElementRecord['tplan_id']);
         $this->assertEquals($tplan_element['col1'],$this->tplan_elementsFixture->newTplanElementRecord['col1']);
         $this->assertEquals($tplan_element['col2'],$this->tplan_elementsFixture->newTplanElementRecord['col2']);
     }
@@ -228,11 +249,12 @@ class TplanElementsControllerTest extends DMIntegrationTestCase {
         $this->thead = $this->table->find('thead',0);
         $thead_ths = $this->thead->find('tr th');
 
-        $this->assertEquals($thead_ths[0]->id, 'col1');
-        $this->assertEquals($thead_ths[1]->id, 'col2');
-        $this->assertEquals($thead_ths[2]->id, 'actions');
+        $this->assertEquals($thead_ths[0]->id, 'tplan_id');
+        $this->assertEquals($thead_ths[1]->id, 'col1');
+        $this->assertEquals($thead_ths[2]->id, 'col2');
+        $this->assertEquals($thead_ths[3]->id, 'actions');
         $column_count = count($thead_ths);
-        $this->assertEquals($column_count,3); // no other columns
+        $this->assertEquals($column_count,4); // no other columns
 
         // 3. Ensure that the tbody section has the same
         //    quantity of rows as the count of tplan_elements records in the fixture.

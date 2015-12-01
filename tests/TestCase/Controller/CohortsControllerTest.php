@@ -16,8 +16,11 @@ class CohortsControllerTest extends DMIntegrationTestCase {
         'app.users'
     ];
 
+    /* @var \App\Model\Table\CohortsTable */
     private $cohorts;
     private $cohortsFixture;
+
+    /* @var \App\Model\Table\MajorsTable */
     private $majors;
     private $majorsFixture;
 
@@ -53,8 +56,8 @@ class CohortsControllerTest extends DMIntegrationTestCase {
         $html = str_get_html($this->_response->body());
 
         // 3. Ensure that the correct form exists
-        $form = $html->find('form#CohortAddForm',0);
-        $this->assertNotNull($form);
+        $this->form = $html->find('form#CohortAddForm',0);
+        $this->assertNotNull($this->form);
 
         // 4. Now inspect the fields on the form.  We want to know that:
         // A. The correct fields are there and no other fields.
@@ -65,27 +68,21 @@ class CohortsControllerTest extends DMIntegrationTestCase {
 
         // 4.1 These are counts of the select and input fields on the form.  They
         // are presently unaccounted for.
-        $unknownSelectCnt = count($form->find('select'));
-        $unknownInputCnt = count($form->find('input'));
+        $unknownSelectCnt = count($this->form->find('select'));
+        $unknownInputCnt = count($this->form->find('input'));
 
         // 4.2 Look for the hidden POST input
-        if($this->lookForHiddenInput($form)) $unknownInputCnt--;
+        if($this->lookForHiddenInput($this->form)) $unknownInputCnt--;
 
         // 4.3 Ensure that there's an input field for start_year, of type text, and that it is empty
-        $input = $form->find('input#CohortStartYear',0);
-        $this->assertEquals($input->type, "text");
-        $this->assertEquals($input->value, false);
-        $unknownInputCnt--;
+        if($this->inputCheckerA($this->form,'input#CohortStartYear')) $unknownInputCnt--;
 
         // 4.4 Ensure that there's an input field for seq, of type text, and that it is empty
-        $input = $form->find('input#CohortSeq',0);
-        $this->assertEquals($input->type, "text");
-        $this->assertEquals($input->value, false);
-        $unknownInputCnt--;
+        if($this->inputCheckerA($this->form,'input#CohortSeq')) $unknownInputCnt--;
 
         // 4.5 Ensure that there's a select field for major_id, that it has no selection,
         // and that it has the correct quantity of available choices.
-        if($this->lookForSelect($form,'CohortMajorId','majors')) $unknownSelectCnt--;
+        if($this->selectCheckerA($this->form, 'CohortMajorId', 'majors')) $unknownSelectCnt--;
 
         // 4.9 Have all the input and select fields been accounted for?  Are there
         // any extras?
@@ -93,9 +90,9 @@ class CohortsControllerTest extends DMIntegrationTestCase {
         $this->assertEquals(0, $unknownSelectCnt);
 
         // 5. Examine the <A> tags on this page.  There should be zero links.
-        $content = $html->find('div#CohortsAdd',0);
-        $this->assertNotNull($content);
-        $links = $content->find('a');
+        $this->content = $html->find('div#CohortsAdd',0);
+        $this->assertNotNull($this->content);
+        $links = $this->content->find('a');
         $this->assertEquals(0,count($links));
     }
 
@@ -143,8 +140,8 @@ class CohortsControllerTest extends DMIntegrationTestCase {
         $html = str_get_html($this->_response->body());
 
         // 3. Ensure that the correct form exists
-        $form = $html->find('form#CohortEditForm',0);
-        $this->assertNotNull($form);
+        $this->form = $html->find('form#CohortEditForm',0);
+        $this->assertNotNull($this->form);
 
         // 4. Now inspect the fields on the form.  We want to know that:
         // A. The correct fields are there and no other fields.
@@ -155,26 +152,22 @@ class CohortsControllerTest extends DMIntegrationTestCase {
 
         // 4.1 These are counts of the select and input fields on the form.  They
         // are presently unaccounted for.
-        $unknownSelectCnt = count($form->find('select'));
-        $unknownInputCnt = count($form->find('input'));
+        $unknownSelectCnt = count($this->form->find('select'));
+        $unknownInputCnt = count($this->form->find('input'));
 
         // 4.2 Look for the hidden POST input
-        if($this->lookForHiddenInput($form,'_method','PUT')) $unknownInputCnt--;
+        if($this->lookForHiddenInput($this->form,'_method','PUT')) $unknownInputCnt--;
 
         // 4.3 Ensure that there's an input field for start_year, of type text, and that it is correctly set
-        $input = $form->find('input#CohortStartYear',0);
-        $this->assertEquals($input->type, "text");
-        $this->assertEquals($input->value, $this->cohortsFixture->cohort1Record['start_year']);
-        $unknownInputCnt--;
+        if($this->inputCheckerA($this->form,'input#CohortStartYear',
+            $this->cohortsFixture->cohort1Record['start_year'])) $unknownInputCnt--;
 
         // 4.4 Ensure that there's an input field for seq, of type text, and that it is correctly set
-        $input = $form->find('input#CohortSeq',0);
-        $this->assertEquals($input->type, "text");
-        $this->assertEquals($input->value,  $this->cohortsFixture->cohort1Record['seq']);
-        $unknownInputCnt--;
+        if($this->inputCheckerA($this->form,'input#CohortSeq',
+            $this->cohortsFixture->cohort1Record['seq'])) $unknownInputCnt--;
 
         // 4.5 Ensure that there's a select field for major_id and that it is correctly set
-        $option = $form->find('select#CohortMajorId option[selected]',0);
+        $option = $this->form->find('select#CohortMajorId option[selected]',0);
         $major_id = $this->cohortsFixture->cohort1Record['major_id'];
         $this->assertEquals($option->value, $major_id);
 
@@ -190,9 +183,9 @@ class CohortsControllerTest extends DMIntegrationTestCase {
         $this->assertEquals(0, $unknownSelectCnt);
 
         // 5. Examine the <A> tags on this page.  There should be zero links.
-        $content = $html->find('div#CohortsEdit',0);
-        $this->assertNotNull($content);
-        $links = $content->find('a');
+        $this->content = $html->find('div#CohortsEdit',0);
+        $this->assertNotNull($this->content);
+        $links = $this->content->find('a');
         $this->assertEquals(0,count($links));
     }
 
@@ -227,9 +220,9 @@ class CohortsControllerTest extends DMIntegrationTestCase {
         $html = str_get_html($this->_response->body());
 
         // 3. Get a the count of all <A> tags that are presently unaccounted for.
-        $content = $html->find('div#CohortsIndex',0);
-        $this->assertNotNull($content);
-        $unknownATag = count($content->find('a'));
+        $this->content = $html->find('div#CohortsIndex',0);
+        $this->assertNotNull($this->content);
+        $unknownATag = count($this->content->find('a'));
 
         // 4. Look for the create new cohort link
         $this->assertEquals(1, count($html->find('a#CohortAdd')));
@@ -352,9 +345,9 @@ class CohortsControllerTest extends DMIntegrationTestCase {
         $this->assertEquals(0, $unknownRowCnt);
 
         // 3. Examine the <A> tags on this page.  There should be zero links.
-        $content = $html->find('div#CohortsView',0);
-        $this->assertNotNull($content);
-        $links = $content->find('a');
+        $this->content = $html->find('div#CohortsView',0);
+        $this->assertNotNull($this->content);
+        $links = $this->content->find('a');
         $this->assertEquals(0,count($links));
     }
 

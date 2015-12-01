@@ -15,7 +15,8 @@ class TplanElementsController extends AppController {
                 //$this->Flash->error(__('The tplan_element could not be saved. Please, try again.'));
             }
         }
-        $this->set(compact('tplan_element'));
+        $tplans = $this->TplanElements->Tplans->find('list');
+        $this->set(compact('tplan_element','tplans'));
         return null;
     }
 
@@ -42,18 +43,19 @@ class TplanElementsController extends AppController {
                 //$this->Flash->error(__('The tplan_element could not be saved. Please, try again.'));
             }
         }
-        $this->set(compact('tplan_element'));
+        $tplans = $this->TplanElements->Tplans->find('list');
+        $this->set(compact('tplan_element','tplans'));
         return null;
     }
 
     public function index() {
         $this->request->allowMethod(['get']);
-        $this->set('tplan_elements', $this->TplanElements->find('all'));
+        $this->set('tplan_elements', $this->TplanElements->find()->contain(['Tplans']));
     }
 
     public function view($id = null) {
         $this->request->allowMethod(['get']);
-        $tplan_element = $this->TplanElements->get($id);
+        $tplan_element = $this->TplanElements->get($id, ['contain' => ['Tplans']]);
         $this->set('tplan_element', $tplan_element);
     }
 }

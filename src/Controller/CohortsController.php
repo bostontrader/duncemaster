@@ -17,6 +17,7 @@ class CohortsController extends AppController {
         }
         $majors = $this->Cohorts->Majors->find('list');
         $this->set(compact('cohort', 'majors'));
+        return null;
     }
 
     public function delete($id = null) {
@@ -44,6 +45,7 @@ class CohortsController extends AppController {
         }
         $majors = $this->Cohorts->Majors->find('list');
         $this->set(compact('cohort', 'majors'));
+        return null;
     }
 
     public function index() {
