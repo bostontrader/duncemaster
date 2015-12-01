@@ -201,91 +201,29 @@ class TplanElementsControllerTest extends DMIntegrationTestCase {
         $this->assertEquals(1, count($html->find('a#TplanElementAdd')));
         $unknownATag--;
 
-        $unknownATag-=$this->tstTplanElementsTable($html);
-        // 5. Ensure that there is a suitably named table to display the results.
-        //$this->table = $html->find('table#TplanElementsTable',0);
-        //$this->assertNotNull($this->table);
+        // 5. Examine the table of TplanElements.
+        /* @var \simple_html_dom_node $html */
+        $unknownATag-=$this->tstTplanElementsTable($html,$this->tplan_elementsFixture);
 
-        // 6. Ensure that said table's thead element contains the correct
-        //    headings, in the correct order, and nothing else.
-        //$this->thead = $this->table->find('thead',0);
-        //$thead_ths = $this->thead->find('tr th');
-
-        //$this->assertEquals($thead_ths[0]->id, 'col1');
-        //$this->assertEquals($thead_ths[1]->id, 'col2');
-        //$this->assertEquals($thead_ths[2]->id, 'actions');
-        //$column_count = count($thead_ths);
-        //$this->assertEquals($column_count,3); // no other columns
-
-        // 7. Ensure that the tbody section has the same
-        //    quantity of rows as the count of tplan_elements records in the fixture.
-        //$this->tbody = $this->table->find('tbody',0);
-        //$tbody_rows = $this->tbody->find('tr');
-        //$this->assertEquals(count($tbody_rows), count($this->tplan_elementsFixture->records));
-
-        // 8. Ensure that the values displayed in each row, match the values from
-        //    the fixture.  The values should be presented in a particular order
-        //    with nothing else thereafter.
-        //$iterator = new \MultipleIterator();
-        //$iterator->attachIterator(new \ArrayIterator($this->tplan_elementsFixture->records));
-        //$iterator->attachIterator(new \ArrayIterator($tbody_rows));
-
-        //foreach ($iterator as $values) {
-            //$fixtureRecord = $values[0];
-            //$this->htmlRow = $values[1];
-            //$htmlColumns = $this->htmlRow->find('td');
-
-            // 8.0 col1
-            //$this->assertEquals($fixtureRecord['col1'],  $htmlColumns[0]->plaintext);
-
-            // 8.1 col2
-            //$this->assertEquals($fixtureRecord['col2'],  $htmlColumns[1]->plaintext);
-
-            // 8.2 Now examine the action links
-            //$this->td = $htmlColumns[2];
-            //$actionLinks = $this->td->find('a');
-            //$this->assertEquals('TplanElementView', $actionLinks[0]->name);
-            //$unknownATag--;
-            //$this->assertEquals('TplanElementEdit', $actionLinks[1]->name);
-            //$unknownATag--;
-            //$this->assertEquals('TplanElementDelete', $actionLinks[2]->name);
-            //$unknownATag--;
-
-            // 8.9 No other columns
-            //$this->assertEquals(count($htmlColumns),$column_count);
-        //}
-
-        // 9. Ensure that all the <A> tags have been accounted for
+        // 6. Ensure that all the <A> tags have been accounted for
         $this->assertEquals(0, $unknownATag);
     }
 
-    // At least three controller methods create a table of TplanElements.
-    // This table must be tested. Factor that testing into this method.
+    /**
+     * At least three views create a table of TplanElements.
+     * (Tplans.edit,  Tplans.view, and TplanElements.index)
+     * This table must be tested. Factor that testing into this method.
+     * @param \simple_html_dom_node $html parsed dom that contains the TplanElementsTable
+     * @param \App\Test\Fixture\TplanElementsFixture
+     * @return int $aTagsFoundCnt The number of aTagsFound.
+     */
     public function tstTplanElementsTable($html, $tplan_elementsFixture) {
 
-        // 1. Simulate login, submit request, examine response.
-        //$this->fakeLogin(FixtureConstants::userAndyAdminId);
-        //$this->get('/tplan-elements/index');
-        //$this->assertResponseOk(); // 2xx
-        //$this->assertNoRedirect();
-
-        // 2. Parse the html from the response
-        //$html = str_get_html($this->_response->body());
-
-        // 3. Get a the count of all <A> tags that are presently unaccounted for.
-        //$this->content = $html->find('div#TplanElementsIndex',0);
-        //$this->assertNotNull($this->content);
-        //$unknownATag = count($this->content->find('a'));
-
-        // 4. Look for the create new tplan_element link
-        //$this->assertEquals(1, count($html->find('a#TplanElementAdd')));
-        //$unknownATag--;
-
-        // 5. Ensure that there is a suitably named table to display the results.
+        // 1. Ensure that there is a suitably named table to display the results.
         $this->table = $html->find('table#TplanElementsTable',0);
         $this->assertNotNull($this->table);
 
-        // 6. Ensure that said table's thead element contains the correct
+        // 2. Ensure that said table's thead element contains the correct
         //    headings, in the correct order, and nothing else.
         $this->thead = $this->table->find('thead',0);
         $thead_ths = $this->thead->find('tr th');
@@ -296,13 +234,13 @@ class TplanElementsControllerTest extends DMIntegrationTestCase {
         $column_count = count($thead_ths);
         $this->assertEquals($column_count,3); // no other columns
 
-        // 7. Ensure that the tbody section has the same
+        // 3. Ensure that the tbody section has the same
         //    quantity of rows as the count of tplan_elements records in the fixture.
         $this->tbody = $this->table->find('tbody',0);
         $tbody_rows = $this->tbody->find('tr');
         $this->assertEquals(count($tbody_rows), count($tplan_elementsFixture->records));
 
-        // 8. Ensure that the values displayed in each row, match the values from
+        // 4. Ensure that the values displayed in each row, match the values from
         //    the fixture.  The values should be presented in a particular order
         //    with nothing else thereafter.
         $iterator = new \MultipleIterator();
@@ -315,13 +253,13 @@ class TplanElementsControllerTest extends DMIntegrationTestCase {
             $this->htmlRow = $values[1];
             $htmlColumns = $this->htmlRow->find('td');
 
-            // 8.0 col1
+            // 4.0 col1
             $this->assertEquals($fixtureRecord['col1'],  $htmlColumns[0]->plaintext);
 
-            // 8.1 col2
+            // 4.1 col2
             $this->assertEquals($fixtureRecord['col2'],  $htmlColumns[1]->plaintext);
 
-            // 8.2 Now examine the action links
+            // 4.2 Now examine the action links
             $this->td = $htmlColumns[2];
             $actionLinks = $this->td->find('a');
             $this->assertEquals('TplanElementView', $actionLinks[0]->name);
@@ -331,12 +269,10 @@ class TplanElementsControllerTest extends DMIntegrationTestCase {
             $this->assertEquals('TplanElementDelete', $actionLinks[2]->name);
             $aTagsFoundCnt++;
 
-            // 8.9 No other columns
+            // 4.9 No other columns
             $this->assertEquals(count($htmlColumns),$column_count);
         }
         return $aTagsFoundCnt;
-        // 9. Ensure that all the <A> tags have been accounted for
-        //$this->assertEquals(0, $unknownATag);
     }
 
     public function testViewGET() {

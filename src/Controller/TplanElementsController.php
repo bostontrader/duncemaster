@@ -1,6 +1,5 @@
 <?php
 namespace App\Controller;
-use Cake\ORM\TableRegistry;
 
 class TplanElementsController extends AppController {
 
@@ -17,6 +16,7 @@ class TplanElementsController extends AppController {
             }
         }
         $this->set(compact('tplan_element'));
+        return null;
     }
 
     public function delete($id = null) {
@@ -43,6 +43,7 @@ class TplanElementsController extends AppController {
             }
         }
         $this->set(compact('tplan_element'));
+        return null;
     }
 
     public function index() {
