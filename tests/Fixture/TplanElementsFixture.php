@@ -8,18 +8,21 @@ class TplanElementsFixture extends DMFixture {
     // id to ensure the test records are properly related.
     public $tplan_element1Record = [
         'id'=>FixtureConstants::tplan_element1_id,
+        'tplan_id'=>FixtureConstants::tplan1_id,
         'col1'=>'Curious George',
         'col2'=>'read the book'
     ];
 
     public $tplan_element2Record = [
         'id'=>FixtureConstants::tplan_element2_id,
+        'tplan_id'=>FixtureConstants::tplan1_id,
         'col1'=>'The Cat in The Hat',
         'col2'=>'discuss the book'
     ];
 
     // This record will be added during a test.  We don't need or want to control the id here, so omit it.
     public $newTplanElementRecord = [
+        'tplan_id'=>FixtureConstants::tplan2_id,
         'col1'=>'Animal Farm',
         'col2'=>'learn to make animal sounds'
     ];

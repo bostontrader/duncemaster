@@ -2,6 +2,7 @@
 namespace App\Test\TestCase\Controller;
 
 use App\Test\Fixture\FixtureConstants;
+use App\Test\Fixture\TplanElementsFixture;
 use App\Test\Fixture\TplansFixture;
 use Cake\ORM\TableRegistry;
 
@@ -11,19 +12,21 @@ class TplansControllerTest extends DMIntegrationTestCase {
         'app.roles',
         'app.roles_users',
         'app.tplans',
+        'app.tplan_elements',
         'app.users'
     ];
 
     /* @var \App\Model\Table\TplansTable */
     private $tplans;
 
-    //private $sectionsFixture;
     private $tplansFixture;
+    private $tplanElementsFixture;
 
     public function setUp() {
         parent::setUp();
         $this->tplans = TableRegistry::get('Tplans');
         $this->tplansFixture = new TplansFixture();
+        $this->tplanElementsFixture = new TplanElementsFixture();
     }
 
     // Test that unauthenticated users, when submitting a request to
@@ -124,39 +127,49 @@ class TplansControllerTest extends DMIntegrationTestCase {
         // 2. Parse the html from the response
         $html = str_get_html($this->_response->body());
 
-        // 3. Ensure that the correct form exists
+        // 3. Get a the count of all <A> tags that are presently unaccounted for.
+        $this->content = $html->find('div#TplansEdit',0);
+        $this->assertNotNull($this->content);
+        $unknownATag = count($this->content->find('a'));
+
+        // 4. Look for the create new tplan_elements link
+        $this->assertEquals(1, count($html->find('a#TplanElementAdd')));
+        $unknownATag--;
+
+        // 5. Ensure that the correct form exists
         $this->form = $html->find('form#TplanEditForm',0);
         $this->assertNotNull($this->form);
 
-        // 4. Now inspect the fields on the form.  We want to know that:
+        // 6. Now inspect the fields on the form.  We want to know that:
         // A. The correct fields are there and no other fields.
         // B. The fields have correct values. This includes verifying that select
         //    lists contain options.
         //
         //  The actual order that the fields are listed on the form is hereby deemed unimportant.
 
-        // 4.1 These are counts of the select and input fields on the form.  They
+        // 6.1 These are counts of the select and input fields on the form.  They
         // are presently unaccounted for.
         $unknownSelectCnt = count($this->form->find('select'));
         $unknownInputCnt = count($this->form->find('input'));
 
-        // 4.2 Look for the hidden POST input
+        // 6.2 Look for the hidden POST input
         if($this->lookForHiddenInput($this->form,'_method','PUT')) $unknownInputCnt--;
 
-        // 4.3 title
+        // 6.3 title
         if($this->inputCheckerA($this->form,'input#TplanTitle',
             $this->tplansFixture->tplan1Record['title'])) $unknownInputCnt--;
 
-        // 4.9 Have all the input and select fields been accounted for?  Are there
+        // 6.9 Have all the input and select fields been accounted for?  Are there
         // any extras?
         $this->assertEquals(0, $unknownInputCnt);
         $this->assertEquals(0, $unknownSelectCnt);
 
-        // 5. Examine the <A> tags on this page.  There should be zero links.
-        $this->content = $html->find('div#TplansEdit',0);
-        $this->assertNotNull($this->content);
-        $links = $this->content->find('a');
-        $this->assertEquals(0,count($links));
+        // 7. Examine the table of repeating tplan_elements
+        $tect=new TplanElementsControllerTest();
+        $unknownATag-=$tect->tstTplanElementsTable($html,$this->tplanElementsFixture);
+
+        // 8. Ensure that all the <A> tags have been accounted for
+        $this->assertEquals(0, $unknownATag);
     }
 
     public function testEditPOST() {
@@ -266,8 +279,8 @@ class TplansControllerTest extends DMIntegrationTestCase {
         $unknownATag = count($this->content->find('a'));
 
         // 4. Look for the create new tplan_elements link
-        $this->assertEquals(1, count($html->find('a#TplanElementAdd')));
-        $unknownATag--;
+        //$this->assertEquals(1, count($html->find('a#TplanElementAdd')));
+        //$unknownATag--;
 
         // 5.  Look for the table that contains the view fields.
         $this->table = $html->find('table#TplanViewTable',0);
@@ -313,67 +326,64 @@ class TplansControllerTest extends DMIntegrationTestCase {
         //$unknownATag--;
 
         // 5. Ensure that there is a suitably named table to display the results.
-        $this->table = $html->find('table#TplanElementsTable',0);
-        $this->assertNotNull($this->table);
+        //$this->table = $html->find('table#TplanElementsTable',0);
+        //$this->assertNotNull($this->table);
 
         // 6. Ensure that said table's thead element contains the correct
         //    headings, in the correct order, and nothing else.
-        $this->thead = $this->table->find('thead',0);
-        $thead_ths = $this->thead->find('tr th');
+        //$this->thead = $this->table->find('thead',0);
+        //$thead_ths = $this->thead->find('tr th');
 
-        $this->assertEquals($thead_ths[0]->id, 'col1');
-        $this->assertEquals($thead_ths[1]->id, 'col2');
-        $this->assertEquals($thead_ths[2]->id, 'actions');
-        $column_count = count($thead_ths);
-        $this->assertEquals($column_count,3); // no other columns
+        //$this->assertEquals($thead_ths[0]->id, 'col1');
+        //$this->assertEquals($thead_ths[1]->id, 'col2');
+        //$this->assertEquals($thead_ths[2]->id, 'actions');
+        //$column_count = count($thead_ths);
+        //$this->assertEquals($column_count,3); // no other columns
 
         // 7. Ensure that the tbody section has the same
         //    quantity of rows as the count of tplan_elements records in the fixture.
-        $this->tbody = $this->table->find('tbody',0);
-        $tbody_rows = $this->tbody->find('tr');
-        $this->assertEquals(count($tbody_rows), count($this->tplan_elementsFixture->records));
+        //$this->tbody = $this->table->find('tbody',0);
+        //$tbody_rows = $this->tbody->find('tr');
+        //$this->assertEquals(count($tbody_rows), count($this->tplan_elementsFixture->records));
 
         // 8. Ensure that the values displayed in each row, match the values from
         //    the fixture.  The values should be presented in a particular order
         //    with nothing else thereafter.
-        $iterator = new \MultipleIterator();
-        $iterator->attachIterator(new \ArrayIterator($this->tplan_elementsFixture->records));
-        $iterator->attachIterator(new \ArrayIterator($tbody_rows));
+        //$iterator = new \MultipleIterator();
+        //$iterator->attachIterator(new \ArrayIterator($this->tplan_elementsFixture->records));
+        //$iterator->attachIterator(new \ArrayIterator($tbody_rows));
 
-        foreach ($iterator as $values) {
-            $fixtureRecord = $values[0];
-            $this->htmlRow = $values[1];
-            $htmlColumns = $this->htmlRow->find('td');
+        //foreach ($iterator as $values) {
+            //$fixtureRecord = $values[0];
+            //$this->htmlRow = $values[1];
+            //$htmlColumns = $this->htmlRow->find('td');
 
             // 8.0 col1
-            $this->assertEquals($fixtureRecord['col1'],  $htmlColumns[0]->plaintext);
+            //$this->assertEquals($fixtureRecord['col1'],  $htmlColumns[0]->plaintext);
 
             // 8.1 col2
-            $this->assertEquals($fixtureRecord['col2'],  $htmlColumns[1]->plaintext);
+            //$this->assertEquals($fixtureRecord['col2'],  $htmlColumns[1]->plaintext);
 
             // 8.2 Now examine the action links
-            $this->td = $htmlColumns[2];
-            $actionLinks = $this->td->find('a');
-            $this->assertEquals('TplanElementView', $actionLinks[0]->name);
-            $unknownATag--;
-            $this->assertEquals('TplanElementEdit', $actionLinks[1]->name);
-            $unknownATag--;
-            $this->assertEquals('TplanElementDelete', $actionLinks[2]->name);
-            $unknownATag--;
+            //$this->td = $htmlColumns[2];
+            //$actionLinks = $this->td->find('a');
+            //$this->assertEquals('TplanElementView', $actionLinks[0]->name);
+            //$unknownATag--;
+            //$this->assertEquals('TplanElementEdit', $actionLinks[1]->name);
+            //$unknownATag--;
+            //$this->assertEquals('TplanElementDelete', $actionLinks[2]->name);
+            //$unknownATag--;
 
             // 8.9 No other columns
-            $this->assertEquals(count($htmlColumns),$column_count);
-        }
+            //$this->assertEquals(count($htmlColumns),$column_count);
+        //}
 
         // 9. Ensure that all the <A> tags have been accounted for
         //$this->assertEquals(0, $unknownATag);
 
-
-
-
-
-
-
+        // 7. Examine the table of repeating tplan_elements
+        $tect=new TplanElementsControllerTest();
+        $unknownATag-=$tect->tstTplanElementsTable($html,$this->tplanElementsFixture);
 
         // 6. Ensure that all the <A> tags have been accounted for
         $this->assertEquals(0, $unknownATag);

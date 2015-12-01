@@ -22,6 +22,10 @@ class TplanElementsTable extends Table {
         //$this->displayField('fullname');
         //$this->primaryKey('id');
 
+        $this->belongsTo('Tplan', [
+            //'foreignKey' => 'major_id',
+            //'joinType' => 'INNER'
+        ]);
     }
 
     /**

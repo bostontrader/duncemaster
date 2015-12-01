@@ -32,7 +32,7 @@ class TplansController extends AppController {
 
     public function edit($id = null) {
         $this->request->allowMethod(['get', 'put']);
-        $tplan = $this->Tplans->get($id);
+        $tplan = $this->Tplans->get($id,['contain' => 'TplanElements']);
         if ($this->request->is(['put'])) {
             $tplan = $this->Tplans->patchEntity($tplan, $this->request->data);
             if ($this->Tplans->save($tplan)) {
@@ -42,6 +42,7 @@ class TplansController extends AppController {
                 //$this->Flash->error(__('The tplan could not be saved. Please, try again.'));
             }
         }
+        $this->set('tplan_elements',$tplan->tplan_elements);
         $this->set(compact('tplan'));
     }
 
@@ -52,7 +53,8 @@ class TplansController extends AppController {
 
     public function view($id = null) {
         $this->request->allowMethod(['get']);
-        $tplan = $this->Tplans->get($id);
+        $tplan = $this->Tplans->get($id,['contain' => ['TplanElements']]);
         $this->set('tplan', $tplan);
+        $this->set('tplan_elements',$tplan->tplan_elements);
     }
 }
