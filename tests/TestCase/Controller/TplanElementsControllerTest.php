@@ -249,12 +249,11 @@ class TplanElementsControllerTest extends DMIntegrationTestCase {
         $this->thead = $this->table->find('thead',0);
         $thead_ths = $this->thead->find('tr th');
 
-        $this->assertEquals($thead_ths[0]->id, 'tplan_id');
-        $this->assertEquals($thead_ths[1]->id, 'col1');
-        $this->assertEquals($thead_ths[2]->id, 'col2');
-        $this->assertEquals($thead_ths[3]->id, 'actions');
+        $this->assertEquals($thead_ths[0]->id, 'col1');
+        $this->assertEquals($thead_ths[1]->id, 'col2');
+        $this->assertEquals($thead_ths[2]->id, 'actions');
         $column_count = count($thead_ths);
-        $this->assertEquals($column_count,4); // no other columns
+        $this->assertEquals($column_count,3); // no other columns
 
         // 3. Ensure that the tbody section has the same
         //    quantity of rows as the count of tplan_elements records in the fixture.
@@ -320,12 +319,19 @@ class TplanElementsControllerTest extends DMIntegrationTestCase {
         // This is the count of the table rows that are presently unaccounted for.
         $unknownRowCnt = count($this->table->find('tr'));
 
-        // 2.1 col1
+        // 2.1 tplan_id requires finding the related value in the TplansFixture
+        $field = $html->find('tr#tplan_title td',0);
+        $tplan_id = $fixtureRecord['tplan_id'];
+        $tplan = $this->tplansFixture->get($tplan_id);
+        $this->assertEquals($tplan['title'], $field->plaintext);
+        $unknownRowCnt--;
+
+        // 2.2 col1
         $field = $html->find('tr#col1 td',0);
         $this->assertEquals($fixtureRecord['col1'], $field->plaintext);
         $unknownRowCnt--;
 
-        // 2.2 col2
+        // 2.3 col2
         $field = $html->find('tr#col2 td',0);
         $this->assertEquals($fixtureRecord['col2'], $field->plaintext);
         $unknownRowCnt--;

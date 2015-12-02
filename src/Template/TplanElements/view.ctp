@@ -6,6 +6,10 @@
     <div class="tplan_elements view large-9 medium-8 columns content">
         <h3><?= h($tplan_element->id) ?></h3>
         <table id="TplanElementViewTable" class="vertical-table">
+            <tr id="tplan_title">
+                <th><?= __('Tplan') ?></th>
+                <td><?= $tplan_element->tplan->title ?></td>
+            </tr>
             <tr id="col1">
                 <th><?= __('Col1') ?></th>
                 <td><?= $tplan_element->col1 ?></td>
