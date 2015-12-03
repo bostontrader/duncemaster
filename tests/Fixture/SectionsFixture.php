@@ -11,6 +11,7 @@ class SectionsFixture extends DMFixture {
         'cohort_id'=>FixtureConstants::cohort1_id,
         'semester_id'=>FixtureConstants::semester1_id,
         'subject_id'=>FixtureConstants::subject1_id,
+        'tplan_id'=>FixtureConstants::tplan1_id,
         'weekday' => 'mon',
         'start_time' => '08:30',
         'thours' => '2'
@@ -21,6 +22,7 @@ class SectionsFixture extends DMFixture {
         'cohort_id'=>FixtureConstants::cohort2_id,
         'semester_id'=>FixtureConstants::semester2_id,
         'subject_id'=>FixtureConstants::subject2_id,
+        'tplan_id'=>FixtureConstants::tplan2_id,
         'weekday' => 'tue',
         'start_time' => '08:30',
         'thours' => '2'
@@ -31,6 +33,7 @@ class SectionsFixture extends DMFixture {
         'cohort_id'=>FixtureConstants::cohort2_id,
         'semester_id'=>FixtureConstants::semester2_id,
         'subject_id'=>FixtureConstants::subject2_id,
+        'tplan_id'=>FixtureConstants::tplan2_id,
         'weekday' => 'tue',
         'start_time' => '09:30',
         'thours' => '3'

@@ -18,6 +18,10 @@
                 <th><?= __('Semester') ?></th>
                 <td><?= $section->semester->nickname ?></td>
             </tr>
+            <tr id="tplan">
+                <th><?= __('Tplan') ?></th>
+                <td><?= $section->tplan->title ?></td>
+            </tr>
             <tr id="weekday">
                 <th><?= __('Weekday') ?></th>
                 <td><?= $section->weekday ?></td>

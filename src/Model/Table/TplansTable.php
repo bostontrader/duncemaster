@@ -22,6 +22,10 @@ class TplansTable extends Table {
         //$this->displayField('fullname');
         //$this->primaryKey('id');
 
+        $this->hasMany('Sections', [
+            //'foreignKey' => 'cohort_id'
+        ]);
+
         $this->hasMany('TplanElements', [
             //'foreignKey' => 'cohort_id'
         ]);

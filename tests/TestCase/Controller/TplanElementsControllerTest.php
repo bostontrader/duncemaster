@@ -297,6 +297,8 @@ class TplanElementsControllerTest extends DMIntegrationTestCase {
     }
 
     public function testViewGET() {
+
+        // 1. Simulate login, submit request, examine response.
         $this->fakeLogin(FixtureConstants::userAndyAdminId);
         $fixtureRecord=$this->tplan_elementsFixture->tplan_element1Record;
         $this->get('/tplan-elements/view/' . $fixtureRecord['id']);

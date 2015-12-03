@@ -18,7 +18,9 @@ class SectionsController extends AppController {
         $cohorts = $this->Sections->Cohorts->find('list',['contain' => ['Majors']]);
         $semesters = $this->Sections->Semesters->find('list');
         $subjects = $this->Sections->Subjects->find('list');
-        $this->set(compact('cohorts','section','semesters','subjects'));
+        $tplans = $this->Sections->Tplans->find('list');
+        $this->set(compact('cohorts','section','semesters','subjects','tplans'));
+        return null;
     }
 
     public function delete($id = null) {
@@ -47,17 +49,19 @@ class SectionsController extends AppController {
         $cohorts = $this->Sections->Cohorts->find('list',['contain' => ['Majors']]);
         $semesters = $this->Sections->Semesters->find('list');
         $subjects = $this->Sections->Subjects->find('list');
-        $this->set(compact('cohorts','section','semesters','subjects'));
+        $tplans = $this->Sections->Tplans->find('list');
+        $this->set(compact('cohorts','section','semesters','subjects','tplans'));
+        return null;
     }
 
     public function index() {
         $this->request->allowMethod(['get']);
-        $this->set('sections', $this->Sections->find('all', ['contain' => ['Cohorts.Majors','Semesters','Subjects']]));
+        $this->set('sections', $this->Sections->find('all', ['contain' => ['Cohorts.Majors','Semesters','Subjects','Tplans']]));
     }
 
     public function view($id = null) {
         $this->request->allowMethod(['get']);
-        $section = $this->Sections->get($id,['contain'=>['Cohorts.Majors','Semesters','Subjects']]);
+        $section = $this->Sections->get($id,['contain'=>['Cohorts.Majors','Semesters','Subjects','Tplans']]);
         $this->set('section', $section);
     }
 }

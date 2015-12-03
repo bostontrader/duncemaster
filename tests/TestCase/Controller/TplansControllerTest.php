@@ -11,6 +11,8 @@ class TplansControllerTest extends DMIntegrationTestCase {
     public $fixtures = [
         'app.roles',
         'app.roles_users',
+        'app.sections',
+        'app.subjects',
         'app.tplans',
         'app.tplan_elements',
         'app.users'
@@ -245,7 +247,7 @@ class TplansControllerTest extends DMIntegrationTestCase {
             // 8.0 title
             $this->assertEquals($fixtureRecord['title'],  $htmlColumns[0]->plaintext);
 
-            // 8.2 Now examine the action links
+            // 8.1 Now examine the action links
             $this->td = $htmlColumns[1];
             $actionLinks = $this->td->find('a');
             $this->assertEquals('TplanView', $actionLinks[0]->name);
@@ -264,6 +266,7 @@ class TplansControllerTest extends DMIntegrationTestCase {
     }
 
     public function testViewGET() {
+
         // 1. Simulate login, submit request, examine response.
         $this->fakeLogin(FixtureConstants::userAndyAdminId);
         $fixtureRecord=$this->tplansFixture->tplan1Record;
@@ -291,6 +294,16 @@ class TplansControllerTest extends DMIntegrationTestCase {
 
         // This is the count of the table rows that are presently unaccounted for.
         $unknownRowCnt = count($this->table->find('tr'));
+
+        // 5.1 section.subject.title requires finding the related value in the SubjectsFixture,
+        // via the SectionsFixture
+        $field = $html->find('tr#section_subject_title td',0);
+        $section_id = $this->tplansFixture->tplan1Record['section_id'];
+        $section = $this->sectionsFixture->get($section_id);
+        $subject_id = $section['section_id'];
+        $subject = $this->subjectsFixture->get($subject_id);
+        $this->assertEquals($subject['title'], $field->plaintext);
+        $unknownRowCnt--;
 
         // 5.1 title
         $field = $html->find('tr#title td',0);

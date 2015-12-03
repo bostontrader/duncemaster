@@ -51,6 +51,11 @@ class SectionsTable extends Table {
             //'foreignKey' => 'teacher_id',
             //'joinType' => 'INNER'
         ]);
+
+        $this->belongsTo('Tplans', [
+            //'foreignKey' => 'major_id',
+            //'joinType' => 'INNER'
+        ]);
     }
 
     /**

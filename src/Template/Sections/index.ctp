@@ -13,6 +13,7 @@
                     <th id="cohort"><?= __('cohort') ?></th>
                     <th id="subject"><?= __('subject') ?></th>
                     <th id="semester"><?= __('semester') ?></th>
+                    <th id="tplan"><?= __('tplan') ?></th>
                     <th id="weekday"><?= __('weekday') ?></th>
                     <th id="start_time"><?= __('start_time') ?></th>
                     <th id="thours"><?= __('T Hours') ?></th>
@@ -25,6 +26,7 @@
                     <td><?= $section->cohort->nickname ?></td>
                     <td><?= $section->subject->title ?></td>
                     <td><?= $section->semester->nickname ?></td>
+                    <td><?= $section->tplan->title ?></td>
                     <td><?= $section->weekday ?></td>
                     <td><?= $section->start_time ?></td>
                     <td><?= $section->thours ?></td>
