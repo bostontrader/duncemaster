@@ -1,3 +1,4 @@
+<?php /* @var \App\Model\Entity\Section $section */ ?>
 <div id="SectionsView">
     <nav class="large-3 medium-4 columns" id="actions-sidebar">
         <ul class="side-nav">
@@ -28,11 +29,11 @@
             </tr>
             <tr id="start_time">
                 <th><?= __('Start time') ?></th>
-                <td><?= $section->start_time ?></tr>
+                <td><?= $section->start_time ?></td>
             </tr>
             <tr id="thours">
                 <th><?= __('Teaching hours') ?></th>
-                <td><?= $section->thours ?></tr>
+                <td><?= $section->thours ?></td>
             </tr>
         </table>
     </div>

@@ -1,3 +1,13 @@
+<?php
+/**
+ * @var \App\Model\Entity\Section $section
+ * @var \App\Model\Table\CohortsTable $cohorts
+ * @var \App\Model\Table\SemestersTable $semesters
+ * @var \App\Model\Table\SubjectsTable $subjects
+ * @var \App\Model\Table\TplansTable $tplans
+ */
+?>
+
 <div id="SectionsEdit">
     <nav class="large-3 medium-4 columns" id="actions-sidebar">
         <ul class="side-nav">
