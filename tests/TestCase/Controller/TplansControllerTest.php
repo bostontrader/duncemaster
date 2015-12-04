@@ -73,7 +73,7 @@ class TplansControllerTest extends DMIntegrationTestCase {
         // 4.2 Look for the hidden POST input
         if($this->lookForHiddenInput($this->form)) $unknownInputCnt--;
 
-        // 4.3 title
+        // 4.3 Ensure that there's an input field for title, of type text, and that it is empty
         if($this->inputCheckerA($this->form,'input#TplanTitle')) $unknownInputCnt--;
 
         // 4.9 Have all the input and select fields been accounted for?  Are there
@@ -157,7 +157,7 @@ class TplansControllerTest extends DMIntegrationTestCase {
         // 6.2 Look for the hidden POST input
         if($this->lookForHiddenInput($this->form,'_method','PUT')) $unknownInputCnt--;
 
-        // 6.3 title
+        // 6.3 Ensure that there's an input field for title, of type text, and that it is correctly set
         if($this->inputCheckerA($this->form,'input#TplanTitle',
             $this->tplansFixture->tplan1Record['title'])) $unknownInputCnt--;
 

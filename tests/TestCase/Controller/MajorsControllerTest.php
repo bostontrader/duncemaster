@@ -14,7 +14,9 @@ class MajorsControllerTest extends DMIntegrationTestCase {
         'app.users'
     ];
 
+    /* @var \App\Model\Table\MajorsTable */
     private $majors;
+
     private $majorsFixture;
 
     public function setUp() {
@@ -47,8 +49,8 @@ class MajorsControllerTest extends DMIntegrationTestCase {
         $html = str_get_html($this->_response->body());
 
         // 3. Ensure that the correct form exists
-        $form = $html->find('form#MajorAddForm',0);
-        $this->assertNotNull($form);
+        $this->form = $html->find('form#MajorAddForm',0);
+        $this->assertNotNull($this->form);
 
         // 4. Now inspect the fields on the form.  We want to know that:
         // A. The correct fields are there and no other fields.
@@ -59,23 +61,17 @@ class MajorsControllerTest extends DMIntegrationTestCase {
 
         // 4.1 These are counts of the select and input fields on the form.  They
         // are presently unaccounted for.
-        $unknownSelectCnt = count($form->find('select'));
-        $unknownInputCnt = count($form->find('input'));
+        $unknownSelectCnt = count($this->form->find('select'));
+        $unknownInputCnt = count($this->form->find('input'));
 
         // 4.2 Look for the hidden POST input
-        if($this->lookForHiddenInput($form)) $unknownInputCnt--;
+        if($this->lookForHiddenInput($this->form)) $unknownInputCnt--;
 
         // 4.3 Ensure that there's an input field for title, of type text, and that it is empty
-        $input = $form->find('input#MajorTitle',0);
-        $this->assertEquals($input->type, "text");
-        $this->assertEquals($input->value, false);
-        $unknownInputCnt--;
+        if($this->inputCheckerA($this->form,'input#MajorTitle')) $unknownInputCnt--;
 
         // 4.4 Ensure that there's an input field for sdesc, of type text, and that it is empty
-        $input = $form->find('input#MajorSDesc',0);
-        $this->assertEquals($input->type, "text");
-        $this->assertEquals($input->value, false);
-        $unknownInputCnt--;
+        if($this->inputCheckerA($this->form,'input#MajorSDesc')) $unknownInputCnt--;
 
         // 4.9 Have all the input and select fields been accounted for?  Are there
         // any extras?
@@ -83,9 +79,9 @@ class MajorsControllerTest extends DMIntegrationTestCase {
         $this->assertEquals(0, $unknownSelectCnt);
 
         // 5. Examine the <A> tags on this page.  There should be zero links.
-        $content = $html->find('div#MajorsAdd',0);
-        $this->assertNotNull($content);
-        $links = $content->find('a');
+        $this->content = $html->find('div#MajorsAdd',0);
+        $this->assertNotNull($this->content);
+        $links = $this->content->find('a');
         $this->assertEquals(0,count($links));
     }
 
@@ -132,8 +128,8 @@ class MajorsControllerTest extends DMIntegrationTestCase {
         $html = str_get_html($this->_response->body());
 
         // 3. Ensure that the correct form exists
-        $form = $html->find('form#MajorEditForm',0);
-        $this->assertNotNull($form);
+        $this->form = $html->find('form#MajorEditForm',0);
+        $this->assertNotNull($this->form);
 
         // 4. Now inspect the fields on the form.  We want to know that:
         // A. The correct fields are there and no other fields.
@@ -144,23 +140,19 @@ class MajorsControllerTest extends DMIntegrationTestCase {
 
         // 4.1 These are counts of the select and input fields on the form.  They
         // are presently unaccounted for.
-        $unknownSelectCnt = count($form->find('select'));
-        $unknownInputCnt = count($form->find('input'));
+        $unknownSelectCnt = count($this->form->find('select'));
+        $unknownInputCnt = count($this->form->find('input'));
 
         // 4.2 Look for the hidden POST input
-        if($this->lookForHiddenInput($form,'_method','PUT')) $unknownInputCnt--;
+        if($this->lookForHiddenInput($this->form,'_method','PUT')) $unknownInputCnt--;
 
         // 4.3 Ensure that there's an input field for title, of type text, and that it is correctly set
-        $input = $form->find('input#MajorTitle',0);
-        $this->assertEquals($input->type, "text");
-        $this->assertEquals($input->value, $this->majorsFixture->major1Record['title']);
-        $unknownInputCnt--;
-
+        if($this->inputCheckerA($this->form,'input#MajorTitle',
+            $this->majorsFixture->major1Record['title'])) $unknownInputCnt--;
+        
         // 4.4 Ensure that there's an input field for sdesc, of type text, and that that it is correctly set
-        $input = $form->find('input#MajorSDesc',0);
-        $this->assertEquals($input->type, "text");
-        $this->assertEquals($input->value,  $this->majorsFixture->major1Record['sdesc']);
-        $unknownInputCnt--;
+        if($this->inputCheckerA($this->form,'input#MajorSDesc',
+            $this->majorsFixture->major1Record['sdesc'])) $unknownInputCnt--;
 
         // 4.9 Have all the input and select fields been accounted for?  Are there
         // any extras?
@@ -168,9 +160,9 @@ class MajorsControllerTest extends DMIntegrationTestCase {
         $this->assertEquals(0, $unknownSelectCnt);
 
         // 5. Examine the <A> tags on this page.  There should be zero links.
-        $content = $html->find('div#MajorsEdit',0);
-        $this->assertNotNull($content);
-        $links = $content->find('a');
+        $this->content = $html->find('div#MajorsEdit',0);
+        $this->assertNotNull($this->content);
+        $links = $this->content->find('a');
         $this->assertEquals(0,count($links));    }
 
     public function testEditPOST() {
@@ -203,22 +195,22 @@ class MajorsControllerTest extends DMIntegrationTestCase {
         $html = str_get_html($this->_response->body());
 
         // 3. Get a the count of all <A> tags that are presently unaccounted for.
-        $content = $html->find('div#MajorsIndex',0);
-        $this->assertNotNull($content);
-        $unknownATag = count($content->find('a'));
+        $this->content = $html->find('div#MajorsIndex',0);
+        $this->assertNotNull($this->content);
+        $unknownATag = count($this->content->find('a'));
 
         // 4. Look for the create new major link
         $this->assertEquals(1, count($html->find('a#MajorAdd')));
         $unknownATag--;
 
         // 5. Ensure that there is a suitably named table to display the results.
-        $majors_table = $html->find('table#majors',0);
-        $this->assertNotNull($majors_table);
+        $this->table = $html->find('table#majors',0);
+        $this->assertNotNull($this->table);
 
         // 6. Ensure that said table's thead element contains the correct
         //    headings, in the correct order, and nothing else.
-        $thead = $majors_table->find('thead',0);
-        $thead_ths = $thead->find('tr th');
+        $this->thead = $this->table->find('thead',0);
+        $thead_ths = $this->thead->find('tr th');
 
         $this->assertEquals($thead_ths[0]->id, 'title');
         $this->assertEquals($thead_ths[1]->id, 'sdesc');
@@ -228,8 +220,8 @@ class MajorsControllerTest extends DMIntegrationTestCase {
 
         // 7. Ensure that the tbody section has the same
         //    quantity of rows as the count of major records in the fixture.
-        $tbody = $majors_table->find('tbody',0);
-        $tbody_rows = $tbody->find('tr');
+        $this->tbody = $this->table->find('tbody',0);
+        $tbody_rows = $this->tbody->find('tr');
         $this->assertEquals(count($tbody_rows), count($this->majorsFixture->records));
 
         // 8. Ensure that the values displayed in each row, match the values from
@@ -241,14 +233,15 @@ class MajorsControllerTest extends DMIntegrationTestCase {
 
         foreach ($iterator as $values) {
             $fixtureRecord = $values[0];
-            $htmlRow = $values[1];
-            $htmlColumns = $htmlRow->find('td');
+            $this->htmlRow = $values[1];
+            $htmlColumns = $this->htmlRow->find('td');
 
             $this->assertEquals($fixtureRecord['title'],  $htmlColumns[0]->plaintext);
             $this->assertEquals($fixtureRecord['sdesc'],  $htmlColumns[1]->plaintext);
 
             // 8.2 Now examine the action links
-            $actionLinks = $htmlRow->find('a');
+            $this->td = $htmlColumns[2];
+            $actionLinks = $this->td->find('a');
             $this->assertEquals('MajorView', $actionLinks[0]->name);
             $unknownATag--;
             $this->assertEquals('MajorEdit', $actionLinks[1]->name);
@@ -275,8 +268,8 @@ class MajorsControllerTest extends DMIntegrationTestCase {
         $html = str_get_html($this->_response->body());
 
         // 1.  Look for the table that contains the view fields.
-        $table = $html->find('table#MajorViewTable',0);
-        $this->assertNotNull($table);
+        $this->table = $html->find('table#MajorViewTable',0);
+        $this->assertNotNull($this->table);
 
         // 2. Now inspect the fields on the form.  We want to know that:
         // A. The correct fields are there and no other fields.
@@ -285,7 +278,7 @@ class MajorsControllerTest extends DMIntegrationTestCase {
         //  The actual order that the fields are listed is hereby deemed unimportant.
 
         // This is the count of the table rows that are presently unaccounted for.
-        $unknownRowCnt = count($table->find('tr'));
+        $unknownRowCnt = count($this->table->find('tr'));
 
         // 2.1 title
         $field = $html->find('tr#title td',0);
@@ -302,9 +295,9 @@ class MajorsControllerTest extends DMIntegrationTestCase {
         $this->assertEquals(0, $unknownRowCnt);
 
         // 3. Examine the <A> tags on this page.  There should be zero links.
-        $content = $html->find('div#MajorsView',0);
-        $this->assertNotNull($content);
-        $links = $content->find('a');
+        $this->content = $html->find('div#MajorsView',0);
+        $this->assertNotNull($this->content);
+        $links = $this->content->find('a');
         $this->assertEquals(0,count($links));
     }
 

@@ -16,6 +16,7 @@ class MajorsController extends AppController {
             }
         }
         $this->set(compact('major'));
+        return null;
     }
 
     public function delete($id = null) {
@@ -42,6 +43,7 @@ class MajorsController extends AppController {
             }
         }
         $this->set(compact('major'));
+        return null;
     }
 
     public function index() {
