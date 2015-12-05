@@ -47,4 +47,12 @@ class ClazzesFixture extends DMFixture {
         parent::init();
     }
 
+    // Given a $sectionId, remove all elements in $this->records that have the same $sectionId.
+    public function filter($sectionId) {
+        $newRecords=[];
+        foreach ($this->records as $record)
+            if($record['section_id']==$sectionId) array_push($newRecords,$record);
+        $this->records=$newRecords;
+    }
+
 }

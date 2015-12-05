@@ -221,7 +221,7 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
 
         // 5. Examine the table of Clazzes.
         /* @var \simple_html_dom_node $html */
-        $unknownATag-=$this->tstClazzesTable($html,$this->clazzesFixture);
+        $unknownATag-=$this->tstClazzesTable($html,$this->clazzes,$this->clazzesFixture,$this->sections);
 
         // 5. Ensure that there is a suitably named table to display the results.
         //$clazzes_table = $html->find('table#ClazzesTable',0);
@@ -290,10 +290,14 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
      * (Sections.edit,  Sections.view, and Clazzes.index)
      * This table must be tested. Factor that testing into this method.
      * @param \simple_html_dom_node $html parsed dom that contains the ClazzesTable
+     * @param \App\Model\Table\ClazzesTable $clazzes
      * @param \App\Test\Fixture\ClazzesFixture $clazzesFixture
+     * @param \App\Model\Table\SectionsTable $sections
+     * @param int $sectionId If $sectionId=null, the test will expect to see all the records from
+     * the fixture. Else the test will only expect to see fixture records with the given $sectionId.
      * @return int $aTagsFoundCnt The number of aTagsFound.
      */
-    public function tstClazzesTable($html, $clazzesFixture) {
+    public function tstClazzesTable($html, $clazzes, $clazzesFixture, $sections, $sectionId=null) {
 
         // 1. Ensure that there is a suitably named table to display the results.
         $this->table = $html->find('table#ClazzesTable',0);
@@ -312,9 +316,11 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
         $this->assertEquals($column_count,4); // no other columns
 
         // 3. Ensure that the tbody section has the same
-        //    quantity of rows as the count of clazz records in the fixture.
+        //    quantity of rows as the count of expected clazz records in the fixture, filtered by $sectionId
         $this->tbody = $this->table->find('tbody',0);
         $tbody_rows = $this->tbody->find('tr');
+        if(!is_null($sectionId))
+            $clazzesFixture->filter($sectionId);
         $this->assertEquals(count($tbody_rows), count($clazzesFixture->records));
 
         // 4. Ensure that the values displayed in each row, match the values from
@@ -331,11 +337,11 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
             $htmlColumns = $this->htmlRow->find('td');
 
             // 8.0 section_nickname (virtual field of Section)
-            $section = $this->sections->get($fixtureRecord['section_id']);
+            $section = $sections->get($fixtureRecord['section_id']);
             $this->assertEquals($section->nickname, $htmlColumns[0]->plaintext);
 
             // 8.1 week (virtual field of Clazz)
-            $clazz = $this->clazzes->get($fixtureRecord['id']);
+            $clazz = $clazzes->get($fixtureRecord['id']);
             $this->assertEquals($clazz->week, $htmlColumns[1]->plaintext);
 
             // 8.2 event_datetime

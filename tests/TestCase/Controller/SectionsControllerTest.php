@@ -2,6 +2,7 @@
 namespace App\Test\TestCase\Controller;
 
 use App\Test\Fixture\FixtureConstants;
+use App\Test\Fixture\ClazzesFixture;
 use App\Test\Fixture\SectionsFixture;
 use App\Test\Fixture\SemestersFixture;
 use App\Test\Fixture\SubjectsFixture;
@@ -22,6 +23,9 @@ class SectionsControllerTest extends DMIntegrationTestCase {
         'app.tplans',
         'app.users'
     ];
+
+    /* @var \App\Model\Table\ClazzesTable */
+    private $clazzes;
 
     /* @var \App\Model\Table\CohortsTable */
     private $cohorts;
@@ -44,9 +48,11 @@ class SectionsControllerTest extends DMIntegrationTestCase {
 
     public function setUp() {
         parent::setUp();
+        $this->clazzes = TableRegistry::get('Clazzes');
         $this->cohorts = TableRegistry::get('Cohorts');
         $this->sections = TableRegistry::get('Sections');
         $this->semesters = TableRegistry::get('Semesters');
+        $this->clazzesFixture = new ClazzesFixture();
         $this->sectionsFixture = new SectionsFixture();
         $this->semestersFixture = new SemestersFixture();
         $this->subjectsFixture = new SubjectsFixture();
@@ -172,7 +178,8 @@ class SectionsControllerTest extends DMIntegrationTestCase {
 
         // 1. Simulate login, submit request, examine response.
         $this->fakeLogin(FixtureConstants::userAndyAdminId);
-        $this->get('/sections/edit/' . $this->sectionsFixture->section1Record['id']);
+        $section_id = $this->sectionsFixture->section1Record['id'];
+        $this->get('/sections/edit/' . $section_id);
         $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();
 
@@ -279,7 +286,7 @@ class SectionsControllerTest extends DMIntegrationTestCase {
         // 7. Examine the table of TplanElements.
         $cct=new ClazzesControllerTest();
         /* @var \simple_html_dom_node $html */
-        $unknownATag-=$cct->tstClazzesTable($html,$this->clazzesFixture);
+        $unknownATag-=$cct->tstClazzesTable($html,$this->clazzes,$this->clazzesFixture,$this->sections,$section_id);
 
         // 8. Ensure that all the <A> tags have been accounted for
         $this->assertEquals(0, $unknownATag);
@@ -416,7 +423,8 @@ class SectionsControllerTest extends DMIntegrationTestCase {
         // 1. Simulate login, submit request, examine response.
         $this->fakeLogin(FixtureConstants::userAndyAdminId);
         $fixtureRecord=$this->sectionsFixture->section1Record;
-        $this->get('/sections/view/' . $fixtureRecord['id']);
+        $section_id=$fixtureRecord['id'];
+        $this->get('/sections/view/' . $section_id);
         $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();
 
@@ -488,7 +496,7 @@ class SectionsControllerTest extends DMIntegrationTestCase {
         // 6. Examine the table of repeating clazzes
         /* @var \simple_html_dom_node $html */
         $cct=new ClazzesControllerTest();
-        $unknownATag-=$cct->tstClazzesTable($html,$this->clazzesFixture);
+        $unknownATag-=$cct->tstClazzesTable($html,$this->clazzes,$this->clazzesFixture,$this->sections,$section_id);
 
         // 7. Ensure that all the <A> tags have been accounted for
         $this->assertEquals(0, $unknownATag);

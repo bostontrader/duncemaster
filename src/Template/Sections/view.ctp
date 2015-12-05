@@ -37,4 +37,7 @@
             </tr>
         </table>
     </div>
+
+    <?= $this->element('clazzes_index') ?>
+
 </div>

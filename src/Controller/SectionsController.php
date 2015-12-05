@@ -62,7 +62,7 @@ class SectionsController extends AppController {
 
     public function view($id = null) {
         $this->request->allowMethod(['get']);
-        $section = $this->Sections->get($id,['contain'=>['Clazzes','Cohorts.Majors','Semesters','Subjects','Tplans']]);
+        $section = $this->Sections->get($id,['contain'=>['Clazzes.Sections','Cohorts.Majors','Semesters','Subjects','Tplans']]);
         $this->set('section', $section);
         $this->set('clazzes',$section->clazzes);
     }
