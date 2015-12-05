@@ -78,7 +78,7 @@ class UsersControllerTest extends DMIntegrationTestCase {
         //    and that it has the correct quantity of available choices.
         if($this->lookForSelect($form,'UserRoles','roles')) $unknownSelectCnt--;
 
-        // 4.6 Becuase UserRoles is a multi-select, there should also be an associated
+        // 4.6 Because UserRoles is a multi-select, there should also be an associated
         // hidden input. Note: supply blank value argument because we're looking
         // for a blank value. Don't want the default value.
         if($this->lookForHiddenInput($form, 'roles[_ids]', '')) $unknownInputCnt--;
@@ -167,14 +167,14 @@ class UsersControllerTest extends DMIntegrationTestCase {
 
         // 4.4 Ensure that there's an input field for password, of type text, and that it is correctly
         // set. Note: In this special case, the password is not hashed, because the record was injected
-        // by the FixtureManager, which apparently doesn't bother with such nicities.
+        // by the FixtureManager, which apparently doesn't bother with such niceties.
         // The password is hashed and needs to be checked using the hashed-password checking mechanism.
         $input = $form->find('input#UserPassword',0);
         $this->assertEquals($input->type, "text");
         $this->assertEquals($input->value, $this->usersFixture->userSallyStudentRecord['password']);
         $unknownInputCnt--;
 
-        // 4.6 Becuase UserRoles is a multi-select, there should also be an associated
+        // 4.6 Because UserRoles is a multi-select, there should also be an associated
         // hidden input. Note: supply blank value argument because we're looking
         // for a blank value. Don't want the default value.
         if($this->lookForHiddenInput($form, 'roles[_ids]', '')) $unknownInputCnt--;

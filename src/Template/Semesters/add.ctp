@@ -1,3 +1,5 @@
+<?php  /* @var \App\Model\Entity\Semester $semester */ ?>
+
 <div id="ClazzesAdd">
     <nav class="large-3 medium-4 columns" id="actions-sidebar">
         <ul class="side-nav">

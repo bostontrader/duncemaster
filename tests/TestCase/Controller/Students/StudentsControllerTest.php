@@ -337,7 +337,7 @@ class StudentsControllerTest extends DMIntegrationTestCase {
     //   C. That the grading info section is not present.
     //
     // 3. The view request has a request parameter specifying a section_id. Whether or not
-    // the Student has a User is unimportant. In this case verify the existance and correctness
+    // the Student has a User is unimportant. In this case verify the existence and correctness
     // of the grading info section.
     //
 

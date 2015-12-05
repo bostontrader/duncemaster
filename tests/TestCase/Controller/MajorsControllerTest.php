@@ -290,8 +290,7 @@ class MajorsControllerTest extends DMIntegrationTestCase {
         $this->assertEquals($this->majorsFixture->major1Record['sdesc'], $field->plaintext);
         $unknownRowCnt--;
 
-        // Have all the rows been accounted for?  Are there
-        // any extras?
+        // Have all the rows been accounted for?  Are there any extras?
         $this->assertEquals(0, $unknownRowCnt);
 
         // 3. Examine the <A> tags on this page.  There should be zero links.

@@ -182,7 +182,7 @@ class SubjectsControllerTest extends DMIntegrationTestCase {
 
         // 1. Simulate login, submit request, examine response.
         $this->fakeLogin(FixtureConstants::userAndyAdminId);
-        $result = $this->get('/subjects/index');
+        $this->get('/subjects/index');
         $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();
 

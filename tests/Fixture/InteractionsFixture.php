@@ -73,7 +73,7 @@ class InteractionsFixture extends DMFixture {
                 [
                     'id'=>$nextId++,
                     'clazz_id'=>FixtureConstants::clazz1_id,
-                    'studet_id'=>FixtureConstants::student2_id,
+                    'student_id'=>FixtureConstants::student2_id,
                     'itype_id'=>ItypesController::LEAVE
                 ],
                 [

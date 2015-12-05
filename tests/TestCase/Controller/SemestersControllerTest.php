@@ -14,6 +14,7 @@ class SemestersControllerTest extends DMIntegrationTestCase {
         'app.users'
     ];
 
+    /* @var \App\Model\Table\SemestersTable */
     private $semesters;
     private $semestersFixture;
 
@@ -47,8 +48,8 @@ class SemestersControllerTest extends DMIntegrationTestCase {
         $html = str_get_html($this->_response->body());
 
         // 3. Ensure that the correct form exists
-        $form = $html->find('form#SemesterAddForm',0);
-        $this->assertNotNull($form);
+        $this->form = $html->find('form#SemesterAddForm',0);
+        $this->assertNotNull($this->form);
 
         // 4. Now inspect the fields on the form.  We want to know that:
         // A. The correct fields are there and no other fields.
@@ -59,29 +60,20 @@ class SemestersControllerTest extends DMIntegrationTestCase {
 
         // 4.1 These are counts of the select and input fields on the form.  They
         // are presently unaccounted for.
-        $unknownSelectCnt = count($form->find('select'));
-        $unknownInputCnt = count($form->find('input'));
+        $unknownSelectCnt = count($this->form->find('select'));
+        $unknownInputCnt = count($this->form->find('input'));
 
         // 4.2 Look for the hidden POST input
-        if($this->lookForHiddenInput($form)) $unknownInputCnt--;
+        if($this->lookForHiddenInput($this->form)) $unknownInputCnt--;
 
         // 4.3 Ensure that there's an input field for year, of type text, and that it is empty
-        $input = $form->find('input#SemesterYear',0);
-        $this->assertEquals($input->type, "text");
-        $this->assertEquals($input->value, false);
-        $unknownInputCnt--;
+        if($this->inputCheckerA($this->form,'input#SemesterYear')) $unknownInputCnt--;
 
         // 4.4 Ensure that there's an input field for seq, of type text, and that it is empty
-        $input = $form->find('input#SemesterSeq',0);
-        $this->assertEquals($input->type, "text");
-        $this->assertEquals($input->value, false);
-        $unknownInputCnt--;
+        if($this->inputCheckerA($this->form,'input#SemesterYear')) $unknownInputCnt--;
 
         // 4.5 Ensure that there's an input field for firstday, of type text, and that it is empty
-        $input = $form->find('input#SemesterFirstday',0);
-        $this->assertEquals($input->type, "text");
-        $this->assertEquals($input->value, false);
-        $unknownInputCnt--;
+        if($this->inputCheckerA($this->form,'input#SemesterYear')) $unknownInputCnt--;
 
         // 4.9 Have all the input and select fields been accounted for?  Are there
         // any extras?
@@ -89,9 +81,9 @@ class SemestersControllerTest extends DMIntegrationTestCase {
         $this->assertEquals(0, $unknownSelectCnt);
 
         // 5. Examine the <A> tags on this page.  There should be zero links.
-        $content = $html->find('div#ClazzesAdd',0);
-        $this->assertNotNull($content);
-        $links = $content->find('a');
+        $this->content = $html->find('div#ClazzesAdd',0);
+        $this->assertNotNull($this->content);
+        $links = $this->content->find('a');
         $this->assertEquals(0,count($links));
     }
 
@@ -139,8 +131,8 @@ class SemestersControllerTest extends DMIntegrationTestCase {
         $html = str_get_html($this->_response->body());
 
         // 3. Ensure that the correct form exists
-        $form = $html->find('form#SemesterEditForm',0);
-        $this->assertNotNull($form);
+        $this->form = $html->find('form#SemesterEditForm',0);
+        $this->assertNotNull($this->form);
 
         // 4. Now inspect the fields on the form.  We want to know that:
         // A. The correct fields are there and no other fields.
@@ -151,29 +143,23 @@ class SemestersControllerTest extends DMIntegrationTestCase {
 
         // 4.1 These are counts of the select and input fields on the form.  They
         // are presently unaccounted for.
-        $unknownSelectCnt = count($form->find('select'));
-        $unknownInputCnt = count($form->find('input'));
+        $unknownSelectCnt = count($this->form->find('select'));
+        $unknownInputCnt = count($this->form->find('input'));
 
         // 4.2 Look for the hidden POST input
-        if($this->lookForHiddenInput($form,'_method','PUT')) $unknownInputCnt--;
+        if($this->lookForHiddenInput($this->form,'_method','PUT')) $unknownInputCnt--;
 
         // 4.3 Ensure that there's an input field for year, of type text, and that it is correctly set
-        $input = $form->find('input#SemesterYear',0);
-        $this->assertEquals($input->type, "text");
-        $this->assertEquals($input->value, $this->semestersFixture->semester1Record['year']);
-        $unknownInputCnt--;
+        if($this->inputCheckerA($this->form,'input#SemesterYear',
+            $this->semestersFixture->semester1Record['year'])) $unknownInputCnt--;
 
         // 4.4 Ensure that there's an input field for seq, of type text, and that it is correctly set
-        $input = $form->find('input#SemesterSeq',0);
-        $this->assertEquals($input->type, "text");
-        $this->assertEquals($input->value,  $this->semestersFixture->semester1Record['seq']);
-        $unknownInputCnt--;
+        if($this->inputCheckerA($this->form,'input#SemesterSeq',
+            $this->semestersFixture->semester1Record['seq'])) $unknownInputCnt--;
 
         // 4.5 Ensure that there's an input field for seq, of type text, and that it is correctly set
-        $input = $form->find('input#SemesterFirstday',0);
-        $this->assertEquals($input->type, "text");
-        $this->assertEquals($input->value,  $this->semestersFixture->semester1Record['firstday']);
-        $unknownInputCnt--;
+        if($this->inputCheckerA($this->form,'input#SemesterFirstday',
+            $this->semestersFixture->semester1Record['firstday'])) $unknownInputCnt--;
 
         // 4.9 Have all the input and select fields been accounted for?  Are there
         // any extras?
@@ -181,9 +167,9 @@ class SemestersControllerTest extends DMIntegrationTestCase {
         $this->assertEquals(0, $unknownSelectCnt);
 
         // 5. Examine the <A> tags on this page.  There should be zero links.
-        $content = $html->find('div#SemestersEdit',0);
-        $this->assertNotNull($content);
-        $links = $content->find('a');
+        $this->content = $html->find('div#SemestersEdit',0);
+        $this->assertNotNull($this->content);
+        $links = $this->content->find('a');
         $this->assertEquals(0,count($links));
     }
 
@@ -218,22 +204,22 @@ class SemestersControllerTest extends DMIntegrationTestCase {
         $html = str_get_html($this->_response->body());
         
         // 3. Get a the count of all <A> tags that are presently unaccounted for.
-        $content = $html->find('div#SemestersIndex',0);
-        $this->assertNotNull($content);
-        $unknownATag = count($content->find('a'));
+        $this->content = $html->find('div#SemestersIndex',0);
+        $this->assertNotNull($this->content);
+        $unknownATag = count($this->content->find('a'));
 
         // 4. Look for the create new semester link
         $this->assertEquals(1, count($html->find('a#SemesterAdd')));
         $unknownATag--;
 
         // 5. Ensure that there is a suitably named table to display the results.
-        $semesters_table = $html->find('table#SemestersTable',0);
-        $this->assertNotNull($semesters_table);
+        $this->table = $html->find('table#SemestersTable',0);
+        $this->assertNotNull($this->table);
 
         // 6. Ensure that said table's thead element contains the correct
         //    headings, in the correct order, and nothing else.
-        $thead = $semesters_table->find('thead',0);
-        $thead_ths = $thead->find('tr th');
+        $this->thead = $this->table->find('thead',0);
+        $thead_ths = $this->thead->find('tr th');
 
         $this->assertEquals($thead_ths[0]->id, 'year');
         $this->assertEquals($thead_ths[1]->id, 'seq');
@@ -244,8 +230,8 @@ class SemestersControllerTest extends DMIntegrationTestCase {
 
         // 7. Ensure that the tbody section has the same
         //    quantity of rows as the count of semester records in the fixture.
-        $tbody = $semesters_table->find('tbody',0);
-        $tbody_rows = $tbody->find('tr');
+        $this->tbody = $this->table->find('tbody',0);
+        $tbody_rows = $this->tbody->find('tr');
         $this->assertEquals(count($tbody_rows), count($this->semestersFixture->records));
 
         // 8. Ensure that the values displayed in each row, match the values from
@@ -257,14 +243,16 @@ class SemestersControllerTest extends DMIntegrationTestCase {
 
         foreach ($iterator as $values) {
             $fixtureRecord = $values[0];
-            $htmlRow = $values[1];
-            $htmlColumns = $htmlRow->find('td');
+            $this->htmlRow = $values[1];
+            $htmlColumns = $this->htmlRow->find('td');
+
             $this->assertEquals($fixtureRecord['year'],  $htmlColumns[0]->plaintext);
             $this->assertEquals($fixtureRecord['seq'],  $htmlColumns[1]->plaintext);
             $this->assertEquals($fixtureRecord['firstday'],  $htmlColumns[2]->plaintext);
 
-            // Now examine the action links
-            $actionLinks = $htmlRow->find('a');
+            // 8.3 Now examine the action links
+            $this->td = $htmlColumns[3];
+            $actionLinks = $this->td->find('a');
             $this->assertEquals('SemesterView', $actionLinks[0]->name);
             $unknownATag--;
             $this->assertEquals('SemesterEdit', $actionLinks[1]->name);
@@ -291,8 +279,8 @@ class SemestersControllerTest extends DMIntegrationTestCase {
         $html = str_get_html($this->_response->body());
 
         // 1.  Look for the table that contains the view fields.
-        $table = $html->find('table#SemesterViewTable',0);
-        $this->assertNotNull($table);
+        $this->table = $html->find('table#SemesterViewTable',0);
+        $this->assertNotNull($this->table);
 
         // 2. Now inspect the fields on the form.  We want to know that:
         // A. The correct fields are there and no other fields.
@@ -301,16 +289,19 @@ class SemestersControllerTest extends DMIntegrationTestCase {
         //  The actual order that the fields are listed is hereby deemed unimportant.
 
         // This is the count of the table rows that are presently unaccounted for.
-        $unknownRowCnt = count($table->find('tr'));
+        $unknownRowCnt = count($this->table->find('tr'));
 
+        // 2.1 year
         $field = $html->find('tr#year td',0);
         $this->assertEquals($this->semestersFixture->semester1Record['year'], $field->plaintext);
         $unknownRowCnt--;
 
+        // 2.2 seq
         $field = $html->find('tr#seq td',0);
         $this->assertEquals($this->semestersFixture->semester1Record['seq'], $field->plaintext);
         $unknownRowCnt--;
 
+        // 2.3 firstday
         $field = $html->find('tr#firstday td',0);
         $this->assertEquals($this->semestersFixture->semester1Record['firstday'], $field->plaintext);
         $unknownRowCnt--;
@@ -319,9 +310,9 @@ class SemestersControllerTest extends DMIntegrationTestCase {
         $this->assertEquals(0, $unknownRowCnt);
 
         // 3. Examine the <A> tags on this page.  There should be zero links.
-        $content = $html->find('div#SemestersView',0);
-        $this->assertNotNull($content);
-        $links = $content->find('a');
+        $this->content = $html->find('div#SemestersView',0);
+        $this->assertNotNull($this->content);
+        $links = $this->content->find('a');
         $this->assertEquals(0,count($links));
     }
 

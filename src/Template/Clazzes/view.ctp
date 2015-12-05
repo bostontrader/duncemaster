@@ -11,7 +11,7 @@
             </tr>
             <tr id="event_datetime">
                 <th><?= __('Datetime') ?></th>
-                <td><?= $clazz->event_datetime ?></tr>
+                <td><?= $clazz->event_datetime ?></td>
             </tr>
         </table>
     </div>
