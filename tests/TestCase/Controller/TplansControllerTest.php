@@ -295,16 +295,6 @@ class TplansControllerTest extends DMIntegrationTestCase {
         // This is the count of the table rows that are presently unaccounted for.
         $unknownRowCnt = count($this->table->find('tr'));
 
-        // 5.1 section.subject.title requires finding the related value in the SubjectsFixture,
-        // via the SectionsFixture
-        $field = $html->find('tr#section_subject_title td',0);
-        $section_id = $this->tplansFixture->tplan1Record['section_id'];
-        $section = $this->sectionsFixture->get($section_id);
-        $subject_id = $section['section_id'];
-        $subject = $this->subjectsFixture->get($subject_id);
-        $this->assertEquals($subject['title'], $field->plaintext);
-        $unknownRowCnt--;
-
         // 5.1 title
         $field = $html->find('tr#title td',0);
         $this->assertEquals($fixtureRecord['title'], $field->plaintext);

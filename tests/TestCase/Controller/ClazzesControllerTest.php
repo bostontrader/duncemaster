@@ -223,64 +223,6 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
         /* @var \simple_html_dom_node $html */
         $unknownATag-=$this->tstClazzesTable($html,$this->clazzes,$this->clazzesFixture,$this->sections);
 
-        // 5. Ensure that there is a suitably named table to display the results.
-        //$clazzes_table = $html->find('table#ClazzesTable',0);
-        //$this->assertNotNull($clazzes_table);
-
-        // 6. Ensure that said table's thead element contains the correct
-        //    headings, in the correct order, and nothing else.
-        //$thead = $clazzes_table->find('thead',0);
-        //$thead_ths = $thead->find('tr th');
-
-        //$this->assertEquals($thead_ths[0]->id, 'section');
-        //$this->assertEquals($thead_ths[1]->id, 'week');
-        //$this->assertEquals($thead_ths[2]->id, 'event_datetime');
-        //$this->assertEquals($thead_ths[3]->id, 'actions');
-        //$column_count = count($thead_ths);
-        //$this->assertEquals($column_count,4); // no other columns
-
-        // 7. Ensure that the tbody section has the same
-        //    quantity of rows as the count of clazz records in the fixture.
-        //$tbody = $clazzes_table->find('tbody',0);
-        //$tbody_rows = $tbody->find('tr');
-        //$this->assertEquals(count($tbody_rows), count($this->clazzesFixture->records));
-
-        // 8. Ensure that the values displayed in each row, match the values from
-        //    the fixture.  The values should be presented in a particular order
-        //    with nothing else thereafter.
-        //$iterator = new \MultipleIterator();
-        //$iterator->attachIterator(new \ArrayIterator($this->clazzesFixture->records));
-        //$iterator->attachIterator(new \ArrayIterator($tbody_rows));
-
-        //foreach ($iterator as $values) {
-            //$fixtureRecord = $values[0];
-            //$htmlRow = $values[1];
-            //$htmlColumns = $htmlRow->find('td');
-
-            // 8.0 section_nickname (virtual field of Section)
-            //$section = $this->sections->get($fixtureRecord['section_id']);
-            //$this->assertEquals($section->nickname, $htmlColumns[0]->plaintext);
-
-            // 8.1 week (virtual field of Clazz)
-            //$clazz = $this->clazzes->get($fixtureRecord['id']);
-            //$this->assertEquals($clazz->week, $htmlColumns[1]->plaintext);
-
-            // 8.2 event_datetime
-            //$this->assertEquals($fixtureRecord['event_datetime'], $htmlColumns[2]->plaintext);
-
-            // 8.3 Now examine the action links
-            //$actionLinks = $htmlColumns[3]->find('a');
-            //$this->assertEquals('ClazzView', $actionLinks[0]->name);
-            //$unknownATag--;
-            //$this->assertEquals('ClazzEdit', $actionLinks[1]->name);
-            //$unknownATag--;
-            //$this->assertEquals('ClazzDelete', $actionLinks[2]->name);
-            //$unknownATag--;
-
-            // 8.9 No other columns
-            //$this->assertEquals(count($htmlColumns),$column_count);
-        //}
-
         // 6. Ensure that all the <A> tags have been accounted for
         $this->assertEquals(0, $unknownATag);
     }
