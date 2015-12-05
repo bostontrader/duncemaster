@@ -17,6 +17,7 @@ class ClazzesController extends AppController {
         }
         $sections = $this->Clazzes->Sections->find('list');
         $this->set(compact('clazz','sections'));
+        return null;
     }
 
     public function delete($id = null) {
@@ -44,11 +45,12 @@ class ClazzesController extends AppController {
         }
         $sections = $this->Clazzes->Sections->find('list');
         $this->set(compact('clazz', 'sections'));
+        return null;
     }
 
     public function index() {
         $this->request->allowMethod(['get']);
-        $this->set('clazzes', $this->Clazzes->find('all', ['contain' => ['Sections']]));
+        $this->set('clazzes', $this->Clazzes->find('all', ['contain' => 'Sections']));
     }
 
     public function view($id = null) {

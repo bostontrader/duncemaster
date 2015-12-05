@@ -1,3 +1,8 @@
+<?php
+/**
+ * @var \App\Model\Table\TplanElementsTable $tplan_elements
+ */
+?>
 <div class="tplan_elements index large-9 medium-8 columns content">
     <h3><?= __('TplanElements') ?></h3>
     <table id="TplanElementsTable" cellpadding="0" cellspacing="0">

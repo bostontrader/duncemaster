@@ -11,6 +11,7 @@
 <div id="SectionsEdit">
     <nav class="large-3 medium-4 columns" id="actions-sidebar">
         <ul class="side-nav">
+            <li><?= $this->Html->link(__('New Class'), ['action' => 'add'],['id'=>'ClazzAdd']) ?></li>
         </ul>
     </nav>
     <div class="sections form large-9 medium-8 columns content">
@@ -30,4 +31,7 @@
         <?= $this->Form->button(__('Submit')) ?>
         <?= $this->Form->end() ?>
     </div>
+
+    <?= $this->element('clazzes_index') ?>
+
 </div>

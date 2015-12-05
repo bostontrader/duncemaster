@@ -3,6 +3,7 @@ namespace App\Test\TestCase\Controller;
 
 use App\Test\Fixture\FixtureConstants;
 use App\Test\Fixture\TplanElementsFixture;
+use App\Test\Fixture\TplansFixture;
 use Cake\ORM\TableRegistry;
 
 class TplanElementsControllerTest extends DMIntegrationTestCase {
@@ -17,13 +18,16 @@ class TplanElementsControllerTest extends DMIntegrationTestCase {
 
     /* @var \App\Model\Table\TplanElementsTable */
     private $tplan_elements;
-
     private $tplan_elementsFixture;
+
+    /* @var \App\Test\Fixture\TplansFixture */
+    private $tplansFixture;
 
     public function setUp() {
         parent::setUp();
         $this->tplan_elements = TableRegistry::get('TplanElements');
         $this->tplan_elementsFixture = new TplanElementsFixture();
+        $this->tplansFixture = new TplansFixture();
     }
 
     // Test that unauthenticated users, when submitting a request to
@@ -235,7 +239,7 @@ class TplanElementsControllerTest extends DMIntegrationTestCase {
      * (Tplans.edit,  Tplans.view, and TplanElements.index)
      * This table must be tested. Factor that testing into this method.
      * @param \simple_html_dom_node $html parsed dom that contains the TplanElementsTable
-     * @param \App\Test\Fixture\TplanElementsFixture
+     * @param \App\Test\Fixture\TplanElementsFixture $tplan_elementsFixture
      * @return int $aTagsFoundCnt The number of aTagsFound.
      */
     public function tstTplanElementsTable($html, $tplan_elementsFixture) {
@@ -305,14 +309,14 @@ class TplanElementsControllerTest extends DMIntegrationTestCase {
         $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();
 
-        // Parse the html from the response
+        // 2. Parse the html from the response
         $html = str_get_html($this->_response->body());
 
-        // 1.  Look for the table that contains the view fields.
+        // 3.  Look for the table that contains the view fields.
         $this->table = $html->find('table#TplanElementViewTable',0);
         $this->assertNotNull($this->table);
 
-        // 2. Now inspect the fields in the table.  We want to know that:
+        // 4. Now inspect the fields in the table.  We want to know that:
         // A. The correct fields are there and no other fields.
         // B. The fields have correct values.
         //

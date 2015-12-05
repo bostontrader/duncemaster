@@ -36,7 +36,7 @@ class SectionsController extends AppController {
 
     public function edit($id = null) {
         $this->request->allowMethod(['get', 'put']);
-        $section = $this->Sections->get($id);
+        $section = $this->Sections->get($id,['contain' => ['Clazzes.Sections']]);
         if ($this->request->is(['put'])) {
             $section = $this->Sections->patchEntity($section, $this->request->data);
             if ($this->Sections->save($section)) {
@@ -50,6 +50,7 @@ class SectionsController extends AppController {
         $semesters = $this->Sections->Semesters->find('list');
         $subjects = $this->Sections->Subjects->find('list');
         $tplans = $this->Sections->Tplans->find('list');
+        $this->set('clazzes',$section->clazzes);
         $this->set(compact('cohorts','section','semesters','subjects','tplans'));
         return null;
     }
@@ -61,7 +62,8 @@ class SectionsController extends AppController {
 
     public function view($id = null) {
         $this->request->allowMethod(['get']);
-        $section = $this->Sections->get($id,['contain'=>['Cohorts.Majors','Semesters','Subjects','Tplans']]);
+        $section = $this->Sections->get($id,['contain'=>['Clazzes','Cohorts.Majors','Semesters','Subjects','Tplans']]);
         $this->set('section', $section);
+        $this->set('clazzes',$section->clazzes);
     }
 }
