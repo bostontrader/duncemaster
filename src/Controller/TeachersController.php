@@ -17,6 +17,7 @@ class TeachersController extends AppController {
         }
         $users = $this->Teachers->Users->find('list');
         $this->set(compact('teacher','users'));
+        return null;
     }
 
     public function delete($id = null) {
@@ -44,6 +45,7 @@ class TeachersController extends AppController {
         }
         $users = $this->Teachers->Users->find('list');
         $this->set(compact('teacher','users'));
+        return null;
     }
 
     public function index() {

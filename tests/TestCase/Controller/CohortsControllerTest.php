@@ -22,6 +22,8 @@ class CohortsControllerTest extends DMIntegrationTestCase {
 
     /* @var \App\Model\Table\MajorsTable */
     private $majors;
+
+    /* @var \App\Test\Fixture\MajorsFixture */
     private $majorsFixture;
 
     public function setUp() {

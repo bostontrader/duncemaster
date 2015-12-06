@@ -163,7 +163,8 @@ class MajorsControllerTest extends DMIntegrationTestCase {
         $this->content = $html->find('div#MajorsEdit',0);
         $this->assertNotNull($this->content);
         $links = $this->content->find('a');
-        $this->assertEquals(0,count($links));    }
+        $this->assertEquals(0,count($links));
+    }
 
     public function testEditPOST() {
 

@@ -19,10 +19,6 @@ class TeachersControllerTest extends DMIntegrationTestCase {
 
     private $teachersFixture;
 
-    // If I put this in the super-class phpstorm won't understand their types
-    /* @var \simple_html_dom_node */
-    private $content,$field,$form,$htmlRow,$input,$table,$tbody,$td,$thead;
-
     public function setUp() {
         parent::setUp();
         $this->teachers = TableRegistry::get('Teachers');
@@ -72,20 +68,14 @@ class TeachersControllerTest extends DMIntegrationTestCase {
         if($this->lookForHiddenInput($this->form)) $unknownInputCnt--;
 
         // 4.3 Ensure that there's an input field for fam_name, of type text, and that it is empty
-        $this->input = $this->form->find('input#TeacherFamName',0);
-        $this->assertEquals($this->input->type, "text");
-        $this->assertEquals($this->input->value, false);
-        $unknownInputCnt--;
+        if($this->inputCheckerA($this->form,'input#TeacherFamName')) $unknownInputCnt--;
 
         // 4.4 Ensure that there's an input field for giv_name, of type text, and that it is empty
-        $this->input = $this->form->find('input#TeacherGivName',0);
-        $this->assertEquals($this->input->type, "text");
-        $this->assertEquals($this->input->value, false);
-        $unknownInputCnt--;
+        if($this->inputCheckerA($this->form,'input#TeacherGivName')) $unknownInputCnt--;
 
         // 4.5 Ensure that there's a select field for user_id, that it has no selection,
         //    and that it has the correct quantity of available choices.
-        if($this->lookForSelect($this->form,'TeacherUserId','users')) $unknownSelectCnt--;
+        if($this->selectCheckerA($this->form, 'TeacherUserId', 'users')) $unknownSelectCnt--;
 
         // 4.9 Have all the input and select fields been accounted for?  Are there
         // any extras?
@@ -162,16 +152,12 @@ class TeachersControllerTest extends DMIntegrationTestCase {
         if($this->lookForHiddenInput($this->form,'_method','PUT')) $unknownInputCnt--;
 
         // 4.3 Ensure that there's an input field for fam_name, of type text, and that it is correctly set
-        $this->input = $this->form->find('input#TeacherFamName',0);
-        $this->assertEquals($this->input->type, "text");
-        $this->assertEquals($this->input->value, $this->teachersFixture->teacher1Record['fam_name']);
-        $unknownInputCnt--;
+        if($this->inputCheckerA($this->form,'input#TeacherFamName',
+            $this->teachersFixture->teacher1Record['fam_name'])) $unknownInputCnt--;
 
         // 4.4 Ensure that there's an input field for giv_name, of type text, and that it is correctly set
-        $this->input = $this->form->find('input#TeacherGivName',0);
-        $this->assertEquals($this->input->type, "text");
-        $this->assertEquals($this->input->value, $this->teachersFixture->teacher1Record['giv_name']);
-        $unknownInputCnt--;
+        if($this->inputCheckerA($this->form,'input#TeacherGivName',
+            $this->teachersFixture->teacher1Record['giv_name'])) $unknownInputCnt--;
 
         // 4.5. Ensure that there's a select field for user_id and that it is correctly set
         $option = $this->form->find('select#TeacherUserId option[selected]',0);
