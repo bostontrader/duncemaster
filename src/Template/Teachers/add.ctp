@@ -1,4 +1,9 @@
-<?php  /* @var \App\Model\Entity\Teacher $teacher */ ?>
+<?php
+/**
+* @var \App\Model\Entity\Teacher $teacher
+* @var \App\Model\Table\UsersTable $users
+*/
+?>
 
 <div id="TeachersAdd">
     <nav class="large-3 medium-4 columns" id="actions-sidebar">

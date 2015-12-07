@@ -1,3 +1,10 @@
+<?php
+/**
+ * @var \App\Model\Entity\Teacher $teacher
+ * @var \App\Model\Table\TeachersTable $teachers
+ */
+?>
+
 <div id="TeachersIndex">
     <nav class="large-3 medium-4 columns" id="actions-sidebar">
     <ul class="side-nav">
