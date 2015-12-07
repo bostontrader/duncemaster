@@ -22,7 +22,6 @@ class ClazzesTable extends Table {
     public function initialize(array $config) {
         parent::initialize($config);
 
-        //$this->table('clazzs');
         $this->displayField('nickname');
         //$this->primaryKey('id');
 

@@ -19,6 +19,7 @@ class StudentsController extends AppController {
         $cohorts = $this->Students->Cohorts->find('list',['contain' => ['Majors']]);
         $users = $this->Students->Users->find('list');
         $this->set(compact('cohorts','student','users'));
+        return null;
     }
 
     public function delete($id = null) {
@@ -47,6 +48,7 @@ class StudentsController extends AppController {
         $cohorts = $this->Students->Cohorts->find('list',['contain' => ['Majors']]);
         $users = $this->Students->Users->find('list');
         $this->set(compact('cohorts','student','users'));
+        return null;
     }
 
     public function index() {

@@ -1,9 +1,15 @@
+<?php
+/**
+ * @var \App\Model\Entity\Clazz $clazz
+ * @var \App\Model\Table\SectionsTable $sections
+ */
+?>
 <div id="ClazzesAdd">
     <nav class="large-3 medium-4 columns" id="actions-sidebar">
         <ul class="side-nav">
         </ul>
     </nav>
-    <div class="clazzs form large-9 medium-8 columns content">
+    <div class="clazzes form large-9 medium-8 columns content">
         <?= $this->Form->create($clazz, ['id'=>'ClazzAddForm']) ?>
         <fieldset>
             <legend><?= __('Add Class') ?></legend>

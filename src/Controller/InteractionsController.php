@@ -19,6 +19,7 @@ class InteractionsController extends AppController {
         $students = $this->Interactions->Students->find('list');
         $itypes = $this->Interactions->Itypes->find('list');
         $this->set(compact('clazzes','interaction','itypes','students'));
+        return null;
     }
 
     public function delete($id = null) {
@@ -48,6 +49,7 @@ class InteractionsController extends AppController {
         $itypes = $this->Interactions->Itypes->find('list');
         $students = $this->Interactions->Students->find('list');
         $this->set(compact('clazzes','interaction','itypes','students'));
+        return null;
     }
 
     public function index() {

@@ -1,6 +1,5 @@
 <?php
 namespace App\Controller;
-use Cake\ORM\TableRegistry;
 
 class RolesController extends AppController {
 
@@ -17,6 +16,7 @@ class RolesController extends AppController {
             }
         }
         $this->set(compact('role'));
+        return null;
     }
 
     public function delete($id = null) {
@@ -43,6 +43,7 @@ class RolesController extends AppController {
             }
         }
         $this->set(compact('role'));
+        return null;
     }
 
     public function index() {

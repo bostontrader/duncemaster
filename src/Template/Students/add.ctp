@@ -1,3 +1,11 @@
+<?php
+/**
+ * @var \App\Model\Entity\Student $student
+ * @var \App\Model\Table\CohortsTable $cohorts
+ * @var \App\Model\Table\UsersTable $users
+ */
+?>
+
 <div id="StudentsAdd">
     <nav class="large-3 medium-4 columns" id="actions-sidebar">
         <ul class="side-nav">

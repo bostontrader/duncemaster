@@ -16,6 +16,7 @@ class SemestersController extends AppController {
             }
         }
         $this->set(compact('semester'));
+        return null;
     }
 
     public function delete($id = null) {
@@ -42,6 +43,7 @@ class SemestersController extends AppController {
             }
         }
         $this->set(compact('semester'));
+        return null;
     }
 
     public function index() {

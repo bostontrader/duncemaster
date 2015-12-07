@@ -1,3 +1,9 @@
+<?php
+/**
+ * @var \App\Model\Entity\Cohort $cohort
+ * @var \App\Model\Table\MajorsTable $majors
+ */
+?>
 <div id="CohortsEdit">
     <nav class="large-3 medium-4 columns" id="actions-sidebar">
         <ul class="side-nav">

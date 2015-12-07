@@ -1,3 +1,10 @@
+<?php
+/**
+ * @var \App\Model\Entity\User $user
+ * @var \App\Model\Table\RolesTable $roles
+ */
+?>
+
 <div id="UsersAdd">
     <nav class="large-3 medium-4 columns" id="actions-sidebar">
         <ul class="side-nav">

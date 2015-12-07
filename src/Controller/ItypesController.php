@@ -22,6 +22,7 @@ class ItypesController extends AppController {
             }
         }
         $this->set(compact('itype'));
+        return null;
     }
 
     public function delete($id = null) {
@@ -48,6 +49,7 @@ class ItypesController extends AppController {
             }
         }
         $this->set(compact('itype'));
+        return null;
     }
 
     public function index() {

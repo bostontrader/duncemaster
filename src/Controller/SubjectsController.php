@@ -16,6 +16,7 @@ class SubjectsController extends AppController {
             }
         }
         $this->set(compact('subject'));
+        return null;
     }
 
     public function delete($id = null) {
@@ -42,6 +43,7 @@ class SubjectsController extends AppController {
             }
         }
         $this->set(compact('subject'));
+        return null;
     }
 
     public function index() {

@@ -32,6 +32,7 @@ class UsersController extends AppController {
         }
         $roles = $this->Users->Roles->find('list');
         $this->set(compact('user', 'roles'));
+        return null;
     }
 
     public function beforeFilter(Event $event) {
@@ -70,6 +71,7 @@ class UsersController extends AppController {
 
         $roles = $this->Users->Roles->find('list');
         $this->set(compact('user', 'roles'));
+        return null;
     }
 
     public function index() {
@@ -86,8 +88,9 @@ class UsersController extends AppController {
                 $this->Auth->setUser($user);
                 return $this->redirect($this->Auth->redirectUrl());
             }
-            $this->Flash->error(__('Invalid username or password, try again'));
+            //$this->Flash->error(__('Invalid username or password, try again'));
         }
+        return null;
     }
 
     public function logout() {

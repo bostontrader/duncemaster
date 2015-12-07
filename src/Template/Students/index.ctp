@@ -1,3 +1,9 @@
+<?php
+/**
+ * @var \App\Model\Entity\Student $student
+ * @var \Cake\ORM\Query $students
+ */
+?>
 <div id="StudentsIndex">
     <nav class="large-3 medium-4 columns" id="actions-sidebar">
         <ul class="side-nav">

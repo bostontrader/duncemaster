@@ -1,3 +1,10 @@
+<?php
+/**
+ * @var \App\Model\Entity\TplanElement $tplan_element
+ * @var \App\Model\Table\TplansTable $tplans
+ */
+?>
+
 <div id="TplanElementsAdd">
     <nav class="large-3 medium-4 columns" id="actions-sidebar">
         <ul class="side-nav">

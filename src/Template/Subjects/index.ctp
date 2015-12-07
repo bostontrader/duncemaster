@@ -1,3 +1,9 @@
+<?php
+/**
+ * @var \App\Model\Entity\Subject $subject
+ * @var \App\Model\Table\SubjectsTable $subjects
+ */
+?>
 <div id="SubjectsIndex">
     <nav class="large-3 medium-4 columns" id="actions-sidebar">
         <ul class="side-nav">

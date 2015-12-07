@@ -1,4 +1,8 @@
-<div id="ClazzesView">
+<?php
+/**
+ * @var \App\Model\Entity\Clazz $clazz
+ */
+?><div id="ClazzesView">
     <nav class="large-3 medium-4 columns" id="actions-sidebar">
         <ul class="side-nav">
         </ul>

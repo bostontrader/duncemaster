@@ -1,3 +1,9 @@
+<?php
+/**
+ * @var \App\Model\Entity\Cohort $cohort
+ * @var \App\Model\Table\CohortsTable $cohorts
+ */
+?>
 <div id="CohortsIndex">
     <nav class="large-3 medium-4 columns" id="actions-sidebar">
         <ul class="side-nav">

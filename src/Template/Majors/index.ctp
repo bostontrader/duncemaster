@@ -1,4 +1,5 @@
 <?php /* @var \Cake\ORM\Query $majors */ ?>
+<?php /* @var \App\Model\Entity\$major */ ?>
 
 <div id="MajorsIndex">
     <nav class="large-3 medium-4 columns" id="actions-sidebar">

@@ -1,3 +1,9 @@
+<?php
+/**
+ * @var \App\Model\Entity\Tplan $teacher
+ * @var \App\Model\Table\TplansTable $teachers
+ */
+?>
 <div id="TplansIndex">
     <nav class="large-3 medium-4 columns" id="actions-sidebar">
         <ul class="side-nav">
