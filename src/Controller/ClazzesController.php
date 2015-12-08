@@ -4,8 +4,13 @@ namespace App\Controller;
 class ClazzesController extends AppController {
 
     public function add() {
+
         $this->request->allowMethod(['get', 'post']);
         $clazz = $this->Clazzes->newEntity();
+
+        if(array_key_exists('section_id', $this->request->query))
+            $clazz->section_id=$this->request->query['section_id'];
+
         if ($this->request->is('post')) {
             $clazz = $this->Clazzes->patchEntity($clazz, $this->request->data);
             if ($this->Clazzes->save($clazz)) {
@@ -32,6 +37,7 @@ class ClazzesController extends AppController {
     }
 
     public function edit($id = null) {
+
         $this->request->allowMethod(['get', 'put']);
         $clazz = $this->Clazzes->get($id);
         if ($this->request->is(['put'])) {

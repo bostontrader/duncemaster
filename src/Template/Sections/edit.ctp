@@ -11,7 +11,12 @@
 <div id="SectionsEdit">
     <nav class="large-3 medium-4 columns" id="actions-sidebar">
         <ul class="side-nav">
-            <li><?= $this->Html->link(__('New Class'), ['action' => 'add'],['id'=>'ClazzAdd']) ?></li>
+            <li><?= $this->Html->link(
+                __('New Class'),
+                ['controller' => 'clazzes', 'action' => 'add', 'section_id' => $section['id']],
+                ['id'=>'ClazzAdd']
+                ) ?>
+            </li>
         </ul>
     </nav>
     <div class="sections form large-9 medium-8 columns content">

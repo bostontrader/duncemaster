@@ -32,6 +32,7 @@
                     <td><?= $section->start_time ?></td>
                     <td><?= $section->thours ?></td>
                     <td class="actions">
+                        <?= $this->Html->link(__('Classes'), ['controller' => 'clazzes', 'action' => 'index', 'section_id' => $section['id']],['name'=>'SectionClazzes']) ?>
                         <?= $this->Html->link(__('View'), ['action' => 'view', $section->id],['name'=>'SectionView']) ?>
                         <?= $this->Html->link(__('Edit'), ['action' => 'edit', $section->id],['name'=>'SectionEdit']) ?>
                         <?= $this->Form->postLink(__('Delete'), ['action' => 'delete', $section->id], ['name'=>'SectionDelete','confirm' => __('Are you sure you want to delete # {0}?', $section->id)]) ?>

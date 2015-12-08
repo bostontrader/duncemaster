@@ -44,11 +44,26 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
         $this->tstUnauthorizedActionsAndUsers('clazzes');
     }
 
-    public function testAddGET() {
+    // GET /add, no section_id parameter
+    public function testAddGet() {
+        $this->tstAddGet(null);
+    }
+
+    // GET /add, with section_id parameter
+    public function testAddGetSectionId() {
+        $this->tstAddGet($this->sectionsFixture->section1Record['id']);
+    }
+
+    private function tstAddGET($section_id=null) {
 
         // 1. Simulate login, submit request, examine response.
         $this->fakeLogin(FixtureConstants::userAndyAdminId);
-        $this->get('/clazzes/add');
+
+        if(is_null($section_id))
+            $this->get('/clazzes/add');
+        else
+            $this->get('/clazzes/add?section_id=1');
+
         $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();
 
@@ -74,8 +89,14 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
         // 4.2 Look for the hidden POST input
         if($this->lookForHiddenInput($this->form)) $unknownInputCnt--;
 
-        // 4.3 Ensure that there's a select field for section_id, that it has no selection,
-        if($this->selectCheckerA($this->form, 'ClazzSectionId', 'sections')) $unknownSelectCnt--;
+        // 4.3 test the ClazzSectionId select.
+        if(is_null($section_id)) {
+            // 4.3.1 Ensure that there's a select field for section_id, that it has no selection,
+            // and that it has the correct quantity of available choices.
+            if($this->selectCheckerA($this->form, 'ClazzSectionId', 'sections')) $unknownSelectCnt--;
+        } else {
+            if($this->tstSectionIdSelect($this->form, $section_id, $this->sections)) $unknownSelectCnt--;
+        }
 
         // 4.4 Ensure that there's an input field for event_datetime, of type text, and that it is empty
         if($this->inputCheckerA($this->form,'input#ClazzDatetime')) $unknownInputCnt--;
@@ -153,17 +174,9 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
         // 4.2 Look for the hidden POST input
         if($this->lookForHiddenInput($this->form,'_method','PUT')) $unknownInputCnt--;
 
-        // 4.3. Ensure that there's a select field for semester_id and that it is correctly set
-        $option = $this->form->find('select#ClazzSectionId option[selected]',0);
+        // 4.3. Ensure that there's a select field for section_id and that it is correctly set
         $section_id = $this->clazzesFixture->clazz1Record['section_id'];
-        $this->assertEquals($option->value, $section_id);
-
-        // Even though section_id is correct, we don't display section_id.  Instead we display the
-        // nickname from the related Sections table.  But nickname is a virtual field so we must
-        // read the record in order to get the nickname, instead of looking it up in the fixture records.
-        $section = $this->sections->get($section_id);
-        $this->assertEquals($section->nickname, $option->plaintext);
-        $unknownSelectCnt--;
+        if($this->tstSectionIdSelect($this->form, $section_id, $this->sections)) $unknownSelectCnt--;
 
         // 4.4 Ensure that there's an input field for event_datetime, of type text, and that it is correctly set
         if($this->inputCheckerA($this->form,'input#ClazzDatetime',
@@ -179,6 +192,27 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
         $this->assertNotNull($this->content);
         $links = $this->content->find('a');
         $this->assertEquals(0,count($links));
+    }
+
+    /**
+     * A. The input has a given id, is of some given type, and has a specified value.
+     * @param \simple_html_dom_node $html_node the form that contains the select.
+     * @param int $section_id The expected selected section_id.
+     * @param \App\Model\Table\SectionsTable $sections.
+     * @return boolean Return true if a matching input is found, else assertion errors.
+     */
+    private function tstSectionIdSelect($html_node, $section_id, $sections) {
+
+        // 1. Ensure that there's a select field for section_id and that it is correctly set
+        $option = $html_node->find('select#ClazzSectionId option[selected]',0);
+        $this->assertEquals($option->value, $section_id);
+
+        // 2. Even though section_id is correct, we don't display section_id.  Instead we display the
+        // nickname from the related Sections table.  But nickname is a virtual field so we must
+        // read the record in order to get the nickname, instead of looking it up in the fixture records.
+        $section = $sections->get($section_id);
+        $this->assertEquals($section->nickname, $option->plaintext);
+        return true;
     }
 
     public function testEditPOST() {

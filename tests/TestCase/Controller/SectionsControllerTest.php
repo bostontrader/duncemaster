@@ -36,14 +36,19 @@ class SectionsControllerTest extends DMIntegrationTestCase {
     /* @var \App\Model\Table\SemestersTable */
     private $semesters;
 
+    /* @var \App\Test\Fixture\ClazzesFixture */
     private $clazzesFixture;
+
+    /* @var \App\Test\Fixture\SectionsFixture */
     private $sectionsFixture;
+
+    /* @var \App\Test\Fixture\SemestersFixture */
     private $semestersFixture;
 
     /* @var \App\Test\Fixture\SubjectsFixture */
     private $subjectsFixture;
 
-    /* @var \App\Test\Fixture\SubjectsFixture */
+    /* @var \App\Test\Fixture\TplansFixture */
     private $tplansFixture;
 
     public function setUp() {
@@ -191,8 +196,8 @@ class SectionsControllerTest extends DMIntegrationTestCase {
         $this->assertNotNull($this->content);
         $unknownATag = count($this->content->find('a'));
 
-        // 4. Look for the create new clazzes link
-        $this->assertEquals(1, count($html->find('a#ClazzAdd')));
+        // 4. Look for the create new clazz link
+        $this->assertEquals('/clazzes/add?section_id='.$section_id,$html->find('a#ClazzAdd')[0]->href);
         $unknownATag--;
 
         // 5. Ensure that the correct form exists
@@ -403,11 +408,13 @@ class SectionsControllerTest extends DMIntegrationTestCase {
             // 8.7 Now examine the action links
             $this->td = $htmlColumns[7];
             $actionLinks = $this->td->find('a');
-            $this->assertEquals('SectionView', $actionLinks[0]->name);
+            $this->assertEquals('SectionClazzes', $actionLinks[0]->name);
             $unknownATag--;
-            $this->assertEquals('SectionEdit', $actionLinks[1]->name);
+            $this->assertEquals('SectionView', $actionLinks[1]->name);
             $unknownATag--;
-            $this->assertEquals('SectionDelete', $actionLinks[2]->name);
+            $this->assertEquals('SectionEdit', $actionLinks[2]->name);
+            $unknownATag--;
+            $this->assertEquals('SectionDelete', $actionLinks[3]->name);
             $unknownATag--;
 
             // 8.9 No other columns
