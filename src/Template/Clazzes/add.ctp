@@ -16,6 +16,7 @@
             <?php
                 echo $this->Form->input('section_id', ['id'=>'ClazzSectionId', 'options' => $sections, 'empty' => '(none selected)']);
                 echo $this->Form->input('event_datetime', ['id'=>'ClazzDatetime','type'=>'text']);
+                echo $this->Form->input('comments', ['id'=>'ClazzComments','type'=>'text']);
             ?>
         </fieldset>
         <?= $this->Form->button(__('Submit')) ?>

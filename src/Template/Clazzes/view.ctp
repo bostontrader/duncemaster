@@ -17,6 +17,10 @@
                 <th><?= __('Datetime') ?></th>
                 <td><?= $clazz->event_datetime ?></td>
             </tr>
+            <tr id="comments">
+                <th><?= __('Comments') ?></th>
+                <td><?= $clazz->comments ?></td>
+            </tr>
         </table>
     </div>
 </div>

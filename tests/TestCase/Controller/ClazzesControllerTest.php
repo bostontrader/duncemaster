@@ -101,6 +101,9 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
         // 4.4 Ensure that there's an input field for event_datetime, of type text, and that it is empty
         if($this->inputCheckerA($this->form,'input#ClazzDatetime')) $unknownInputCnt--;
 
+        // 4.5 Ensure that there's an input field for comments, of type text, and that it is empty
+        if($this->inputCheckerA($this->form,'input#ClazzComments')) $unknownInputCnt--;
+
         // 4.9 Have all the input and select fields been accounted for?  Are there
         // any extras?
         $this->assertEquals(0, $unknownInputCnt);
@@ -129,6 +132,7 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
         $new_clazz = $this->clazzes->get($new_id);
         $this->assertEquals($new_clazz['section_id'],$this->clazzesFixture->newClazzRecord['section_id']);
         $this->assertEquals($new_clazz['event_datetime'],$this->clazzesFixture->newClazzRecord['event_datetime']);
+        $this->assertEquals($new_clazz['comments'],$this->clazzesFixture->newClazzRecord['comments']);
     }
 
     public function testDeletePOST() {
@@ -181,6 +185,10 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
         // 4.4 Ensure that there's an input field for event_datetime, of type text, and that it is correctly set
         if($this->inputCheckerA($this->form,'input#ClazzDatetime',
             $this->clazzesFixture->clazz1Record['event_datetime'])) $unknownInputCnt--;
+
+        // 4.5 Ensure that there's an input field for comments, of type text, and that it is correctly set
+        if($this->inputCheckerA($this->form,'input#ClazzComments',
+            $this->clazzesFixture->clazz1Record['comments'])) $unknownInputCnt--;
 
         // 4.9 Have all the input and select fields been accounted for?  Are there
         // any extras?
@@ -392,6 +400,11 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
         // 2.2 event_datetime
         $field = $html->find('tr#event_datetime td',0);
         $this->assertEquals($fixtureRecord['event_datetime'], $field->plaintext);
+        $unknownRowCnt--;
+
+        // 2.3 comments
+        $field = $html->find('tr#comments td',0);
+        $this->assertEquals($fixtureRecord['comments'], $field->plaintext);
         $unknownRowCnt--;
 
         // 2.9 Have all the rows been accounted for?  Are there any extras?
