@@ -57,7 +57,12 @@ class SectionsController extends AppController {
 
     public function index() {
         $this->request->allowMethod(['get']);
-        $this->set('sections', $this->Sections->find('all', ['contain' => ['Cohorts.Majors','Semesters','Subjects','Tplans']]));
+        $this->set(
+            'sections', $this->Sections->find(
+                'all',
+                ['contain' => ['Cohorts.Majors','Semesters','Subjects','Tplans'],'order'=>'Semesters.year']
+            )
+        );
     }
 
     public function view($id = null) {

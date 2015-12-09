@@ -56,7 +56,14 @@ class ClazzesController extends AppController {
 
     public function index() {
         $this->request->allowMethod(['get']);
-        $this->set('clazzes', $this->Clazzes->find('all', ['contain' => 'Sections']));
+
+        $query=$this->Clazzes->find('all', ['contain' => 'Sections']);
+
+        if(array_key_exists('section_id', $this->request->query))
+            $query->where('section_id='.$this->request->query['section_id']);
+            //$clazz->section_id=$this->request->query['section_id'];
+
+        $this->set('clazzes', $query);
     }
 
     public function view($id = null) {

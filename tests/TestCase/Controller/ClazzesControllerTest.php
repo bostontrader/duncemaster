@@ -233,11 +233,26 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
         $this->assertEquals($clazz['event_datetime'],$this->clazzesFixture->newClazzRecord['event_datetime']);
     }
 
-    public function testIndexGET() {
+    // GET /index, no section_id parameter
+    public function testIndexGet() {
+        $this->tstIndexGet(null);
+    }
+
+    // GET /index, with section_id parameter
+    public function testIndexGetSectionId() {
+        $this->tstIndexGet($this->sectionsFixture->section1Record['id']);
+    }
+    
+    private function tstIndexGET($section_id=null) {
 
         // 1. Simulate login, submit request, examine response.
         $this->fakeLogin(FixtureConstants::userAndyAdminId);
-        $this->get('/clazzes/index');
+
+        if(is_null($section_id))
+            $this->get('/clazzes/index');
+        else
+            $this->get('/clazzes/index?section_id=1');
+
         $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();
 
@@ -255,7 +270,10 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
 
         // 5. Examine the table of Clazzes.
         /* @var \simple_html_dom_node $html */
-        $unknownATag-=$this->tstClazzesTable($html,$this->clazzes,$this->clazzesFixture,$this->sections);
+        if(is_null($section_id))
+            $unknownATag-=$this->tstClazzesTable($html,$this->clazzes,$this->clazzesFixture,$this->sections);
+        else
+            $unknownATag-=$this->tstClazzesTable($html,$this->clazzes,$this->clazzesFixture,$this->sections,$section_id);
 
         // 6. Ensure that all the <A> tags have been accounted for
         $this->assertEquals(0, $unknownATag);
