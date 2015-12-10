@@ -259,7 +259,7 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
         if(is_null($section_id))
             $this->get('/clazzes/index');
         else
-            $this->get('/clazzes/index?section_id=1');
+            $this->get('/clazzes/index?section_id='.$section_id);
 
         $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();
@@ -272,10 +272,25 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
         $this->assertNotNull($this->content);
         $unknownATag = count($this->content->find('a'));
 
-        // 4. Look for the create new clazz link
-        $this->assertEquals(1, count($html->find('a#ClazzAdd')));
+        // 4. Test the new clazz link
+
+        // 4.1 Does it exist?
+        $link=$html->find('a#ClazzAdd')[0];
+        $this->assertNotNull($link);
         $unknownATag--;
 
+        // 4.2 Does it point to the correct destination?
+        if(is_null($section_id))
+            $expectedHref='/clazzes/add';
+        else
+            $expectedHref='/clazzes/add?section_id='.$section_id;
+
+        $this->assertEquals($expectedHref,$link->href);
+
+        // 4. Look for the create new clazz link
+        //$this->assertEquals(1, count($html->find('a#ClazzAdd')));
+
+        // 5.
         // 5. Examine the table of Clazzes.
         /* @var \simple_html_dom_node $html */
         if(is_null($section_id))
