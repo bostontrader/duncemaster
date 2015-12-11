@@ -1,6 +1,9 @@
 <?php
 namespace App\Controller;
 
+use Cake\Datasource\ConnectionManager;
+use Cake\ORM\TableRegistry;
+
 class InteractionsController extends AppController {
 
     public function add() {
@@ -20,6 +23,30 @@ class InteractionsController extends AppController {
         $itypes = $this->Interactions->Itypes->find('list');
         $this->set(compact('clazzes','interaction','itypes','students'));
         return null;
+    }
+
+    public function attend() {
+
+        if ($this->request->is(['post'])) {
+            $n=$this->request->data;
+        }
+            // Given a clazz, who are the students? This can be found by tracing through
+        // clazzes, sections, cohorts, and thence to students. I spent too much time
+        // futily trying to get this to work using the ORM. Fuck it. Use a direct connection.
+        //
+        $connection = ConnectionManager::get('default');
+        $query="select students.sid, students.giv_name, students.fam_name, cohorts.id, sections.id, clazzes.id
+            from students
+            left join cohorts on students.cohort_id = cohorts.id
+            left join sections on sections.cohort_id = cohorts.id
+            left join clazzes on clazzes.section_id = sections.id
+            where clazzes.id=86";
+
+        $studentsResults = $connection->execute($query)->fetchAll('assoc');
+        $this->set('studentsResults',$studentsResults);
+
+        $this->set('interactions', $this->Interactions->find());
+
     }
 
     public function delete($id = null) {
