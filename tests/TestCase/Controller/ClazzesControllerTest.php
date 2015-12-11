@@ -366,12 +366,15 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
 
             // 8.3 Now examine the action links
             $this->td = $htmlColumns[3];
+            $n=$this->td->outertext;
             $actionLinks = $this->td->find('a');
-            $this->assertEquals('ClazzView', $actionLinks[0]->name);
+            $this->assertEquals('ClazzInteractions', $actionLinks[0]->name);
             $aTagsFoundCnt++;
-            $this->assertEquals('ClazzEdit', $actionLinks[1]->name);
+            $this->assertEquals('ClazzView', $actionLinks[1]->name);
             $aTagsFoundCnt++;
-            $this->assertEquals('ClazzDelete', $actionLinks[2]->name);
+            $this->assertEquals('ClazzEdit', $actionLinks[2]->name);
+            $aTagsFoundCnt++;
+            $this->assertEquals('ClazzDelete', $actionLinks[3]->name);
             $aTagsFoundCnt++;
 
             // 8.9 No other columns

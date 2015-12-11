@@ -363,6 +363,7 @@ class SectionsControllerTest extends DMIntegrationTestCase {
         // 7. Ensure that the tbody section has the same
         //    quantity of rows as the count of section records in the fixture.
         $this->tbody = $this->table->find('tbody',0);
+        $n=$this->tbody->outertext;
         $this->tbody_rows = $this->tbody->find('tr');
         $this->assertEquals(count($this->tbody_rows), count($this->sectionsFixture->records));
 
@@ -381,6 +382,8 @@ class SectionsControllerTest extends DMIntegrationTestCase {
             // 8.0 cohort_nickname. read from Table because we need to compute
             // the 'nickname' virtual field.
             $cohort = $this->cohorts->get($fixtureRecord['cohort_id'],['contain' => ['Majors']]);
+            $s1=$cohort->nickname;
+            $s2=$htmlColumns[0]->plaintext;
             $this->assertEquals($cohort->nickname, $htmlColumns[0]->plaintext);
 
             // 8.1 subject. all info is available via fixture.

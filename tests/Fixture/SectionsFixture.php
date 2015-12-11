@@ -41,8 +41,9 @@ class SectionsFixture extends DMFixture {
 
     public function init() {
         $this->records = [
-            $this->section1Record,
+            // ugly hack: the listing order is important!
             $this->section2Record,
+            $this->section1Record
         ];
         parent::init();
     }
