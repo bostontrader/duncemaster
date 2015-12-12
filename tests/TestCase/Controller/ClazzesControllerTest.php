@@ -287,10 +287,6 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
 
         $this->assertEquals($expectedHref,$link->href);
 
-        // 4. Look for the create new clazz link
-        //$this->assertEquals(1, count($html->find('a#ClazzAdd')));
-
-        // 5.
         // 5. Examine the table of Clazzes.
         /* @var \simple_html_dom_node $html */
         if(is_null($section_id))
@@ -366,9 +362,8 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
 
             // 8.3 Now examine the action links
             $this->td = $htmlColumns[3];
-            $n=$this->td->outertext;
             $actionLinks = $this->td->find('a');
-            $this->assertEquals('ClazzInteractions', $actionLinks[0]->name);
+            $this->assertEquals('ClazzAttendance', $actionLinks[0]->name);
             $aTagsFoundCnt++;
             $this->assertEquals('ClazzView', $actionLinks[1]->name);
             $aTagsFoundCnt++;

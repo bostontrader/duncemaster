@@ -1,12 +1,13 @@
 <?php
 /**
- * @var \App\Model\Entity\Student $student
- * @var \App\Model\Table\StudentsTable $students
+
  */
 ?>
 <div id="InteractionsAttend">
     <div class="interactions index large-9 medium-8 columns content">
         <h3><?= __('Interactions') ?></h3>
+        <?= $this->Form->create(null,['id'=>'InteractionAttendForm']) ?>
+
         <table id="InteractionsTable" cellpadding="0" cellspacing="0">
             <thead>
             <tr>
@@ -16,15 +17,12 @@
             </tr>
             </thead>
             <tbody>
-            <?= $this->Form->create(null,['id'=>'InteractionAttendForm']) ?>
-            <td><?= $this->Form->input('quote.cat'); ?></td>
-            <td><?= $this->Form->input('quote.dog'); ?></td>
 
             <?php foreach ($studentsResults as $student): ?>
                     <tr>
-                    <td><?= $student['sid'] ?></td>
-                    <td><?= $student['giv_name'] ?></td>
                     <td><?= $student['fam_name'] ?></td>
+                    <td><?= $student['giv_name'] ?></td>
+                    <td><?= $this->Form->input('quote.'.$student['sid'],['type'=>'checkbox']); ?></td>
                     </tr>
                 <?php endforeach; ?>
             <?= $this->Form->button(__('Submit')) ?>

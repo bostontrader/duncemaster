@@ -27,6 +27,23 @@ class InteractionsController extends AppController {
 
     public function attend() {
 
+        //$this->request->allowMethod(['get', 'post']);
+        //$interaction = $this->Interactions->get($id);
+        //if ($this->request->is(['post'])) {
+            //$interaction = $this->Interactions->patchEntity($interaction, $this->request->data);
+            //if ($this->Interactions->save($interaction)) {
+                //$this->Flash->success(__('The interaction has been saved.'));
+            //return $this->redirect(['action' => 'index']);
+            //} else {
+                //$this->Flash->error(__('The interaction could not be saved. Please, try again.'));
+            //}
+            //}
+        //$clazzes = $this->Interactions->Clazzes->find('list');
+        //$itypes = $this->Interactions->Itypes->find('list');
+        //$students = $this->Interactions->Students->find('list');
+        //$this->set(compact('clazzes','interaction','itypes','students'));
+        //return null;
+
         if ($this->request->is(['post'])) {
             $n=$this->request->data;
         }

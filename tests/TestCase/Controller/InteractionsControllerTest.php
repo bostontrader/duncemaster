@@ -12,10 +12,12 @@ class InteractionsControllerTest extends DMIntegrationTestCase {
 
     public $fixtures = [
         'app.clazzes',
+        'app.cohorts',
         'app.interactions',
         'app.itypes',
         'app.roles',
         'app.roles_users',
+        'app.sections',
         'app.students',
         'app.users'
     ];
@@ -128,6 +130,114 @@ class InteractionsControllerTest extends DMIntegrationTestCase {
         $this->assertEquals($new_interaction['clazz_id'],$this->interactionsFixture->newInteractionRecord['clazz_id']);
         $this->assertEquals($new_interaction['student_id'],$this->interactionsFixture->newInteractionRecord['student_id']);
         $this->assertEquals($new_interaction['itype_id'],$this->interactionsFixture->newInteractionRecord['itype_id']);
+    }
+
+    // GET /attend, no clazz_id parameter
+    public function testAttendGet() {
+        $this->tstAttendGet(null);
+    }
+
+    // GET /attend, with clazz_id parameter, for a class with no attendance
+    public function testAttendGetClazzId() {
+        $this->tstAttendGet($this->clazzesFixture->clazz1Record['id']);
+    }
+
+    // GET /attend, with clazz_id parameter, for a class with existing attendance
+    //public function testAttendGetClazzId() {
+        //$this->tstAttendGet($this->clazzesFixture->clazz1Record['id']);
+    //}
+
+    private function tstAttendGET($section_id=null) {
+
+        // 1. Simulate login, submit request, examine response.
+        $this->fakeLogin(FixtureConstants::userAndyAdminId);
+
+        if(is_null($section_id))
+            $this->get('/interactions/attend');
+        else
+            $this->get('/interactions/attend?section_id='.$section_id);
+
+        $this->assertResponseOk(); // 2xx
+        $this->assertNoRedirect();
+
+        // 2. Parse the html from the response
+        $html = str_get_html($this->_response->body());
+
+        // 3. Get a the count of all <A> tags that are presently unaccounted for.
+        $this->content = $html->find('div#InteractionsAttend',0);
+        $this->assertNotNull($this->content);
+        $unknownATag = count($this->content->find('a'));
+
+        // 4. Ensure that there is a suitably named form element
+        $this->form = $this->content->find('form#InteractionsTable', 0);
+        //$this->assertNotNull($this->table);
+        //
+        //        // 5. Ensure that there is a suitably named table to display the results.
+        //$this->table = $html->find('table#InteractionsTable', 0);
+        //$this->assertNotNull($this->table);
+
+        // 6. Ensure that said table's thead element co`ntains the correct
+        //    headings, in the correct order, and nothing else.
+        //$this->thead = $this->table->find('thead', 0);
+        //$this->thead_ths = $this->thead->find('tr th');
+
+        //$this->assertEquals($this->thead_ths[0]->id, 'clazz');
+        //$this->assertEquals($this->thead_ths[1]->id, 'student');
+        //$this->assertEquals($this->thead_ths[2]->id, 'itype');
+        //$this->assertEquals($this->thead_ths[3]->id, 'actions');
+        //$column_count = count($this->thead_ths);
+        //$this->assertEquals($column_count, 4); // no other columns
+
+        // 7. Ensure that the tbody section has the same
+        //    quantity of rows as the count of interaction records in the fixture.
+        //$this->tbody = $this->table->find('tbody', 0);
+        //$this->tbody_rows = $this->tbody->find('tr');
+        //$this->assertEquals(count($this->tbody_rows), count($this->interactionsFixture->records));
+
+        // 8. Ensure that the values displayed in each row, match the values from
+        //    the fixture.  The values should be presented in a particular order
+        //    with nothing else thereafter.
+        //$iterator = new \MultipleIterator();
+        //$iterator->attachIterator(new \ArrayIterator($this->interactionsFixture->records));
+        //$iterator->attachIterator(new \ArrayIterator($this->tbody_rows));
+
+        //foreach ($iterator as $values) {
+            //$fixtureRecord = $values[0];
+            //$this->htmlRow = $values[1];
+            //$htmlColumns = $this->htmlRow->find('td');
+
+            // 8.0 clazz_nickname. read from Table because we need to compute
+            // the 'nickname' virtual field.
+            //$clazz = $this->clazzes->get($fixtureRecord['clazz_id']);
+            //$this->assertEquals($clazz->nickname, $htmlColumns[0]->plaintext);
+
+            // 8.1 student_fullname. read from Table because we need to compute
+            // the 'fullname' virtual field.
+            //$student = $this->students->get($fixtureRecord['student_id']);
+            //$this->assertEquals($student->fullname, $htmlColumns[1]->plaintext);
+
+            // 8.2 itype_id requires finding the related value in the ItypesFixture
+            //$itype_id = $fixtureRecord['itype_id'];
+            //$itype = $this->itypesFixture->get($itype_id);
+            //$this->assertEquals($itype['title'], $htmlColumns[2]->plaintext);
+
+            // 8.2 Now examine the action links
+            //$this->td = $htmlColumns[3];
+            //$actionLinks = $this->td->find('a');
+            //$this->assertEquals('InteractionView', $actionLinks[0]->name);
+            //$unknownATag--;
+            //$this->assertEquals('InteractionEdit', $actionLinks[1]->name);
+            //$unknownATag--;
+            //$this->assertEquals('InteractionDelete', $actionLinks[2]->name);
+            //$unknownATag--;
+
+            // 8.9 No other columns
+            //$this->assertEquals(count($htmlColumns), $column_count);
+        //}
+
+        // 9. Ensure that all the <A> tags have been accounted for
+        //$this->assertEquals(0, $unknownATag);
+
     }
 
     public function testDeletePOST() {
