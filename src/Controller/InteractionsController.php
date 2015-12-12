@@ -25,6 +25,11 @@ class InteractionsController extends AppController {
         return null;
     }
 
+    //
+    // This function functions similarly to edit.  That is, GET /interactions/attend
+    // will produce an entry form, pre-populated with any existing relevant information,
+    // and POST /interactions/attend will submit info to the controller that needs to be
+    // written to the db.
     public function attend() {
 
         $this->request->allowMethod(['get', 'post']);
@@ -61,6 +66,7 @@ class InteractionsController extends AppController {
             where clazzes.id=".$clazz_id;
 
         $studentsResults = $connection->execute($query)->fetchAll('assoc');
+        $n=count($studentsResults);
         $this->set('studentsResults',$studentsResults);
 
         $this->set('interactions', $this->Interactions->find());

@@ -30,7 +30,7 @@ class InteractionsFixture extends DMFixture {
 
     // This record will be added during a test.  We don't need or want to control the id here, so omit it.
     public $newInteractionRecord = [
-        'clazz_id'=>FixtureConstants::clazz2_id,
+        'clazz_id'=>FixtureConstants::clazz3_id,
         'student_id'=>FixtureConstants::student2_id,
         'itype_id'=>ItypesController::EJECT
     ];
@@ -64,13 +64,13 @@ class InteractionsFixture extends DMFixture {
                 ],
                 [
                     'id'=>$this->nextId++,
-                    'clazz_id'=>FixtureConstants::clazz2_id,
+                    'clazz_id'=>FixtureConstants::clazz3_id,
                     'student_id'=>FixtureConstants::student2_id,
                     'itype_id'=>ItypesController::ATTEND
                 ],
                 [
                     'id'=>$this->nextId++,
-                    'clazz_id'=>FixtureConstants::clazz2_id,
+                    'clazz_id'=>FixtureConstants::clazz3_id,
                     'student_id'=>FixtureConstants::student4_id,
                     'itype_id'=>ItypesController::ATTEND
                 ],
@@ -82,13 +82,13 @@ class InteractionsFixture extends DMFixture {
                 ],
                 [
                     'id'=>$this->nextId++,
-                    'clazz_id'=>FixtureConstants::clazz2_id,
+                    'clazz_id'=>FixtureConstants::clazz3_id,
                     'student_id'=>FixtureConstants::student2_id,
                     'itype_id'=>ItypesController::LEAVE
                 ],
                 [
                     'id'=>$this->nextId++,
-                    'clazz_id'=>FixtureConstants::clazz2_id,
+                    'clazz_id'=>FixtureConstants::clazz3_id,
                     'student_id'=>FixtureConstants::student4_id,
                     'itype_id'=>ItypesController::PARTICIPATE
                 ],/*
@@ -100,13 +100,13 @@ class InteractionsFixture extends DMFixture {
                 ],*/
                 [
                     'id'=>$this->nextId++,
-                    'clazz_id'=>FixtureConstants::clazz2_id,
+                    'clazz_id'=>FixtureConstants::clazz3_id,
                     'student_id'=>FixtureConstants::student2_id,
                     'itype_id'=>ItypesController::ATTEND
                 ],
                 [
                     'id'=>$this->nextId++,
-                    'clazz_id'=>FixtureConstants::clazz2_id,
+                    'clazz_id'=>FixtureConstants::clazz3_id,
                     'student_id'=>FixtureConstants::student2_id,
                     'itype_id'=>ItypesController::EJECT
                 ]/*,

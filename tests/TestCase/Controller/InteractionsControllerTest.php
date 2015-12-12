@@ -1,6 +1,7 @@
 <?php
 namespace App\Test\TestCase\Controller;
 
+use Cake\Datasource\ConnectionManager;
 use App\Test\Fixture\FixtureConstants;
 use App\Test\Fixture\ClazzesFixture;
 use App\Test\Fixture\ItypesFixture;
@@ -61,12 +62,16 @@ class InteractionsControllerTest extends DMIntegrationTestCase {
 
     // Make sure clazz->section->cohort = student->cohort!
     public function testFixtureIntegrity() {
-        foreach ($this->interactionsFixture as $fixtureRecord) {
-            $q="SELECT clazz_id, student_id, clazzes.section_id, sections.cohort_id as Csec, students.cohort_id as CStu from interactions
+
+        $connection = ConnectionManager::get('test');
+        $query="SELECT clazz_id, student_id, clazzes.section_id, sections.cohort_id as Csec, students.cohort_id as CStu from interactions
             left join students on interactions.student_id=students.id
             left join clazzes on interactions.clazz_id=clazzes.id
-            left join sections on clazzes.section_id=sections.id";
-        }
+            left join sections on clazzes.section_id=sections.id
+            where sections.cohort_id != students.cohort_id";
+        $results = $connection->execute($query)->fetchAll('assoc');
+        $n=count($results);
+        $this->assertEquals(0,$n);
     }
 
     public function testAddGET() {
