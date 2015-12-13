@@ -33,39 +33,50 @@ class InteractionsController extends AppController {
     public function attend() {
 
         $this->request->allowMethod(['get', 'post']);
-        //$interaction = $this->Interactions->get($id);
-        if ($this->request->is(['post'])) {
-            //$interaction = $this->Interactions->patchEntity($interaction, $this->request->data);
-            //if ($this->Interactions->save($interaction)) {
-                //$this->Flash->success(__('The interaction has been saved.'));
-            //return $this->redirect(['action' => 'index']);
-            //} else {
-                //$this->Flash->error(__('The interaction could not be saved. Please, try again.'));
-            //}
-        }
-        //$clazzes = $this->Interactions->Clazzes->find('list');
-        //$itypes = $this->Interactions->Itypes->find('list');
-        //$students = $this->Interactions->Students->find('list');
-        //$this->set(compact('clazzes','interaction','itypes','students'));
-        //return null;
 
-        if ($this->request->is(['post'])) {
-            $n=$this->request->data;
-        }
-            // Given a clazz, who are the students? This can be found by tracing through
-        // clazzes, sections, cohorts, and thence to students. I spent too much time
-        // futily trying to get this to work using the ORM. Fuck it. Use a direct connection.
-        //
-        $clazz_id=$this->request->query['clazz_id'];
-        $connection = ConnectionManager::get('default');
-        $query="select students.sid, students.giv_name, students.fam_name, cohorts.id, sections.id, clazzes.id
+        // Do we need this for GET and POST?
+        if(array_key_exists('clazz_id', $this->request->query)) {
+
+
+            if ($this->request->is(['post'])) {
+                //$interaction = $this->Interactions->patchEntity($interaction, $this->request->data);
+                //if ($this->Interactions->save($interaction)) {
+                //$this->Flash->success(__('The interaction has been saved.'));
+                //return $this->redirect(['action' => 'index']);
+                //} else {
+                //$this->Flash->error(__('The interaction could not be saved. Please, try again.'));
+                //}
+            } else {
+
+                // The attendance form is fairly complicated. Listen closely...
+                //
+                // 1. Given a clazz_id, who are the students? This can be found by tracing through
+                // clazzes, sections, cohorts, and thence to students.
+                //
+                // 2. Left join this to any interactions for this class, with Itype=Attend,
+                // so we know who's already marked as present.
+                //
+                // I spent way too much time futily trying to get this to work using the ORM.
+                // Fuck it. Use a direct connection.
+                //
+                $clazz_id = $this->request->query['clazz_id'];
+                $connection = ConnectionManager::get('default');
+                $query = "select students.sid, students.giv_name, students.fam_name, cohorts.id, sections.id, clazzes.id
             from students
             left join cohorts on students.cohort_id = cohorts.id
             left join sections on sections.cohort_id = cohorts.id
             left join clazzes on clazzes.section_id = sections.id
-            where clazzes.id=".$clazz_id;
+            where clazzes.id=" . $clazz_id;
 
-        $studentsResults = $connection->execute($query)->fetchAll('assoc');
+                $studentsResults = $connection->execute($query)->fetchAll('assoc');
+            }
+
+        } else {
+            // no class_id specified
+        }
+
+
+
         $n=count($studentsResults);
         $this->set('studentsResults',$studentsResults);
 

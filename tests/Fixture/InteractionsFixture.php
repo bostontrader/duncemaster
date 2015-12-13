@@ -134,7 +134,7 @@ class InteractionsFixture extends DMFixture {
     }
 
     // Given a $clazz_id, remove all elements in $this->records that don't have the same $clazz_id.
-    public function filterByClazzId($clazz_id) {
+    /*public function filterByClazzId($clazz_id) {
         $newRecords=[];
 
         foreach ($this->records as $record)
@@ -142,6 +142,6 @@ class InteractionsFixture extends DMFixture {
                 array_push($newRecords, $record);
 
         $this->records=$newRecords;
-    }
+    }*/
 
 }

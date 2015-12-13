@@ -154,7 +154,7 @@ class InteractionsControllerTest extends DMIntegrationTestCase {
 
     // GET /attend, with clazz_id parameter, for a class with no attendance
     public function testAttendGetClazzId() {
-        $this->tstAttendGet($this->interactionsFixture, FixtureConstants::clazz1_id);
+        $this->tstAttendGet(FixtureConstants::clazz2_id);
     }
 
     // GET /attend, with clazz_id parameter, for a class with existing attendance
@@ -162,7 +162,7 @@ class InteractionsControllerTest extends DMIntegrationTestCase {
         //$this->tstAttendGet($this->clazzesFixture->clazz1Record['id']);
     //}
 
-    private function tstAttendGET($interactionsFixture, $clazz_id=null) {
+    private function tstAttendGET($clazz_id=null) {
 
         // 1. Simulate login, submit request, examine response.
         $this->fakeLogin(FixtureConstants::userAndyAdminId);
@@ -202,59 +202,65 @@ class InteractionsControllerTest extends DMIntegrationTestCase {
         $column_count = count($this->thead_ths);
         $this->assertEquals($column_count, 3); // no other columns
 
-        // 7. Ensure that the tbody section has the same
-        //    quantity of rows as the count of interaction records in the fixture.
+        // 7. Ensure that the tbody section has the correct quantity of rows.
+        // This should be done using a very similar query as used by the controller.
         $this->tbody = $this->table->find('tbody', 0);
         $this->tbody_rows = $this->tbody->find('tr');
-        if(!is_null($clazz_id))
-            $interactionsFixture->filterByClazzId($clazz_id);
+        //if(!is_null($clazz_id))
+            //$this->interactionsFixture->filterByClazzId($clazz_id);
+
+
+        $connection = ConnectionManager::get('default');
+        $query = "select students.sid, students.giv_name, students.fam_name, cohorts.id, sections.id, clazzes.id
+            from students
+            left join cohorts on students.cohort_id = cohorts.id
+            left join sections on sections.cohort_id = cohorts.id
+            left join clazzes on clazzes.section_id = sections.id
+            where clazzes.id=" . $clazz_id;
+
+        $studentsResults = $connection->execute($query)->fetchAll('assoc');
         $s1=count($this->tbody_rows);
-        $s2=count($this->interactionsFixture->records);
-        $this->assertEquals(count($this->tbody_rows), count($this->interactionsFixture->records));
+        $s2=count($studentsResults);
+        $this->assertEquals($s1,$s2);
 
-        // 8. Ensure that the values displayed in each row, match the values from
-        //    the fixture.  The values should be presented in a particular order
+        // 8. Ensure that the values displayed in each row are correct.
+        // The values should be presented in a particular order
         //    with nothing else thereafter.
-        //$iterator = new \MultipleIterator();
-        //$iterator->attachIterator(new \ArrayIterator($this->interactionsFixture->records));
-        //$iterator->attachIterator(new \ArrayIterator($this->tbody_rows));
+        $iterator = new \MultipleIterator();
+        $iterator->attachIterator(new \ArrayIterator($studentsResults));
+        $iterator->attachIterator(new \ArrayIterator($this->tbody_rows));
 
-        //foreach ($iterator as $values) {
-            //$fixtureRecord = $values[0];
-            //$this->htmlRow = $values[1];
-            //$htmlColumns = $this->htmlRow->find('td');
+        foreach ($iterator as $values) {
+            $attendanceRecord = $values[0];
+            $this->htmlRow = $values[1];
+            $htmlColumns = $this->htmlRow->find('td');
 
-            // 8.0 clazz_nickname. read from Table because we need to compute
-            // the 'nickname' virtual field.
+            // 8.0 fam_name.
             //$clazz = $this->clazzes->get($fixtureRecord['clazz_id']);
-            //$this->assertEquals($clazz->nickname, $htmlColumns[0]->plaintext);
+            $this->assertEquals($attendanceRecord['fam_name'], $htmlColumns[0]->plaintext);
 
-            // 8.1 student_fullname. read from Table because we need to compute
-            // the 'fullname' virtual field.
+            // 8.1 giv_name.
             //$student = $this->students->get($fixtureRecord['student_id']);
-            //$this->assertEquals($student->fullname, $htmlColumns[1]->plaintext);
+            $this->assertEquals($attendanceRecord['giv_name'], $htmlColumns[1]->plaintext);
 
-            // 8.2 itype_id requires finding the related value in the ItypesFixture
-            //$itype_id = $fixtureRecord['itype_id'];
-            //$itype = $this->itypesFixture->get($itype_id);
-            //$this->assertEquals($itype['title'], $htmlColumns[2]->plaintext);
+            // 8.2 attend.
+            $name='quote['.$attendanceRecord['sid'].']'; // name of hidden
+            $id='quote-'.$attendanceRecord['sid'];
+            $input=$htmlColumns[2]->find('input[id='.$id.']')[0];
+            $this->assertNotNull($input);
 
-            // 8.2 Now examine the action links
-            //$this->td = $htmlColumns[3];
-            //$actionLinks = $this->td->find('a');
-            //$this->assertEquals('InteractionView', $actionLinks[0]->name);
-            //$unknownATag--;
-            //$this->assertEquals('InteractionEdit', $actionLinks[1]->name);
-            //$unknownATag--;
-            //$this->assertEquals('InteractionDelete', $actionLinks[2]->name);
-            //$unknownATag--;
+            $checked=$input->find('input[checked=checked]');
+            $this->assertNull($checked);
+
+
+            // 8.2 No action links
 
             // 8.9 No other columns
-            //$this->assertEquals(count($htmlColumns), $column_count);
-        //}
+            $this->assertEquals(count($htmlColumns), $column_count);
+        }
 
         // 9. Ensure that all the <A> tags have been accounted for
-        //$this->assertEquals(0, $unknownATag);
+        $this->assertEquals(0, $unknownATag);
 
     }
 
