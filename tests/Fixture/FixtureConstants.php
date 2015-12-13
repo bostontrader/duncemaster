@@ -16,10 +16,6 @@ class FixtureConstants {
     const cohort2_id = 2;
 
     const interaction1_id = 1;
-    //const interaction2_id = 2;
-    //const interaction3_id = 3;
-    //const interaction4_id = 4;
-    //const interaction5_id = 5;
 
     const itypeAttend_id = 1;
     const itypeEject_id = 2;
@@ -43,6 +39,8 @@ class FixtureConstants {
 
     const student1_id = 1;
     const student2_id = 2;
+    const student3_id = 3;
+    const student4_id = 4;
 
     const subject1_id = 1;
     const subject2_id = 2;

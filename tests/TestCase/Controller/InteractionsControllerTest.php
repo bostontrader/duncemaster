@@ -59,6 +59,16 @@ class InteractionsControllerTest extends DMIntegrationTestCase {
         $this->tstUnauthorizedActionsAndUsers('interactions');
     }
 
+    // Make sure clazz->section->cohort = student->cohort!
+    public function testFixtureIntegrity() {
+        foreach ($this->interactionsFixture as $fixtureRecord) {
+            $q="SELECT clazz_id, student_id, clazzes.section_id, sections.cohort_id as Csec, students.cohort_id as CStu from interactions
+            left join students on interactions.student_id=students.id
+            left join clazzes on interactions.clazz_id=clazzes.id
+            left join sections on clazzes.section_id=sections.id";
+        }
+    }
+
     public function testAddGET() {
 
         // 1. Simulate login, submit request, examine response.
@@ -133,13 +143,13 @@ class InteractionsControllerTest extends DMIntegrationTestCase {
     }
 
     // GET /attend, no clazz_id parameter
-    public function testAttendGet() {
-        $this->tstAttendGet(null);
-    }
+    //public function testAttendGet() {
+        //$this->tstAttendGet(null);
+    //}
 
     // GET /attend, with clazz_id parameter, for a class with no attendance
     public function testAttendGetClazzId() {
-        $this->tstAttendGet($this->clazzesFixture->clazz1Record['id']);
+        $this->tstAttendGet($this->interactionsFixture, FixtureConstants::clazz1_id);
     }
 
     // GET /attend, with clazz_id parameter, for a class with existing attendance
@@ -147,15 +157,15 @@ class InteractionsControllerTest extends DMIntegrationTestCase {
         //$this->tstAttendGet($this->clazzesFixture->clazz1Record['id']);
     //}
 
-    private function tstAttendGET($section_id=null) {
+    private function tstAttendGET($interactionsFixture, $clazz_id=null) {
 
         // 1. Simulate login, submit request, examine response.
         $this->fakeLogin(FixtureConstants::userAndyAdminId);
 
-        if(is_null($section_id))
+        if(is_null($clazz_id))
             $this->get('/interactions/attend');
         else
-            $this->get('/interactions/attend?section_id='.$section_id);
+            $this->get('/interactions/attend?clazz_id='.$clazz_id);
 
         $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();
@@ -169,30 +179,33 @@ class InteractionsControllerTest extends DMIntegrationTestCase {
         $unknownATag = count($this->content->find('a'));
 
         // 4. Ensure that there is a suitably named form element
-        $this->form = $this->content->find('form#InteractionsTable', 0);
-        //$this->assertNotNull($this->table);
-        //
-        //        // 5. Ensure that there is a suitably named table to display the results.
-        //$this->table = $html->find('table#InteractionsTable', 0);
-        //$this->assertNotNull($this->table);
+        $this->form = $this->content->find('form#InteractionAttendForm', 0);
+        $this->assertNotNull($this->form);
+
+        // 5. Ensure that there is a suitably named table to display the results.
+        $this->table = $this->form->find('table#InteractionsTable', 0);
+        $this->assertNotNull($this->table);
 
         // 6. Ensure that said table's thead element co`ntains the correct
         //    headings, in the correct order, and nothing else.
-        //$this->thead = $this->table->find('thead', 0);
-        //$this->thead_ths = $this->thead->find('tr th');
+        $this->thead = $this->table->find('thead', 0);
+        $this->thead_ths = $this->thead->find('tr th');
 
-        //$this->assertEquals($this->thead_ths[0]->id, 'clazz');
-        //$this->assertEquals($this->thead_ths[1]->id, 'student');
-        //$this->assertEquals($this->thead_ths[2]->id, 'itype');
-        //$this->assertEquals($this->thead_ths[3]->id, 'actions');
-        //$column_count = count($this->thead_ths);
-        //$this->assertEquals($column_count, 4); // no other columns
+        $this->assertEquals($this->thead_ths[0]->id, 'fam_name');
+        $this->assertEquals($this->thead_ths[1]->id, 'giv_name');
+        $this->assertEquals($this->thead_ths[2]->id, 'attend');
+        $column_count = count($this->thead_ths);
+        $this->assertEquals($column_count, 3); // no other columns
 
         // 7. Ensure that the tbody section has the same
         //    quantity of rows as the count of interaction records in the fixture.
-        //$this->tbody = $this->table->find('tbody', 0);
-        //$this->tbody_rows = $this->tbody->find('tr');
-        //$this->assertEquals(count($this->tbody_rows), count($this->interactionsFixture->records));
+        $this->tbody = $this->table->find('tbody', 0);
+        $this->tbody_rows = $this->tbody->find('tr');
+        if(!is_null($clazz_id))
+            $interactionsFixture->filterByClazzId($clazz_id);
+        $s1=count($this->tbody_rows);
+        $s2=count($this->interactionsFixture->records);
+        $this->assertEquals(count($this->tbody_rows), count($this->interactionsFixture->records));
 
         // 8. Ensure that the values displayed in each row, match the values from
         //    the fixture.  The values should be presented in a particular order
@@ -238,6 +251,11 @@ class InteractionsControllerTest extends DMIntegrationTestCase {
         // 9. Ensure that all the <A> tags have been accounted for
         //$this->assertEquals(0, $unknownATag);
 
+    }
+
+    // GET /attend, no clazz_id parameter
+    public function testAttendPOST() {
+        //$this->tstAttendGet(null);
     }
 
     public function testDeletePOST() {

@@ -27,9 +27,9 @@ class InteractionsController extends AppController {
 
     public function attend() {
 
-        //$this->request->allowMethod(['get', 'post']);
+        $this->request->allowMethod(['get', 'post']);
         //$interaction = $this->Interactions->get($id);
-        //if ($this->request->is(['post'])) {
+        if ($this->request->is(['post'])) {
             //$interaction = $this->Interactions->patchEntity($interaction, $this->request->data);
             //if ($this->Interactions->save($interaction)) {
                 //$this->Flash->success(__('The interaction has been saved.'));
@@ -37,7 +37,7 @@ class InteractionsController extends AppController {
             //} else {
                 //$this->Flash->error(__('The interaction could not be saved. Please, try again.'));
             //}
-            //}
+        }
         //$clazzes = $this->Interactions->Clazzes->find('list');
         //$itypes = $this->Interactions->Itypes->find('list');
         //$students = $this->Interactions->Students->find('list');
@@ -51,13 +51,14 @@ class InteractionsController extends AppController {
         // clazzes, sections, cohorts, and thence to students. I spent too much time
         // futily trying to get this to work using the ORM. Fuck it. Use a direct connection.
         //
+        $clazz_id=$this->request->query['clazz_id'];
         $connection = ConnectionManager::get('default');
         $query="select students.sid, students.giv_name, students.fam_name, cohorts.id, sections.id, clazzes.id
             from students
             left join cohorts on students.cohort_id = cohorts.id
             left join sections on sections.cohort_id = cohorts.id
             left join clazzes on clazzes.section_id = sections.id
-            where clazzes.id=86";
+            where clazzes.id=".$clazz_id;
 
         $studentsResults = $connection->execute($query)->fetchAll('assoc');
         $this->set('studentsResults',$studentsResults);

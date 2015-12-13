@@ -22,7 +22,7 @@ class ClazzesFixture extends DMFixture {
 
     public $clazz3Record = [
         'id'=>FixtureConstants::clazz3_id,
-        'section_id' => FixtureConstants::section1_id,
+        'section_id' => FixtureConstants::section2_id,
         'event_datetime' => '2015-10-17 00:00:00',
         'comments' => 'comment 3'
     ];
@@ -52,8 +52,8 @@ class ClazzesFixture extends DMFixture {
         parent::init();
     }
 
-    // Given a $sectionId, remove all elements in $this->records that have the same $sectionId.
-    public function filter($sectionId) {
+    // Given a $sectionId, remove all elements in $this->records that don't have the same $sectionId.
+    public function filterBySectionId($sectionId) {
         $newRecords=[];
         foreach ($this->records as $record)
             if($record['section_id']==$sectionId) array_push($newRecords,$record);

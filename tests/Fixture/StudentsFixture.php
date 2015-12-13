@@ -10,15 +10,31 @@ class StudentsFixture extends DMFixture {
         'id'=>FixtureConstants::student1_id,
         'cohort_id'=>FixtureConstants::cohort1_id,
         'sid'=>'2014010101',
-        'fam_name' => 'Smith', 'giv_name' => 'John',
+        'fam_name' => 'Smith', 'giv_name' => 'Adam',
         'user_id'=>FixtureConstants::userSallyStudentId
     ];
 
     public $student2Record = [
         'id'=>FixtureConstants::student2_id,
-        'cohort_id'=>FixtureConstants::cohort1_id,
+        'cohort_id'=>FixtureConstants::cohort2_id,
         'sid'=>'2015010101',
-        'fam_name' => 'Jones', 'giv_name' => 'Billy',
+        'fam_name' => 'Rand', 'giv_name' => 'Ayn',
+        'user_id'=>FixtureConstants::userTommyTeacherId
+    ];
+
+    public $student3Record = [
+        'id'=>FixtureConstants::student3_id,
+        'cohort_id'=>FixtureConstants::cohort1_id,
+        'sid'=>'2016010101',
+        'fam_name' => 'Heinlein', 'giv_name' => 'Robert',
+        'user_id'=>FixtureConstants::userTommyTeacherId
+    ];
+
+    public $student4Record = [
+        'id'=>FixtureConstants::student3_id,
+        'cohort_id'=>FixtureConstants::cohort2_id,
+        'sid'=>'2017010101',
+        'fam_name' => 'Putin', 'giv_name' => 'Vladimir',
         'user_id'=>FixtureConstants::userTommyTeacherId
     ];
 

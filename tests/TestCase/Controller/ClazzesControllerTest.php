@@ -333,7 +333,7 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
         $this->tbody = $this->table->find('tbody',0);
         $tbody_rows = $this->tbody->find('tr');
         if(!is_null($sectionId))
-            $clazzesFixture->filter($sectionId);
+            $clazzesFixture->filterBySectionId($sectionId);
         $this->assertEquals(count($tbody_rows), count($clazzesFixture->records));
 
         // 4. Ensure that the values displayed in each row, match the values from

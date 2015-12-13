@@ -13,7 +13,7 @@
             <tr>
                 <th id="fam_name"><?= __('Fam Name') ?></th>
                 <th id="giv_name"><?= __('Giv Name') ?></th>
-                <th id="section_id"><?= __('Section Id') ?></th>
+                <th id="attend"><?= __('Attend') ?></th>
             </tr>
             </thead>
             <tbody>
