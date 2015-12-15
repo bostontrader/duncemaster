@@ -62,11 +62,12 @@ class InteractionsController extends AppController {
                 $clazz_id = $this->request->query['clazz_id'];
                 $connection = ConnectionManager::get('default');
                 $query = "select students.sid, students.giv_name, students.fam_name, cohorts.id, sections.id, clazzes.id
-            from students
-            left join cohorts on students.cohort_id = cohorts.id
-            left join sections on sections.cohort_id = cohorts.id
-            left join clazzes on clazzes.section_id = sections.id
-            where clazzes.id=" . $clazz_id;
+                    from students
+                    left join cohorts on students.cohort_id = cohorts.id
+                    left join sections on sections.cohort_id = cohorts.id
+                    left join clazzes on clazzes.section_id = sections.id
+                    left join interactions on interactions.clazz_id=clazzes.id
+                    where clazzes.id=".$clazz_id ;
 
                 $studentsResults = $connection->execute($query)->fetchAll('assoc');
             }

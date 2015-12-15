@@ -43,6 +43,16 @@ class ClazzesFixture extends DMFixture {
     ];
 
     public function init() {
+
+        $connection = ConnectionManager::get('tourist-dev');
+        $query=new \Cake\Database\Query();
+        $query->from('clazzes');
+        $query->connection($connection);
+        $n=$query->toArray();
+        // read records into an array
+        $query="select * from clazzes";
+
+
         $this->records = [
             $this->clazz1Record,
             $this->clazz2Record,

@@ -7,7 +7,7 @@ class SectionsFixture extends DMFixture {
     // These records are injected into the db before the tests.  We need to specify the
     // id to ensure the test records are properly related.
     public $section1Record = [
-        'id'=>FixtureConstants::section1_id,
+        'id'=>FixtureConstants::section11_id,
         'cohort_id'=>FixtureConstants::cohort1_id,
         'semester_id'=>FixtureConstants::semester1_id,
         'subject_id'=>FixtureConstants::subject1_id,

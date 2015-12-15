@@ -218,6 +218,14 @@ class InteractionsControllerTest extends DMIntegrationTestCase {
             left join clazzes on clazzes.section_id = sections.id
             where clazzes.id=" . $clazz_id;
 
+        /*select students.sid, students.giv_name, students.fam_name, cohorts.id as cohorts_id, sections.id as sections_id, clazzes.id as clazzes_id, interactions.id as interactions_id, interactions.itype_id
+            from students
+            left join cohorts on students.cohort_id = cohorts.id
+            left join sections on sections.cohort_id = cohorts.id
+            left join clazzes on clazzes.section_id = sections.id
+			left join interactions on interactions.clazz_id=clazzes.id
+            where clazzes.id=1 and interactions.itype_id=1*/
+
         $studentsResults = $connection->execute($query)->fetchAll('assoc');
         $s1=count($this->tbody_rows);
         $s2=count($studentsResults);

@@ -22,7 +22,10 @@
                     <tr>
                     <td><?= $student['fam_name'] ?></td>
                     <td><?= $student['giv_name'] ?></td>
-                    <td><?= $this->Form->input('quote.'.$student['sid'],['type'=>'checkbox','checked'=>true]); ?></td>
+                    <td><?=
+                        //$n=$student[''];
+                        $this->Form->input('quote.'.$student['sid'],['type'=>'checkbox']);
+                        ?></td>
                     </tr>
                 <?php endforeach; ?>
             <?= $this->Form->button(__('Submit')) ?>

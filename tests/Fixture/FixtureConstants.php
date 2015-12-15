@@ -7,10 +7,11 @@ namespace App\Test\Fixture;
 // are properly related.
 class FixtureConstants {
 
-    const clazz1_id = 1;
-    const clazz2_id = 2;
-    const clazz3_id = 3;
-    const clazz4_id = 4;
+    // Section xyz, where x=cohort, y=section, z=class seq
+    const clazz111_id = 1;
+    const clazz112_id = 2;
+    const clazz121_id = 3;
+    const clazz122_id = 4;
 
     const cohort1_id = 1;
     const cohort2_id = 2;
@@ -31,8 +32,9 @@ class FixtureConstants {
     const roleStudentId = 3;
     const roleTeacherId = 4;
 
-    const section1_id = 1;
-    const section2_id = 2;
+    // Section xy, where x=cohort, y=section seq
+    const section11_id = 1;
+    const section12_id = 2;
 
     const semester1_id = 1;
     const semester2_id = 2;
