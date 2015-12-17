@@ -1,6 +1,10 @@
 <?php
 namespace App\Test\Fixture;
 
+use Cake\Datasource\ConnectionManager;
+use Cake\ORM\Query;
+use Cake\ORM\TableRegistry;
+
 class TeachersFixture extends DMFixture {
     public $import = ['table' => 'teachers'];
 
@@ -29,9 +33,21 @@ class TeachersFixture extends DMFixture {
 
     public function init() {
         $this->records = [
-            $this->teacher1Record,
-            $this->teacher2Record
+            //$this->teacher1Record,
+            //$this->teacher2Record
         ];
+        $connection = ConnectionManager::get('fixture');
+        $teachers = TableRegistry::get('Teachers');
+        $query=$teachers->find()->connection($connection);
+
+        foreach($query as $record) {
+            $n=$record->toArray();
+            //$newRecord['id']=$clazzRecord->id;
+            //$newRecord['section_id']=$clazzRecord->section_id;
+            //$newRecord['event_datetime']=$clazzRecord->event_datetime;
+            //$newRecord['comments']=$clazzRecord->comments;
+            $this->records[]=$n;
+        }
         parent::init();
     }
 }

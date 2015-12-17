@@ -9,10 +9,10 @@ class SubjectsController extends AppController {
         if ($this->request->is('post')) {
             $subject = $this->Subjects->patchEntity($subject, $this->request->data);
             if ($this->Subjects->save($subject)) {
-                //$this->Flash->success(__('The subject has been saved.'));
+                $this->Flash->success(__('The subject has been saved.'));
                 return $this->redirect(['action' => 'index']);
             } else {
-                //$this->Flash->error(__('The subject could not be saved. Please, try again.'));
+                $this->Flash->error(__('The subject could not be saved. Please, try again.'));
             }
         }
         $this->set(compact('subject'));

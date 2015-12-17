@@ -4,6 +4,8 @@ namespace App\Test\TestCase\Controller;
 
 use App\Test\Fixture\FixtureConstants;
 use App\Test\Fixture\UsersFixture;
+use Cake\Datasource\ConnectionManager;
+use Cake\ORM\Query;
 use Cake\TestSuite\IntegrationTestCase;
 
 require_once 'simple_html_dom.php';
@@ -57,6 +59,108 @@ class DMIntegrationTestCase extends IntegrationTestCase {
 
     /* @var \simple_html_dom_node */
     private $input;
+
+    protected function deletePOST($user_id, $url, $delete_id, $redirect_url, $table) {
+        $this->fakeLogin($user_id);
+        //$subject_id = $this->subjectsFixture->subject1Record['id'];
+        $this->post($url . $delete_id);
+        $this->assertResponseSuccess(); // 2xx, 3xx
+        $this->assertRedirect($redirect_url);
+
+        // Now verify that the record no longer exists
+        //$query = $this->subjects->find()->where(['id' => $subject_id]);
+        $connection = ConnectionManager::get('test');
+        $query=new \Cake\ORM\Query($connection,$table);
+        $query->find('all')->where(['id' => $delete_id]);
+        $this->assertEquals(0, $query->count());
+    }
+
+    /**
+
+     */
+    protected function genericAddPostProlog($user_id, $url, $post_data, $redirect_url, $table) {
+
+        $this->fakeLogin($user_id);
+        $this->post($url, $post_data);
+        $this->assertResponseSuccess(); // 2xx, 3xx
+        $this->assertRedirect( $redirect_url );
+
+        // Now verify what we think just got written
+        //$new_id = count($this->subjectsFixture->records) + 1;
+        $connection = ConnectionManager::get('test');
+
+        $query=new \Cake\ORM\Query($connection,$table);
+        //$query->find('last')->where(['id' => $new_id]);
+        $query->find('first')->order(['id' => 'DESC']);
+        $this->assertEquals(1, $query->count());
+
+        // Now retrieve that 1 record and compare to what we expect
+        //$newRecord = $table->get($new_id);
+        //$this->assertEquals($new_subject['title'],$this->subjectsFixture->newSubjectRecord['title']);
+
+        return $newRecord;
+    }
+
+    /**
+
+     */
+    protected function genericEditPutProlog($user_id, $url, $post_data, $redirect_url, $edit_id, $table) {
+
+        $this->fakeLogin($user_id);
+        $this->put($url, $post_data);
+        $this->assertResponseSuccess(); // 2xx, 3xx
+        $this->assertRedirect( $redirect_url );
+
+        // Now verify what we think just got written
+        //$new_id = count($this->subjectsFixture->records) + 1;
+        $connection = ConnectionManager::get('test');
+        $query=new \Cake\ORM\Query($connection,$table);
+        $query->find('all')->where(['id' => $edit_id]);
+        $this->assertEquals(1, $query->count());
+
+        // Now retrieve that 1 record and compare to what we expect
+        $editRecord = $table->get($edit_id);
+        //$this->assertEquals($new_subject['title'],$this->subjectsFixture->newSubjectRecord['title']);
+
+        return $editRecord;
+    }
+
+    /**
+     * Many tests need to login, issue a POST request, receive but not parse a response,
+     * but instead redirect, and verify that all this works correctly.
+     *
+     * @var int $user_id Who shall we login as?
+     * @var String $url
+     */
+    protected function loginRequestResponse($user_id, $url) {
+
+        // 1. Simulate login, submit request, examine response.
+        $this->fakeLogin($user_id);
+        $this->get($url);
+        $this->assertResponseOk(); // 2xx
+        $this->assertNoRedirect();
+
+        // 2. Parse the html from the response
+        $html = str_get_html($this->_response->body());
+
+        return $html;
+    }
+
+    /**
+     * During many tests we determine the number of inputs, selects, and atags that we
+     * should have, compare that do what we actually test, a determine a final quantity
+     * of unaccounted for elements. These three quantities should all be zero.
+     */
+    protected function expectedInputsSelectsAtagsFound($unknownInputCnt, $unknownSelectCnt, $html, $div) {
+        $this->assertEquals(0, $unknownInputCnt);
+        $this->assertEquals(0, $unknownSelectCnt);
+
+        // 5. Examine the <A> tags on this page.  There should be zero links.
+        $content = $html->find($div,0);
+        $this->assertNotNull($content);
+        $links = $content->find('a');
+        $this->assertEquals(0,count($links));
+    }
 
     /**
      * A. The input has a given id, is of some given type, and has a specified value.

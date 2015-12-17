@@ -37,96 +37,94 @@ class SubjectsControllerTest extends DMIntegrationTestCase {
 
     public function testAddGET() {
 
-        // 1. Simulate login, submit request, examine response.
-        $this->fakeLogin(FixtureConstants::userAndyAdminId);
-        $this->get('/subjects/add');
-        $this->assertResponseOk(); // 2xx
-        $this->assertNoRedirect();
+        $html=$this->loginRequestResponse(FixtureConstants::userAndyAdminId,'/subjects/add');
 
-        // 2. Parse the html from the response
-        $html = str_get_html($this->_response->body());
+        // 1. Ensure that the correct form exists
+        $this->form = $html->find('form#SubjectAddForm',0);
+        $this->assertNotNull($this->form);
 
-        // 3. Ensure that the correct form exists
-        $form = $html->find('form#SubjectAddForm',0);
-        $this->assertNotNull($form);
-
-        // 4. Now inspect the fields on the form.  We want to know that:
+        // 2. Now inspect the fields on the form.  We want to know that:
         // A. The correct fields are there and no other fields.
         // B. The fields have correct values. This includes verifying that select
         //    lists contain options.
         //
         //  The actual order that the fields are listed on the form is hereby deemed unimportant.
 
-        // 4.1 These are counts of the select and input fields on the form.  They
+        // 2.1 These are counts of the select and input fields on the form.  They
         // are presently unaccounted for.
-        $unknownSelectCnt = count($form->find('select'));
-        $unknownInputCnt = count($form->find('input'));
+        $unknownSelectCnt = count($this->form->find('select'));
+        $unknownInputCnt = count($this->form->find('input'));
 
-        // 4.2 Look for the hidden POST input
-        if($this->lookForHiddenInput($form)) $unknownInputCnt--;
+        // 2.2 Look for the hidden POST input
+        if($this->lookForHiddenInput($this->form)) $unknownInputCnt--;
 
-        // 4.3 Ensure that there's an input field for title, of type text, and that it is empty
-        $input = $form->find('input#SubjectTitle',0);
-        $this->assertEquals($input->type, "text");
-        $this->assertEquals($input->value, false);
-        $unknownInputCnt--;
+        // 2.3 Ensure that there's an input field for title, of type text, and that it is empty
+        if($this->inputCheckerA($this->form,'input#SubjectTitle')) $unknownInputCnt--;
 
-        // 4.9 Have all the input and select fields been accounted for?  Are there
-        // any extras?
-        $this->assertEquals(0, $unknownInputCnt);
-        $this->assertEquals(0, $unknownSelectCnt);
+        // 3.Have all the input, select, and Atags been accounted for?
+        $this->expectedInputsSelectsAtagsFound($unknownInputCnt, $unknownSelectCnt, $html, 'div#SubjectsAdd');
 
-        // 5. Examine the <A> tags on this page.  There should be zero links.
-        $content = $html->find('div#SubjectsAdd',0);
-        $this->assertNotNull($content);
-        $links = $content->find('a');
-        $this->assertEquals(0,count($links));
     }
 
     public function testAddPOST() {
 
-        $this->fakeLogin(FixtureConstants::userAndyAdminId);
-        $this->post('/subjects/add', $this->subjectsFixture->newSubjectRecord);
-        $this->assertResponseSuccess(); // 2xx, 3xx
-        $this->assertRedirect( '/subjects' );
+        //$this->fakeLogin(FixtureConstants::userAndyAdminId);
+        //$this->post('/subjects/add', $this->subjectsFixture->newSubjectRecord);
+        //$this->assertResponseSuccess(); // 2xx, 3xx
+        //$this->assertRedirect( '/subjects' );
 
         // Now verify what we think just got written
-        $new_id = count($this->subjectsFixture->records) + 1;
-        $query = $this->subjects->find()->where(['id' => $new_id]);
-        $this->assertEquals(1, $query->count());
+        //$new_id = count($this->subjectsFixture->records) + 1;
+        //$query = $this->subjects->find()->where(['id' => $new_id]);
+        //$this->assertEquals(1, $query->count());
+
+        $fixtureRecord=$this->subjectsFixture->newSubjectRecord;
+        $fromDbRecord=$this->genericAddPostProlog(
+            FixtureConstants::userAndyAdminId,
+            '/subjects/add', $fixtureRecord,
+            '/subjects', $this->subjects
+        );
 
         // Now retrieve that 1 record and compare to what we expect
-        $new_subject = $this->subjects->get($new_id);
-        $this->assertEquals($new_subject['title'],$this->subjectsFixture->newSubjectRecord['title']);
+        //$new_subject = $this->subjects->get($new_id);
+        $this->assertEquals($fromDbRecord['title'],$fixtureRecord['title']);
     }
 
     public function testDeletePOST() {
 
-        $this->fakeLogin(FixtureConstants::userAndyAdminId);
-        $subject_id = $this->subjectsFixture->subject1Record['id'];
-        $this->post('/subjects/delete/' . $subject_id);
-        $this->assertResponseSuccess(); // 2xx, 3xx
-        $this->assertRedirect( '/subjects' );
+        //$this->fakeLogin(FixtureConstants::userAndyAdminId);
+        $subject_id = $this->subjectsFixture->records[0]['id'];
+        //$this->post('/subjects/delete/' . $subject_id);
+        //$this->assertResponseSuccess(); // 2xx, 3xx
+        //$this->assertRedirect( '/subjects' );
 
         // Now verify that the record no longer exists
-        $query = $this->subjects->find()->where(['id' => $subject_id]);
-        $this->assertEquals(0, $query->count());
+        //$query = $this->subjects->find()->where(['id' => $subject_id]);
+        //$this->assertEquals(0, $query->count());
+        $this->deletePOST(
+            FixtureConstants::userAndyAdminId, '/subjects/delete/',
+            $subject_id, '/subjects', $this->subjects
+        );
     }
 
     public function testEditGET() {
 
         // 1. Simulate login, submit request, examine response.
-        $this->fakeLogin(FixtureConstants::userAndyAdminId);
-        $this->get('/subjects/edit/' . $this->subjectsFixture->subject1Record['id']);
-        $this->assertResponseOk(); // 2xx
-        $this->assertNoRedirect();
+        //$this->fakeLogin(FixtureConstants::userAndyAdminId);
+        //$this->get('/subjects/edit/' . $this->subjectsFixture->subject1Record['id']);
+        //$this->assertResponseOk(); // 2xx
+        //$this->assertNoRedirect();
 
         // 2. Parse the html from the response
-        $html = str_get_html($this->_response->body());
+        //$html = str_get_html($this->_response->body());
+        //$url='/subjects/edit/' . $this->subjectsFixture->subject1Record['id'];
+        $subjectRecord=$this->subjectsFixture->records[0];
+        $url='/subjects/edit/' . $subjectRecord['id'];
+        $html=$this->loginRequestResponse(FixtureConstants::userAndyAdminId,$url);
 
         // 3. Ensure that the correct form exists
-        $form = $html->find('form#SubjectEditForm',0);
-        $this->assertNotNull($form);
+        $this->form = $html->find('form#SubjectEditForm',0);
+        $this->assertNotNull($this->form);
 
         // 4. Now inspect the fields on the form.  We want to know that:
         // A. The correct fields are there and no other fields.
@@ -137,45 +135,69 @@ class SubjectsControllerTest extends DMIntegrationTestCase {
 
         // 4.1 These are counts of the select and input fields on the form.  They
         // are presently unaccounted for.
-        $unknownSelectCnt = count($form->find('select'));
-        $unknownInputCnt = count($form->find('input'));
+        $unknownSelectCnt = count($this->form->find('select'));
+        $unknownInputCnt = count($this->form->find('input'));
 
         // 4.2 Look for the hidden POST input
-        if($this->lookForHiddenInput($form,'_method','PUT')) $unknownInputCnt--;
+        if($this->lookForHiddenInput($this->form,'_method','PUT')) $unknownInputCnt--;
 
         // 4.3 Ensure that there's an input field for title, of type text, that is correctly set
-        $input = $form->find('input#SubjectTitle',0);
-        $this->assertEquals($input->type, "text");
-        $this->assertEquals($input->value, $this->subjectsFixture->subject1Record['title']);
-        $unknownInputCnt--;
+        //$input = $this->form->find('input#SubjectTitle',0);
+        //$this->assertEquals($input->type, "text");
+        //$this->assertEquals($input->value, $this->subjectsFixture->subject1Record['title']);
+        //$unknownInputCnt--;
+        if($this->inputCheckerA($this->form,'input#SubjectTitle',
+            $subjectRecord['title'])) $unknownInputCnt--;
 
         // 4.9 Have all the input and select fields been accounted for?  Are there
         // any extras?
-        $this->assertEquals(0, $unknownInputCnt);
-        $this->assertEquals(0, $unknownSelectCnt);
+        //$this->assertEquals(0, $unknownInputCnt);
+        //$this->assertEquals(0, $unknownSelectCnt);
 
         // 5. Examine the <A> tags on this page.  There should be zero links.
-        $content = $html->find('div#SubjectsEdit',0);
-        $this->assertNotNull($content);
-        $links = $content->find('a');
-        $this->assertEquals(0,count($links));
+        //$content = $html->find('div#SubjectsEdit',0);
+        //$this->assertNotNull($content);
+        //$links = $content->find('a');
+        //$this->assertEquals(0,count($links));
+
+       // 3.Have all the input, select, and Atags been accounted for?
+        $this->expectedInputsSelectsAtagsFound($unknownInputCnt, $unknownSelectCnt, $html, 'div#SubjectsEdit');
+
+
     }
 
     public function testEditPOST() {
 
-        $this->fakeLogin(FixtureConstants::userAndyAdminId);
-        $subject_id = $this->subjectsFixture->subject1Record['id'];
-        $this->put('/subjects/edit/' . $subject_id, $this->subjectsFixture->newSubjectRecord);
-        $this->assertResponseSuccess(); // 2xx, 3xx
-        $this->assertRedirect('/subjects');
+        //$this->fakeLogin(FixtureConstants::userAndyAdminId);
+        //$subject_id = $this->subjectsFixture->subject1Record['id'];
+        //$this->put('/subjects/edit/' . $subject_id, $this->subjectsFixture->newSubjectRecord);
+        //$this->assertResponseSuccess(); // 2xx, 3xx
+        //$this->assertRedirect('/subjects');
 
         // Now verify what we think just got written
-        $query = $this->subjects->find()->where(['id' => $this->subjectsFixture->subject1Record['id']]);
-        $this->assertEquals(1, $query->count());
+        //$query = $this->subjects->find()->where(['id' => $this->subjectsFixture->subject1Record['id']]);
+        //$this->assertEquals(1, $query->count());
 
         // Now retrieve that 1 record and compare to what we expect
-        $subject = $this->subjects->get($subject_id);
-        $this->assertEquals($subject['title'],$this->subjectsFixture->newSubjectRecord['title']);
+        //$subject = $this->subjects->get($subject_id);
+        //$this->assertEquals($subject['title'],$this->subjectsFixture->newSubjectRecord['title']);
+
+        // Now verify what we think just got written
+        //$new_id = count($this->subjectsFixture->records) + 1;
+        //$query = $this->subjects->find()->where(['id' => $new_id]);
+        //$this->assertEquals(1, $query->count());
+
+        $fixtureRecord=$this->subjectsFixture->newSubjectRecord;
+        $edit_id=0;
+        $fromDbRecord=$this->genericEditPutProlog(
+            FixtureConstants::userAndyAdminId,
+            '/subjects/edit', $fixtureRecord,
+            '/subjects', $edit_id, $this->subjects
+        );
+
+        // Now retrieve that 1 record and compare to what we expect
+        //$new_subject = $this->subjects->get($new_id);
+        $this->assertEquals($fromDbRecord['title'],$fixtureRecord['title']);
     }
 
     public function testIndexGET() {

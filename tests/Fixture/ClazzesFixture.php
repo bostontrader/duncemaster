@@ -1,12 +1,15 @@
 <?php
 namespace App\Test\Fixture;
 
+use Cake\Datasource\ConnectionManager;
+use Cake\ORM\TableRegistry;
+
 class ClazzesFixture extends DMFixture {
     public $import = ['table' => 'clazzes'];
 
     // These records are injected into the db before the tests.  We need to specify the
     // id to ensure the test records are properly related.
-    public $clazz1Record = [
+    /*public $clazz1Record = [
         'id'=>FixtureConstants::clazz1_id,
         'section_id' => FixtureConstants::section1_id,
         'event_datetime' => '2015-10-15 00:00:00',
@@ -32,33 +35,31 @@ class ClazzesFixture extends DMFixture {
         'section_id' => FixtureConstants::section2_id,
         'event_datetime' => '2015-10-18 00:00:00',
         'comments' => 'comment 4'
-    ];
+    ];*/
 
     // This record will be added during a test.  We don't need or want to control the id here, so omit it.
 
-    public $newClazzRecord = [
-        'section_id' => FixtureConstants::section2_id,
-        'event_datetime' => '2015-10-16 00:00:00',
-        'comments' => 'comment new'
-    ];
+    //public $newClazzRecord = [
+        //'section_id' => FixtureConstants::section2_id,
+        //'event_datetime' => '2015-10-16 00:00:00',
+        //'comments' => 'comment new'
+    //];
 
     public function init() {
 
-        $connection = ConnectionManager::get('tourist-dev');
-        $query=new \Cake\Database\Query();
-        $query->from('clazzes');
+        $connection = ConnectionManager::get('fixture');
+        $clazzes = TableRegistry::get('Clazzes');
+        $query=$clazzes->find();
         $query->connection($connection);
-        $n=$query->toArray();
-        // read records into an array
-        $query="select * from clazzes";
 
+        foreach($query as $clazzRecord) {
+            $newRecord['id']=$clazzRecord->id;
+            $newRecord['section_id']=$clazzRecord->section_id;
+            $newRecord['event_datetime']=$clazzRecord->event_datetime;
+            $newRecord['comments']=$clazzRecord->comments;
+            $this->records[]=$newRecord;
+        }
 
-        $this->records = [
-            $this->clazz1Record,
-            $this->clazz2Record,
-            $this->clazz3Record,
-            $this->clazz4Record
-        ];
         parent::init();
     }
 
