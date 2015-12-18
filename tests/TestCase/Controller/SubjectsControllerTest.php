@@ -44,8 +44,9 @@ class SubjectsControllerTest extends DMIntegrationTestCase {
         $html=$this->loginRequestResponse(FixtureConstants::userAndyAdminId,'/subjects/add');
 
         // 2. Ensure that the correct form exists
-        $this->form = $html->find('form#SubjectAddForm',0);
-        $this->assertNotNull($this->form);
+        /* @var \simple_html_dom_node $form */
+        $form = $html->find('form#SubjectAddForm',0);
+        $this->assertNotNull($form);
 
         // 3. Now inspect the fields on the form.  We want to know that:
         // A. The correct fields are there and no other fields.
@@ -56,18 +57,17 @@ class SubjectsControllerTest extends DMIntegrationTestCase {
 
         // 3.1 These are counts of the select and input fields on the form.  They
         // are presently unaccounted for.
-        $unknownSelectCnt = count($this->form->find('select'));
-        $unknownInputCnt = count($this->form->find('input'));
+        $unknownSelectCnt = count($form->find('select'));
+        $unknownInputCnt = count($form->find('input'));
 
         // 3.2 Look for the hidden POST input
-        if($this->lookForHiddenInput($this->form)) $unknownInputCnt--;
+        if($this->lookForHiddenInput($form)) $unknownInputCnt--;
 
         // 3.3 Ensure that there's an input field for title, of type text, and that it is empty
-        if($this->inputCheckerA($this->form,'input#SubjectTitle')) $unknownInputCnt--;
+        if($this->inputCheckerA($form,'input#SubjectTitle')) $unknownInputCnt--;
 
         // 4. Have all the input, select, and Atags been accounted for?
         $this->expectedInputsSelectsAtagsFound($unknownInputCnt, $unknownSelectCnt, $html, 'div#SubjectsAdd');
-
     }
 
     public function testAddPOST() {
@@ -102,8 +102,9 @@ class SubjectsControllerTest extends DMIntegrationTestCase {
         $html=$this->loginRequestResponse(FixtureConstants::userAndyAdminId,$url);
 
         // 2. Ensure that the correct form exists
-        $this->form = $html->find('form#SubjectEditForm',0);
-        $this->assertNotNull($this->form);
+        /* @var \simple_html_dom_node $form */
+        $form = $html->find('form#SubjectEditForm',0);
+        $this->assertNotNull($form);
 
         // 3. Now inspect the fields on the form.  We want to know that:
         // A. The correct fields are there and no other fields.
@@ -114,14 +115,14 @@ class SubjectsControllerTest extends DMIntegrationTestCase {
 
         // 3.1 These are counts of the select and input fields on the form.  They
         // are presently unaccounted for.
-        $unknownSelectCnt = count($this->form->find('select'));
-        $unknownInputCnt = count($this->form->find('input'));
+        $unknownSelectCnt = count($form->find('select'));
+        $unknownInputCnt = count($form->find('input'));
 
         // 3.2 Look for the hidden POST input
-        if($this->lookForHiddenInput($this->form,'_method','PUT')) $unknownInputCnt--;
+        if($this->lookForHiddenInput($form,'_method','PUT')) $unknownInputCnt--;
 
         // 3.3 Ensure that there's an input field for title, of type text, that is correctly set
-        if($this->inputCheckerA($this->form,'input#SubjectTitle',
+        if($this->inputCheckerA($form,'input#SubjectTitle',
             $record2Edit['title'])) $unknownInputCnt--;
 
         // 4. Have all the input, select, and Atags been accounted for?
@@ -190,13 +191,12 @@ class SubjectsControllerTest extends DMIntegrationTestCase {
             $this->htmlRow = $values[1];
             $htmlColumns = $this->htmlRow->find('td');
 
-            // 8.0 title
+            // 7.0 title
             $this->assertEquals($fixtureRecord['title'],  $htmlColumns[0]->plaintext);
 
-            // 8.1 Now examine the action links
+            // 7.1 Now examine the action links
             $this->td = $htmlColumns[1];
             $actionLinks = $this->td->find('a');
-            //$actionLinks = $htmlColumns[1]->find('a');
             $this->assertEquals('SubjectView', $actionLinks[0]->name);
             $unknownATag--;
             $this->assertEquals('SubjectEdit', $actionLinks[1]->name);
@@ -204,11 +204,11 @@ class SubjectsControllerTest extends DMIntegrationTestCase {
             $this->assertEquals('SubjectDelete', $actionLinks[2]->name);
             $unknownATag--;
 
-            // 8.9 No other columns
+            // 7.9 No other columns
             $this->assertEquals(count($htmlColumns),$column_count);
         }
 
-        // 9. Ensure that all the <A> tags have been accounted for
+        // 8. Ensure that all the <A> tags have been accounted for
         $this->assertEquals(0, $unknownATag);
     }
 
