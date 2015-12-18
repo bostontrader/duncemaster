@@ -60,77 +60,94 @@ class DMIntegrationTestCase extends IntegrationTestCase {
     /* @var \simple_html_dom_node */
     private $input;
 
+    /**
+     * Login and submit a POST request to a $url that is expected to delete a given record,
+     * and then verify its removal.
+     *
+     * @param int $user_id The user to login as.
+     * @param String $url The url to send the request to.  Be sure to include a trailing /.
+     * @param int $delete_id The id of the record to delete.
+     * @param String $redirect_url The url to redirect to, after the deletion.
+     * @param \Cake\ORM\Table $table The table to delete from.
+     */
     protected function deletePOST($user_id, $url, $delete_id, $redirect_url, $table) {
+
         $this->fakeLogin($user_id);
-        //$subject_id = $this->subjectsFixture->subject1Record['id'];
         $this->post($url . $delete_id);
         $this->assertResponseSuccess(); // 2xx, 3xx
         $this->assertRedirect($redirect_url);
 
         // Now verify that the record no longer exists
-        //$query = $this->subjects->find()->where(['id' => $subject_id]);
-        $connection = ConnectionManager::get('test');
-        $query=new \Cake\ORM\Query($connection,$table);
+        $query=new Query(ConnectionManager::get('test'),$table);
         $query->find('all')->where(['id' => $delete_id]);
         $this->assertEquals(0, $query->count());
     }
 
     /**
-
-     */
-    protected function genericAddPostProlog($user_id, $url, $post_data, $redirect_url, $table) {
-
-        $this->fakeLogin($user_id);
-        $this->post($url, $post_data);
-        $this->assertResponseSuccess(); // 2xx, 3xx
-        $this->assertRedirect( $redirect_url );
-
-        // Now verify what we think just got written
-        //$new_id = count($this->subjectsFixture->records) + 1;
-        $connection = ConnectionManager::get('test');
-
-        $query=new \Cake\ORM\Query($connection,$table);
-        //$query->find('last')->where(['id' => $new_id]);
-        $query->find('first')->order(['id' => 'DESC']);
-        $this->assertEquals(1, $query->count());
-
-        // Now retrieve that 1 record and compare to what we expect
-        //$newRecord = $table->get($new_id);
-        //$this->assertEquals($new_subject['title'],$this->subjectsFixture->newSubjectRecord['title']);
-
-        return $newRecord;
-    }
-
-    /**
-
-     */
-    protected function genericEditPutProlog($user_id, $url, $post_data, $redirect_url, $edit_id, $table) {
-
-        $this->fakeLogin($user_id);
-        $this->put($url, $post_data);
-        $this->assertResponseSuccess(); // 2xx, 3xx
-        $this->assertRedirect( $redirect_url );
-
-        // Now verify what we think just got written
-        //$new_id = count($this->subjectsFixture->records) + 1;
-        $connection = ConnectionManager::get('test');
-        $query=new \Cake\ORM\Query($connection,$table);
-        $query->find('all')->where(['id' => $edit_id]);
-        $this->assertEquals(1, $query->count());
-
-        // Now retrieve that 1 record and compare to what we expect
-        $editRecord = $table->get($edit_id);
-        //$this->assertEquals($new_subject['title'],$this->subjectsFixture->newSubjectRecord['title']);
-
-        return $editRecord;
-    }
-
-    /**
-     * Many tests need to login, issue a POST request, receive but not parse a response,
-     * but instead redirect, and verify that all this works correctly.
+     * Login and submit a POST request to a $url that is expected to add a given record.
+     * Retrieve the record with the highest id, which we hope is the new record we just
+     * added, and return that to the caller.
      *
-     * @var int $user_id Who shall we login as?
-     * @var String $url
+     * @param int $user_id The user to login as.
+     * @param String $url The url to send the request to.
+     * @param array $newRecord
+     * @param String $redirect_url The url to redirect to, after the deletion.
+     * @param \Cake\ORM\Table $table The table to receive the new record.
+     * @return \Cake\ORM\Entity The newly added record, as read from the db.
+     */
+    protected function genericAddPostProlog($user_id, $url, $newRecord, $redirect_url, $table) {
+
+        $this->fakeLogin($user_id);
+        $this->post($url, $newRecord);
+        $this->assertResponseSuccess(); // 2xx, 3xx
+        $this->assertRedirect( $redirect_url );
+
+        // Now retrieve the newly written record.
+        $connection = ConnectionManager::get('test');
+        $query=new Query($connection,$table);
+        $fromDbRecord=$query->find('all')->order(['id' => 'DESC'])->first();
+
+        return $fromDbRecord;
+    }
+
+    /**
+     * Login and submit a PUT request to a $url that is expected to update
+     * a given record. Then redirect to a given $redirect_url, read the updated record
+     * from the $table and return it to the caller.
+     *
+     * @param int $user_id The user to login as.
+     * @param String $url The url to send the request to.
+     * @param array $post_data
+     * @param String $redirect_url The url to redirect to, after the update.
+     * @param \Cake\ORM\Table $table The table to receive the new record.
+     * @return \Cake\ORM\Entity The newly added record, as read from the db.
+     */
+    protected function genericEditPutProlog($user_id, $url, $post_data, $redirect_url, $table) {
+
+        $connection = ConnectionManager::get('test');
+        $query=new Query($connection,$table);
+
+        // Retrieve the record with the lowest id.
+        $originalRecord=$query->find('all')->order(['id' => 'ASC'])->first();
+        $edit_id=$originalRecord['id'];
+
+        $this->fakeLogin($user_id);
+        $this->put($url.'/'.$edit_id, $post_data);
+        $this->assertResponseSuccess(); // 2xx, 3xx
+        $this->assertRedirect( $redirect_url );
+
+        // Now retrieve that 1 record and send it back.
+        $query=new Query($connection,$table);
+        return $query->find('all')->where(['id' => $edit_id])->first();
+
+    }
+
+    /**
+     * Many tests need to login, issue a GET request, and receive and parse a response.
+     *
+     * @param int $user_id Who shall we login as?
+     * @param String $url
+     * @return \simple_html_dom_node $html parsed dom that contains the response.
      */
     protected function loginRequestResponse($user_id, $url) {
 
@@ -150,15 +167,20 @@ class DMIntegrationTestCase extends IntegrationTestCase {
      * During many tests we determine the number of inputs, selects, and atags that we
      * should have, compare that do what we actually test, a determine a final quantity
      * of unaccounted for elements. These three quantities should all be zero.
+     * @param int $unknownInputCnt The quantity of unaccounted-for input tags.
+     * @param int $unknownSelectCnt The quantity of unaccounted-for select tags
+     * @param \simple_html_dom_node $html parsed dom that contains the response.
+     * @param String $css_finder A css finder string to find a region of the html to search for
+     * Atags.
      */
-    protected function expectedInputsSelectsAtagsFound($unknownInputCnt, $unknownSelectCnt, $html, $div) {
+    protected function expectedInputsSelectsAtagsFound($unknownInputCnt, $unknownSelectCnt, $html, $css_finder) {
         $this->assertEquals(0, $unknownInputCnt);
         $this->assertEquals(0, $unknownSelectCnt);
 
-        // 5. Examine the <A> tags on this page.  There should be zero links.
-        $content = $html->find($div,0);
-        $this->assertNotNull($content);
-        $links = $content->find('a');
+        // Examine the <A> tags on this page.  There should be zero links.
+        $this->content = $html->find($css_finder,0);
+        $this->assertNotNull($this->content);
+        $links = $this->content->find('a');
         $this->assertEquals(0,count($links));
     }
 
