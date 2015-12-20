@@ -11,6 +11,7 @@ class StudentsControllerTest extends DMIntegrationTestCase {
     public $fixtures = [
         'app.clazzes',
         'app.cohorts',
+        'app.interactions',
         'app.majors',
         'app.roles',
         'app.roles_users',
@@ -28,7 +29,10 @@ class StudentsControllerTest extends DMIntegrationTestCase {
     /* @var \App\Model\Table\StudentsTable */
     private $students;
 
+    /* @var \App\Test\Fixture\SectionsFixture */
     private $sectionsFixture;
+
+    /* @var \App\Test\Fixture\StudentsFixture */
     private $studentsFixture;
 
     public function setUp() {
@@ -54,220 +58,190 @@ class StudentsControllerTest extends DMIntegrationTestCase {
 
     public function testAddGET() {
 
-        // 1. Simulate login, submit request, examine response.
-        $this->fakeLogin(FixtureConstants::userAndyAdminId);
-        $this->get('/students/add');
-        $this->assertResponseOk(); // 2xx
-        $this->assertNoRedirect();
+        // 1. Login, GET the url, parse the response and send it back.
+        $html=$this->loginRequestResponse(FixtureConstants::userAndyAdminId,'/students/add');
 
-        // 2. Parse the html from the response
-        $html = str_get_html($this->_response->body());
+        // 2. Ensure that the correct form exists
+        /* @var \simple_html_dom_node $form */
+        $form = $html->find('form#StudentAddForm',0);
+        $this->assertNotNull($form);
 
-        // 3. Ensure that the correct form exists
-        $this->form = $html->find('form#StudentAddForm',0);
-        $this->assertNotNull($this->form);
-
-        // 4. Now inspect the fields on the form.  We want to know that:
+        // 3. Now inspect the fields on the form.  We want to know that:
         // A. The correct fields are there and no other fields.
         // B. The fields have correct values. This includes verifying that select
         //    lists contain options.
         //
         //  The actual order that the fields are listed on the form is hereby deemed unimportant.
 
-        // 4.1 These are counts of the select and input fields on the form.  They
+        // 3.1 These are counts of the select and input fields on the form.  They
         // are presently unaccounted for.
-        $unknownSelectCnt = count($this->form->find('select'));
-        $unknownInputCnt = count($this->form->find('input'));
+        $unknownSelectCnt = count($form->find('select'));
+        $unknownInputCnt = count($form->find('input'));
 
-        // 4.2 Look for the hidden POST input
-        if($this->lookForHiddenInput($this->form)) $unknownInputCnt--;
+        // 3.2 Look for the hidden POST input
+        if($this->lookForHiddenInput($form)) $unknownInputCnt--;
 
-        if($this->inputCheckerA($this->form,'input#StudentFamName')) $unknownInputCnt--;
-        if($this->inputCheckerA($this->form,'input#StudentGivName')) $unknownInputCnt--;
-        if($this->inputCheckerA($this->form,'input#StudentSid')) $unknownInputCnt--;
+        if($this->inputCheckerA($form,'input#StudentFamName')) $unknownInputCnt--;
+        if($this->inputCheckerA($form,'input#StudentGivName')) $unknownInputCnt--;
+        if($this->inputCheckerA($form,'input#StudentPhoneticName')) $unknownInputCnt--;
+        if($this->inputCheckerA($form,'input#StudentSid')) $unknownInputCnt--;
 
-        // 4.6 Ensure that there's a select field for cohort_id and that is has no selection
-        if($this->selectCheckerA($this->form, 'StudentCohortId','cohorts')) $unknownSelectCnt--;
+        // 3.6 Ensure that there's a select field for cohort_id and that is has no selection
+        if($this->selectCheckerA($form, 'StudentCohortId','cohorts')) $unknownSelectCnt--;
 
-        // 4.7 Ensure that there's a select field for user_id, that it has no selection,
+        // 3.7 Ensure that there's a select field for user_id, that it has no selection,
         //    and that it has the correct quantity of available choices.
-        if($this->selectCheckerA($this->form, 'StudentUserId','users')) $unknownSelectCnt--;
+        if($this->selectCheckerA($form, 'StudentUserId','users')) $unknownSelectCnt--;
 
-        // 4.9 Have all the input and select fields been accounted for?  Are there
-        // any extras?
-        $this->assertEquals(0, $unknownInputCnt);
-        $this->assertEquals(0, $unknownSelectCnt);
-
-        // 5. Examine the <A> tags on this page.  There should be zero links.
-        $this->content = $html->find('div#StudentsAdd',0);
-        $this->assertNotNull($this->content);
-        $links = $this->content->find('a');
-        $this->assertEquals(0,count($links));
+        // 4. Have all the input, select, and Atags been accounted for?
+        $this->expectedInputsSelectsAtagsFound($unknownInputCnt, $unknownSelectCnt, $html, 'div#StudentsAdd');
     }
 
     public function testAddPOST() {
 
-        $this->fakeLogin(FixtureConstants::userAndyAdminId);
-        $this->post('/students/add', $this->studentsFixture->newStudentRecord);
-        $this->assertResponseSuccess(); // 2xx, 3xx
-        $this->assertRedirect( '/students' );
+        // 1. Login, POST a suitable record to the url, redirect, and return the record just
+        // posted, as read from the db.
+        $fixtureRecord=$this->studentsFixture->newStudentRecord;
+        $fromDbRecord=$this->genericAddPostProlog(
+            FixtureConstants::userAndyAdminId,
+            '/students/add', $fixtureRecord,
+            '/students', $this->students
+        );
 
-        // Now verify what we think just got written
-        $new_id = count($this->studentsFixture->records) + 1;
-        $query = $this->students->find()->where(['id' => $new_id]);
-        $this->assertEquals(1, $query->count());
-
-        // Now retrieve that 1 record and compare to what we expect
-        $new_student = $this->students->get($new_id);
-        $this->assertEquals($new_student['fam_name'],$this->studentsFixture->newStudentRecord['fam_name']);
-        $this->assertEquals($new_student['giv_name'],$this->studentsFixture->newStudentRecord['giv_name']);
-        $this->assertEquals($new_student['sid'],$this->studentsFixture->newStudentRecord['sid']);
-        $this->assertEquals($new_student['cohort_id'],$this->studentsFixture->newStudentRecord['cohort_id']);
-        $this->assertEquals($new_student['user_id'],$this->studentsFixture->newStudentRecord['user_id']);
+        // 2. Now validate that record.
+        $this->assertEquals($fromDbRecord['fam_name'],$fixtureRecord['fam_name']);
+        $this->assertEquals($fromDbRecord['giv_name'],$fixtureRecord['giv_name']);
+        $this->assertEquals($fromDbRecord['phonetic_name'],$fixtureRecord['phonetic_name']);
+        $this->assertEquals($fromDbRecord['sid'],$fixtureRecord['sid']);
+        $this->assertEquals($fromDbRecord['cohort_id'],$fixtureRecord['cohort_id']);
+        $this->assertEquals($fromDbRecord['user_id'],$fixtureRecord['user_id']);
     }
 
     public function testDeletePOST() {
 
-        $this->fakeLogin(FixtureConstants::userAndyAdminId);
-        $student_id = $this->studentsFixture->student1Record['id'];
-        $this->post('/students/delete/' . $student_id);
-        $this->assertResponseSuccess(); // 2xx, 3xx
-        $this->assertRedirect( '/students' );
-
-        // Now verify that the record no longer exists
-        $query = $this->students->find()->where(['id' => $student_id]);
-        $this->assertEquals(0, $query->count());
+        $student_id = $this->studentsFixture->records[0]['id'];
+        $this->deletePOST(
+            FixtureConstants::userAndyAdminId, '/students/delete/',
+            $student_id, '/students', $this->students
+        );
     }
 
     public function testEditGET() {
 
-        // 1. Simulate login, submit request, examine response.
-        $this->fakeLogin(FixtureConstants::userAndyAdminId);
-        $this->get('/students/edit/' . $this->studentsFixture->student1Record['id']);
-        $this->assertResponseOk(); // 2xx
-        $this->assertNoRedirect();
+        // 1. Obtain a record to edit, login, GET the url, parse the response and send it back.
+        $record2Edit=$this->studentsFixture->records[0];
+        $url='/students/edit/' . $record2Edit['id'];
+        $html=$this->loginRequestResponse(FixtureConstants::userAndyAdminId,$url);
 
-        // 2. Parse the html from the response
-        $html = str_get_html($this->_response->body());
+        // 2. Ensure that the correct form exists
+        /* @var \simple_html_dom_node $form */
+        $form = $html->find('form#StudentEditForm',0);
+        $this->assertNotNull($form);
 
-        // 3. Ensure that the correct form exists
-        $this->form = $html->find('form#StudentEditForm',0);
-        $this->assertNotNull($this->form);
-
-        // 4. Now inspect the fields on the form.  We want to know that:
+        // 3. Now inspect the fields on the form.  We want to know that:
         // A. The correct fields are there and no other fields.
         // B. The fields have correct values. This includes verifying that select
         //    lists contain options.
         //
         //  The actual order that the fields are listed on the form is hereby deemed unimportant.
 
-        // 4.1 These are counts of the select and input fields on the form.  They
+        // 3.1 These are counts of the select and input fields on the form.  They
         // are presently unaccounted for.
-        $unknownSelectCnt = count($this->form->find('select'));
-        $unknownInputCnt = count($this->form->find('input'));
+        $unknownSelectCnt = count($form->find('select'));
+        $unknownInputCnt = count($form->find('input'));
 
-        // 4.2 Look for the hidden POST input
-        if($this->lookForHiddenInput($this->form,'_method','PUT')) $unknownInputCnt--;
+        // 3.2 Look for the hidden POST input
+        if($this->lookForHiddenInput($form,'_method','PUT')) $unknownInputCnt--;
 
-        // 4.3 giv_name
-        if($this->inputCheckerA($this->form,'input#StudentGivName',
-            $this->studentsFixture->student1Record['giv_name'])) $unknownInputCnt--;
+        // 3.3 giv_name
+        if($this->inputCheckerA($form,'input#StudentGivName',
+            $record2Edit['giv_name'])) $unknownInputCnt--;
 
-        // 4.4 fam_name
-        if($this->inputCheckerA($this->form,'input#StudentFamName',
-            $this->studentsFixture->student1Record['fam_name'])) $unknownInputCnt--;
+        // 3.4 fam_name
+        if($this->inputCheckerA($form,'input#StudentFamName',
+            $record2Edit['fam_name'])) $unknownInputCnt--;
 
-        // 4.5 sid
-        if($this->inputCheckerA($this->form,'input#StudentSid',
-            $this->studentsFixture->student1Record['sid'])) $unknownInputCnt--;
+        // 3.5 phonetic_name
+        if($this->inputCheckerA($form,'input#StudentPhoneticName',
+            $record2Edit['phonetic_name'])) $unknownInputCnt--;
 
-        // 4.6 cohort_id / $cohort['nickname']
-        $cohort_id = $this->studentsFixture->student1Record['cohort_id'];
+        // 3.6 sid
+        if($this->inputCheckerA($form,'input#StudentSid',
+            $record2Edit['sid'])) $unknownInputCnt--;
+
+        // 3.7 cohort_id / $cohort['nickname']
+        $cohort_id = $record2Edit['cohort_id'];
         $cohort = $this->cohorts->get($cohort_id,['contain' => ['Majors']]);
-        if($this->inputCheckerB($this->form,'select#StudentCohortId option[selected]',$cohort_id,$cohort['nickname'])) $unknownSelectCnt--;
+        if($this->inputCheckerB($form,'select#StudentCohortId option[selected]',$cohort_id,$cohort['nickname'])) $unknownSelectCnt--;
 
-        // 4.7. user_id / $user_fixture_record['username']
-        $user_id = $this->studentsFixture->student1Record['user_id'];
+        // 3.8. user_id / $user_fixture_record['username']
+        $user_id = $record2Edit['user_id'];
         $user = $this->usersFixture->get($user_id);
-        if($this->inputCheckerB($this->form,'select#StudentUserId option[selected]',$user_id,$user['username'])) $unknownSelectCnt--;
+        if($this->inputCheckerB($form,'select#StudentUserId option[selected]',$user_id,$user['username'])) $unknownSelectCnt--;
 
-        // 4.9 Have all the input and select fields been accounted for?  Are there
-        // any extras?
-        $this->assertEquals(0, $unknownInputCnt);
-        $this->assertEquals(0, $unknownSelectCnt);
-
-        // 5. Examine the <A> tags on this page.  There should be zero links.
-        $this->content = $html->find('div#StudentsEdit',0);
-        $this->assertNotNull($this->content);
-        $links = $this->content->find('a');
-        $this->assertEquals(0,count($links));
+        // 4. Have all the input, select, and Atags been accounted for?
+        $this->expectedInputsSelectsAtagsFound($unknownInputCnt, $unknownSelectCnt, $html, 'div#StudentsEdit');
     }
 
     public function testEditPOST() {
 
-        $this->fakeLogin(FixtureConstants::userAndyAdminId);
-        $student_id = $this->studentsFixture->student1Record['id'];
-        $this->put('/students/edit/' . $student_id, $this->studentsFixture->newStudentRecord);
-        $this->assertResponseSuccess(); // 2xx, 3xx
-        $this->assertRedirect('/students');
+        // 1. Login, POST a suitable record to the url, redirect, and return the record just
+        // posted, as read from the db.
+        $fixtureRecord=$this->studentsFixture->newStudentRecord;
+        $fromDbRecord=$this->genericEditPutProlog(
+            FixtureConstants::userAndyAdminId,
+            '/students/edit', $fixtureRecord,
+            '/students', $this->students
+        );
 
-        // Now verify what we think just got written
-        $query = $this->students->find()->where(['id' => $student_id]);
-        $this->assertEquals(1, $query->count());
-
-        // Now retrieve that 1 record and compare to what we expect
-        $student = $this->students->get($student_id);
-        $this->assertEquals($student['giv_name'],$this->studentsFixture->newStudentRecord['giv_name']);
-        $this->assertEquals($student['fam_name'],$this->studentsFixture->newStudentRecord['fam_name']);
-        $this->assertEquals($student['sid'],$this->studentsFixture->newStudentRecord['sid']);
-        $this->assertEquals($student['cohort_id'],$this->studentsFixture->newStudentRecord['cohort_id']);
-        $this->assertEquals($student['user_id'],$this->studentsFixture->newStudentRecord['user_id']);
+        // 2. Now validate that record.
+        $this->assertEquals($fromDbRecord['giv_name'],$fixtureRecord['giv_name']);
+        $this->assertEquals($fromDbRecord['fam_name'],$fixtureRecord['fam_name']);
+        $this->assertEquals($fromDbRecord['phonetic_name'],$fixtureRecord['phonetic_name']);
+        $this->assertEquals($fromDbRecord['sid'],$fixtureRecord['sid']);
+        $this->assertEquals($fromDbRecord['cohort_id'],$fixtureRecord['cohort_id']);
+        $this->assertEquals($fromDbRecord['user_id'],$fixtureRecord['user_id']);
     }
 
     public function testIndexGET() {
 
-        // 1. Simulate login, submit request, examine response.
-        $this->fakeLogin(FixtureConstants::userAndyAdminId);
-        $this->get('/students/index');
-        $this->assertResponseOk(); // 2xx
-        $this->assertNoRedirect();
+        // 1. Login, GET the url, parse the response and send it back.
+        $html=$this->loginRequestResponse(FixtureConstants::userAndyAdminId,'/students/index');
 
-        // 2. Parse the html from the response
-        $html = str_get_html($this->_response->body());
-
-        // 3. Get a the count of all <A> tags that are presently unaccounted for.
+        // 2. Get a the count of all <A> tags that are presently unaccounted for.
         $this->content = $html->find('div#StudentsIndex',0);
         $this->assertNotNull($this->content);
         $unknownATag = count($this->content->find('a'));
 
-        // 4. Look for the create new student link
+        // 3. Look for the create new student link
         $this->assertEquals(1, count($html->find('a#StudentAdd')));
         $unknownATag--;
 
-        // 5. Ensure that there is a suitably named table to display the results.
+        // 4. Ensure that there is a suitably named table to display the results.
         $this->table = $html->find('table#StudentsTable',0);
         $this->assertNotNull($this->table);
 
-        // 6. Ensure that said table's thead element contains the correct
+        // 5. Ensure that said table's thead element contains the correct
         //    headings, in the correct order, and nothing else.
         $this->thead = $this->table->find('thead',0);
         $thead_ths = $this->thead->find('tr th');
 
         $this->assertEquals($thead_ths[0]->id, 'sid');
         $this->assertEquals($thead_ths[1]->id, 'fullname');
-        $this->assertEquals($thead_ths[2]->id, 'cohort_nickname');
-        $this->assertEquals($thead_ths[3]->id, 'username');
-        $this->assertEquals($thead_ths[4]->id, 'actions');
+        $this->assertEquals($thead_ths[2]->id, 'phonetic_name');
+        $this->assertEquals($thead_ths[3]->id, 'cohort_nickname');
+        $this->assertEquals($thead_ths[4]->id, 'username');
+        $this->assertEquals($thead_ths[5]->id, 'actions');
         $column_count = count($thead_ths);
-        $this->assertEquals($column_count,5); // no other columns
+        $this->assertEquals($column_count,6); // no other columns
 
-        // 7. Ensure that the tbody section has the same
+        // 6. Ensure that the tbody section has the same
         //    quantity of rows as the count of students records in the fixture.
         $this->tbody = $this->table->find('tbody',0);
         $tbody_rows = $this->tbody->find('tr');
         $this->assertEquals(count($tbody_rows), count($this->studentsFixture->records));
 
-        // 8. Ensure that the values displayed in each row, match the values from
+        // 7. Ensure that the values displayed in each row, match the values from
         //    the fixture.  The values should be presented in a particular order
         //    with nothing else thereafter.
         $iterator = new \MultipleIterator();
@@ -279,17 +253,20 @@ class StudentsControllerTest extends DMIntegrationTestCase {
             $this->htmlRow = $values[1];
             $htmlColumns = $this->htmlRow->find('td');
 
-            // 8.0 sid
+            // 7.0 sid
             $this->assertEquals($fixtureRecord['sid'],  $htmlColumns[0]->plaintext);
 
-            // 8.1 fullname is computed by the Student entity.
+            // 7.1 fullname is computed by the Student entity.
             $student = $this->students->get($fixtureRecord['id'],['contain' => ['Cohorts.Majors']]);
             $this->assertEquals($student->fullname, $htmlColumns[1]->plaintext);
 
-            // 8.2 cohort_nickname is computed by the Cohort entity.
-            $this->assertEquals($student->cohort->nickname, $htmlColumns[2]->plaintext);
+            // 7.2 phonetic_name
+            $this->assertEquals($fixtureRecord['phonetic_name'],  $htmlColumns[2]->plaintext);
 
-            // 8.3 username requires finding the related value in the UsersFixture
+            // 7.3 cohort_nickname is computed by the Cohort entity.
+            $this->assertEquals($student->cohort->nickname, $htmlColumns[3]->plaintext);
+
+            // 7.4 username requires finding the related value in the UsersFixture
             $user_id = $fixtureRecord['user_id'];
             if (is_null($user_id)) {
                 $expectedValue='';
@@ -297,10 +274,10 @@ class StudentsControllerTest extends DMIntegrationTestCase {
                 $user = $this->usersFixture->get($user_id);
                 $expectedValue=$user['username'];
             }
-            $this->assertEquals($expectedValue, $htmlColumns[3]->plaintext);
+            $this->assertEquals($expectedValue, $htmlColumns[4]->plaintext);
 
-            // 8.4 Now examine the action links
-            $this->td = $htmlColumns[4];
+            // 7.5 Now examine the action links
+            $this->td = $htmlColumns[5];
             $actionLinks = $this->td->find('a');
             $this->assertEquals('StudentView', $actionLinks[0]->name);
             $unknownATag--;
@@ -309,11 +286,11 @@ class StudentsControllerTest extends DMIntegrationTestCase {
             $this->assertEquals('StudentDelete', $actionLinks[2]->name);
             $unknownATag--;
 
-            // 8.9 No other columns
+            // 7.9 No other columns
             $this->assertEquals(count($htmlColumns),$column_count);
         }
 
-        // 9. Ensure that all the <A> tags have been accounted for
+        // 8. Ensure that all the <A> tags have been accounted for
         $this->assertEquals(0, $unknownATag);
     }
 
@@ -344,7 +321,7 @@ class StudentsControllerTest extends DMIntegrationTestCase {
     // Scenario 1.
     public function testViewGETWithUser() {
         $this->fakeLogin(FixtureConstants::userAndyAdminId);
-        $fixtureRecord=$this->studentsFixture->student1Record;
+        $fixtureRecord=$this->studentsFixture->records[0];
         $this->get('/students/view/' . $fixtureRecord['id']);
         $this->tstViewGet($fixtureRecord);
     }
@@ -352,18 +329,19 @@ class StudentsControllerTest extends DMIntegrationTestCase {
     // Scenario 2.
     public function testViewGETWithOutUser() {
         $this->fakeLogin(FixtureConstants::userAndyAdminId);
-        $fixtureRecord=$this->studentsFixture->student2Record;
+        $fixtureRecord=$this->studentsFixture->records[0];
         $this->get('/students/view/' . $fixtureRecord['id']);
         $this->tstViewGet($fixtureRecord);
     }
+
 
     // Scenario 3. Don't care which student. Send a section_id as a request
     // param. Examine grading info.
     public function testViewGETWithRequestParameters() {
         $this->fakeLogin(FixtureConstants::userAndyAdminId);
-        $section_id=$this->sectionsFixture->section1Record['id'];
+        $section_id=$this->sectionsFixture->records[0]['id'];
         $this->get(
-            '/students/view/'.$this->studentsFixture->student1Record['id'].
+            '/students/view/'.$this->studentsFixture->records[0]['id'].
             '?section_id='.$section_id
         );
         $this->assertResponseOk(); // 2xx
@@ -441,13 +419,18 @@ class StudentsControllerTest extends DMIntegrationTestCase {
         $this->assertEquals($fixtureRecord['giv_name'], $field->plaintext);
         $unknownRowCnt--;
 
-        // 2.4 cohort_name
+        // 2.4 phonetic_name
+        $field = $html->find('tr#phonetic_name td',0);
+        $this->assertEquals($fixtureRecord['phonetic_name'], $field->plaintext);
+        $unknownRowCnt--;
+
+        // 2.5 cohort_name
         $field = $html->find('tr#cohort_nickname td',0);
         $student = $this->students->get($fixtureRecord['id'],['contain' => ['Cohorts.Majors']]);
         $this->assertEquals($student->cohort->nickname, $field->plaintext);
         $unknownRowCnt--;
 
-        // 2.5 user_id requires finding the related value in the UsersFixture
+        // 2.6 user_id requires finding the related value in the UsersFixture
         $this->field = $html->find('tr#username td',0);
         $user_id = $fixtureRecord['user_id'];
         $user = $this->usersFixture->get($user_id);

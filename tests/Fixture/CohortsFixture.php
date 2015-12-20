@@ -6,7 +6,7 @@ class CohortsFixture extends DMFixture {
 
     // These records are injected into the db before the tests.  We need to specify the
     // id to ensure the test records are properly related.
-    public $cohort1Record = [
+    /*public $cohort1Record = [
         'id'=>FixtureConstants::cohort1_id,
         'major_id'=>FixtureConstants::major1_id,
         'start_year' => 2015, 'seq' => 1
@@ -22,14 +22,11 @@ class CohortsFixture extends DMFixture {
     public $newCohortRecord = [
         'major_id'=>FixtureConstants::major2_id,
         'start_year' => 2016, 'seq' => 2
-    ];
+    ];*/
 
     public function init() {
-        $this->records = [
-            $this->cohort1Record,
-            $this->cohort2Record,
-        ];
-        parent::init();
+        $this->tableName='Cohorts';
+        parent::init(); // This is where the records are loaded.
     }
 
 }

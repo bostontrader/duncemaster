@@ -1,6 +1,5 @@
 <?php
 namespace App\Test\Fixture;
-use App\Controller\ItypesController;
 
 class InteractionsFixture extends DMFixture {
     public $import = ['table' => 'interactions'];
@@ -19,7 +18,7 @@ class InteractionsFixture extends DMFixture {
 
     // This record is injected into the db before the tests.  We need to specify the
     // id to ensure the test records are properly related.
-    public $interaction1Record = [
+    /*public $interaction1Record = [
         'id'=>FixtureConstants::interaction1_id,
         'clazz_id'=>FixtureConstants::clazz4_id,
         'student_id'=>FixtureConstants::student4_id,
@@ -31,9 +30,9 @@ class InteractionsFixture extends DMFixture {
         'clazz_id'=>FixtureConstants::clazz3_id,
         'student_id'=>FixtureConstants::student2_id,
         'itype_id'=>ItypesController::EJECT
-    ];
+    ];*/
 
-    public function init() {
+    /*public function init() {
         $this->records = [
             $this->interaction1Record
         ];
@@ -105,6 +104,11 @@ class InteractionsFixture extends DMFixture {
             ]
         );
         parent::init();
+    }*/
+
+    public function init() {
+        $this->tableName='Interactions';
+        parent::init(); // This is where the records are loaded.
     }
 
     // Given a $clazz_id, remove all elements in $this->records that don't have the same $clazz_id.

@@ -46,29 +46,16 @@ class ClazzesFixture extends DMFixture {
     //];
 
     public function init() {
-
-        $connection = ConnectionManager::get('fixture');
-        $clazzes = TableRegistry::get('Clazzes');
-        $query=$clazzes->find();
-        $query->connection($connection);
-
-        foreach($query as $clazzRecord) {
-            $newRecord['id']=$clazzRecord->id;
-            $newRecord['section_id']=$clazzRecord->section_id;
-            $newRecord['event_datetime']=$clazzRecord->event_datetime;
-            $newRecord['comments']=$clazzRecord->comments;
-            $this->records[]=$newRecord;
-        }
-
-        parent::init();
+        $this->tableName='Clazzes';
+        parent::init(); // This is where the records are loaded.
     }
 
     // Given a $sectionId, remove all elements in $this->records that don't have the same $sectionId.
-    public function filterBySectionId($sectionId) {
-        $newRecords=[];
-        foreach ($this->records as $record)
-            if($record['section_id']==$sectionId) array_push($newRecords,$record);
-        $this->records=$newRecords;
-    }
+    //public function filterBySectionId($sectionId) {
+        //$newRecords=[];
+        //foreach ($this->records as $record)
+            //if($record['section_id']==$sectionId) array_push($newRecords,$record);
+        //$this->records=$newRecords;
+    //}
 
 }

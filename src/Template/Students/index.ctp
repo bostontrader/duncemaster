@@ -18,6 +18,7 @@
                 <tr>
                     <th id="sid"><?= __('Student ID') ?></th>
                     <th id="fullname"><?= __('Name') ?></th>
+                    <th id="phonetic_name"><?= __('Phonetic Name') ?></th>
                     <th id="cohort_nickname"><?= __('Cohort') ?></th>
                     <th id="username"><?= __('username') ?></th>
                     <th id="actions" class="actions"><?= __('Actions') ?></th>
@@ -28,6 +29,7 @@
                 <tr>
                     <td><?= $student->sid ?></td>
                     <td><?= $student->fam_name . $student->giv_name ?></td>
+                    <td><?= $student->phonetic_name ?></td>
                     <td><?= $student->cohort->nickname ?></td>
                     <td><?= is_null($student->user)?'':$student->user->username ?></td>
                     <td class="actions">

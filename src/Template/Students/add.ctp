@@ -19,6 +19,7 @@
                 echo $this->Form->input('sid',['id'=>'StudentSid']);
                 echo $this->Form->input('fam_name',['id'=>'StudentFamName']);
                 echo $this->Form->input('giv_name',['id'=>'StudentGivName']);
+                echo $this->Form->input('phonetic_name',['id'=>'StudentPhoneticName']);
                 echo $this->Form->input('cohort_id', ['id'=>'StudentCohortId', 'options' => $cohorts, 'empty' => '(none selected)']);
                 echo $this->Form->input('user_id', ['id'=>'StudentUserId', 'options' => $users, 'empty' => '(none selected)']);
             ?>

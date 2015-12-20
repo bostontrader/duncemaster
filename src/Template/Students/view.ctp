@@ -1,5 +1,8 @@
 <?php
 /**
+ * @var array $grade
+ * @var int $section_id
+ * @var \Cake\ORM\Query $sections_list
  * @var \App\Model\Entity\Student $student
  */
 ?>
@@ -22,6 +25,10 @@
             <tr  id="giv_name">
                 <th><?= __('Given name') ?></th>
                 <td><?= $student->giv_name ?></td>
+            </tr>
+            <tr  id="phonetic_name">
+                <th><?= __('Phonetic name') ?></th>
+                <td><?= $student->phonetic_name ?></td>
             </tr>
             <tr id="cohort_nickname">
                 <th><?= __('Cohort') ?></th>

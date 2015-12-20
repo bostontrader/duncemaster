@@ -33,8 +33,8 @@ class FixtureConstants {
     const roleTeacherId = 4;
 
     // Section xy, where x=cohort, y=section seq
-    const section11_id = 1;
-    const section12_id = 2;
+    const section1_id = 1;
+    const section2_id = 2;
 
     const semester1_id = 1;
     const semester2_id = 2;

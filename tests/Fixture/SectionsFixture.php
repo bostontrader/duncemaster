@@ -6,7 +6,7 @@ class SectionsFixture extends DMFixture {
 
     // These records are injected into the db before the tests.  We need to specify the
     // id to ensure the test records are properly related.
-    public $section1Record = [
+    /*public $section1Record = [
         'id'=>FixtureConstants::section11_id,
         'cohort_id'=>FixtureConstants::cohort1_id,
         'semester_id'=>FixtureConstants::semester1_id,
@@ -37,14 +37,10 @@ class SectionsFixture extends DMFixture {
         'weekday' => 'tue',
         'start_time' => '09:30',
         'thours' => '3'
-    ];
+    ];*/
 
     public function init() {
-        $this->records = [
-            // ugly hack: the listing order is important!
-            $this->section2Record,
-            $this->section1Record
-        ];
-        parent::init();
+        $this->tableName='Sections';
+        parent::init(); // This is where the records are loaded.
     }
 }
