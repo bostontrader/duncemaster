@@ -26,7 +26,7 @@ class SectionsFixture extends DMFixture {
         'weekday' => 'tue',
         'start_time' => '08:30',
         'thours' => '2'
-    ];
+    ];*/
 
     // This record will be added during a test.  We don't need or want to control the id here, so omit it.
     public $newSectionRecord = [
@@ -37,7 +37,7 @@ class SectionsFixture extends DMFixture {
         'weekday' => 'tue',
         'start_time' => '09:30',
         'thours' => '3'
-    ];*/
+    ];
 
     public function init() {
         $this->tableName='Sections';
