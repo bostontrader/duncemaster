@@ -41,6 +41,23 @@ class SectionsFixture extends DMFixture {
 
     public function init() {
         $this->tableName='Sections';
+        $this->joinTableName='Semesters';
+        $this->order=['Semesters.year' => 'ASC'];
+
+        // We need to do this to ensure that the Subjects table really does use this connection.
+        //TableRegistry::remove('Sections');
+        //TableRegistry::remove('Semesters');
+        //$sections = TableRegistry::get('Sections',['connection'=>ConnectionManager::get('fixture')]);
+        //$semesters = TableRegistry::get('Semesters',['connection'=>ConnectionManager::get('fixture')]);
+
+        //$query=new Query(ConnectionManager::get('fixture'),$sections);
+        //$query.join($semesters);
+        //$query->find('all');
+        //if(!is_null($this->order)) $query->order($this->order);
+        //if(!is_null($this->order)) $query->order($this->order);
+
+
+
         parent::init(); // This is where the records are loaded.
     }
 }

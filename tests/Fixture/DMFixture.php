@@ -8,6 +8,7 @@ use Cake\TestSuite\Fixture\TestFixture;
 
 class DMFixture extends TestFixture {
 
+    protected $joinTableName;
     protected $tableName;
     protected $order;
 
@@ -23,25 +24,39 @@ class DMFixture extends TestFixture {
 
         parent::init();
 
-        // Not all fixtures want this.
+        // 1. Not all fixtures want to use the fixture db.
         if(is_null($this->tableName)) return;
 
-        // We need to do this to ensure that the Subjects table really does use this connection.
+        // 2. We need to do this to ensure that the tables really do use the connection to the
+        // fixture db.
         TableRegistry::remove($this->tableName);
         $table = TableRegistry::get($this->tableName,['connection'=>ConnectionManager::get('fixture')]);
 
+        if(!is_null($this->joinTableName)) {
+            TableRegistry::remove($this->joinTableName);
+            $joinTable = TableRegistry::get($this->joinTableName, ['connection' => ConnectionManager::get('fixture')]);
+        }
+
+        // 3. Now build the query
         $query=new Query(ConnectionManager::get('fixture'),$table);
         $query->find('all');
         if(!is_null($this->order)) $query->order($this->order);
-
+        if(!is_null($this->joinTableName)) $query->leftJoin($this->joinTableName,'semesters.id = sections.semester_id');
+        $c=count($query);
+        // 4. Copy the records
         /* @var \Cake\ORM\Entity $record */
         foreach($query as $record) {
+            $n=$record->toArray();
             $this->records[]=$record->toArray();
         }
 
-        // Do this again to ensure that the table uses the 'test' connection.
+        // 5.Do this again to ensure that the table uses the 'test' connection.
         TableRegistry::remove($this->tableName);
         TableRegistry::get($this->tableName,['connection'=>ConnectionManager::get('test')]);
 
+        if(!is_null($this->joinTableName)) {
+            TableRegistry::remove($this->joinTableName);
+            TableRegistry::get($this->joinTableName, ['connection' => ConnectionManager::get('test')]);
+        }
     }
 }

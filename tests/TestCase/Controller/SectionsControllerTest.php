@@ -331,7 +331,8 @@ class SectionsControllerTest extends DMIntegrationTestCase {
             $cohort = $this->cohorts->get($fixtureRecord['cohort_id'],['contain' => ['Majors']]);
             $s1=$cohort->nickname;
             $s2=$htmlColumns[0]->plaintext;
-            //$this->assertEquals($cohort->nickname, $htmlColumns[0]->plaintext);
+            $s3=$this->tbody->outertext;
+            $this->assertEquals($cohort->nickname, $htmlColumns[0]->plaintext);
 
             // 7.1 subject. all info is available via fixture.
             $subject = $this->subjectsFixture->get($fixtureRecord['subject_id']);
@@ -342,7 +343,7 @@ class SectionsControllerTest extends DMIntegrationTestCase {
             $semester = $this->semesters->get($fixtureRecord['semester_id']);
             $s1=$semester->nickname;
             $s2=$htmlColumns[2]->plaintext;
-            //$this->assertEquals($semester->nickname, $htmlColumns[2]->plaintext);
+            $this->assertEquals($semester->nickname, $htmlColumns[2]->plaintext);
 
             // 7.3 tplan. all info is available via fixture.
             $tplan = $this->tplansFixture->get($fixtureRecord['tplan_id']);
