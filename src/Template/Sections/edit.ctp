@@ -27,6 +27,7 @@
             echo $this->Form->input('cohort_id', ['id'=>'SectionCohortId', 'options' => $cohorts, 'empty' => '(none selected)']);
             echo $this->Form->input('subject_id', ['id'=>'SectionSubjectId', 'options' => $subjects, 'empty' => '(none selected)']);
             echo $this->Form->input('semester_id', ['id'=>'SectionSemesterId', 'options' => $semesters, 'empty' => '(none selected)']);
+            echo $this->Form->input('seq',['id'=>'SectionSeq','type'=>'text']);
             echo $this->Form->input('tplan_id', ['id'=>'SectionTplanId', 'options' => $tplans, 'empty' => '(none selected)']);
             echo $this->Form->input('weekday',['id'=>'SectionWeekday']);
             echo $this->Form->input('start_time',['id'=>'SectionStartTime','type'=>'text']);

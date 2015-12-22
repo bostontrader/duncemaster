@@ -8,6 +8,7 @@ class SectionsFixture extends DMFixture {
     public $newSectionRecord = [
         'cohort_id'=>FixtureConstants::cohort2_id,
         'semester_id'=>FixtureConstants::semester2_id,
+        'seq'=>1,
         'subject_id'=>FixtureConstants::subject2_id,
         'tplan_id'=>FixtureConstants::tplan2_id,
         'weekday' => 'tue',
@@ -20,8 +21,6 @@ class SectionsFixture extends DMFixture {
         $this->joinTableName='Semesters';
 
         // Ensure that the ordering produced here matches the ordering in SectionsController->index.
-        // We don't really need to sort on Sections.id, but we need some method of ensuring that the sort produced
-        // here matches that from the controller. Reliance upon the default ordering is not reliable.
         $this->order=['Semesters.year','Sections.id'];
 
         parent::init(); // This is where the records are loaded.
