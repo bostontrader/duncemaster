@@ -1,9 +1,6 @@
 <?php
 namespace App\Test\Fixture;
 
-use Cake\Datasource\ConnectionManager;
-use Cake\ORM\TableRegistry;
-
 class ClazzesFixture extends DMFixture {
     public $import = ['table' => 'clazzes'];
 

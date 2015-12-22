@@ -329,9 +329,6 @@ class SectionsControllerTest extends DMIntegrationTestCase {
             // 7.0 cohort_nickname. read from Table because we need to compute
             // the 'nickname' virtual field.
             $cohort = $this->cohorts->get($fixtureRecord['cohort_id'],['contain' => ['Majors']]);
-            $s1=$cohort->nickname;
-            $s2=$htmlColumns[0]->plaintext;
-            $s3=$this->tbody->outertext;
             $this->assertEquals($cohort->nickname, $htmlColumns[0]->plaintext);
 
             // 7.1 subject. all info is available via fixture.
@@ -341,8 +338,6 @@ class SectionsControllerTest extends DMIntegrationTestCase {
             // 7.2 semester_nickname. read from Table because we need to compute
             // the 'nickname' virtual field.
             $semester = $this->semesters->get($fixtureRecord['semester_id']);
-            $s1=$semester->nickname;
-            $s2=$htmlColumns[2]->plaintext;
             $this->assertEquals($semester->nickname, $htmlColumns[2]->plaintext);
 
             // 7.3 tplan. all info is available via fixture.
@@ -380,20 +375,9 @@ class SectionsControllerTest extends DMIntegrationTestCase {
 
     public function testViewGET() {
 
-        /*// 1. Simulate login, submit request, examine response.
-        $this->fakeLogin(FixtureConstants::userAndyAdminId);
-        $fixtureRecord=$this->sectionsFixture->section1Record;
-        $section_id=$fixtureRecord['id'];
-        $this->get('/sections/view/' . $section_id);
-        $this->assertResponseOk(); // 2xx
-        $this->assertNoRedirect();
-
-        // 2. Parse the html from the response
-        $html = str_get_html($this->_response->body());*/
-
         // 1. Obtain a record to view, login, GET the url, parse the response and send it back.
-        $record2View=$this->subjectsFixture->records[0];
-        $url='/subjects/view/' . $record2View['id'];
+        $record2View=$this->sectionsFixture->records[0];
+        $url='/sections/view/' . $record2View['id'];
         $html=$this->loginRequestResponse(FixtureConstants::userAndyAdminId,$url);
 
         // 2. Get a the count of all <A> tags that are presently unaccounted for.
@@ -429,7 +413,8 @@ class SectionsControllerTest extends DMIntegrationTestCase {
 
         // 4.3 semester requires finding the nickname, which is computed by the Semester Entity.
         $field = $html->find('tr#semester td',0);
-        $semester = $this->semesters->get($record2View['id']);
+        $semester_id = $record2View['semester_id'];
+        $semester = $this->semesters->get($semester_id);
         $this->assertEquals($semester->nickname, $field->plaintext);
         $unknownRowCnt--;
 
@@ -466,5 +451,4 @@ class SectionsControllerTest extends DMIntegrationTestCase {
         // 6. Ensure that all the <A> tags have been accounted for
         $this->assertEquals(0, $unknownATag);
     }
-
 }

@@ -57,10 +57,14 @@ class SectionsController extends AppController {
 
     public function index() {
         $this->request->allowMethod(['get']);
+
+        // Ensure that the ordering produced here matches the ordering in SectionsFixture.
+        // We don't really need to sort on Sections.id, but we need some method of ensuring that the sort produced
+        // here matches that from the fixture. Reliance upon the default ordering is not reliable.
         $this->set(
             'sections', $this->Sections->find(
                 'all',
-                ['contain' => ['Cohorts.Majors','Semesters','Subjects','Tplans'],'order'=>'Semesters.year']
+                ['contain' => ['Cohorts.Majors','Semesters','Subjects','Tplans'],'order'=>['Semesters.year','Sections.id']]
             )
         );
     }
