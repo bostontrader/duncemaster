@@ -18,6 +18,8 @@ class CohortsControllerTest extends DMIntegrationTestCase {
 
     /* @var \App\Model\Table\CohortsTable */
     private $cohorts;
+
+    /* @var \App\Test\Fixture\CohortsFixture */
     private $cohortsFixture;
 
     /* @var \App\Model\Table\MajorsTable */
@@ -48,102 +50,84 @@ class CohortsControllerTest extends DMIntegrationTestCase {
 
     public function testAddGET() {
 
-        // 1. Simulate login, submit request, examine response.
-        $this->fakeLogin(FixtureConstants::userAndyAdminId);
-        $this->get('/cohorts/add');
-        $this->assertResponseOk(); // 2xx
-        $this->assertNoRedirect();
+        // 1. Login, GET the url, parse the response and send it back.
+        $html=$this->loginRequestResponse(FixtureConstants::userAndyAdminId,'/cohorts/add');
 
-        // 2. Parse the html from the response
-        $html = str_get_html($this->_response->body());
+        // 2. Ensure that the correct form exists
+        /* @var \simple_html_dom_node $form */
+        $form = $html->find('form#CohortAddForm',0);
+        $this->assertNotNull($form);
 
-        // 3. Ensure that the correct form exists
-        $this->form = $html->find('form#CohortAddForm',0);
-        $this->assertNotNull($this->form);
-
-        // 4. Now inspect the fields on the form.  We want to know that:
+        // 3. Now inspect the fields on the form.  We want to know that:
         // A. The correct fields are there and no other fields.
         // B. The fields have correct values. This includes verifying that select
         //    lists contain options.
         //
         //  The actual order that the fields are listed on the form is hereby deemed unimportant.
 
-        // 4.1 These are counts of the select and input fields on the form.  They
+        // 3.1 These are counts of the select and input fields on the form.  They
         // are presently unaccounted for.
-        $unknownSelectCnt = count($this->form->find('select'));
-        $unknownInputCnt = count($this->form->find('input'));
+        $unknownSelectCnt = count($form->find('select'));
+        $unknownInputCnt = count($form->find('input'));
 
-        // 4.2 Look for the hidden POST input
-        if($this->lookForHiddenInput($this->form)) $unknownInputCnt--;
+        // 3.2 Look for the hidden POST input
+        if($this->lookForHiddenInput($form)) $unknownInputCnt--;
 
-        // 4.3 Ensure that there's an input field for start_year, of type text, and that it is empty
-        if($this->inputCheckerA($this->form,'input#CohortStartYear')) $unknownInputCnt--;
+        // 3.3 Ensure that there's an input field for start_year, of type text, and that it is empty
+        if($this->inputCheckerA($form,'input#CohortStartYear')) $unknownInputCnt--;
 
-        // 4.4 Ensure that there's an input field for seq, of type text, and that it is empty
-        if($this->inputCheckerA($this->form,'input#CohortSeq')) $unknownInputCnt--;
+        // 3.4 Ensure that there's an input field for seq, of type text, and that it is empty
+        if($this->inputCheckerA($form,'input#CohortSeq')) $unknownInputCnt--;
 
-        // 4.5 Ensure that there's a select field for major_id, that it has no selection,
+        // 3.5 Ensure that there's a select field for major_id, that it has no selection,
         // and that it has the correct quantity of available choices.
-        if($this->selectCheckerA($this->form, 'CohortMajorId', 'majors')) $unknownSelectCnt--;
+        if($this->selectCheckerA($form, 'CohortMajorId', 'majors')) $unknownSelectCnt--;
 
-        // 4.9 Have all the input and select fields been accounted for?  Are there
-        // any extras?
-        $this->assertEquals(0, $unknownInputCnt);
-        $this->assertEquals(0, $unknownSelectCnt);
-
-        // 5. Examine the <A> tags on this page.  There should be zero links.
-        $this->content = $html->find('div#CohortsAdd',0);
-        $this->assertNotNull($this->content);
-        $links = $this->content->find('a');
-        $this->assertEquals(0,count($links));
+        // 4. Have all the input, select, and Atags been accounted for?
+        $this->expectedInputsSelectsAtagsFound($unknownInputCnt, $unknownSelectCnt, $html, 'div#CohortsAdd');
     }
 
     public function testAddPOST() {
 
-        $this->fakeLogin(FixtureConstants::userAndyAdminId);
-        $this->post('/cohorts/add', $this->cohortsFixture->newCohortRecord);
-        $this->assertResponseSuccess(); // 2xx,3xx
-        $this->assertRedirect( '/cohorts' );
+        // 1. Login, POST a suitable record to the url, redirect, and return the record just
+        // posted, as read from the db.
+        $fixtureRecord=$this->cohortsFixture->newCohortRecord;
+        $fromDbRecord=$this->genericAddPostProlog(
+            FixtureConstants::userAndyAdminId,
+            '/cohorts/add', $fixtureRecord,
+            '/cohorts', $this->cohorts
+        );
 
-        // Now verify what we think just got written
-        $new_id = count($this->cohortsFixture->records) + 1;
-        $query = $this->cohorts->find()->where(['id' => $new_id]);
-        $this->assertEquals(1, $query->count());
-
-        // Now retrieve that 1 record and compare to what we expect
-        $new_cohort = $this->cohorts->get($new_id);
-        $this->assertEquals($new_cohort['start_year'],$this->cohortsFixture->newCohortRecord['start_year']);
-        $this->assertEquals($new_cohort['seq'],$this->cohortsFixture->newCohortRecord['seq']);
-        $this->assertEquals($new_cohort['major_id'],$this->cohortsFixture->newCohortRecord['major_id']);
+        // 2. Now validate that record.
+        $this->assertEquals($fromDbRecord['start_year'],$fixtureRecord['start_year']);
+        $this->assertEquals($fromDbRecord['seq'],$fixtureRecord['seq']);
+        $this->assertEquals($fromDbRecord['major_id'],$fixtureRecord['major_id']);
     }
 
     public function testDeletePOST() {
 
-        $this->fakeLogin(FixtureConstants::userAndyAdminId);
-        $cohort_id = $this->cohortsFixture->cohort1Record['id'];
-        $this->post('/cohorts/delete/' . $cohort_id);
-        $this->assertResponseSuccess(); // 2xx, 3xx
-        $this->assertRedirect( '/cohorts' );
-
-        // Now verify that the record no longer exists
-        $query = $this->cohorts->find()->where(['id' => $cohort_id]);
-        $this->assertEquals(0, $query->count());
+        $cohort_id = $this->cohortsFixture->records[0]['id'];
+        $this->deletePOST(
+            FixtureConstants::userAndyAdminId, '/cohorts/delete/',
+            $cohort_id, '/cohorts', $this->cohorts
+        );
     }
 
     public function testEditGET() {
 
-        // 1. Simulate login, submit request, examine response.
-        $this->fakeLogin(FixtureConstants::userAndyAdminId);
-        $this->get('/cohorts/edit/' . $this->cohortsFixture->cohort1Record['id']);
-        $this->assertResponseOk(); // 2xx
-        $this->assertNoRedirect();
+        // 1. Obtain a record to edit, login, GET the url, parse the response and send it back.
+        $record2Edit=$this->cohortsFixture->records[0];
+        $url='/cohorts/edit/' . $record2Edit['id'];
+        $html=$this->loginRequestResponse(FixtureConstants::userAndyAdminId,$url);
 
-        // 2. Parse the html from the response
-        $html = str_get_html($this->_response->body());
+        // 2. Ensure that the correct form exists
+        /* @var \simple_html_dom_node $form */
+        $form = $html->find('form#CohortEditForm',0);
+        $this->assertNotNull($form);
 
         // 3. Ensure that the correct form exists
-        $this->form = $html->find('form#CohortEditForm',0);
-        $this->assertNotNull($this->form);
+        $form = $html->find('form#CohortEditForm',0);
+        $this->assertNotNull($form);
 
         // 4. Now inspect the fields on the form.  We want to know that:
         // A. The correct fields are there and no other fields.
@@ -154,90 +138,71 @@ class CohortsControllerTest extends DMIntegrationTestCase {
 
         // 4.1 These are counts of the select and input fields on the form.  They
         // are presently unaccounted for.
-        $unknownSelectCnt = count($this->form->find('select'));
-        $unknownInputCnt = count($this->form->find('input'));
+        $unknownSelectCnt = count($form->find('select'));
+        $unknownInputCnt = count($form->find('input'));
 
         // 4.2 Look for the hidden POST input
-        if($this->lookForHiddenInput($this->form,'_method','PUT')) $unknownInputCnt--;
+        if($this->lookForHiddenInput($form,'_method','PUT')) $unknownInputCnt--;
 
         // 4.3 Ensure that there's an input field for start_year, of type text, and that it is correctly set
-        if($this->inputCheckerA($this->form,'input#CohortStartYear',
-            $this->cohortsFixture->cohort1Record['start_year'])) $unknownInputCnt--;
+        if($this->inputCheckerA($form,'input#CohortStartYear',
+            $record2Edit['start_year'])) $unknownInputCnt--;
 
         // 4.4 Ensure that there's an input field for seq, of type text, and that it is correctly set
-        if($this->inputCheckerA($this->form,'input#CohortSeq',
-            $this->cohortsFixture->cohort1Record['seq'])) $unknownInputCnt--;
+        if($this->inputCheckerA($form,'input#CohortSeq',
+            $record2Edit['seq'])) $unknownInputCnt--;
 
         // 4.5 Ensure that there's a select field for major_id and that it is correctly set
-        $option = $this->form->find('select#CohortMajorId option[selected]',0);
-        $major_id = $this->cohortsFixture->cohort1Record['major_id'];
-        $this->assertEquals($option->value, $major_id);
-
-        // Even though major_id is correct, we don't display major_id.  Instead we display the title
-        // from the related Majors table. Verify that title is displayed correctly.
+        // $major_id / $major['title'], from fixture
+        $major_id=$record2Edit['major_id'];
         $major = $this->majorsFixture->get($major_id);
-        $this->assertEquals($major['title'], $option->plaintext);
-        $unknownSelectCnt--;
+        if($this->inputCheckerB($form,'select#CohortMajorId option[selected]',$major_id,$major['title']))
+            $unknownSelectCnt--;
 
-        // 4.9 Have all the input and select fields been accounted for?  Are there
-        // any extras?
-        $this->assertEquals(0, $unknownInputCnt);
-        $this->assertEquals(0, $unknownSelectCnt);
 
-        // 5. Examine the <A> tags on this page.  There should be zero links.
-        $this->content = $html->find('div#CohortsEdit',0);
-        $this->assertNotNull($this->content);
-        $links = $this->content->find('a');
-        $this->assertEquals(0,count($links));
+        // 4. Have all the input, select, and Atags been accounted for?
+        $this->expectedInputsSelectsAtagsFound($unknownInputCnt, $unknownSelectCnt, $html, 'div#CohortsEdit');
     }
 
     public function testEditPOST() {
 
-        $this->fakeLogin(FixtureConstants::userAndyAdminId);
-        $cohort_id = $this->cohortsFixture->cohort1Record['id'];
-        $this->put('/cohorts/edit/' . $cohort_id, $this->cohortsFixture->newCohortRecord);
-        $this->assertResponseSuccess(); // 2xx, 3xx
-        $this->assertRedirect('/cohorts');
+        // 1. Login, POST a suitable record to the url, redirect, and return the record just
+        // posted, as read from the db.
+        $fixtureRecord=$this->cohortsFixture->newCohortRecord;
+        $fromDbRecord=$this->genericEditPutProlog(
+            FixtureConstants::userAndyAdminId,
+            '/cohorts/edit', $fixtureRecord,
+            '/cohorts', $this->cohorts
+        );
 
-        // Now verify what we think just got written
-        $query = $this->cohorts->find()->where(['id' => $cohort_id]);
-        $this->assertEquals(1, $query->count());
-
-        // Now retrieve that 1 record and compare to what we expect
-        $cohort = $this->cohorts->get($cohort_id);
-        $this->assertEquals($cohort['start_year'],$this->cohortsFixture->newCohortRecord['start_year']);
-        $this->assertEquals($cohort['seq'],$this->cohortsFixture->newCohortRecord['seq']);
-        $this->assertEquals($cohort['major_id'],$this->cohortsFixture->newCohortRecord['major_id']);
+        // 2. Now validate that record.
+        $this->assertEquals($fromDbRecord['start_year'],$fixtureRecord['start_year']);
+        $this->assertEquals($fromDbRecord['seq'],$fixtureRecord['seq']);
+        $this->assertEquals($fromDbRecord['major_id'],$fixtureRecord['major_id']);
     }
 
     public function testIndexGET() {
 
-        // 1. Simulate login, submit request, examine response.
-        $this->fakeLogin(FixtureConstants::userAndyAdminId);
-        $this->get('/cohorts/index');
-        $this->assertResponseOk(); // 2xx
-        $this->assertNoRedirect();
+        // 1. Login, GET the url, parse the response and send it back.
+        $html=$this->loginRequestResponse(FixtureConstants::userAndyAdminId,'/cohorts/index');
 
-        // 2. Parse the html from the response
-        $html = str_get_html($this->_response->body());
-
-        // 3. Get a the count of all <A> tags that are presently unaccounted for.
+        // 2. Get a the count of all <A> tags that are presently unaccounted for.
         $this->content = $html->find('div#CohortsIndex',0);
         $this->assertNotNull($this->content);
         $unknownATag = count($this->content->find('a'));
 
-        // 4. Look for the create new cohort link
+        // 3. Look for the create new cohort link
         $this->assertEquals(1, count($html->find('a#CohortAdd')));
         $unknownATag--;
 
-        // 5. Ensure that there is a suitably named table to display the results.
-        $cohorts_table = $html->find('table#CohortsTable',0);
-        $this->assertNotNull($cohorts_table);
+        // 4. Ensure that there is a suitably named table to display the results.
+        $this->table = $html->find('table#CohortsTable',0);
+        $this->assertNotNull($this->table);
 
-        // 6. Ensure that said table's thead element contains the correct
+        // 5. Ensure that said table's thead element contains the correct
         //    headings, in the correct order, and nothing else.
-        $thead = $cohorts_table->find('thead',0);
-        $thead_ths = $thead->find('tr th');
+        $this->thead = $this->table->find('thead',0);
+        $thead_ths = $this->thead->find('tr th');
 
         $this->assertEquals($thead_ths[0]->id, 'start_year');
         $this->assertEquals($thead_ths[1]->id, 'major');
@@ -247,13 +212,13 @@ class CohortsControllerTest extends DMIntegrationTestCase {
         $column_count = count($thead_ths);
         $this->assertEquals($column_count,5); // no other columns
 
-        // 7. Ensure that the tbody section has the same
+        // 6. Ensure that the tbody section has the same
         //    quantity of rows as the count of cohort records in the fixture.
-        $tbody = $cohorts_table->find('tbody',0);
-        $tbody_rows = $tbody->find('tr');
+        $this->tbody = $this->table->find('tbody',0);
+        $tbody_rows = $this->tbody->find('tr');
         $this->assertEquals(count($tbody_rows), count($this->cohortsFixture->records));
 
-        // 8. Ensure that the values displayed in each row, match the values from
+        // 7. Ensure that the values displayed in each row, match the values from
         //    the fixture.  The values should be presented in a particular order
         //    with nothing else thereafter. 
         $iterator = new \MultipleIterator();
@@ -262,26 +227,27 @@ class CohortsControllerTest extends DMIntegrationTestCase {
 
         foreach ($iterator as $values) {
             $fixtureRecord = $values[0];
-            $htmlRow = $values[1];
-            $htmlColumns = $htmlRow->find('td');
+            $this->htmlRow = $values[1];
+            $htmlColumns = $this->htmlRow->find('td');
 
-            // 8.0 start_year
+            // 7.0 start_year
             $this->assertEquals($fixtureRecord['start_year'],  $htmlColumns[0]->plaintext);
 
-            // 8.1 major_id requires finding the related value in the MajorsFixture
+            // 7.1 major_id requires finding the related value in the MajorsFixture
             $major_id = $fixtureRecord['major_id'];
             $major = $this->majorsFixture->get($major_id);
             $this->assertEquals($major['sdesc'], $htmlColumns[1]->plaintext);
 
-            // 8.2 seq
+            // 7.2 seq
             $this->assertEquals($fixtureRecord['seq'],  $htmlColumns[2]->plaintext);
 
-            // 8.3 nickname is computed by the Cohort Entity.
+            // 7.3 nickname is computed by the Cohort Entity.
             $cohort = $this->cohorts->get($fixtureRecord['id'], ['contain' => ['Majors']]);
             $this->assertEquals($cohort->nickname, $htmlColumns[3]->plaintext);
 
             // 8.4 Now examine the action links
-            $actionLinks = $htmlColumns[4]->find('a');
+            $this->td = $htmlColumns[4];
+            $actionLinks = $this->td->find('a');
             $this->assertEquals('CohortView', $actionLinks[0]->name);
             $unknownATag--;
             $this->assertEquals('CohortEdit', $actionLinks[1]->name);
@@ -299,58 +265,54 @@ class CohortsControllerTest extends DMIntegrationTestCase {
 
     public function testViewGET() {
 
-        $this->fakeLogin(FixtureConstants::userAndyAdminId);
-        $this->get('/cohorts/view/' . $this->cohortsFixture->cohort1Record['id']);
-        $this->assertResponseOk(); // 2xx
-        $this->assertNoRedirect();
+        // 1. Obtain a record to view, login, GET the url, parse the response and send it back.
+        $record2View=$this->cohortsFixture->records[0];
+        $url='/cohorts/view/' . $record2View['id'];
+        $html=$this->loginRequestResponse(FixtureConstants::userAndyAdminId,$url);
 
-        // Parse the html from the response
-        $html = str_get_html($this->_response->body());
+        // 2.  Look for the table that contains the view fields.
+        $this->table = $html->find('table#CohortViewTable',0);
+        $this->assertNotNull($this->table);
 
-        // 1.  Look for the table that contains the view fields.
-        $table = $html->find('table#CohortViewTable',0);
-        $this->assertNotNull($table);
-
-        // 2. Now inspect the fields on the form.  We want to know that:
+        // 3. Now inspect the fields on the form.  We want to know that:
         // A. The correct fields are there and no other fields.
         // B. The fields have correct values.
         //
         //  The actual order that the fields are listed is hereby deemed unimportant.
 
         // This is the count of the table rows that are presently unaccounted for.
-        $unknownRowCnt = count($table->find('tr'));
+        $unknownRowCnt = count($this->table->find('tr'));
 
-        // 2.1 start_year
+        // 3.1 start_year
         $field = $html->find('tr#start_year td',0);
-        $this->assertEquals($this->cohortsFixture->cohort1Record['start_year'], $field->plaintext);
+        $this->assertEquals($record2View['start_year'], $field->plaintext);
         $unknownRowCnt--;
 
-        // 2.2 major_id requires finding the related value in the MajorsFixture
+        // 3.2 major_id requires finding the related value in the MajorsFixture
         $field = $html->find('tr#major_title td',0);
-        $major_id = $this->cohortsFixture->cohort1Record['major_id'];
+        $major_id = $record2View['major_id'];
         $major = $this->majorsFixture->get($major_id);
         $this->assertEquals($major['title'], $field->plaintext);
         $unknownRowCnt--;
 
-        // 2.3 seq
+        // 3.3 seq
         $field = $html->find('tr#seq td',0);
-        $this->assertEquals($this->cohortsFixture->cohort1Record['seq'], $field->plaintext);
+        $this->assertEquals($record2View['seq'], $field->plaintext);
         $unknownRowCnt--;
 
-        // 2.4 nickname is computed by the Cohort Entity.
+        // 3.4 nickname is computed by the Cohort Entity.
         $field = $html->find('tr#nickname td',0);
-        $cohort = $this->cohorts->get($this->cohortsFixture->cohort1Record['id'], ['contain' => ['Majors']]);
+        $cohort = $this->cohorts->get($record2View['id'], ['contain' => ['Majors']]);
         $this->assertEquals($cohort->nickname, $field->plaintext);
         $unknownRowCnt--;
 
-        // Have all the rows been accounted for?  Are there any extras?
+        // 3.9 Have all the rows been accounted for?  Are there any extras?
         $this->assertEquals(0, $unknownRowCnt);
 
-        // 3. Examine the <A> tags on this page.  There should be zero links.
+        // 4. Examine the <A> tags on this page.  There should be zero links.
         $this->content = $html->find('div#CohortsView',0);
         $this->assertNotNull($this->content);
         $links = $this->content->find('a');
         $this->assertEquals(0,count($links));
     }
-
 }

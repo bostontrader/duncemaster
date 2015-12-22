@@ -127,7 +127,6 @@ class SubjectsControllerTest extends DMIntegrationTestCase {
 
         // 4. Have all the input, select, and Atags been accounted for?
         $this->expectedInputsSelectsAtagsFound($unknownInputCnt, $unknownSelectCnt, $html, 'div#SubjectsEdit');
-
     }
 
     public function testEditPOST() {
@@ -232,19 +231,18 @@ class SubjectsControllerTest extends DMIntegrationTestCase {
         // This is the count of the table rows that are presently unaccounted for.
         $unknownRowCnt = count($this->table->find('tr'));
 
-        // 2.1 title
+        // 3.1 title
         $field = $this->table->find('tr#title td',0);
         $this->assertEquals($record2View['title'], $field->plaintext);
         $unknownRowCnt--;
 
-        // 2.9 Have all the rows been accounted for?  Are there any extras?
+        // 3.9 Have all the rows been accounted for?  Are there any extras?
         $this->assertEquals(0, $unknownRowCnt);
 
-        // 3. Examine the <A> tags on this page.  There should be zero links.
+        // 4. Examine the <A> tags on this page.  There should be zero links.
         $this->content = $html->find('div#SubjectsView',0);
         $this->assertNotNull($this->content);
         $links = $this->content->find('a');
         $this->assertEquals(0,count($links));
     }
-
 }
