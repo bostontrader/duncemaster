@@ -1,7 +1,7 @@
 <?php
 /**
- * @var \App\Model\Entity\Tplan $teacher
- * @var \App\Model\Table\TplansTable $teachers
+ * @var \App\Model\Entity\Tplan $tplan
+ * @var \App\Model\Table\TplansTable $tplans
  */
 ?>
 <div id="TplansIndex">
