@@ -2,7 +2,6 @@
 namespace App\Controller;
 
 use Cake\Datasource\ConnectionManager;
-use Cake\ORM\TableRegistry;
 
 class InteractionsController extends AppController {
 
@@ -60,6 +59,7 @@ class InteractionsController extends AppController {
                 // Fuck it. Use a direct connection.
                 //
                 $clazz_id = $this->request->query['clazz_id'];
+                /* @var \Cake\Database\Connection $connection */
                 $connection = ConnectionManager::get('default');
                 $query = "select students.sid, students.giv_name, students.fam_name, cohorts.id, sections.id, clazzes.id
                     from students
@@ -76,9 +76,6 @@ class InteractionsController extends AppController {
             // no class_id specified
         }
 
-
-
-        $n=count($studentsResults);
         $this->set('studentsResults',$studentsResults);
 
         $this->set('interactions', $this->Interactions->find());
@@ -97,9 +94,9 @@ class InteractionsController extends AppController {
     }
 
     public function edit($id = null) {
-        $this->request->allowMethod(['get', 'post']);
+        $this->request->allowMethod(['get', 'put']);
         $interaction = $this->Interactions->get($id);
-        if ($this->request->is(['post'])) {
+        if ($this->request->is(['put'])) {
             $interaction = $this->Interactions->patchEntity($interaction, $this->request->data);
             if ($this->Interactions->save($interaction)) {
                 //$this->Flash->success(__('The interaction has been saved.'));

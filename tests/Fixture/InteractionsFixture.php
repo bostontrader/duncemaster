@@ -1,6 +1,8 @@
 <?php
 namespace App\Test\Fixture;
 
+use App\Controller\ItypesController;
+
 class InteractionsFixture extends DMFixture {
     public $import = ['table' => 'interactions'];
 
@@ -23,14 +25,14 @@ class InteractionsFixture extends DMFixture {
         'clazz_id'=>FixtureConstants::clazz4_id,
         'student_id'=>FixtureConstants::student4_id,
         'itype_id'=>ItypesController::ATTEND
-    ];
+    ];*/
 
     // This record will be added during the POST /add test.  We don't need or want to control the id here, so omit it.
     public $newInteractionRecord = [
-        'clazz_id'=>FixtureConstants::clazz3_id,
-        'student_id'=>FixtureConstants::student2_id,
+        'clazz_id'=>FixtureConstants::clazz1_id,
+        'student_id'=>FixtureConstants::student1_id,
         'itype_id'=>ItypesController::EJECT
-    ];*/
+    ];
 
     /*public function init() {
         $this->records = [
