@@ -18,6 +18,8 @@ class TplanElementsControllerTest extends DMIntegrationTestCase {
 
     /* @var \App\Model\Table\TplanElementsTable */
     private $tplan_elements;
+
+    /* @var \App\Test\Fixture\TplanElementsFixture */
     private $tplan_elementsFixture;
 
     /* @var \App\Test\Fixture\TplansFixture */
@@ -44,193 +46,151 @@ class TplanElementsControllerTest extends DMIntegrationTestCase {
 
     public function testAddGET() {
 
-        // 1. Simulate login, submit request, examine response.
-        $this->fakeLogin(FixtureConstants::userAndyAdminId);
-        $this->get('/tplan-elements/add');
-        $this->assertResponseOk(); // 2xx
-        $this->assertNoRedirect();
+        // 1. Login, GET the url, parse the response and send it back.
+        $html=$this->loginRequestResponse(FixtureConstants::userAndyAdminId,'/tplan_elements/add');
 
-        // 2. Parse the html from the response
-        $html = str_get_html($this->_response->body());
+        // 2. Ensure that the correct form exists
+        /* @var \simple_html_dom_node $form */
+        $form = $html->find('form#TplanElementAddForm',0);
+        $this->assertNotNull($form);
 
-        // 3. Ensure that the correct form exists
-        $this->form = $html->find('form#TplanElementAddForm',0);
-        $this->assertNotNull($this->form);
-
-        // 4. Now inspect the fields on the form.  We want to know that:
+        // 3. Now inspect the fields on the form.  We want to know that:
         // A. The correct fields are there and no other fields.
         // B. The fields have correct values. This includes verifying that select
         //    lists contain options.
         //
         //  The actual order that the fields are listed on the form is hereby deemed unimportant.
 
-        // 4.1 These are counts of the select and input fields on the form.  They
+        // 3.1 These are counts of the select and input fields on the form.  They
         // are presently unaccounted for.
-        $unknownSelectCnt = count($this->form->find('select'));
-        $unknownInputCnt = count($this->form->find('input'));
+        $unknownSelectCnt = count($form->find('select'));
+        $unknownInputCnt = count($form->find('input'));
 
-        // 4.2 Look for the hidden POST input
-        if($this->lookForHiddenInput($this->form)) $unknownInputCnt--;
+        // 3.2 Look for the hidden POST input
+        if($this->lookForHiddenInput($form)) $unknownInputCnt--;
 
-        // 4.5 Ensure that there's a select field for tplan_id, that it has no selection,
+        // 3.3 Ensure that there's a select field for tplan_id, that it has no selection,
         // and that it has the correct quantity of available choices.
-        if($this->selectCheckerA($this->form, 'TplanElementTplanId', 'tplans')) $unknownSelectCnt--;
+        if($this->selectCheckerA($form, 'TplanElementTplanId', 'tplans')) $unknownSelectCnt--;
 
-        // 4.3 Ensure that there's an input field for col1, of type text, and that it is empty
-        if($this->inputCheckerA($this->form,'input#TplanElementCol1')) $unknownInputCnt--;
+        // 3.4 Ensure that there's an input field for col1, of type text, and that it is empty
+        if($this->inputCheckerA($form,'input#TplanElementCol1')) $unknownInputCnt--;
 
-        // 4.4 Ensure that there's an input field for col2, of type text, and that it is empty
-        if($this->inputCheckerA($this->form,'input#TplanElementCol2')) $unknownInputCnt--;
+        // 3.5 Ensure that there's an input field for col2, of type text, and that it is empty
+        if($this->inputCheckerA($form,'input#TplanElementCol2')) $unknownInputCnt--;
 
-        // 4.9 Have all the input and select fields been accounted for?  Are there
-        // any extras?
-        $this->assertEquals(0, $unknownInputCnt);
-        $this->assertEquals(0, $unknownSelectCnt);
-
-        // 5. Examine the <A> tags on this page.  There should be zero links.
-        $this->content = $html->find('div#TplanElementsAdd',0);
-        $this->assertNotNull($this->content);
-        $links = $this->content->find('a');
-        $this->assertEquals(0,count($links));
+        // 4. Have all the input, select, and Atags been accounted for?
+        $this->expectedInputsSelectsAtagsFound($unknownInputCnt, $unknownSelectCnt, $html, 'div#TplanElementsAdd');
     }
 
     public function testAddPOST() {
 
-        $this->fakeLogin(FixtureConstants::userAndyAdminId);
-        $this->post('/tplan_elements/add', $this->tplan_elementsFixture->newTplanElementRecord);
-        $this->assertResponseSuccess(); // 2xx, 3xx
-        $this->assertRedirect( '/tplan-elements' );
+        // 1. Login, POST a suitable record to the url, redirect, and return the record just
+        // posted, as read from the db.
+        $fixtureRecord=$this->tplan_elementsFixture->newTplanElementRecord;
+        $fromDbRecord=$this->genericAddPostProlog(
+            FixtureConstants::userAndyAdminId,
+            '/tplan-elements/add', $fixtureRecord,
+            '/tplan-elements', $this->tplan_elements
+        );
 
-        // Now verify what we think just got written
-        $new_id = count($this->tplan_elementsFixture->records) + 1;
-        $query = $this->tplan_elements->find()->where(['id' => $new_id]);
-        $this->assertEquals(1, $query->count());
-
-        // Now retrieve that 1 record and compare to what we expect
-        $new_tplan_element = $this->tplan_elements->get($new_id);
-        $this->assertEquals($new_tplan_element['tplan_id'],$this->tplan_elementsFixture->newTplanElementRecord['tplan_id']);
-        $this->assertEquals($new_tplan_element['col1'],$this->tplan_elementsFixture->newTplanElementRecord['col1']);
-        $this->assertEquals($new_tplan_element['col2'],$this->tplan_elementsFixture->newTplanElementRecord['col2']);
+        // 2. Now validate that record.
+        $this->assertEquals($fromDbRecord['tplan_id'],$fixtureRecord['tplan_id']);
+        $this->assertEquals($fromDbRecord['col1'],$fixtureRecord['col1']);
+        $this->assertEquals($fromDbRecord['col2'],$fixtureRecord['col2']);
     }
 
     public function testDeletePOST() {
 
-        $this->fakeLogin(FixtureConstants::userAndyAdminId);
-        $tplan_element_id = $this->tplan_elementsFixture->tplan_element1Record['id'];
-        $this->post('/tplan-elements/delete/' . $tplan_element_id);
-        $this->assertResponseSuccess(); // 2xx, 3xx
-        $this->assertRedirect( '/tplan-elements' );
-
-        // Now verify that the record no longer exists
-        $query = $this->tplan_elements->find()->where(['id' => $tplan_element_id]);
-        $this->assertEquals(0, $query->count());
+        $tplan_element_id = $this->tplan_elementsFixture->records[0]['id'];
+        $this->deletePOST(
+            FixtureConstants::userAndyAdminId, '/tplan-elements/delete/',
+            $tplan_element_id, '/tplan-elements', $this->tplan_elements
+        );
     }
 
     public function testEditGET() {
 
-        // 1. Simulate login, submit request, examine response.
-        $this->fakeLogin(FixtureConstants::userAndyAdminId);
-        $this->get('/tplan-elements/edit/' . $this->tplan_elementsFixture->tplan_element1Record['id']);
-        $this->assertResponseOk(); // 2xx
-        $this->assertNoRedirect();
+        // 1. Obtain a record to edit, login, GET the url, parse the response and send it back.
+        $record2Edit=$this->tplan_elementsFixture->records[0];
+        $url='/tplan_elements/edit/' . $record2Edit['id'];
+        $html=$this->loginRequestResponse(FixtureConstants::userAndyAdminId,$url);
 
-        // 2. Parse the html from the response
-        $html = str_get_html($this->_response->body());
+        // 2. Ensure that the correct form exists
+        /* @var \simple_html_dom_node $form */
+        $form = $html->find('form#TplanElementEditForm',0);
+        $this->assertNotNull($form);
 
-        // 3. Ensure that the correct form exists
-        $this->form = $html->find('form#TplanElementEditForm',0);
-        $this->assertNotNull($this->form);
-
-        // 4. Now inspect the fields on the form.  We want to know that:
+        // 3. Now inspect the fields on the form.  We want to know that:
         // A. The correct fields are there and no other fields.
         // B. The fields have correct values. This includes verifying that select
         //    lists contain options.
         //
         //  The actual order that the fields are listed on the form is hereby deemed unimportant.
 
-        // 4.1 These are counts of the select and input fields on the form.  They
+        // 3.1 These are counts of the select and input fields on the form.  They
         // are presently unaccounted for.
-        $unknownSelectCnt = count($this->form->find('select'));
-        $unknownInputCnt = count($this->form->find('input'));
+        $unknownSelectCnt = count($form->find('select'));
+        $unknownInputCnt = count($form->find('input'));
 
-        // 4.2 Look for the hidden POST input
-        if($this->lookForHiddenInput($this->form,'_method','PUT')) $unknownInputCnt--;
+        // 3.2 Look for the hidden POST input
+        if($this->lookForHiddenInput($form,'_method','PUT')) $unknownInputCnt--;
 
-        // 4.3 Ensure that there's a select field for tplan_id and that it is correctly set
-        $option = $this->form->find('select#TplanElementTplanId option[selected]',0);
-        $tplan_id = $this->tplan_elementsFixture->tplan_element1Record['tplan_id'];
-        $this->assertEquals($option->value, $tplan_id);
-
-        // Even though tplan_id is correct, we don't display tplan_id.  Instead we display the title
-        // from the related Tplans table. Verify that title is displayed correctly.
+        // 3.3 Ensure that there's a select field for tplan_id and that it is correctly set
+        // $tplan_id / $tplan['title'], from fixture
+        $tplan_id=$record2Edit['tplan_id'];
         $tplan = $this->tplansFixture->get($tplan_id);
-        $this->assertEquals($tplan['title'], $option->plaintext);
-        $unknownSelectCnt--;
+        if($this->inputCheckerB($form,'select#TplanElementTplanId option[selected]',$tplan_id,$tplan['title']))
+            $unknownSelectCnt--;
+        
+        // 3.4 col1
+        if($this->inputCheckerA($form,'input#TplanElementCol1',
+            $record2Edit['col1'])) $unknownInputCnt--;
 
-        // 4.4 col1
-        if($this->inputCheckerA($this->form,'input#TplanElementCol1',
-            $this->tplan_elementsFixture->tplan_element1Record['col1'])) $unknownInputCnt--;
+        // 3.5 col2
+        if($this->inputCheckerA($form,'input#TplanElementCol2',
+            $record2Edit['col2'])) $unknownInputCnt--;
 
-        // 4.5 col2
-        if($this->inputCheckerA($this->form,'input#TplanElementCol2',
-            $this->tplan_elementsFixture->tplan_element1Record['col2'])) $unknownInputCnt--;
-
-        // 4.9 Have all the input and select fields been accounted for?  Are there
-        // any extras?
-        $this->assertEquals(0, $unknownInputCnt);
-        $this->assertEquals(0, $unknownSelectCnt);
-
-        // 5. Examine the <A> tags on this page.  There should be zero links.
-        $this->content = $html->find('div#TplanElementsEdit',0);
-        $this->assertNotNull($this->content);
-        $links = $this->content->find('a');
-        $this->assertEquals(0,count($links));
+        // 4. Have all the input, select, and Atags been accounted for?
+        $this->expectedInputsSelectsAtagsFound($unknownInputCnt, $unknownSelectCnt, $html, 'div#TplanElementsEdit');
     }
 
     public function testEditPOST() {
 
-        $this->fakeLogin(FixtureConstants::userAndyAdminId);
-        $tplan_element_id = $this->tplan_elementsFixture->tplan_element1Record['id'];
-        $this->put('/tplan_elements/edit/' . $tplan_element_id, $this->tplan_elementsFixture->newTplanElementRecord);
-        $this->assertResponseSuccess(); // 2xx, 3xx
-        $this->assertRedirect('/tplan-elements');
+        // 1. Login, POST a suitable record to the url, redirect, and return the record just
+        // posted, as read from the db.
+        $fixtureRecord=$this->tplan_elementsFixture->newTplanElementRecord;
+        $fromDbRecord=$this->genericEditPutProlog(
+            FixtureConstants::userAndyAdminId,
+            '/tplan-elements/edit', $fixtureRecord,
+            '/tplan-elements', $this->tplan_elements
+        );
 
-        // Now verify what we think just got written
-        $query = $this->tplan_elements->find()->where(['id' => $tplan_element_id]);
-        $this->assertEquals(1, $query->count());
-
-        // Now retrieve that 1 record and compare to what we expect
-        $tplan_element = $this->tplan_elements->get($tplan_element_id);
-        $this->assertEquals($tplan_element['tplan_id'],$this->tplan_elementsFixture->newTplanElementRecord['tplan_id']);
-        $this->assertEquals($tplan_element['col1'],$this->tplan_elementsFixture->newTplanElementRecord['col1']);
-        $this->assertEquals($tplan_element['col2'],$this->tplan_elementsFixture->newTplanElementRecord['col2']);
+        // 2. Now validate that record.
+        $this->assertEquals($fromDbRecord['tplan_id'],$fixtureRecord['tplan_id']);
+        $this->assertEquals($fromDbRecord['col1'],$fixtureRecord['col1']);
+        $this->assertEquals($fromDbRecord['col2'],$fixtureRecord['col2']);
     }
 
     public function testIndexGET() {
 
-        // 1. Simulate login, submit request, examine response.
-        $this->fakeLogin(FixtureConstants::userAndyAdminId);
-        $this->get('/tplan-elements/index');
-        $this->assertResponseOk(); // 2xx
-        $this->assertNoRedirect();
+        // 1. Login, GET the url, parse the response and send it back.
+        $html=$this->loginRequestResponse(FixtureConstants::userAndyAdminId,'/tplan_elements/index');
 
-        // 2. Parse the html from the response
-        $html = str_get_html($this->_response->body());
-
-        // 3. Get a the count of all <A> tags that are presently unaccounted for.
+        // 2. Get a the count of all <A> tags that are presently unaccounted for.
         $this->content = $html->find('div#TplanElementsIndex',0);
         $this->assertNotNull($this->content);
         $unknownATag = count($this->content->find('a'));
 
-        // 4. Look for the create new tplan_element link
+        // 3. Look for the create new tplan_element link
         $this->assertEquals(1, count($html->find('a#TplanElementAdd')));
         $unknownATag--;
 
-        // 5. Examine the table of TplanElements.
+        // 4. Examine the table of TplanElements.
         /* @var \simple_html_dom_node $html */
         $unknownATag-=$this->tstTplanElementsTable($html,$this->tplan_elementsFixture);
 
-        // 6. Ensure that all the <A> tags have been accounted for
+        // 5. Ensure that all the <A> tags have been accounted for
         $this->assertEquals(0, $unknownATag);
     }
 
@@ -302,21 +262,16 @@ class TplanElementsControllerTest extends DMIntegrationTestCase {
 
     public function testViewGET() {
 
-        // 1. Simulate login, submit request, examine response.
-        $this->fakeLogin(FixtureConstants::userAndyAdminId);
-        $fixtureRecord=$this->tplan_elementsFixture->tplan_element1Record;
-        $this->get('/tplan-elements/view/' . $fixtureRecord['id']);
-        $this->assertResponseOk(); // 2xx
-        $this->assertNoRedirect();
+        // 1. Obtain a record to view, login, GET the url, parse the response and send it back.
+        $record2View=$this->tplan_elementsFixture->records[0];
+        $url='/tplan-elements/view/' . $record2View['id'];
+        $html=$this->loginRequestResponse(FixtureConstants::userAndyAdminId,$url);
 
-        // 2. Parse the html from the response
-        $html = str_get_html($this->_response->body());
-
-        // 3.  Look for the table that contains the view fields.
+        // 2.  Look for the table that contains the view fields.
         $this->table = $html->find('table#TplanElementViewTable',0);
         $this->assertNotNull($this->table);
 
-        // 4. Now inspect the fields in the table.  We want to know that:
+        // 3. Now inspect the fields in the table.  We want to know that:
         // A. The correct fields are there and no other fields.
         // B. The fields have correct values.
         //
@@ -325,27 +280,27 @@ class TplanElementsControllerTest extends DMIntegrationTestCase {
         // This is the count of the table rows that are presently unaccounted for.
         $unknownRowCnt = count($this->table->find('tr'));
 
-        // 2.1 tplan_id requires finding the related value in the TplansFixture
+        // 3.1 tplan_id requires finding the related value in the TplansFixture
         $field = $html->find('tr#tplan_title td',0);
-        $tplan_id = $fixtureRecord['tplan_id'];
+        $tplan_id = $record2View['tplan_id'];
         $tplan = $this->tplansFixture->get($tplan_id);
         $this->assertEquals($tplan['title'], $field->plaintext);
         $unknownRowCnt--;
 
-        // 2.2 col1
+        // 3.2 col1
         $field = $html->find('tr#col1 td',0);
-        $this->assertEquals($fixtureRecord['col1'], $field->plaintext);
+        $this->assertEquals($record2View['col1'], $field->plaintext);
         $unknownRowCnt--;
 
-        // 2.3 col2
+        // 3.3 col2
         $field = $html->find('tr#col2 td',0);
-        $this->assertEquals($fixtureRecord['col2'], $field->plaintext);
+        $this->assertEquals($record2View['col2'], $field->plaintext);
         $unknownRowCnt--;
 
-        // 2.9 Have all the rows been accounted for?  Are there any extras?
+        // 3.9 Have all the rows been accounted for?  Are there any extras?
         $this->assertEquals(0, $unknownRowCnt);
 
-        // 3. Examine the <A> tags on this page.  There should be zero links.
+        // 4. Examine the <A> tags on this page.  There should be zero links.
         $this->content = $html->find('div#TplanElementsView',0);
         $this->assertNotNull($this->content);
         $links = $this->content->find('a');
