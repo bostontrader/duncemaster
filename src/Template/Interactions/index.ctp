@@ -23,7 +23,7 @@
             </tr>
             </thead>
             <tbody>
-            <?php $c=count($interactions); foreach ($interactions as $interaction): ?>
+            <?php foreach ($interactions as $interaction): ?>
                 <tr>
                     <td><?= $interaction->clazz->nickname ?></td>
                     <td><?= $interaction->student->fullname ?></td>
