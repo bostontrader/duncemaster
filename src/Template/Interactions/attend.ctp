@@ -1,6 +1,7 @@
 <?php
 /**
-
+ * @var array $student
+ * @var array $studentsResults
  */
 ?>
 <div id="InteractionsAttend">

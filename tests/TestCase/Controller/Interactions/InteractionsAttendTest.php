@@ -141,22 +141,14 @@ class InteractionsAttendTest extends DMIntegrationTestCase {
         $this->tbody_rows = $this->tbody->find('tr');
         //if(!is_null($clazz_id))
             //$this->interactionsFixture->filterByClazzId($clazz_id);
-
+        /* @var \Cake\Database\Connection $connection */
         $connection = ConnectionManager::get('default');
-        $query = "select students.sid, students.giv_name, students.fam_name, students.phonetic_name, cohorts.id, sections.id, clazzes.id
+        $query = "select students.sid, students.id as student_id, students.giv_name, students.fam_name, students.phonetic_name, cohorts.id, sections.id, clazzes.id
             from students
             left join cohorts on students.cohort_id = cohorts.id
             left join sections on sections.cohort_id = cohorts.id
             left join clazzes on clazzes.section_id = sections.id
             where clazzes.id=" . $clazz_id;
-
-        /* select students.sid, students.giv_name, students.fam_name, cohorts.id as cohorts_id, sections.id as sections_id, clazzes.id as clazzes_id, interactions.id as interactions_id, interactions.itype_id
-            from students
-            left join cohorts on students.cohort_id = cohorts.id
-            left join sections on sections.cohort_id = cohorts.id
-            left join clazzes on clazzes.section_id = sections.id
-			left join interactions on interactions.clazz_id=clazzes.id
-            where clazzes.id=1 and interactions.itype_id=1*/
 
         $studentsResults = $connection->execute($query)->fetchAll('assoc');
         $s1=count($this->tbody_rows);
@@ -188,9 +180,14 @@ class InteractionsAttendTest extends DMIntegrationTestCase {
             $this->assertEquals($attendanceRecord['phonetic_name'], $htmlColumns[3]->plaintext);
 
             // 7.4 attend.
-            $name='attend['.$attendanceRecord['id'].']'; // name of hidden field
-            $id='attend-'.$attendanceRecord['id'];
-            $input=$htmlColumns[4]->find('input[id='.$id.']')[0];
+            //$name='attend['.$attendanceRecord['id'].']'; // name of hidden field
+            $student_id='attend-'.$attendanceRecord['student_id'];
+
+            /* @var \simple_html_dom_node $td */
+            $td=$htmlColumns[4];
+
+            /* @var \simple_html_dom_node $input */
+            $input=$td->find('input[id='.$student_id.']')[0];
             $this->assertNotNull($input);
 
             $checked=$input->find('input[checked=checked]');

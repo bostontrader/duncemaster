@@ -42,33 +42,32 @@ class InteractionsController extends AppController {
                 foreach($this->request->data['attend'] as $student_id=>$value) {
 
                     // How many existing ATTEND record are there for this student in this class?
-                    /* @var \Cake\Database\Query $query */
+                    /* @var \Cake\ORM\Query $query */
                     $query = $this->Interactions->find('all')
                         ->where(['student_id'=>$student_id])
                         ->where(['clazz_id'=>$clazz_id])
                         ->where(['itype_id'=>ItypesController::ATTEND]);
-                    //$query->execute();
 
-                    $c=$query->count();
-                    switch($c) {
+                    switch($query->count()) {
                         case 0:
                             // There are no existing attendance records for this student
-                            // In this class.
-                            // If value is set then create new record {
+                            // in this class.
+                            // If value is true then create a new record
                             if($value==1) {
                                 $newInteraction = $this->Interactions->newEntity();
                                 $newInteraction = $this->Interactions->patchEntity($newInteraction, [
                                     'student_id'=>$student_id,'clazz_id'=>$clazz_id,'itype_id'=>ItypesController::ATTEND
                                 ]);
 
-                                $result=$this->Interactions->save($newInteraction);
+                                $this->Interactions->save($newInteraction);
                             } // else do nothing
                             break;
                         case 1:
                             // There is an existing record.
-                            // if value is true, then we're happy, do nothing
+                            // If value is true, then we're happy, do nothing
                             // else delete the attendance record
                             if($value==1) {
+                                // Don't worry... be happy
                             } else {
                                 $interaction=$query->first();
                                 $this->Interactions->delete($interaction);
@@ -100,12 +99,12 @@ class InteractionsController extends AppController {
                 left join cohorts on students.cohort_id = cohorts.id
                 left join sections on sections.cohort_id = cohorts.id
                 left join clazzes on clazzes.section_id = sections.id
-                left join interactions on interactions.clazz_id=clazzes.id and interactions.student_id=students.id and interactions.itype_id=ItypesController::ATTEND
-                where clazzes.id=".$clazz_id ;
+                left join interactions on interactions.clazz_id=clazzes.id and interactions.student_id=students.id and interactions.itype_id=".ItypesController::ATTEND." where clazzes.id=".$clazz_id ;
 
             $studentsResults = $connection->execute($query)->fetchAll('assoc');
         } else {
             // no class_id specified
+            $studentsResults=[];
         }
 
         $this->set('studentsResults',$studentsResults);
