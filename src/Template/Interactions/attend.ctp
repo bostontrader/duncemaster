@@ -21,11 +21,11 @@
             <tbody>
                 <?php foreach ($studentsResults as $student): ?>
                     <tr>
-                    <td><?= $student['sid'] ?></td>
-                    <td><?= $student['fam_name'] ?></td>
-                    <td><?= $student['giv_name'] ?></td>
-                    <td><?= $student['phonetic_name'] ?></td>
-                    <td><?= $this->Form->input('attend.'.$student['student_id'],['type'=>'checkbox']); ?></td>
+                        <td><?= $student['sid'] ?></td>
+                        <td><?= $student['fam_name'] ?></td>
+                        <td><?= $student['giv_name'] ?></td>
+                        <td><?= $student['phonetic_name'] ?></td>
+                        <td><?= $this->Form->input('attend.' . $student['student_id'], ['type' => 'checkbox', 'checked' => $student['itype_id']]); ?></td>
                     </tr>
                 <?php endforeach; ?>
                 <?= $this->Form->button(__('Submit')) ?>

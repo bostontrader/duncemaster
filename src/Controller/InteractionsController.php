@@ -33,63 +33,82 @@ class InteractionsController extends AppController {
 
         $this->request->allowMethod(['get', 'post']);
 
+        // Must have a clazz_id request parameter
         if(array_key_exists('clazz_id', $this->request->query)) {
             $clazz_id = $this->request->query['clazz_id'];
 
-
             if ($this->request->is(['post'])) {
 
-                //$keys=array_keys($this->request->data);
                 foreach($this->request->data['attend'] as $student_id=>$value) {
-                    // make new interaction for this student and this class
-                    // Is there an existing ATTEND record for this student in this class?
-                    // If so, {
-                    //} else {
-                        // if value=1, make new record {
-                        // } else do nothing
-                    // }
+
+                    // How many existing ATTEND record are there for this student in this class?
+                    /* @var \Cake\Database\Query $query */
+                    $query = $this->Interactions->find('all')
+                        ->where(['student_id'=>$student_id])
+                        ->where(['clazz_id'=>$clazz_id])
+                        ->where(['itype_id'=>ItypesController::ATTEND]);
+                    //$query->execute();
+
+                    $c=$query->count();
+                    switch($c) {
+                        case 0:
+                            // There are no existing attendance records for this student
+                            // In this class.
+                            // If value is set then create new record {
+                            if($value==1) {
+                                $newInteraction = $this->Interactions->newEntity();
+                                $newInteraction = $this->Interactions->patchEntity($newInteraction, [
+                                    'student_id'=>$student_id,'clazz_id'=>$clazz_id,'itype_id'=>ItypesController::ATTEND
+                                ]);
+
+                                $result=$this->Interactions->save($newInteraction);
+                            } // else do nothing
+                            break;
+                        case 1:
+                            // There is an existing record.
+                            // if value is true, then we're happy, do nothing
+                            // else delete the attendance record
+                            if($value==1) {
+                            } else {
+                                $interaction=$query->first();
+                                $this->Interactions->delete($interaction);
+                            }
+                            break;
+                        default:
+                            // Max fubar error. Jettison the warp core and run!
+                    }
+
                 }
 
-                //$interaction = $this->Interactions->patchEntity($interaction, $this->request->data);
-                //if ($this->Interactions->save($interaction)) {
-                //$this->Flash->success(__('The interaction has been saved.'));
-                //return $this->redirect(['action' => 'index']);
-                //} else {
-                //$this->Flash->error(__('The interaction could not be saved. Please, try again.'));
-                //}
-            } else {
-
-                // The attendance form is fairly complicated. Listen closely...
-                //
-                // 1. Given a clazz_id, who are the students? This can be found by tracing through
-                // clazzes, sections, cohorts, and thence to students.
-                //
-                // 2. Left join this to any interactions for this class, with Itype=Attend,
-                // so we know who's already marked as present.
-                //
-                // I spent way too much time futily trying to get this to work using the ORM.
-                // Fuck it. Use a direct connection.
-                //
-                //$clazz_id = $this->request->query['clazz_id'];
-                /* @var \Cake\Database\Connection $connection */
-                $connection = ConnectionManager::get('default');
-                $query = "select students.id as student_id, students.sid, students.giv_name, students.fam_name, students.phonetic_name, cohorts.id as cohort_id, sections.id as section_id, clazzes.id as clazz_id
-                    from students
-                    left join cohorts on students.cohort_id = cohorts.id
-                    left join sections on sections.cohort_id = cohorts.id
-                    left join clazzes on clazzes.section_id = sections.id
-                    left join interactions on interactions.clazz_id=clazzes.id
-                    where clazzes.id=".$clazz_id ;
-
-                $studentsResults = $connection->execute($query)->fetchAll('assoc');
             }
 
+            // The attendance form is fairly complicated. Listen closely...
+            //
+            // 1. Given a clazz_id, who are the students? This can be found by tracing through
+            // clazzes, sections, cohorts, and thence to students.
+            //
+            // 2. Left join this to any interactions for this class, with Itype=Attend,
+            // so we know who's already marked as present.
+            //
+            // I spent way too much time futily trying to get this to work using the ORM.
+            // Fuck it. Use a direct connection.
+            //
+            /* @var \Cake\Database\Connection $connection */
+            $connection = ConnectionManager::get('default');
+            $query = "select students.id as student_id, students.sid, students.giv_name, students.fam_name, students.phonetic_name, interactions.itype_id, cohorts.id as cohort_id, sections.id as section_id, clazzes.id as clazz_id
+                from students
+                left join cohorts on students.cohort_id = cohorts.id
+                left join sections on sections.cohort_id = cohorts.id
+                left join clazzes on clazzes.section_id = sections.id
+                left join interactions on interactions.clazz_id=clazzes.id and interactions.student_id=students.id and interactions.itype_id=ItypesController::ATTEND
+                where clazzes.id=".$clazz_id ;
+
+            $studentsResults = $connection->execute($query)->fetchAll('assoc');
         } else {
             // no class_id specified
         }
 
         $this->set('studentsResults',$studentsResults);
-        $this->set('interactions', $this->Interactions->find());
     }
 
     public function delete($id = null) {

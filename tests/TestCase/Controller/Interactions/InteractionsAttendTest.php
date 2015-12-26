@@ -207,7 +207,22 @@ class InteractionsAttendTest extends DMIntegrationTestCase {
         $this->assertEquals(0, $unknownATag);
     }
 
+    // Start with a class that has a known existing set of attendance records.
     public function testAttendPOST() {
+
+        // Build a suitable array of data to POST
+        // 1. Not marked here, the post data not here
+        // 2. Not marked here, the post data says here
+        // 3. Marked here, post data say not here
+        // 4. Marked here, post data says here.
+        // Login
+
+        // Post
+
+        // Now read the updated records and validate.
+
+        //
+        // Original....
         // 1. Login, POST a suitable record to the url, redirect, and return the record just
         // posted, as read from the db.
         //$fixtureRecord=$this->interactionsFixture->newInteractionRecord;
@@ -221,5 +236,24 @@ class InteractionsAttendTest extends DMIntegrationTestCase {
         //$this->assertEquals($fromDbRecord['clazz_id'], $fixtureRecord['clazz_id']);
         //$this->assertEquals($fromDbRecord['student_id'], $fixtureRecord['student_id']);
         //$this->assertEquals($fromDbRecord['itype_id'], $fixtureRecord['itype_id']);
+
+        // From DMIntegration test...
+        //$connection = ConnectionManager::get('test');
+        //$query=new Query($connection,$table);
+
+        // Retrieve the record with the lowest id.
+        //$originalRecord=$query->find('all')->order(['id' => 'ASC'])->first();
+        //$edit_id=$originalRecord['id'];
+
+        //$this->fakeLogin($user_id);
+        //$this->put($url.'/'.$edit_id, $post_data);
+        //$this->assertResponseSuccess(); // 2xx, 3xx
+        //$this->assertRedirect( $redirect_url );
+
+        // Now retrieve that 1 record and send it back.
+        //$query=new Query($connection,$table);
+        //return $query->find('all')->where(['id' => $edit_id])->first();
+
+
     }
 }
