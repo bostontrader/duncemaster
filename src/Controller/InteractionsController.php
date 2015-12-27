@@ -94,7 +94,7 @@ class InteractionsController extends AppController {
             //
             /* @var \Cake\Database\Connection $connection */
             $connection = ConnectionManager::get('default');
-            $query = "select students.id as student_id, students.sid, students.giv_name, students.fam_name, students.phonetic_name, interactions.itype_id, cohorts.id as cohort_id, sections.id as section_id, clazzes.id as clazz_id
+            $query = "select students.id as student_id, students.sort, students.sid, students.giv_name, students.fam_name, students.phonetic_name, interactions.itype_id, cohorts.id as cohort_id, sections.id as section_id, clazzes.id as clazz_id
                 from students
                 left join cohorts on students.cohort_id = cohorts.id
                 left join sections on sections.cohort_id = cohorts.id

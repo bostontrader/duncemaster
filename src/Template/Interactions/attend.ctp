@@ -12,6 +12,7 @@
         <table id="InteractionsTable" cellpadding="0" cellspacing="0">
             <thead>
             <tr>
+                <th id="sort"><?= __('Sort') ?></th>
                 <th id="sid"><?= __('SID') ?></th>
                 <th id="fam_name"><?= __('Fam Name') ?></th>
                 <th id="giv_name"><?= __('Giv Name') ?></th>
@@ -22,6 +23,7 @@
             <tbody>
                 <?php foreach ($studentsResults as $student): ?>
                     <tr>
+                        <td><?= $student['sort'] ?></td>
                         <td><?= $student['sid'] ?></td>
                         <td><?= $student['fam_name'] ?></td>
                         <td><?= $student['giv_name'] ?></td>

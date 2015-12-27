@@ -127,13 +127,14 @@ class InteractionsAttendTest extends DMIntegrationTestCase {
         $this->thead = $this->table->find('thead', 0);
         $this->thead_ths = $this->thead->find('tr th');
 
-        $this->assertEquals($this->thead_ths[0]->id, 'sid');
-        $this->assertEquals($this->thead_ths[1]->id, 'fam_name');
-        $this->assertEquals($this->thead_ths[2]->id, 'giv_name');
-        $this->assertEquals($this->thead_ths[3]->id, 'phonetic_name');
-        $this->assertEquals($this->thead_ths[4]->id, 'attend');
+        $this->assertEquals($this->thead_ths[0]->id, 'sort');
+        $this->assertEquals($this->thead_ths[1]->id, 'sid');
+        $this->assertEquals($this->thead_ths[2]->id, 'fam_name');
+        $this->assertEquals($this->thead_ths[3]->id, 'giv_name');
+        $this->assertEquals($this->thead_ths[4]->id, 'phonetic_name');
+        $this->assertEquals($this->thead_ths[5]->id, 'attend');
         $column_count = count($this->thead_ths);
-        $this->assertEquals($column_count, 5); // no other columns
+        $this->assertEquals($column_count, 6); // no other columns
 
         // 6. Ensure that the tbody section has the correct quantity of rows.
         // This should be done using a very similar query as used by the controller.
@@ -143,7 +144,7 @@ class InteractionsAttendTest extends DMIntegrationTestCase {
             //$this->interactionsFixture->filterByClazzId($clazz_id);
         /* @var \Cake\Database\Connection $connection */
         $connection = ConnectionManager::get('default');
-        $query = "select students.sid, students.id as student_id, students.giv_name, students.fam_name, students.phonetic_name, cohorts.id, sections.id, clazzes.id
+        $query = "select students.sort, students.sid, students.id as student_id, students.giv_name, students.fam_name, students.phonetic_name, cohorts.id, sections.id, clazzes.id
             from students
             left join cohorts on students.cohort_id = cohorts.id
             left join sections on sections.cohort_id = cohorts.id
@@ -167,24 +168,27 @@ class InteractionsAttendTest extends DMIntegrationTestCase {
             $this->htmlRow = $values[1];
             $htmlColumns = $this->htmlRow->find('td');
 
-            // 7.0 sid.
-            $this->assertEquals($attendanceRecord['sid'], $htmlColumns[0]->plaintext);
+            // 7.0 sort.
+            $this->assertEquals($attendanceRecord['sort'], $htmlColumns[0]->plaintext);
 
-            // 7.1 fam_name.
-            $this->assertEquals($attendanceRecord['fam_name'], $htmlColumns[1]->plaintext);
+            // 7.1 sid.
+            $this->assertEquals($attendanceRecord['sid'], $htmlColumns[1]->plaintext);
 
-            // 7.2 giv_name.
-            $this->assertEquals($attendanceRecord['giv_name'], $htmlColumns[2]->plaintext);
+            // 7.2 fam_name.
+            $this->assertEquals($attendanceRecord['fam_name'], $htmlColumns[2]->plaintext);
 
-            // 7.3 phonetic_name.
-            $this->assertEquals($attendanceRecord['phonetic_name'], $htmlColumns[3]->plaintext);
+            // 7.3 giv_name.
+            $this->assertEquals($attendanceRecord['giv_name'], $htmlColumns[3]->plaintext);
 
-            // 7.4 attend.
+            // 7.4 phonetic_name.
+            $this->assertEquals($attendanceRecord['phonetic_name'], $htmlColumns[4]->plaintext);
+
+            // 7.5 attend.
             //$name='attend['.$attendanceRecord['id'].']'; // name of hidden field
             $student_id='attend-'.$attendanceRecord['student_id'];
 
             /* @var \simple_html_dom_node $td */
-            $td=$htmlColumns[4];
+            $td=$htmlColumns[5];
 
             /* @var \simple_html_dom_node $input */
             $input=$td->find('input[id='.$student_id.']')[0];
