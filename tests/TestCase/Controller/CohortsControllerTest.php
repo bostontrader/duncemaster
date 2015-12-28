@@ -125,40 +125,35 @@ class CohortsControllerTest extends DMIntegrationTestCase {
         $form = $html->find('form#CohortEditForm',0);
         $this->assertNotNull($form);
 
-        // 3. Ensure that the correct form exists
-        $form = $html->find('form#CohortEditForm',0);
-        $this->assertNotNull($form);
-
-        // 4. Now inspect the fields on the form.  We want to know that:
+        // 3. Now inspect the fields on the form.  We want to know that:
         // A. The correct fields are there and no other fields.
         // B. The fields have correct values. This includes verifying that select
         //    lists contain options.
         //
         //  The actual order that the fields are listed on the form is hereby deemed unimportant.
 
-        // 4.1 These are counts of the select and input fields on the form.  They
+        // 3.1 These are counts of the select and input fields on the form.  They
         // are presently unaccounted for.
         $unknownSelectCnt = count($form->find('select'));
         $unknownInputCnt = count($form->find('input'));
 
-        // 4.2 Look for the hidden POST input
+        // 3.2 Look for the hidden POST input
         if($this->lookForHiddenInput($form,'_method','PUT')) $unknownInputCnt--;
 
-        // 4.3 Ensure that there's an input field for start_year, of type text, and that it is correctly set
+        // 3.3 Ensure that there's an input field for start_year, of type text, and that it is correctly set
         if($this->inputCheckerA($form,'input#CohortStartYear',
             $record2Edit['start_year'])) $unknownInputCnt--;
 
-        // 4.4 Ensure that there's an input field for seq, of type text, and that it is correctly set
+        // 3.4 Ensure that there's an input field for seq, of type text, and that it is correctly set
         if($this->inputCheckerA($form,'input#CohortSeq',
             $record2Edit['seq'])) $unknownInputCnt--;
 
-        // 4.5 Ensure that there's a select field for major_id and that it is correctly set
+        // 3.5 Ensure that there's a select field for major_id and that it is correctly set
         // $major_id / $major['title'], from fixture
         $major_id=$record2Edit['major_id'];
         $major = $this->majorsFixture->get($major_id);
         if($this->inputCheckerB($form,'select#CohortMajorId option[selected]',$major_id,$major['title']))
             $unknownSelectCnt--;
-
 
         // 4. Have all the input, select, and Atags been accounted for?
         $this->expectedInputsSelectsAtagsFound($unknownInputCnt, $unknownSelectCnt, $html, 'div#CohortsEdit');
