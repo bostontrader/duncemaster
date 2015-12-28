@@ -11,6 +11,7 @@
             <th id="section"><?= __('section') ?></th>
             <th id="week"><?= __('week') ?></th>
             <th id="event_datetime"><?= __('datetime') ?></th>
+            <th id="comments"><?= __('comments') ?></th>
             <th id="actions" class="actions"><?= __('Actions') ?></th>
         </tr>
         </thead>
@@ -20,6 +21,7 @@
                 <td><?= $clazz->section->nickname ?></td>
                 <td><?= $clazz->week ?></td>
                 <td><?= $clazz->event_datetime ?></td>
+                <td><?= $clazz->comments ?></td>
                 <td class="actions">
                     <?= $this->Html->link(__('Attendance'), ['controller' => 'interactions', 'action' => 'attend', 'clazz_id' => $clazz['id']],['name'=>'ClazzAttendance']) ?>
                     <?= $this->Html->link(__('View'), ['action' => 'view', $clazz->id],['name'=>'ClazzView']) ?>

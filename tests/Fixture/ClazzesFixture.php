@@ -35,12 +35,11 @@ class ClazzesFixture extends DMFixture {
     ];*/
 
     // This record will be added during a test.  We don't need or want to control the id here, so omit it.
-
-    //public $newClazzRecord = [
-        //'section_id' => FixtureConstants::section2_id,
-        //'event_datetime' => '2015-10-16 00:00:00',
-        //'comments' => 'comment new'
-    //];
+    public $newClazzRecord = [
+        'section_id' => FixtureConstants::section2_id,
+        'event_datetime' => '2015-10-16 00:00:00',
+        'comments' => 'comment new'
+    ];
 
     public function init() {
         $this->tableName='Clazzes';

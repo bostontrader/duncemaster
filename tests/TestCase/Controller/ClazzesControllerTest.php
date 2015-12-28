@@ -18,10 +18,14 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
 
     /* @var \App\Model\Table\ClazzesTable */
     private $clazzes;
+
+    /* @var \App\Test\Fixture\ClazzesFixture */
     private $clazzesFixture;
 
     /* @var \App\Model\Table\SectionsTable */
     private $sections;
+
+    /* @var \App\Test\Fixture\SectionsFixture */
     private $sectionsFixture;
 
     public function setUp() {
@@ -51,7 +55,8 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
 
     // GET /add, with section_id parameter
     public function testAddGetSectionId() {
-        $this->tstAddGet($this->sectionsFixture->section1Record['id']);
+        //$this->tstAddGet($this->sectionsFixture->section1Record['id']);
+        $this->tstAddGet($this->clazzesFixture->records[0]['section_id']);
     }
 
     private function tstAddGET($section_id=null) {
@@ -68,11 +73,13 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
         $this->assertNoRedirect();
 
         // 2. Parse the html from the response
+        /* @var \simple_html_dom_node $html */
         $html = str_get_html($this->_response->body());
 
         // 3. Ensure that the correct form exists
-        $this->form = $html->find('form#ClazzAddForm',0);
-        $this->assertNotNull($this->form);
+        /* @var \simple_html_dom_node $form */
+        $form = $html->find('form#ClazzAddForm',0);
+        $this->assertNotNull($form);
 
         // 4. Now inspect the fields on the form.  We want to know that:
         // A. The correct fields are there and no other fields.
@@ -83,127 +90,101 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
 
         // 4.1 These are counts of the select and input fields on the form.  They
         // are presently unaccounted for.
-        $unknownSelectCnt = count($this->form->find('select'));
-        $unknownInputCnt = count($this->form->find('input'));
+        $unknownSelectCnt = count($form->find('select'));
+        $unknownInputCnt = count($form->find('input'));
 
         // 4.2 Look for the hidden POST input
-        if($this->lookForHiddenInput($this->form)) $unknownInputCnt--;
+        if($this->lookForHiddenInput($form)) $unknownInputCnt--;
 
         // 4.3 test the ClazzSectionId select.
         if(is_null($section_id)) {
             // 4.3.1 Ensure that there's a select field for section_id, that it has no selection,
             // and that it has the correct quantity of available choices.
-            if($this->selectCheckerA($this->form, 'ClazzSectionId', 'sections')) $unknownSelectCnt--;
+            if($this->selectCheckerA($form, 'ClazzSectionId', 'sections')) $unknownSelectCnt--;
         } else {
-            if($this->tstSectionIdSelect($this->form, $section_id, $this->sections)) $unknownSelectCnt--;
+            if($this->tstSectionIdSelect($form, $section_id, $this->sections)) $unknownSelectCnt--;
         }
 
         // 4.4 Ensure that there's an input field for event_datetime, of type text, and that it is empty
-        if($this->inputCheckerA($this->form,'input#ClazzDatetime')) $unknownInputCnt--;
+        if($this->inputCheckerA($form,'input#ClazzDatetime')) $unknownInputCnt--;
 
         // 4.5 Ensure that there's an input field for comments, of type text, and that it is empty
-        if($this->inputCheckerA($this->form,'input#ClazzComments')) $unknownInputCnt--;
+        if($this->inputCheckerA($form,'input#ClazzComments')) $unknownInputCnt--;
 
-        // 4.9 Have all the input and select fields been accounted for?  Are there
-        // any extras?
-        $this->assertEquals(0, $unknownInputCnt);
-        $this->assertEquals(0, $unknownSelectCnt);
-
-        // 5. Examine the <A> tags on this page.  There should be zero links.
-        $this->content = $html->find('div#ClazzesAdd',0);
-        $this->assertNotNull($this->content);
-        $links = $this->content->find('a');
-        $this->assertEquals(0,count($links));
+        // 4. Have all the input, select, and Atags been accounted for?
+        $this->expectedInputsSelectsAtagsFound($unknownInputCnt, $unknownSelectCnt, $html, 'div#ClazzesAdd');
     }
 
     public function testAddPOST() {
 
-        $this->fakeLogin(FixtureConstants::userAndyAdminId);
-        $this->post('/clazzes/add', $this->clazzesFixture->newClazzRecord);
-        $this->assertResponseSuccess(); // 2xx, 3xx
-        $this->assertRedirect( '/clazzes' );
+        // 1. Login, POST a suitable record to the url, redirect, and return the record just
+        // posted, as read from the db.
+        $fixtureRecord=$this->clazzesFixture->newClazzRecord;
+        $fromDbRecord=$this->genericAddPostProlog(
+            FixtureConstants::userAndyAdminId,
+            '/clazzes/add', $fixtureRecord,
+            '/clazzes', $this->clazzes
+        );
 
-        // Now verify what we think just got written
-        $new_id = count($this->clazzesFixture->records) + 1;
-        $query = $this->clazzes->find()->where(['id' => $new_id]);
-        $this->assertEquals(1, $query->count());
-
-        // Now retrieve that 1 record and compare to what we expect
-        $new_clazz = $this->clazzes->get($new_id);
-        $this->assertEquals($new_clazz['section_id'],$this->clazzesFixture->newClazzRecord['section_id']);
-        $this->assertEquals($new_clazz['event_datetime'],$this->clazzesFixture->newClazzRecord['event_datetime']);
-        $this->assertEquals($new_clazz['comments'],$this->clazzesFixture->newClazzRecord['comments']);
+        // 2. Now validate that record.
+        $this->assertEquals($fromDbRecord['section_id'],$fixtureRecord['section_id']);
+        $this->assertEquals($fromDbRecord['event_datetime'],$fixtureRecord['event_datetime']);
+        $this->assertEquals($fromDbRecord['comments'],$fixtureRecord['comments']);
     }
 
     public function testDeletePOST() {
 
-        $this->fakeLogin(FixtureConstants::userAndyAdminId);
-        $clazz_id = $this->clazzesFixture->clazz1Record['id'];
-        $this->post('/clazzes/delete/' . $clazz_id);
-        $this->assertResponseSuccess(); // 2xx, 3xx
-        $this->assertRedirect( '/clazzes' );
-
-        // Now verify that the record no longer exists
-        $query = $this->clazzes->find()->where(['id' => $clazz_id]);
-        $this->assertEquals(0, $query->count());
+        $clazz_id = $this->clazzesFixture->records[0]['id'];
+        $this->deletePOST(
+            FixtureConstants::userAndyAdminId, '/clazzes/delete/',
+            $clazz_id, '/clazzes', $this->clazzes
+        );
     }
 
     public function testEditGET() {
 
-        // 1. Simulate login, submit request, examine response.
-        $this->fakeLogin(FixtureConstants::userAndyAdminId);
-        $this->get('/clazzes/edit/' . $this->clazzesFixture->clazz1Record['id']);
-        $this->assertResponseOk(); // 2xx
-        $this->assertNoRedirect();
+        // 1. Obtain a record to edit, login, GET the url, parse the response and send it back.
+        $record2Edit=$this->clazzesFixture->records[0];
+        $url='/clazzes/edit/' . $record2Edit['id'];
+        $html=$this->loginRequestResponse(FixtureConstants::userAndyAdminId,$url);
 
-        // 2. Parse the html from the response
-        $html = str_get_html($this->_response->body());
+        // 2. Ensure that the correct form exists
+        /* @var \simple_html_dom_node $form */
+        $form = $html->find('form#ClazzEditForm',0);
+        $this->assertNotNull($form);
 
-        // 3. Ensure that the correct form exists
-        $this->form = $html->find('form#ClazzEditForm',0);
-        $this->assertNotNull($this->form);
-
-        // 4. Now inspect the fields on the form.  We want to know that:
+        // 3. Now inspect the fields on the form.  We want to know that:
         // A. The correct fields are there and no other fields.
         // B. The fields have correct values. This includes verifying that select
         //    lists contain options.
         //
         //  The actual order that the fields are listed on the form is hereby deemed unimportant.
 
-        // 4.1 These are counts of the select and input fields on the form.  They
+        // 3.1 These are counts of the select and input fields on the form.  They
         // are presently unaccounted for.
-        $unknownSelectCnt = count($this->form->find('select'));
-        $unknownInputCnt = count($this->form->find('input'));
+        $unknownSelectCnt = count($form->find('select'));
+        $unknownInputCnt = count($form->find('input'));
 
-        // 4.2 Look for the hidden POST input
-        if($this->lookForHiddenInput($this->form,'_method','PUT')) $unknownInputCnt--;
+        // 3.2 Look for the hidden POST input
+        if($this->lookForHiddenInput($form,'_method','PUT')) $unknownInputCnt--;
 
-        // 4.3. Ensure that there's a select field for section_id and that it is correctly set
-        $section_id = $this->clazzesFixture->clazz1Record['section_id'];
-        if($this->tstSectionIdSelect($this->form, $section_id, $this->sections)) $unknownSelectCnt--;
+        // 3.3. Ensure that there's a select field for section_id and that it is correctly set
+        $section_id = $record2Edit['section_id'];
+        if($this->tstSectionIdSelect($form, $section_id, $this->sections)) $unknownSelectCnt--;
 
-        // 4.4 Ensure that there's an input field for event_datetime, of type text, and that it is correctly set
-        if($this->inputCheckerA($this->form,'input#ClazzDatetime',
-            $this->clazzesFixture->clazz1Record['event_datetime'])) $unknownInputCnt--;
+        // 3.4 Ensure that there's an input field for event_datetime, of type text, and that it is correctly set
+        if($this->inputCheckerA($form,'input#ClazzDatetime',
+            $record2Edit['event_datetime'])) $unknownInputCnt--;
 
-        // 4.5 Ensure that there's an input field for comments, of type text, and that it is correctly set
-        if($this->inputCheckerA($this->form,'input#ClazzComments',
-            $this->clazzesFixture->clazz1Record['comments'])) $unknownInputCnt--;
+        // 3.5 Ensure that there's an input field for comments, of type text, and that it is correctly set
+        if($this->inputCheckerA($form,'input#ClazzComments',
+            $record2Edit['comments'])) $unknownInputCnt--;
 
-        // 4.9 Have all the input and select fields been accounted for?  Are there
-        // any extras?
-        $this->assertEquals(0, $unknownInputCnt);
-        $this->assertEquals(0, $unknownSelectCnt);
-
-        // 5. Examine the <A> tags on this page.  There should be zero links.
-        $this->content = $html->find('div#ClazzesEdit',0);
-        $this->assertNotNull($this->content);
-        $links = $this->content->find('a');
-        $this->assertEquals(0,count($links));
+        // 4. Have all the input, select, and Atags been accounted for?
+        $this->expectedInputsSelectsAtagsFound($unknownInputCnt, $unknownSelectCnt, $html, 'div#ClazzesEdit');
     }
 
     /**
-     * A. The input has a given id, is of some given type, and has a specified value.
      * @param \simple_html_dom_node $html_node the form that contains the select.
      * @param int $section_id The expected selected section_id.
      * @param \App\Model\Table\SectionsTable $sections.
@@ -225,20 +206,18 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
 
     public function testEditPOST() {
 
-        $this->fakeLogin(FixtureConstants::userAndyAdminId);
-        $clazz_id = $this->clazzesFixture->clazz1Record['id'];
-        $this->put('/clazzes/edit/' . $clazz_id, $this->clazzesFixture->newClazzRecord);
-        $this->assertResponseSuccess(); // 2xx, 3xx
-        $this->assertRedirect('/clazzes');
+        // 1. Login, POST a suitable record to the url, redirect, and return the record just
+        // posted, as read from the db.
+        $fixtureRecord=$this->clazzesFixture->newClazzRecord;
+        $fromDbRecord=$this->genericEditPutProlog(
+            FixtureConstants::userAndyAdminId,
+            '/clazzes/edit', $fixtureRecord,
+            '/clazzes', $this->clazzes
+        );
 
-        // Now verify what we think just got written
-        $query = $this->clazzes->find()->where(['id' => $clazz_id]);
-        $this->assertEquals(1, $query->count());
-
-        // Now retrieve that 1 record and compare to what we expect
-        $clazz = $this->clazzes->get($clazz_id);
-        $this->assertEquals($clazz['section_id'],$this->clazzesFixture->newClazzRecord['section_id']);
-        $this->assertEquals($clazz['event_datetime'],$this->clazzesFixture->newClazzRecord['event_datetime']);
+        // 2. Now validate that record.
+        $this->assertEquals($fromDbRecord['section_id'],$fixtureRecord['section_id']);
+        $this->assertEquals($fromDbRecord['event_datetime'],$fixtureRecord['event_datetime']);
     }
 
     // GET /index, no section_id parameter
@@ -248,7 +227,7 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
 
     // GET /index, with section_id parameter
     public function testIndexGetSectionId() {
-        $this->tstIndexGet($this->sectionsFixture->section1Record['id']);
+        $this->tstIndexGet($this->sectionsFixture->records[0]['id']);
     }
     
     private function tstIndexGET($section_id=null) {
@@ -324,9 +303,10 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
         $this->assertEquals($thead_ths[0]->id, 'section');
         $this->assertEquals($thead_ths[1]->id, 'week');
         $this->assertEquals($thead_ths[2]->id, 'event_datetime');
-        $this->assertEquals($thead_ths[3]->id, 'actions');
+        $this->assertEquals($thead_ths[3]->id, 'comments');
+        $this->assertEquals($thead_ths[4]->id, 'actions');
         $column_count = count($thead_ths);
-        $this->assertEquals($column_count,4); // no other columns
+        $this->assertEquals($column_count,5); // no other columns
 
         // 3. Ensure that the tbody section has the same
         //    quantity of rows as the count of expected clazz records in the fixture, filtered by $sectionId
@@ -360,8 +340,11 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
             // 8.2 event_datetime
             $this->assertEquals($fixtureRecord['event_datetime'], $htmlColumns[2]->plaintext);
 
-            // 8.3 Now examine the action links
-            $this->td = $htmlColumns[3];
+            // 8.3 comments
+            $this->assertEquals($fixtureRecord['comments'], $htmlColumns[3]->plaintext);
+
+            // 8.4 Now examine the action links
+            $this->td = $htmlColumns[4];
             $actionLinks = $this->td->find('a');
             $this->assertEquals('ClazzAttendance', $actionLinks[0]->name);
             $aTagsFoundCnt++;
@@ -382,7 +365,7 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
 
         // 1. Simulate login, submit request, examine response.
         $this->fakeLogin(FixtureConstants::userAndyAdminId);
-        $fixtureRecord=$this->clazzesFixture->clazz1Record;
+        $fixtureRecord=$this->clazzesFixture->records[0];
         $this->get('/clazzes/view/' . $fixtureRecord['id']);
         $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();
