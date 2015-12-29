@@ -99,7 +99,9 @@ class InteractionsController extends AppController {
                 left join cohorts on students.cohort_id = cohorts.id
                 left join sections on sections.cohort_id = cohorts.id
                 left join clazzes on clazzes.section_id = sections.id
-                left join interactions on interactions.clazz_id=clazzes.id and interactions.student_id=students.id and interactions.itype_id=".ItypesController::ATTEND." where clazzes.id=".$clazz_id ;
+                left join interactions on interactions.clazz_id=clazzes.id and interactions.student_id=students.id and interactions.itype_id=".ItypesController::ATTEND." where clazzes.id=".$clazz_id.
+                " order by sort"
+            ;
 
             $studentsResults = $connection->execute($query)->fetchAll('assoc');
         } else {
