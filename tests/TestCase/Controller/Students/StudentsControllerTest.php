@@ -127,9 +127,15 @@ class StudentsControllerTest extends DMIntegrationTestCase {
     }
 
     public function testEditGET() {
+        $this->tstEditGET(FixtureConstants::studentTypical);
+        $this->tstEditGET(FixtureConstants::studentCohortIdNull);
+        $this->tstEditGET(FixtureConstants::studentUserIdNull);
+    }
+
+    private function tstEditGET($student_id) {
 
         // 1. Obtain a record to edit, login, GET the url, parse the response and send it back.
-        $record2Edit=$this->studentsFixture->records[0];
+        $record2Edit=$this->studentsFixture->get($student_id);
         $url='/students/edit/' . $record2Edit['id'];
         $html=$this->loginRequestResponse(FixtureConstants::userAndyAdminId,$url);
 
@@ -171,13 +177,22 @@ class StudentsControllerTest extends DMIntegrationTestCase {
 
         // 3.7 cohort_id / $cohort['nickname']
         $cohort_id = $record2Edit['cohort_id'];
-        $cohort = $this->cohorts->get($cohort_id,['contain' => ['Majors']]);
-        if($this->inputCheckerB($form,'select#StudentCohortId option[selected]',$cohort_id,$cohort['nickname'])) $unknownSelectCnt--;
+        if(is_null($cohort_id)) {
+            if($this->selectCheckerA($form, 'StudentCohortId','cohorts')) $unknownSelectCnt--;
+        } else {
+            $cohort = $this->cohorts->get($cohort_id,['contain' => ['Majors']]);
+            if($this->inputCheckerB($form,'select#StudentCohortId option[selected]',$cohort_id,$cohort['nickname'])) $unknownSelectCnt--;
+        }
 
         // 3.8. user_id / $user_fixture_record['username']
         $user_id = $record2Edit['user_id'];
-        $user = $this->usersFixture->get($user_id);
-        if($this->inputCheckerB($form,'select#StudentUserId option[selected]',$user_id,$user['username'])) $unknownSelectCnt--;
+        if(is_null($user_id)) {
+            if($this->selectCheckerA($form, 'StudentUserId','users')) $unknownSelectCnt--;
+        } else {
+            $user = $this->usersFixture->get($user_id);
+            if($this->inputCheckerB($form,'select#StudentUserId option[selected]',$user_id,$user['username'])) $unknownSelectCnt--;
+        }
+
 
         // 4. Have all the input, select, and Atags been accounted for?
         $this->expectedInputsSelectsAtagsFound($unknownInputCnt, $unknownSelectCnt, $html, 'div#StudentsEdit');
@@ -264,7 +279,8 @@ class StudentsControllerTest extends DMIntegrationTestCase {
             $this->assertEquals($fixtureRecord['phonetic_name'],  $htmlColumns[2]->plaintext);
 
             // 7.3 cohort_nickname is computed by the Cohort entity.
-            $this->assertEquals($student->cohort->nickname, $htmlColumns[3]->plaintext);
+            $expected_value = is_null($student->cohort) ? '' : $student->cohort->nickname;
+            $this->assertEquals( $expected_value, $htmlColumns[3]->plaintext);
 
             // 7.4 username requires finding the related value in the UsersFixture
             $user_id = $fixtureRecord['user_id'];

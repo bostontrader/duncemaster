@@ -29,8 +29,8 @@ class InteractionsFixture extends DMFixture {
 
     // This record will be added during the POST /add test.  We don't need or want to control the id here, so omit it.
     public $newInteractionRecord = [
-        'clazz_id'=>FixtureConstants::clazz1_id,
-        'student_id'=>FixtureConstants::student1_id,
+        'clazz_id'=>FixtureConstants::clazzTypical,
+        'student_id'=>FixtureConstants::studentTypical,
         'itype_id'=>ItypesController::EJECT
     ];
 

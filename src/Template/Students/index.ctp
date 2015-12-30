@@ -30,8 +30,8 @@
                     <td><?= $student->sid ?></td>
                     <td><?= $student->fam_name . $student->giv_name ?></td>
                     <td><?= $student->phonetic_name ?></td>
-                    <td><?= $student->cohort->nickname ?></td>
-                    <td><?= is_null($student->user)?'':$student->user->username ?></td>
+                    <td><?= is_null($student->cohort) ? '' : $student->cohort->nickname ?></td>
+                    <td><?= is_null($student->user) ? '' : $student->user->username ?></td>
                     <td class="actions">
                         <?= $this->Html->link(__('View'), ['action' => 'view', $student->id],['name'=>'StudentView']) ?>
                         <?= $this->Html->link(__('Edit'), ['action' => 'edit', $student->id],['name'=>'StudentEdit']) ?>
