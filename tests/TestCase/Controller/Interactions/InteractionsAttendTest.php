@@ -2,6 +2,7 @@
 namespace App\Test\TestCase\Controller;
 
 use Cake\Datasource\ConnectionManager;
+use App\Controller\ItypesController;
 use App\Test\Fixture\FixtureConstants;
 //use App\Test\Fixture\ClazzesFixture;
 //use App\Test\Fixture\ItypesFixture;
@@ -90,7 +91,7 @@ class InteractionsAttendTest extends DMIntegrationTestCase {
 
     // GET /attend, with clazz_id parameter, for a class with no attendance
     public function testAttendGetClazzId() {
-        $this->tstAttendGet(FixtureConstants::clazz1_id);
+        $this->tstAttendGet(FixtureConstants::clazzTypical);
     }
 
     // GET /attend, with clazz_id parameter, for a class with existing attendance
@@ -143,14 +144,18 @@ class InteractionsAttendTest extends DMIntegrationTestCase {
         //if(!is_null($clazz_id))
             //$this->interactionsFixture->filterByClazzId($clazz_id);
         /* @var \Cake\Database\Connection $connection */
+
+
         $connection = ConnectionManager::get('default');
+
+        // This query should be essentially the same as the query in InteractionsController.attend
         $query = "select students.sort, students.sid, students.id as student_id, students.giv_name, students.fam_name, students.phonetic_name, cohorts.id, sections.id, clazzes.id
             from students
             left join cohorts on students.cohort_id = cohorts.id
             left join sections on sections.cohort_id = cohorts.id
             left join clazzes on clazzes.section_id = sections.id
-            where clazzes.id=" . $clazz_id;
-
+            left join interactions on interactions.clazz_id=clazzes.id and interactions.student_id=students.id and interactions.itype_id=".ItypesController::ATTEND." where clazzes.id=".$clazz_id.
+            " order by sort";
         $studentsResults = $connection->execute($query)->fetchAll('assoc');
         $s1=count($this->tbody_rows);
         $s2=count($studentsResults);
@@ -172,6 +177,7 @@ class InteractionsAttendTest extends DMIntegrationTestCase {
             $this->assertEquals($attendanceRecord['sort'], $htmlColumns[0]->plaintext);
 
             // 7.1 sid.
+            $s1=$htmlColumns[1]->plaintext;
             $this->assertEquals($attendanceRecord['sid'], $htmlColumns[1]->plaintext);
 
             // 7.2 fam_name.

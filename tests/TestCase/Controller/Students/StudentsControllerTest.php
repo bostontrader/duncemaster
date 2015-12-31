@@ -119,7 +119,7 @@ class StudentsControllerTest extends DMIntegrationTestCase {
 
     public function testDeletePOST() {
 
-        $student_id = $this->studentsFixture->records[0]['id'];
+        $student_id = FixtureConstants::studentTypical;
         $this->deletePOST(
             FixtureConstants::userAndyAdminId, '/students/delete/',
             $student_id, '/students', $this->students
@@ -337,15 +337,18 @@ class StudentsControllerTest extends DMIntegrationTestCase {
     // Scenario 1.
     public function testViewGETWithUser() {
         $this->fakeLogin(FixtureConstants::userAndyAdminId);
-        $fixtureRecord=$this->studentsFixture->records[0];
-        $this->get('/students/view/' . $fixtureRecord['id']);
+        $student_id = FixtureConstants::studentTypical;
+        $fixtureRecord=$this->studentsFixture->get($student_id);
+        $fixtureRecord = FixtureConstants::studentTypical;
+        $this->get('/students/view/' . $student_id);
         $this->tstViewGet($fixtureRecord);
     }
 
     // Scenario 2.
     public function testViewGETWithOutUser() {
         $this->fakeLogin(FixtureConstants::userAndyAdminId);
-        $fixtureRecord=$this->studentsFixture->records[0];
+        //$fixtureRecord=$this->studentsFixture->records[0];
+        $fixtureRecord = FixtureConstants::studentTypical;
         $this->get('/students/view/' . $fixtureRecord['id']);
         $this->tstViewGet($fixtureRecord);
     }
@@ -356,6 +359,8 @@ class StudentsControllerTest extends DMIntegrationTestCase {
     public function testViewGETWithRequestParameters() {
         $this->fakeLogin(FixtureConstants::userAndyAdminId);
         $section_id=$this->sectionsFixture->records[0]['id'];
+        $section_id=$this->sectionsFixture->records[0]['id'];
+        $section_id = FixtureConstants::studentTypical;
         $this->get(
             '/students/view/'.$this->studentsFixture->records[0]['id'].
             '?section_id='.$section_id
