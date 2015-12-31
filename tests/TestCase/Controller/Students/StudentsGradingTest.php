@@ -23,7 +23,10 @@ class StudentsGradingTest extends DMIntegrationTestCase {
     /* @var \App\Model\Table\SectionsTable */
     private $sections;
 
+    /* @var \App\Test\Fixture\SectionsFixture */
     private $sectionsFixture;
+
+    /* @var \App\Test\Fixture\StudentsFixture */
     private $studentsFixture;
 
     public function setUp() {
@@ -40,8 +43,9 @@ class StudentsGradingTest extends DMIntegrationTestCase {
         // 1. Simulate login, submit request, examine response.
         $this->fakeLogin(FixtureConstants::userAndyAdminId);
         $section_id=FixtureConstants::sectionToGrade;
+        $student_id=FixtureConstants::studentTypical;
         $this->get(
-            '/students/view/'.$this->studentsFixture->student1Record['id'].
+            '/students/view/'.$student_id.
             '?section_id='.$section_id
         );
         $this->assertResponseOk(); // 2xx
@@ -64,6 +68,7 @@ class StudentsGradingTest extends DMIntegrationTestCase {
         $rows=$this->table->find('tr');
 
         // 4.0 clazzCnt
+        /* @var \simple_html_dom_node $row */
         $row=$rows[0];
         $field = $row->find('td',0);
         $this->assertEquals(FixtureConstants::clazzCnt, $field->plaintext);
@@ -88,5 +93,4 @@ class StudentsGradingTest extends DMIntegrationTestCase {
         $field = $row->find('td',0);
         $this->assertEquals(FixtureConstants::leftClassCnt, $field->plaintext);
     }
-
 }

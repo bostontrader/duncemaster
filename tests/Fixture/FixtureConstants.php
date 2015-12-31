@@ -77,13 +77,13 @@ class FixtureConstants {
     // the following grading results are produced (and thus testable)
 
     // What are the grading stats for one student and one section?
-    //const studentToGrade = FixtureConstants::student1_id;
-    //const sectionToGrade = FixtureConstants::section1_id;
+    const studentToGrade = FixtureConstants::studentTypical;
+    const sectionToGrade = FixtureConstants::sectionTypical;
 
     // How many times did this class meet for this section?
-    //const clazzCnt = 3;
-    //const attendCnt = 1;
-    //const excusedAbsenceCnt = 1;
-    //const ejectedFromClassCnt = 1;
-    //const leftClassCnt = 1;
+    const clazzCnt = 16;
+    const attendCnt = 0;
+    const excusedAbsenceCnt = 0;
+    const ejectedFromClassCnt = 0;
+    const leftClassCnt = 0;
 }
