@@ -6,7 +6,7 @@ class TplanElementsFixture extends DMFixture {
 
     // This record will be added during a test.  We don't need or want to control the id here, so omit it.
     public $newTplanElementRecord = [
-        'tplan_id'=>FixtureConstants::tplan2_id,
+        'tplan_id'=>FixtureConstants::tplanTypical,
         'col1'=>'Animal Farm',
         'col2'=>'learn to make animal sounds'
     ];
