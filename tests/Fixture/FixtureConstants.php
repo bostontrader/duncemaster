@@ -59,8 +59,8 @@ class FixtureConstants {
     const subjectTypical = 1;
     //const subject2_id = 2;
 
-    //const teacher1_id = 1;
-    //const teacher2_id = 2;
+    const teacherTypical = 1;
+    const teacherUserIdNull = 2;
 
     const tplanTypical =1;
     //const tplan2_id =2;

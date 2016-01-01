@@ -17,6 +17,7 @@ class TeachersControllerTest extends DMIntegrationTestCase {
     /* @var \App\Model\Table\TeachersTable */
     private $teachers;
 
+    /* @var \App\Test\Fixture\TeachersFixture */
     private $teachersFixture;
 
     public function setUp() {
@@ -39,193 +40,167 @@ class TeachersControllerTest extends DMIntegrationTestCase {
 
     public function testAddGET() {
 
-        // 1. Simulate login, submit request, examine response.
-        $this->fakeLogin(FixtureConstants::userAndyAdminId);
-        $this->get('/teachers/add');
-        $this->assertResponseOk(); // 2xx
-        $this->assertNoRedirect();
+        // 1. Login, GET the url, parse the response and send it back.
+        $html=$this->loginRequestResponse(FixtureConstants::userAndyAdminId,'/teachers/add');
 
-        // 2. Parse the html from the response
-        $html = str_get_html($this->_response->body());
+        // 2. Ensure that the correct form exists
+        /* @var \simple_html_dom_node $form */
+        $form = $html->find('form#TeacherAddForm',0);
+        $this->assertNotNull($form);
 
-        // 3. Ensure that the correct form exists
-        $this->form = $html->find('form#TeacherAddForm',0);
-        $this->assertNotNull($this->form);
-
-        // 4. Now inspect the fields on the form.  We want to know that:
+        // 3. Now inspect the fields on the form.  We want to know that:
         // A. The correct fields are there and no other fields.
         // B. The fields have correct values. This includes verifying that select
         //    lists contain options.
         //
         //  The actual order that the fields are listed on the form is hereby deemed unimportant.
 
-        // 4.1 These are counts of the select and input fields on the form.  They
+        // 3.1 These are counts of the select and input fields on the form.  They
         // are presently unaccounted for.
-        $unknownSelectCnt = count($this->form->find('select'));
-        $unknownInputCnt = count($this->form->find('input'));
+        $unknownSelectCnt = count($form->find('select'));
+        $unknownInputCnt = count($form->find('input'));
 
-        // 4.2 Look for the hidden POST input
-        if($this->lookForHiddenInput($this->form)) $unknownInputCnt--;
+        // 3.2 Look for the hidden POST input
+        if($this->lookForHiddenInput($form)) $unknownInputCnt--;
 
-        // 4.3 Ensure that there's an input field for fam_name, of type text, and that it is empty
-        if($this->inputCheckerA($this->form,'input#TeacherFamName')) $unknownInputCnt--;
+        // 3.3 Ensure that there's an input field for fam_name, of type text, and that it is empty
+        if($this->inputCheckerA($form,'input#TeacherFamName')) $unknownInputCnt--;
 
-        // 4.4 Ensure that there's an input field for giv_name, of type text, and that it is empty
-        if($this->inputCheckerA($this->form,'input#TeacherGivName')) $unknownInputCnt--;
+        // 3.4 Ensure that there's an input field for giv_name, of type text, and that it is empty
+        if($this->inputCheckerA($form,'input#TeacherGivName')) $unknownInputCnt--;
 
-        // 4.5 Ensure that there's a select field for user_id, that it has no selection,
+        // 3.5 Ensure that there's a select field for user_id, that it has no selection,
         //    and that it has the correct quantity of available choices.
-        if($this->selectCheckerA($this->form, 'TeacherUserId', 'users')) $unknownSelectCnt--;
+        if($this->selectCheckerA($form, 'TeacherUserId', 'users')) $unknownSelectCnt--;
 
-        // 4.9 Have all the input and select fields been accounted for?  Are there
-        // any extras?
-        $this->assertEquals(0, $unknownInputCnt);
-        $this->assertEquals(0, $unknownSelectCnt);
-
-        // 5. Examine the <A> tags on this page.  There should be zero links.
-        $this->content = $html->find('div#TeachersAdd',0);
-        $this->assertNotNull($this->content);
-        $links = $this->content->find('a');
-        $this->assertEquals(0,count($links));
+        // 4. Have all the input, select, and Atags been accounted for?
+        $this->expectedInputsSelectsAtagsFound($unknownInputCnt, $unknownSelectCnt, $html, 'div#TeachersAdd');
     }
 
     public function testAddPOST() {
 
-        $this->fakeLogin(FixtureConstants::userAndyAdminId);
-        $this->post('/teachers/add', $this->teachersFixture->newTeacherRecord);
-        $this->assertResponseSuccess(); // 2xx, 3xx
-        $this->assertRedirect( '/teachers' );
+        // 1. Login, POST a suitable record to the url, redirect, and return the record just
+        // posted, as read from the db.
+        $fixtureRecord=$this->teachersFixture->newTeacherRecord;
+        $fromDbRecord=$this->genericAddPostProlog(
+            FixtureConstants::userAndyAdminId,
+            '/teachers/add', $fixtureRecord,
+            '/teachers', $this->teachers
+        );
 
-        // Now verify what we think just got written
-        $new_id = count($this->teachersFixture->records) + 1;
-        $query = $this->teachers->find()->where(['id' => $new_id]);
-        $this->assertEquals(1, $query->count());
-
-        // Now retrieve that 1 record and compare to what we expect
-        $new_teacher = $this->teachers->get($new_id);
-        $this->assertEquals($new_teacher['fam_name'],$this->teachersFixture->newTeacherRecord['fam_name']);
-        $this->assertEquals($new_teacher['giv_name'],$this->teachersFixture->newTeacherRecord['giv_name']);
-        $this->assertEquals($new_teacher['user_id'],$this->teachersFixture->newTeacherRecord['user_id']);
+        // 2. Now validate that record.
+        $this->assertEquals($fromDbRecord['fam_name'],$fixtureRecord['fam_name']);
+        $this->assertEquals($fromDbRecord['giv_name'],$fixtureRecord['giv_name']);
+        $this->assertEquals($fromDbRecord['user_id'],$fixtureRecord['user_id']);
     }
 
     public function testDeletePOST() {
 
-        $this->fakeLogin(FixtureConstants::userAndyAdminId);
-        $teacher_id = $this->teachersFixture->teacher1Record['id'];
-        $this->post('/teachers/delete/' . $teacher_id);
-        $this->assertResponseSuccess(); // 2xx, 3xx
-        $this->assertRedirect( '/teachers' );
-
-        // Now verify that the record no longer exists
-        $query = $this->teachers->find()->where(['id' => $teacher_id]);
-        $this->assertEquals(0, $query->count());
+        $teacher_id = $this->teachersFixture->records[0]['id'];
+        $this->deletePOST(
+            FixtureConstants::userAndyAdminId, '/teachers/delete/',
+            $teacher_id, '/teachers', $this->teachers
+        );
     }
 
     public function testEditGET() {
+        $this->tstEditGET(FixtureConstants::teacherTypical);
+        $this->tstEditGET(FixtureConstants::teacherUserIdNull);
+    }
 
-        // 1. Simulate login, submit request, examine response.
-        $this->fakeLogin(FixtureConstants::userAndyAdminId);
-        $this->get('/teachers/edit/' . $this->teachersFixture->teacher1Record['id']);
-        $this->assertResponseOk(); // 2xx
-        $this->assertNoRedirect();
+    private function tstEditGET($teacher_id) {
 
-        // 2. Parse the html from the response
-        $html = str_get_html($this->_response->body());
+        // 1. Obtain a record to edit, login, GET the url, parse the response and send it back.
+        $record2Edit=$this->teachersFixture->get($teacher_id);
+        $url='/teachers/edit/' . $teacher_id;
+        $html=$this->loginRequestResponse(FixtureConstants::userAndyAdminId,$url);
 
-        // 3. Ensure that the correct form exists
-        $this->form = $html->find('form#TeacherEditForm',0);
-        $this->assertNotNull($this->form);
-
-        // 4. Now inspect the fields on the form.  We want to know that:
+        // 2. Ensure that the correct form exists
+        /* @var \simple_html_dom_node $form */
+        $form = $html->find('form#TeacherEditForm',0);
+        $this->assertNotNull($form);
+        
+        // 3. Now inspect the fields on the form.  We want to know that:
         // A. The correct fields are there and no other fields.
         // B. The fields have correct values. This includes verifying that select
         //    lists contain options.
         //
         //  The actual order that the fields are listed on the form is hereby deemed unimportant.
 
-        // 4.1 These are counts of the select and input fields on the form.  They
+        // 3.1 These are counts of the select and input fields on the form.  They
         // are presently unaccounted for.
-        $unknownSelectCnt = count($this->form->find('select'));
-        $unknownInputCnt = count($this->form->find('input'));
+        $unknownSelectCnt = count($form->find('select'));
+        $unknownInputCnt = count($form->find('input'));
 
-        // 4.2 Look for the hidden POST input
-        if($this->lookForHiddenInput($this->form,'_method','PUT')) $unknownInputCnt--;
+        // 3.2 Look for the hidden POST input
+        if($this->lookForHiddenInput($form,'_method','PUT')) $unknownInputCnt--;
 
-        // 4.3 Ensure that there's an input field for fam_name, of type text, and that it is correctly set
-        if($this->inputCheckerA($this->form,'input#TeacherFamName',
-            $this->teachersFixture->teacher1Record['fam_name'])) $unknownInputCnt--;
+        // 3.3 Ensure that there's an input field for fam_name, of type text, and that it is correctly set
+        if($this->inputCheckerA($form,'input#TeacherFamName',
+            $record2Edit['fam_name'])) $unknownInputCnt--;
 
-        // 4.4 Ensure that there's an input field for giv_name, of type text, and that it is correctly set
-        if($this->inputCheckerA($this->form,'input#TeacherGivName',
-            $this->teachersFixture->teacher1Record['giv_name'])) $unknownInputCnt--;
+        // 3.4 Ensure that there's an input field for giv_name, of type text, and that it is correctly set
+        if($this->inputCheckerA($form,'input#TeacherGivName',
+            $record2Edit['giv_name'])) $unknownInputCnt--;
 
-        // 4.5. Ensure that there's a select field for user_id and that it is correctly set
-        $option = $this->form->find('select#TeacherUserId option[selected]',0);
-        $user_id = $this->teachersFixture->teacher1Record['user_id'];
-        $this->assertEquals($option->value, $user_id);
-
-        // Even though user_id is correct, we don't display user_id.  Instead we display the username
-        // from the related Users table. Verify that username is displayed correctly.
-        $user = $this->usersFixture->get($user_id);
-        $this->assertEquals($user['username'], $option->plaintext);
-        $unknownSelectCnt--;
-
-        // 4.9 Have all the input and select fields been accounted for?  Are there
-        // any extras?
-        $this->assertEquals(0, $unknownInputCnt);
-        $this->assertEquals(0, $unknownSelectCnt);
-
-        // 5. Examine the <A> tags on this page.  There should be zero links.
-        $this->content = $html->find('div#TeachersEdit',0);
-        $this->assertNotNull($this->content);
-        $links = $this->content->find('a');
-        $this->assertEquals(0,count($links));
+        // 3.5. user_id / $user_fixture_record['username']
+        $user_id = $record2Edit['user_id'];
+        if(is_null($user_id)) {
+            if($this->selectCheckerA($form, 'TeacherUserId','users')) $unknownSelectCnt--;
+        } else {
+            $user = $this->usersFixture->get($user_id);
+            if($this->inputCheckerB($form,'select#TeacherUserId option[selected]',$user_id,$user['username'])) $unknownSelectCnt--;
+        }
+        
+        // 4. Have all the input, select, and Atags been accounted for?
+        $this->expectedInputsSelectsAtagsFound($unknownInputCnt, $unknownSelectCnt, $html, 'div#TeachersEdit');
     }
 
     public function testEditPOST() {
 
-        $this->fakeLogin(FixtureConstants::userAndyAdminId);
-        $teacher_id = $this->teachersFixture->teacher1Record['id'];
-        $this->put('/teachers/edit/' . $teacher_id, $this->teachersFixture->newTeacherRecord);
-        $this->assertResponseSuccess(); // 2xx, 3xx
-        $this->assertRedirect('/teachers');
+        // 1. Login, POST a suitable record to the url, redirect, and return the record just
+        // posted, as read from the db.
+        $fixtureRecord=$this->teachersFixture->newTeacherRecord;
+        $fromDbRecord=$this->genericEditPutProlog(
+            FixtureConstants::userAndyAdminId,
+            '/teachers/edit', $fixtureRecord,
+            '/teachers', $this->teachers
+        );
 
-        // Now verify what we think just got written
-        $query = $this->teachers->find()->where(['id' => $this->teachersFixture->teacher1Record['id']]);
-        $this->assertEquals(1, $query->count());
-
-        // Now retrieve that 1 record and compare to what we expect
-        $teacher = $this->teachers->get($this->teachersFixture->teacher1Record['id']);
-        $this->assertEquals($teacher['fam_name'],$this->teachersFixture->newTeacherRecord['fam_name']);
-        $this->assertEquals($teacher['giv_name'],$this->teachersFixture->newTeacherRecord['giv_name']);
-        $this->assertEquals($teacher['user_id'],$this->teachersFixture->newTeacherRecord['user_id']);
+        // 2. Now validate that record.
+        $this->assertEquals($fromDbRecord['fam_name'],$fixtureRecord['fam_name']);
+        $this->assertEquals($fromDbRecord['giv_name'],$fixtureRecord['giv_name']);
+        $this->assertEquals($fromDbRecord['user_id'],$fixtureRecord['user_id']);
     }
 
     public function testIndexGET() {
 
         // 1. Simulate login, submit request, examine response.
-        $this->fakeLogin(FixtureConstants::userAndyAdminId);
+        /*$this->fakeLogin(FixtureConstants::userAndyAdminId);
         $this->get('/teachers/index');
         $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();
 
         // 2. Parse the html from the response
-        $html = str_get_html($this->_response->body());
+        $html = str_get_html($this->_response->body());*/
 
-        // 3. Get a the count of all <A> tags that are presently unaccounted for.
+        // 1. Login, GET the url, parse the response and send it back.
+        $html=$this->loginRequestResponse(FixtureConstants::userAndyAdminId,'/teachers/index');
+
+        // 2. Get a the count of all <A> tags that are presently unaccounted for.
         $this->content = $html->find('div#TeachersIndex',0);
         $this->assertNotNull($this->content);
         $unknownATag = count($this->content->find('a'));
 
-        // 4. Look for the create new subject link
+        // 3. Look for the create new subject link
         $this->assertEquals(1, count($html->find('a#TeacherAdd')));
         $unknownATag--;
 
-        // 5. Ensure that there is a suitably named table to display the results.
+        // 4. Ensure that there is a suitably named table to display the results.
         $this->table = $html->find('table#TeachersTable',0);
         $this->assertNotNull($this->table);
 
-        // 6. Ensure that said table's thead element contains the correct
+        // 5. Ensure that said table's thead element contains the correct
         //    headings, in the correct order, and nothing else.
         $this->thead = $this->table->find('thead',0);
         $thead_ths = $this->thead->find('tr th');
@@ -237,13 +212,13 @@ class TeachersControllerTest extends DMIntegrationTestCase {
         $column_count = count($thead_ths);
         $this->assertEquals($column_count,4); // no other columns
 
-        // 7. Ensure that the tbody section has the same
+        // 6. Ensure that the tbody section has the same
         //    quantity of rows as the count of subject records in the fixture.
         $this->tbody = $this->table->find('tbody',0);
         $tbody_rows = $this->tbody->find('tr');
         $this->assertEquals(count($tbody_rows), count($this->teachersFixture->records));
         
-        // 8. Ensure that the values displayed in each row, match the values from
+        // 7. Ensure that the values displayed in each row, match the values from
         //    the fixture.  The values should be presented in a particular order
         //    with nothing else thereafter.
         $iterator = new \MultipleIterator();
@@ -255,13 +230,13 @@ class TeachersControllerTest extends DMIntegrationTestCase {
             $this->htmlRow = $values[1];
             $htmlColumns = $this->htmlRow->find('td');
 
-            // 8.0 fam_name
+            // 7.0 fam_name
             $this->assertEquals($fixtureRecord['fam_name'], $htmlColumns[0]->plaintext);
 
-            // 8.1 giv_name
+            // 7.1 giv_name
             $this->assertEquals($fixtureRecord['giv_name'], $htmlColumns[1]->plaintext);
 
-            // 8.2 username requires finding the related value in the UsersFixture
+            // 7.2 username requires finding the related value in the UsersFixture
             $user_id = $fixtureRecord['user_id'];
             if (is_null($user_id)) {
                 $expectedValue='';
@@ -271,7 +246,7 @@ class TeachersControllerTest extends DMIntegrationTestCase {
             }
             $this->assertEquals($expectedValue, $htmlColumns[2]->plaintext);
 
-            // 8.3 Now examine the action links
+            // 7.3 Now examine the action links
             $this->td = $htmlColumns[3];
             $actionLinks = $this->td->find('a');
             $this->assertEquals('TeacherView', $actionLinks[0]->name);
@@ -281,7 +256,7 @@ class TeachersControllerTest extends DMIntegrationTestCase {
             $this->assertEquals('TeacherDelete', $actionLinks[2]->name);
             $unknownATag--;
 
-            // 8.9 No other columns
+            // 7.9 No other columns
             $this->assertEquals(count($htmlColumns),$column_count);
         }
 
@@ -294,15 +269,17 @@ class TeachersControllerTest extends DMIntegrationTestCase {
     // View a teacher without an associated user
     public function testViewGETWithUser() {
         $this->fakeLogin(FixtureConstants::userAndyAdminId);
-        $fixtureRecord=$this->teachersFixture->teacher1Record;
-        $this->get('/teachers/view/' . $fixtureRecord['id']);
+        $teacher_id = FixtureConstants::teacherTypical;
+        $fixtureRecord=$this->teachersFixture->get($teacher_id);
+        $this->get('/teachers/view/' . $teacher_id);
         $this->tstViewGet($fixtureRecord);
     }
 
     public function testViewGETWithOutUser() {
         $this->fakeLogin(FixtureConstants::userAndyAdminId);
-        $fixtureRecord=$this->teachersFixture->teacher2Record;
-        $this->get('/teachers/view/' . $fixtureRecord['id']);
+        $teacher_id = FixtureConstants::teacherTypical;
+        $fixtureRecord=$this->teachersFixture->get($teacher_id);
+        $this->get('/teachers/view/' . $teacher_id);
         $this->tstViewGet($fixtureRecord);
     }
 
