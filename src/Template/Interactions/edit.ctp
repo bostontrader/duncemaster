@@ -19,6 +19,7 @@
             echo $this->Form->input('clazz_id', ['id'=>'InteractionClazzId','options' => $clazzes, 'empty' => '(none selected)']);
             echo $this->Form->input('student_id', ['id'=>'InteractionStudentId','options' => $students, 'empty' => '(none selected)']);
             echo $this->Form->input('itype_id', ['id'=>'InteractionItypeId','options' => $itypes, 'empty' => '(none selected)']);
+            echo $this->Form->input('participate', ['id'=>'InteractionParticipate','type'=>'text']);
             ?>
         </fieldset>
         <?= $this->Form->button(__('Submit')) ?>

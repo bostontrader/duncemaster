@@ -23,6 +23,10 @@
                 <th><?= __('Itype') ?></th>
                 <td><?= $interaction->itype->title ?></td>
             </tr>
+            <tr id="participate">
+                <th><?= __('Participate') ?></th>
+                <td><?= $interaction->participate ?></td>
+            </tr>
         </table>
     </div>
 </div>

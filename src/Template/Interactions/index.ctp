@@ -19,6 +19,7 @@
                 <th id="clazz"><?= __('class') ?></th>
                 <th id="student"><?= __('student') ?></th>
                 <th id="itype"><?= __('itype') ?></th>
+                <th id="participate"><?= __('participate') ?></th>
                 <th id="actions" class="actions"><?= __('Actions') ?></th>
             </tr>
             </thead>
@@ -28,6 +29,7 @@
                     <td><?= $interaction->clazz->nickname ?></td>
                     <td><?= $interaction->student->fullname ?></td>
                     <td><?= $interaction->itype->title ?></td>
+                    <td><?= $interaction->participate ?></td>
                     <td class="actions">
                         <?= $this->Html->link(__('View'), ['action' => 'view', $interaction->id],['name'=>'InteractionView']) ?>
                         <?= $this->Html->link(__('Edit'), ['action' => 'edit', $interaction->id],['name'=>'InteractionEdit']) ?>

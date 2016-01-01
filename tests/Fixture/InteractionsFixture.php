@@ -31,82 +31,10 @@ class InteractionsFixture extends DMFixture {
     public $newInteractionRecord = [
         'clazz_id'=>FixtureConstants::clazzTypical,
         'student_id'=>FixtureConstants::studentTypical,
-        'itype_id'=>ItypesController::EJECT
+        'itype_id'=>ItypesController::EJECT,
+        'participate'=>null
     ];
 
-    /*public function init() {
-        $this->records = [
-            $this->interaction1Record
-        ];
-
-        // Add additional records for the attendance and scoring tests.
-        // We are tempted to omit the id because we don't directly need it.
-        // However, there is a bug whereby the ordinary auto-increment sequence
-        // will have a skipped value. This fubars our test.
-        
-        // WARNING: For each fixture record, ensure that clazz->section->cohort = student->cohort!
-        $this->records=array_merge(
-            [$this->interaction1Record],
-            [
-                [
-                    'id'=>2,
-                    'clazz_id'=>FixtureConstants::clazz1_id,
-                    'student_id'=>FixtureConstants::student1_id,
-                    'itype_id'=>ItypesController::ATTEND
-                ],
-                [
-                    'id'=>3,
-                    'clazz_id'=>FixtureConstants::clazz1_id,
-                    'student_id'=>FixtureConstants::student3_id,
-                    'itype_id'=>ItypesController::ATTEND
-                ],
-                [
-                    'id'=>4,
-                    'clazz_id'=>FixtureConstants::clazz3_id,
-                    'student_id'=>FixtureConstants::student2_id,
-                    'itype_id'=>ItypesController::ATTEND
-                ],
-                [
-                    'id'=>5,
-                    'clazz_id'=>FixtureConstants::clazz3_id,
-                    'student_id'=>FixtureConstants::student4_id,
-                    'itype_id'=>ItypesController::ATTEND
-                ],
-                [
-                    'id'=>6,
-                    'clazz_id'=>FixtureConstants::clazz1_id,
-                    'student_id'=>FixtureConstants::student1_id,
-                    'itype_id'=>ItypesController::EJECT
-                ],
-                [
-                    'id'=>7,
-                    'clazz_id'=>FixtureConstants::clazz3_id,
-                    'student_id'=>FixtureConstants::student2_id,
-                    'itype_id'=>ItypesController::LEAVE
-                ],
-                [
-                    'id'=>8,
-                    'clazz_id'=>FixtureConstants::clazz3_id,
-                    'student_id'=>FixtureConstants::student4_id,
-                    'itype_id'=>ItypesController::PARTICIPATE
-                ],
-                [
-                    'id'=>9,
-                    'clazz_id'=>FixtureConstants::clazz3_id,
-                    'student_id'=>FixtureConstants::student2_id,
-                    'itype_id'=>ItypesController::ATTEND
-                ],
-                [
-                    'id'=>10,
-                    'clazz_id'=>FixtureConstants::clazz3_id,
-                    'student_id'=>FixtureConstants::student2_id,
-                    'itype_id'=>ItypesController::EJECT
-                ]
-
-            ]
-        );
-        parent::init();
-    }*/
 
     public function init() {
         $this->tableName='Interactions';

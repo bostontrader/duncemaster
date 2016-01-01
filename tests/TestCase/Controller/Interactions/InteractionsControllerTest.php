@@ -103,6 +103,9 @@ class InteractionsControllerTest extends DMIntegrationTestCase {
         //    and that it has the correct quantity of available choices.
         if($this->selectCheckerA($form, 'InteractionItypeId','itypes')) $unknownSelectCnt--;
 
+        // 3.6 Ensure that there's an input field for participate, of type text, and that it is empty
+        if($this->inputCheckerA($form,'input#InteractionParticipate')) $unknownInputCnt--;
+
         // 4. Have all the input, select, and Atags been accounted for?
         $this->expectedInputsSelectsAtagsFound($unknownInputCnt, $unknownSelectCnt, $html, 'div#InteractionsAdd');
     }
@@ -121,6 +124,7 @@ class InteractionsControllerTest extends DMIntegrationTestCase {
         // 2. Now validate that record.
         $this->assertEquals($fromDbRecord['student_id'],$fixtureRecord['student_id']);
         $this->assertEquals($fromDbRecord['itype_id'],$fixtureRecord['itype_id']);
+        $this->assertEquals($fromDbRecord['participate'],$fixtureRecord['participate']);
     }
 
     public function testDeletePOST() {
@@ -180,6 +184,10 @@ class InteractionsControllerTest extends DMIntegrationTestCase {
         if($this->inputCheckerB($form,'select#InteractionItypeId option[selected]',$itype_id,$itype['title']))
             $unknownSelectCnt--;
 
+        // 3.6 Ensure that there's an input field for participate, of type text, and that it is correctly set
+        if($this->inputCheckerA($form,'input#InteractionParticipate',
+            $record2Edit['participate'])) $unknownInputCnt--;
+
         // 4. Have all the input, select, and Atags been accounted for?
         $this->expectedInputsSelectsAtagsFound($unknownInputCnt, $unknownSelectCnt, $html, 'div#InteractionsEdit');
     }
@@ -199,6 +207,7 @@ class InteractionsControllerTest extends DMIntegrationTestCase {
         $this->assertEquals($fromDbRecord['clazz_id'], $fixtureRecord['clazz_id']);
         $this->assertEquals($fromDbRecord['student_id'], $fixtureRecord['student_id']);
         $this->assertEquals($fromDbRecord['itype_id'], $fixtureRecord['itype_id']);
+        $this->assertEquals($fromDbRecord['participate'], $fixtureRecord['participate']);
     }
 
     public function testIndexGET() {
@@ -227,9 +236,10 @@ class InteractionsControllerTest extends DMIntegrationTestCase {
         $this->assertEquals($this->thead_ths[0]->id, 'clazz');
         $this->assertEquals($this->thead_ths[1]->id, 'student');
         $this->assertEquals($this->thead_ths[2]->id, 'itype');
-        $this->assertEquals($this->thead_ths[3]->id, 'actions');
+        $this->assertEquals($this->thead_ths[3]->id, 'participate');
+        $this->assertEquals($this->thead_ths[4]->id, 'actions');
         $column_count = count($this->thead_ths);
-        $this->assertEquals($column_count, 4); // no other columns
+        $this->assertEquals($column_count, 5); // no other columns
 
         // 6. Ensure that the tbody section has the same
         //    quantity of rows as the count of interaction records in the fixture.
@@ -264,8 +274,11 @@ class InteractionsControllerTest extends DMIntegrationTestCase {
             $itype = $this->itypesFixture->get($itype_id);
             $this->assertEquals($itype['title'], $htmlColumns[2]->plaintext);
 
-            // 7.3 Now examine the action links
-            $this->td = $htmlColumns[3];
+            // 7.3 participate
+            $this->assertEquals($fixtureRecord['participate'],  $htmlColumns[3]->plaintext);
+
+            // 7.4 Now examine the action links
+            $this->td = $htmlColumns[4];
             $actionLinks = $this->td->find('a');
             $this->assertEquals('InteractionView', $actionLinks[0]->name);
             $unknownATag--;
@@ -319,6 +332,11 @@ class InteractionsControllerTest extends DMIntegrationTestCase {
         $itype_id = $record2View['itype_id'];
         $itype = $this->itypesFixture->get($itype_id);
         $this->assertEquals($itype['title'], $field->plaintext);
+        $unknownRowCnt--;
+
+        // 3.4 participate
+        $field = $html->find('tr#participate td',0);
+        $this->assertEquals($record2View['participate'], $field->plaintext);
         $unknownRowCnt--;
 
         // 3.9 Have all the rows been accounted for?  Are there any extras?
