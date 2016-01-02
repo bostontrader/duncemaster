@@ -18,7 +18,7 @@
                 <th id="giv_name"><?= __('Giv Name') ?></th>
                 <th id="phonetic_name"><?= __('Phonetic Name') ?></th>
                 <th id="attend"><?= __('Attend') ?></th>
-                <th id="score"><?= __('Score') ?></th>
+                <th id="score"><?= __('Participate') ?></th>
             </tr>
             </thead>
             <tbody>
@@ -30,7 +30,7 @@
                         <td><?= $student['giv_name'] ?></td>
                         <td><?= $student['phonetic_name'] ?></td>
                         <td><?= $this->Form->input('attend.' . $student['student_id'], ['type' => 'checkbox', 'checked' => $student['itype_id']]); ?></td>
-                        <td><?= $this->Form->input('score.' . $student['student_id']); ?></td>
+                        <td><?= $this->Form->input('participate.' . $student['student_id']); ?></td>
                     </tr>
                 <?php endforeach; ?>
                 <?= $this->Form->button(__('Submit')) ?>

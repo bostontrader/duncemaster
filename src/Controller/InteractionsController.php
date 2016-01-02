@@ -39,44 +39,23 @@ class InteractionsController extends AppController {
 
             if ($this->request->is(['post'])) {
 
-                foreach($this->request->data['attend'] as $student_id=>$value) {
 
-                    // How many existing ATTEND record are there for this student in this class?
-                    /* @var \Cake\ORM\Query $query */
-                    $query = $this->Interactions->find('all')
-                        ->where(['student_id'=>$student_id])
-                        ->where(['clazz_id'=>$clazz_id])
-                        ->where(['itype_id'=>ItypesController::ATTEND]);
+                // We will simultaneously iterate over request->data['attend'] and request->data['participate']
+                // Make sure that these two arrays have the same quantity of elements and have
+                // the same keys.
+                // Each step corresponds to attendance and participation for a particular student
+                // in the relevant class.
+                // Although tempting to try this using MultipleIterator, that does not work.
+                // We apparently cannot get the key values!
+                foreach($this->request->data['attend'] as $student_id=>$attend_value) {
 
-                    switch($query->count()) {
-                        case 0:
-                            // There are no existing attendance records for this student
-                            // in this class.
-                            // If value is true then create a new record
-                            if($value==1) {
-                                $newInteraction = $this->Interactions->newEntity();
-                                $newInteraction = $this->Interactions->patchEntity($newInteraction, [
-                                    'student_id'=>$student_id,'clazz_id'=>$clazz_id,'itype_id'=>ItypesController::ATTEND
-                                ]);
+                    $participate_value=$this->request->data['participate'][$student_id];
 
-                                $this->Interactions->save($newInteraction);
-                            } // else do nothing
-                            break;
-                        case 1:
-                            // There is an existing record.
-                            // If value is true, then we're happy, do nothing
-                            // else delete the attendance record
-                            if($value==1) {
-                                // Don't worry... be happy
-                            } else {
-                                $interaction=$query->first();
-                                $this->Interactions->delete($interaction);
-                            }
-                            break;
-                        default:
-                            // Max fubar error. Jettison the warp core and run!
-                    }
+                    // Make sure that the Interactions table jives with the attendance value from the form
+                    $this->makeInteractionsJiveWithForm(ItypesController::ATTEND, $attend_value, $student_id, $clazz_id);
 
+                    // Do the same with the participation values
+                    $this->makeInteractionsJiveWithForm(ItypesController::PARTICIPATE, $participate_value, $student_id, $clazz_id);
                 }
 
             }
@@ -110,6 +89,44 @@ class InteractionsController extends AppController {
         }
 
         $this->set('studentsResults',$studentsResults);
+    }
+
+    private function makeInteractionsJiveWithForm($itype_id, $form_value, $student_id, $clazz_id) {
+        // How many existing records, of $itype_id, are there for this student in this class?
+        /* @var \Cake\ORM\Query $query */
+        $query = $this->Interactions->find('all')
+            ->where(['student_id'=>$student_id])
+            ->where(['clazz_id'=>$clazz_id])
+            ->where(['itype_id'=>$itype_id]);
+
+        switch($query->count()) {
+            case 0:
+                // There are no existing records for this student
+                // in this class.
+                // If there is a form_value then create a new record
+                if($form_value==1) {
+                    $newInteraction = $this->Interactions->newEntity();
+                    $newInteraction = $this->Interactions->patchEntity($newInteraction, [
+                        'student_id'=>$student_id,'clazz_id'=>$clazz_id,'itype_id'=>$itype_id
+                    ]);
+
+                    $this->Interactions->save($newInteraction);
+                } // else do nothing
+                break;
+            case 1:
+                // There is an existing record.
+                // If form_value is the same, then we're happy, do nothing
+                // else if form_value is different then change or delete the record
+                if($form_value==1) {
+                    // Don't worry... be happy
+                } else {
+                    $interaction=$query->first();
+                    $this->Interactions->delete($interaction);
+                }
+                break;
+            default:
+                // Max fubar error. Jettison the warp core and run!
+        }
     }
 
     public function delete($id = null) {
