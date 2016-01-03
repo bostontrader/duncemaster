@@ -58,7 +58,7 @@ class StudentsControllerTest extends DMIntegrationTestCase {
 
     public function testAddGET() {
 
-        // 1. Login, GET the url, parse the response and send it back.
+        // 1. Login, GET the url, and parse the response.
         $html=$this->loginRequestResponse(FixtureConstants::userAndyAdminId,'/students/add');
 
         // 2. Ensure that the correct form exists
@@ -220,7 +220,7 @@ class StudentsControllerTest extends DMIntegrationTestCase {
 
     public function testIndexGET() {
 
-        // 1. Login, GET the url, parse the response and send it back.
+        // 1. Login, GET the url, and parse the response.
         $html=$this->loginRequestResponse(FixtureConstants::userAndyAdminId,'/students/index');
 
         // 2. Get a the count of all <A> tags that are presently unaccounted for.
@@ -339,7 +339,7 @@ class StudentsControllerTest extends DMIntegrationTestCase {
         $this->fakeLogin(FixtureConstants::userAndyAdminId);
         $student_id = FixtureConstants::studentTypical;
         $fixtureRecord=$this->studentsFixture->get($student_id);
-        $fixtureRecord = FixtureConstants::studentTypical;
+        //$fixtureRecord = FixtureConstants::studentTypical;
         $this->get('/students/view/' . $student_id);
         $this->tstViewGet($fixtureRecord);
     }
@@ -353,13 +353,11 @@ class StudentsControllerTest extends DMIntegrationTestCase {
         $this->tstViewGet($fixtureRecord);
     }
 
-
     // Scenario 3. Don't care which student. Send a section_id as a request
     // param. Examine grading info.
     public function testViewGETWithRequestParameters() {
         $this->fakeLogin(FixtureConstants::userAndyAdminId);
-        $section_id=$this->sectionsFixture->records[0]['id'];
-        $section_id=$this->sectionsFixture->records[0]['id'];
+        //$section_id=$this->sectionsFixture->records[0]['id'];
         $section_id = FixtureConstants::studentTypical;
         $this->get(
             '/students/view/'.$this->studentsFixture->records[0]['id'].
