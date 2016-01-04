@@ -339,7 +339,6 @@ class StudentsControllerTest extends DMIntegrationTestCase {
         $this->fakeLogin(FixtureConstants::userAndyAdminId);
         $student_id = FixtureConstants::studentTypical;
         $fixtureRecord=$this->studentsFixture->get($student_id);
-        //$fixtureRecord = FixtureConstants::studentTypical;
         $this->get('/students/view/' . $student_id);
         $this->tstViewGet($fixtureRecord);
     }
@@ -347,9 +346,9 @@ class StudentsControllerTest extends DMIntegrationTestCase {
     // Scenario 2.
     public function testViewGETWithOutUser() {
         $this->fakeLogin(FixtureConstants::userAndyAdminId);
-        //$fixtureRecord=$this->studentsFixture->records[0];
-        $fixtureRecord = FixtureConstants::studentTypical;
-        $this->get('/students/view/' . $fixtureRecord['id']);
+        $student_id = FixtureConstants::studentUserIdNull;
+        $fixtureRecord=$this->studentsFixture->get($student_id);
+        $this->get('/students/view/' . $student_id);
         $this->tstViewGet($fixtureRecord);
     }
 
@@ -357,10 +356,10 @@ class StudentsControllerTest extends DMIntegrationTestCase {
     // param. Examine grading info.
     public function testViewGETWithRequestParameters() {
         $this->fakeLogin(FixtureConstants::userAndyAdminId);
-        //$section_id=$this->sectionsFixture->records[0]['id'];
-        $section_id = FixtureConstants::studentTypical;
+        $student_id = FixtureConstants::studentTypical;
+        $section_id = FixtureConstants::sectionTypical;
         $this->get(
-            '/students/view/'.$this->studentsFixture->records[0]['id'].
+            '/students/view/'.$student_id.
             '?section_id='.$section_id
         );
         $this->assertResponseOk(); // 2xx

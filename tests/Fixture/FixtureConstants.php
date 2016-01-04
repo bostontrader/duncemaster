@@ -19,12 +19,8 @@ namespace App\Test\Fixture;
 class FixtureConstants {
 
     const clazzTypical = 1;
-    //const clazz2_id = 2;
-    //const clazz3_id = 3;
-    //const clazz4_id = 4;
 
     const cohortTypical = 1;
-    //const cohort2_id = 2;
 
     //const interaction1_id = 1;
 
@@ -35,7 +31,6 @@ class FixtureConstants {
     //const itypeExcusedAbsence_id = 5;
 
     const majorTypical = 1;
-    //const major2_id = 2;
 
     const roleAdminId = 1;
     const roleAdvisorId = 2;
@@ -43,35 +38,27 @@ class FixtureConstants {
     const roleTeacherId = 4;
 
     const sectionTypical = 1;
-    //const section2_id = 2;
 
     const semesterTypical = 1;
-    //const semester2_id = 2;
 
     const studentTypical = 10;
     const studentCohortIdNull = 79;
     const studentUserIdNull = 142;
-    //const student1_id = 1;
-    //const student2_id = 2;
-    //const student3_id = 3;
-    //const student4_id = 4;
 
     const subjectTypical = 1;
-    //const subject2_id = 2;
 
     const teacherTypical = 1;
     const teacherUserIdNull = 2;
 
     const tplanTypical =1;
-    //const tplan2_id =2;
 
     //const tplan_element1_id =1;
     //const tplan_element2_id =2;
 
-    const userAndyAdminId = 1;
-    const userArnoldAdvisorId = 2;
-    const userSallyStudentId = 3;
-    const userTommyTeacherId = 4;
+    const userAndyAdminId = 45;
+    const userArnoldAdvisorId = 46;
+    const userSallyStudentId = 47;
+    const userTommyTeacherId = 48;
 
     // When computing scores we need to very carefully weave the above records together such that
     // the following grading results are produced (and thus testable)
