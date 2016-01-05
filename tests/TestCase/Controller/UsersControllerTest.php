@@ -35,7 +35,7 @@ class UsersControllerTest extends DMIntegrationTestCase {
     public function testAddGET() {
 
         // 1. Simulate login, submit request, examine response.
-        $this->fakeLogin(FixtureConstants::userAndyAdminId);
+        /*$this->fakeLogin(FixtureConstants::userAndyAdminId);
         $this->get('/users/add');
         $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();
@@ -45,6 +45,13 @@ class UsersControllerTest extends DMIntegrationTestCase {
 
         // 3. Ensure that the correct form exists
         $form = $html->find('form#UserAddForm',0);
+        $this->assertNotNull($form);*/
+        // 1. Login, GET the url, parse the response and send it back.
+        $html=$this->loginRequestResponse(FixtureConstants::userAndyAdminId,'/majors/add');
+
+        // 2. Ensure that the correct form exists
+        /* @var \simple_html_dom_node $form */
+        $form = $html->find('form#MajorAddForm',0);
         $this->assertNotNull($form);
 
         // 4. Now inspect the fields on the form.  We want to know that:
@@ -63,20 +70,25 @@ class UsersControllerTest extends DMIntegrationTestCase {
         if($this->lookForHiddenInput($form)) $unknownInputCnt--;
 
         // 4.3 Ensure that there's an input field for username, of type text, and that it is empty
-        $input = $form->find('input#UserUsername',0);
-        $this->assertEquals($input->type, "text");
-        $this->assertEquals($input->value, false);
-        $unknownInputCnt--;
+        //$input = $form->find('input#UserUsername',0);
+        //$this->assertEquals($input->type, "text");
+        //$this->assertEquals($input->value, false);
+        //$unknownInputCnt--;
+        if($this->inputCheckerA($form,'input#MajorTitle')) $unknownInputCnt--;
 
         // 4.4 Ensure that there's an input field for password, of type text, and that it is empty
-        $input = $form->find('input#UserPassword',0);
-        $this->assertEquals($input->type, "text");
-        $this->assertEquals($input->value, false);
-        $unknownInputCnt--;
+        //$input = $form->find('input#UserPassword',0);
+        //$this->assertEquals($input->type, "text");
+        //$this->assertEquals($input->value, false);
+        //$unknownInputCnt--;
+        if($this->inputCheckerA($form,'input#MajorTitle')) $unknownInputCnt--;
 
         // 4.5 Ensure that there's a select field for roles.ids, that it has no selection,
         //    and that it has the correct quantity of available choices.
-        if($this->lookForSelect($form,'UserRoles','roles')) $unknownSelectCnt--;
+        //if($this->lookForSelect($form,'UserRoles','roles')) $unknownSelectCnt--;
+        // 3.3 Ensure that there's a select field for cohort_id, that it has no selection,
+        //    and that it has the correct quantity of available choices.
+        if($this->selectCheckerA($form, 'SectionCohortId', 'cohorts')) $unknownSelectCnt--;
 
         // 4.6 Because UserRoles is a multi-select, there should also be an associated
         // hidden input. Note: supply blank value argument because we're looking
@@ -85,19 +97,22 @@ class UsersControllerTest extends DMIntegrationTestCase {
 
         // 4.9 Have all the input and select fields been accounted for?  Are there
         // any extras?
-        $this->assertEquals(0, $unknownInputCnt);
+        /*$this->assertEquals(0, $unknownInputCnt);
         $this->assertEquals(0, $unknownSelectCnt);
 
         // 5. Examine the <A> tags on this page.  There should be zero links.
         $content = $html->find('div#UsersAdd',0);
         $this->assertNotNull($content);
         $links = $content->find('a');
-        $this->assertEquals(0,count($links));
+        $this->assertEquals(0,count($links));*/
+
+        // 4. Have all the input, select, and Atags been accounted for?
+        $this->expectedInputsSelectsAtagsFound($unknownInputCnt, $unknownSelectCnt, $html, 'div#MajorsAdd');
     }
 
     public function testAddPOST() {
 
-        $this->fakeLogin(FixtureConstants::userAndyAdminId);
+        /*$this->fakeLogin(FixtureConstants::userAndyAdminId);
         $this->post('/users/add', $this->usersFixture->newUserRecord);
         $this->assertResponseSuccess(); // 2xx, 3xx
         $this->assertRedirect( '/users' );
@@ -108,7 +123,19 @@ class UsersControllerTest extends DMIntegrationTestCase {
         $this->assertEquals(1, $query->count());
 
         // Now retrieve that 1 record and compare to what we expect
-        $new_user = $this->users->get($new_id);
+        $new_user = $this->users->get($new_id);*/
+
+        // 1. Login, POST a suitable record to the url, redirect, and return the record just
+        // posted, as read from the db.
+        $fixtureRecord=$this->majorsFixture->newMajorRecord;
+        $fromDbRecord=$this->genericAddPostProlog(
+            FixtureConstants::userAndyAdminId,
+            '/majors/add', $fixtureRecord,
+            '/majors', $this->majors
+        );
+
+        // 2. Now validate that record.
+        $this->assertEquals($fromDbRecord['title'],$fixtureRecord['title']);
         $this->assertEquals($new_user['username'],$this->usersFixture->newUserRecord['username']);
 
         // The password is hashed and needs to be checked using the hashed-password checking mechanism
@@ -118,22 +145,29 @@ class UsersControllerTest extends DMIntegrationTestCase {
 
     public function testDeletePOST() {
 
-        $this->fakeLogin(FixtureConstants::userAndyAdminId);
-        $user_id = $this->usersFixture->userSallyStudentRecord['id'];
+        /*$this->fakeLogin(FixtureConstants::userAndyAdminId);
+        //$user_id = $this->usersFixture->userSallyStudentRecord['id'];
+        $user_id = FixtureConstants::userSallyStudentId;
         $this->post('/users/delete/' . $user_id);
         $this->assertResponseSuccess(); // 2xx, 3xx
         $this->assertRedirect( '/users' );
 
         // Now verify that the record no longer exists
         $query = $this->users->find()->where(['id' => $user_id]);
-        $this->assertEquals(0, $query->count());
+        $this->assertEquals(0, $query->count());*/
+        $major_id = $this->majorsFixture->records[0]['id'];
+        $this->deletePOST(
+            FixtureConstants::userAndyAdminId, '/majors/delete/',
+            $major_id, '/majors', $this->majors
+        );
     }
 
     public function testEditGET() {
 
         // 1. Simulate login, submit request, examine response.
         $this->fakeLogin(FixtureConstants::userAndyAdminId);
-        $this->get('/users/edit/' . $this->usersFixture->userSallyStudentRecord['id']);
+        $user_id = FixtureConstants::userSallyStudentId;
+        $this->get('/users/edit/' . $user_id);
         $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();
 
