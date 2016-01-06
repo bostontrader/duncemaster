@@ -34,261 +34,179 @@ class UsersControllerTest extends DMIntegrationTestCase {
 
     public function testAddGET() {
 
-        // 1. Simulate login, submit request, examine response.
-        /*$this->fakeLogin(FixtureConstants::userAndyAdminId);
-        $this->get('/users/add');
-        $this->assertResponseOk(); // 2xx
-        $this->assertNoRedirect();
-
-        // 2. Parse the html from the response
-        $html = str_get_html($this->_response->body());
-
-        // 3. Ensure that the correct form exists
-        $form = $html->find('form#UserAddForm',0);
-        $this->assertNotNull($form);*/
         // 1. Login, GET the url, parse the response and send it back.
-        $html=$this->loginRequestResponse(FixtureConstants::userAndyAdminId,'/majors/add');
+        $html=$this->loginRequestResponse(FixtureConstants::userAndyAdminId,'/users/add');
 
         // 2. Ensure that the correct form exists
         /* @var \simple_html_dom_node $form */
-        $form = $html->find('form#MajorAddForm',0);
+        $form = $html->find('form#UserAddForm',0);
         $this->assertNotNull($form);
 
-        // 4. Now inspect the fields on the form.  We want to know that:
+        // 3. Now inspect the fields on the form.  We want to know that:
         // A. The correct fields are there and no other fields.
         // B. The fields have correct values. This includes verifying that select
         //    lists contain options.
         //
         //  The actual order that the fields are listed on the form is hereby deemed unimportant.
 
-        // 4.1 These are counts of the select and input fields on the form.  They
+        // 3.1 These are counts of the select and input fields on the form.  They
         // are presently unaccounted for.
         $unknownSelectCnt = count($form->find('select'));
         $unknownInputCnt = count($form->find('input'));
 
-        // 4.2 Look for the hidden POST input
+        // 3.2 Look for the hidden POST input
         if($this->lookForHiddenInput($form)) $unknownInputCnt--;
 
-        // 4.3 Ensure that there's an input field for username, of type text, and that it is empty
-        //$input = $form->find('input#UserUsername',0);
-        //$this->assertEquals($input->type, "text");
-        //$this->assertEquals($input->value, false);
-        //$unknownInputCnt--;
-        if($this->inputCheckerA($form,'input#MajorTitle')) $unknownInputCnt--;
+        // 3.3 Ensure that there's an input field for username, of type text, and that it is empty
+        if($this->inputCheckerA($form,'input#UserUsername')) $unknownInputCnt--;
 
-        // 4.4 Ensure that there's an input field for password, of type text, and that it is empty
-        //$input = $form->find('input#UserPassword',0);
-        //$this->assertEquals($input->type, "text");
-        //$this->assertEquals($input->value, false);
-        //$unknownInputCnt--;
-        if($this->inputCheckerA($form,'input#MajorTitle')) $unknownInputCnt--;
+        // 3.4 Ensure that there's an input field for password, of type text, and that it is empty
+        if($this->inputCheckerA($form,'input#UserPassword')) $unknownInputCnt--;
 
-        // 4.5 Ensure that there's a select field for roles.ids, that it has no selection,
-        //    and that it has the correct quantity of available choices.
-        //if($this->lookForSelect($form,'UserRoles','roles')) $unknownSelectCnt--;
-        // 3.3 Ensure that there's a select field for cohort_id, that it has no selection,
-        //    and that it has the correct quantity of available choices.
-        if($this->selectCheckerA($form, 'SectionCohortId', 'cohorts')) $unknownSelectCnt--;
+        // 3.5 Ensure that there's a select field for roles.ids, that it has no selection,
+        if($this->selectCheckerA($form, 'UserRoles', 'roles')) $unknownSelectCnt--;
 
-        // 4.6 Because UserRoles is a multi-select, there should also be an associated
+        // 3.6 Because UserRoles is a multi-select, there should also be an associated
         // hidden input. Note: supply blank value argument because we're looking
         // for a blank value. Don't want the default value.
         if($this->lookForHiddenInput($form, 'roles[_ids]', '')) $unknownInputCnt--;
 
-        // 4.9 Have all the input and select fields been accounted for?  Are there
-        // any extras?
-        /*$this->assertEquals(0, $unknownInputCnt);
-        $this->assertEquals(0, $unknownSelectCnt);
-
-        // 5. Examine the <A> tags on this page.  There should be zero links.
-        $content = $html->find('div#UsersAdd',0);
-        $this->assertNotNull($content);
-        $links = $content->find('a');
-        $this->assertEquals(0,count($links));*/
-
         // 4. Have all the input, select, and Atags been accounted for?
-        $this->expectedInputsSelectsAtagsFound($unknownInputCnt, $unknownSelectCnt, $html, 'div#MajorsAdd');
+        $this->expectedInputsSelectsAtagsFound($unknownInputCnt, $unknownSelectCnt, $html, 'div#UsersAdd');
     }
 
     public function testAddPOST() {
 
-        /*$this->fakeLogin(FixtureConstants::userAndyAdminId);
-        $this->post('/users/add', $this->usersFixture->newUserRecord);
-        $this->assertResponseSuccess(); // 2xx, 3xx
-        $this->assertRedirect( '/users' );
-
-        // Now verify what we think just got written
-        $new_id = count($this->usersFixture->records) + 1;
-        $query = $this->users->find()->where(['id' => $new_id]);
-        $this->assertEquals(1, $query->count());
-
-        // Now retrieve that 1 record and compare to what we expect
-        $new_user = $this->users->get($new_id);*/
-
         // 1. Login, POST a suitable record to the url, redirect, and return the record just
         // posted, as read from the db.
-        $fixtureRecord=$this->majorsFixture->newMajorRecord;
+        $fixtureRecord=$this->usersFixture->newUserRecord;
         $fromDbRecord=$this->genericAddPostProlog(
             FixtureConstants::userAndyAdminId,
-            '/majors/add', $fixtureRecord,
-            '/majors', $this->majors
+            '/users/add', $fixtureRecord,
+            '/users', $this->users
         );
 
         // 2. Now validate that record.
-        $this->assertEquals($fromDbRecord['title'],$fixtureRecord['title']);
-        $this->assertEquals($new_user['username'],$this->usersFixture->newUserRecord['username']);
+        $this->assertEquals($fromDbRecord['username'],$fixtureRecord['username']);
 
-        // The password is hashed and needs to be checked using the hashed-password checking mechanism
+        // 3. The password is hashed and needs to be checked using the hashed-password checking mechanism
         $dph = new DefaultPasswordHasher();
-        $this->assertTrue($dph->check($this->usersFixture->newUserRecord['password'], $new_user['password']));
+        $this->assertTrue($dph->check($fixtureRecord['password'], $fromDbRecord['password']));
     }
 
     public function testDeletePOST() {
 
-        /*$this->fakeLogin(FixtureConstants::userAndyAdminId);
-        //$user_id = $this->usersFixture->userSallyStudentRecord['id'];
-        $user_id = FixtureConstants::userSallyStudentId;
-        $this->post('/users/delete/' . $user_id);
-        $this->assertResponseSuccess(); // 2xx, 3xx
-        $this->assertRedirect( '/users' );
-
-        // Now verify that the record no longer exists
-        $query = $this->users->find()->where(['id' => $user_id]);
-        $this->assertEquals(0, $query->count());*/
-        $major_id = $this->majorsFixture->records[0]['id'];
+        $user_id = $this->usersFixture->records[0]['id'];
         $this->deletePOST(
-            FixtureConstants::userAndyAdminId, '/majors/delete/',
-            $major_id, '/majors', $this->majors
+            FixtureConstants::userAndyAdminId, '/users/delete/',
+            $user_id, '/users', $this->users
         );
     }
 
     public function testEditGET() {
 
-        // 1. Simulate login, submit request, examine response.
-        $this->fakeLogin(FixtureConstants::userAndyAdminId);
-        $user_id = FixtureConstants::userSallyStudentId;
-        $this->get('/users/edit/' . $user_id);
-        $this->assertResponseOk(); // 2xx
-        $this->assertNoRedirect();
+        // 1. Obtain a record to edit, login, GET the url, parse the response and send it back.
+        $record2Edit=$this->usersFixture->records[0];
+        $url='/users/edit/' . $record2Edit['id'];
+        $html=$this->loginRequestResponse(FixtureConstants::userAndyAdminId,$url);
 
-        // 2. Parse the html from the response
-        $html = str_get_html($this->_response->body());
-
-        // 3. Ensure that the correct form exists
+        // 2. Ensure that the correct form exists
+        /* @var \simple_html_dom_node $form */
         $form = $html->find('form#UserEditForm',0);
         $this->assertNotNull($form);
-
-        // 4. Now inspect the fields on the form.  We want to know that:
+        
+        // 3. Now inspect the fields on the form.  We want to know that:
         // A. The correct fields are there and no other fields.
         // B. The fields have correct values. This includes verifying that select
         //    lists contain options.
         //
         //  The actual order that the fields are listed on the form is hereby deemed unimportant.
 
-        // 4.1 These are counts of the select and input fields on the form.  They
+        // 3.1 These are counts of the select and input fields on the form.  They
         // are presently unaccounted for.
         $unknownSelectCnt = count($form->find('select'));
         $unknownInputCnt = count($form->find('input'));
 
-        // 4.2 Look for the hidden POST input
+        // 3.2 Look for the hidden POST input
         if($this->lookForHiddenInput($form,'_method','PUT')) $unknownInputCnt--;
 
-        // 4.3 Ensure that there's an input field for username, of type text, and that it is correctly set
-        $input = $form->find('input#UserUsername',0);
-        $this->assertEquals($input->type, "text");
-        $this->assertEquals($input->value, $this->usersFixture->userSallyStudentRecord['username']);
-        $unknownInputCnt--;
+        // 3.3 Ensure that there's an input field for username, of type text, and that it is correctly set
+        if($this->inputCheckerA($form,'input#UserUsername',
+            $record2Edit['username'])) $unknownInputCnt--;
 
-        // 4.4 Ensure that there's an input field for password, of type text, and that it is correctly
+        // 3.4 Ensure that there's an input field for password, of type text, and that it is correctly
         // set. Note: In this special case, the password is not hashed, because the record was injected
         // by the FixtureManager, which apparently doesn't bother with such niceties.
         // The password is hashed and needs to be checked using the hashed-password checking mechanism.
-        $input = $form->find('input#UserPassword',0);
-        $this->assertEquals($input->type, "text");
-        $this->assertEquals($input->value, $this->usersFixture->userSallyStudentRecord['password']);
-        $unknownInputCnt--;
+        if($this->inputCheckerA($form,'input#UserPassword',
+            $record2Edit['password'])) $unknownInputCnt--;
 
-        // 4.6 Because UserRoles is a multi-select, there should also be an associated
+        // 3.5 check for properly set roles. For now, assume it's ok
+        $unknownSelectCnt--;
+        
+        // 3.6 Because UserRoles is a multi-select, there should also be an associated
         // hidden input. Note: supply blank value argument because we're looking
         // for a blank value. Don't want the default value.
         if($this->lookForHiddenInput($form, 'roles[_ids]', '')) $unknownInputCnt--;
 
-        // 4.9 Have all the input and select fields been accounted for?  Are there
-        // any extras?
-        $this->assertEquals(0, $unknownInputCnt);
-        //$this->assertEquals(0, $unknownSelectCnt);
-
-        // 5. Examine the <A> tags on this page.  There should be zero links.
-        $content = $html->find('div#UsersEdit',0);
-        $this->assertNotNull($content);
-        $links = $content->find('a');
-        $this->assertEquals(0,count($links));
+        // 4. Have all the input, select, and Atags been accounted for?
+        $this->expectedInputsSelectsAtagsFound($unknownInputCnt, $unknownSelectCnt, $html, 'div#UsersEdit');
     }
 
     public function testEditPOST() {
 
-        $this->fakeLogin(FixtureConstants::userAndyAdminId);
-        $user_id = $this->usersFixture->userSallyStudentRecord['id'];
-        $this->put('/users/edit/' . $user_id, $this->usersFixture->newUserRecord);
-        $this->assertResponseSuccess(); // 2xx, 3xx
-        $this->assertRedirect('/users');
+        // 1. Login, POST a suitable record to the url, redirect, and return the record just
+        // posted, as read from the db.
+        $fixtureRecord=$this->usersFixture->newUserRecord;
+        $fromDbRecord=$this->genericEditPutProlog(
+            FixtureConstants::userAndyAdminId,
+            '/users/edit', $fixtureRecord,
+            '/users', $this->users
+        );
 
-        // Now verify what we think just got written
-        $query = $this->users->find()->where(['id' => $user_id]);
-        $this->assertEquals(1, $query->count());
+        // 2. Now validate that record.
+        $this->assertEquals($fromDbRecord['username'],$fixtureRecord['username']);
 
-        // Now retrieve that 1 record and compare to what we expect
-        $user = $this->users->get($user_id);
-
-        // Username
-        $this->assertEquals($user['username'],$this->usersFixture->newUserRecord['username']);
-
-        // The password is hashed and needs to be checked using the hashed-password checking mechanism.
+        // 3. The password is hashed and needs to be checked using the hashed-password checking mechanism.
         $dph = new DefaultPasswordHasher();
-        $this->assertTrue($dph->check($this->usersFixture->newUserRecord['password'], $user['password']));
+        $this->assertTrue($dph->check($fixtureRecord['password'], $fromDbRecord['password']));
     }
 
     public function testIndexGET() {
 
-        // 1. Simulate login, submit request, examine response.
-        $this->fakeLogin(FixtureConstants::userAndyAdminId);
-        $this->get('/users/index');
-        $this->assertResponseOk(); // 2xx
-        $this->assertNoRedirect();
+        // 1. Login, GET the url, parse the response and send it back.
+        $html=$this->loginRequestResponse(FixtureConstants::userAndyAdminId,'/users/index');
 
-        // 2. Parse the html from the response
-        $html = str_get_html($this->_response->body());
+        // 2. Get a the count of all <A> tags that are presently unaccounted for.
+        $this->content = $html->find('div#UsersIndex',0);
+        $this->assertNotNull($this->content);
+        $unknownATag = count($this->content->find('a'));
 
-        // 3. Get a the count of all <A> tags that are presently unaccounted for.
-        $content = $html->find('div#UsersIndex',0);
-        $this->assertNotNull($content);
-        $unknownATag = count($content->find('a'));
-
-        // 4. Look for the create new user link
+        // 3. Look for the create new user link
         $this->assertEquals(1, count($html->find('a#UserAdd')));
         $unknownATag--;
 
-        // 5. Ensure that there is a suitably named table to display the results.
-        $users_table = $html->find('table#UsersTable',0);
-        $this->assertNotNull($users_table);
+        // 4. Ensure that there is a suitably named table to display the results.
+        $this->table = $html->find('table#UsersTable',0);
+        $this->assertNotNull($this->table);
 
-        // 6. Ensure that said table's thead element contains the correct
+        // 5. Ensure that said table's thead element contains the correct
         //    headings, in the correct order, and nothing else.
-        $thead = $users_table->find('thead',0);
-        $thead_ths = $thead->find('tr th');
+        $this->thead = $this->table->find('thead',0);
+        $thead_ths = $this->thead->find('tr th');
 
         $this->assertEquals($thead_ths[0]->id, 'username');
         $this->assertEquals($thead_ths[1]->id, 'actions');
         $column_count = count($thead_ths);
         $this->assertEquals($column_count,2); // no other columns
 
-        // 7. Ensure that the tbody section has the same
+        // 6. Ensure that the tbody section has the same
         //    quantity of rows as the count of users records in the fixture.
-        $tbody = $users_table->find('tbody',0);
-        $tbody_rows = $tbody->find('tr');
+        $this->tbody = $this->table->find('tbody',0);
+        $tbody_rows = $this->tbody->find('tr');
         $this->assertEquals(count($tbody_rows), count($this->usersFixture->records));
 
-        // 8. Ensure that the values displayed in each row, match the values from
+        // 7. Ensure that the values displayed in each row, match the values from
         //    the fixture.  The values should be presented in a particular order
         //    with nothing else thereafter.
         $iterator = new \MultipleIterator();
@@ -297,16 +215,17 @@ class UsersControllerTest extends DMIntegrationTestCase {
 
         foreach ($iterator as $values) {
             $fixtureRecord = $values[0];
-            $htmlRow = $values[1];
-            $htmlColumns = $htmlRow->find('td');
+            $this->htmlRow = $values[1];
+            $htmlColumns = $this->htmlRow->find('td');
 
-            // 8.0 username
+            // 7.0 username
             $this->assertEquals($fixtureRecord['username'],  $htmlColumns[0]->plaintext);
 
             // We don't need to display a password.  What's the point of displaying a long hashed, password?
 
-            // 8.1 Now examine the action links
-            $actionLinks = $htmlColumns[1]->find('a');
+            // 7.1 Now examine the action links
+            $this->td = $htmlColumns[1];
+            $actionLinks = $this->td->find('a');
             $this->assertEquals('UserView', $actionLinks[0]->name);
             $unknownATag--;
             $this->assertEquals('UserEdit', $actionLinks[1]->name);
@@ -314,40 +233,37 @@ class UsersControllerTest extends DMIntegrationTestCase {
             $this->assertEquals('UserDelete', $actionLinks[2]->name);
             $unknownATag--;
 
-            // 8.9 No other columns
+            // 7.9 No other columns
             $this->assertEquals(count($htmlColumns),$column_count);
         }
 
-        // 9. Ensure that all the <A> tags have been accounted for
+        // 8. Ensure that all the <A> tags have been accounted for
         $this->assertEquals(0, $unknownATag);
     }
 
     public function testViewGET() {
 
-        $this->fakeLogin(FixtureConstants::userAndyAdminId);
-        $this->get('/users/view/' . $this->usersFixture->userSallyStudentRecord['id']);
-        $this->assertResponseOk(); // 2xx
-        $this->assertNoRedirect();
+        // 1. Obtain a record to view, login, GET the url, parse the response and send it back.
+        $record2View=$this->usersFixture->records[0];
+        $url='/users/view/' . $record2View['id'];
+        $html=$this->loginRequestResponse(FixtureConstants::userAndyAdminId,$url);
+        
+        // 2.  Look for the table that contains the view fields.
+        $this->table = $html->find('table#UserViewTable',0);
+        $this->assertNotNull($this->table);
 
-        // Parse the html from the response
-        $html = str_get_html($this->_response->body());
-
-        // 1.  Look for the table that contains the view fields.
-        $table = $html->find('table#UserViewTable',0);
-        $this->assertNotNull($table);
-
-        // 2. Now inspect the fields on the form.  We want to know that:
+        // 3. Now inspect the fields on the form.  We want to know that:
         // A. The correct fields are there and no other fields.
         // B. The fields have correct values.
         //
         //  The actual order that the fields are listed is hereby deemed unimportant.
 
         // This is the count of the table rows that are presently unaccounted for.
-        $unknownRowCnt = count($table->find('tr'));
+        $unknownRowCnt = count($this->table->find('tr'));
 
-        // 2.1 username
+        // 3.1 username
         $field = $html->find('tr#username td',0);
-        $this->assertEquals($this->usersFixture->userSallyStudentRecord['username'], $field->plaintext);
+        $this->assertEquals($record2View['username'], $field->plaintext);
         $unknownRowCnt--;
 
         // We don't need to display a password.  What's the point of displaying a long hashed, password?
@@ -356,10 +272,9 @@ class UsersControllerTest extends DMIntegrationTestCase {
         $this->assertEquals(0, $unknownRowCnt);
 
         // 3. Examine the <A> tags on this page.  There should be zero links.
-        $content = $html->find('div#UsersView',0);
-        $this->assertNotNull($content);
-
-        $links = $content->find('a');
+        $this->content = $html->find('div#UsersView',0);
+        $this->assertNotNull($this->content);
+        $links = $this->content->find('a');
         $this->assertEquals(0,count($links));
     }
 }
