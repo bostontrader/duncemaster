@@ -25,10 +25,13 @@ class InteractionsController extends AppController {
     }
 
     //
-    // This function functions similarly to edit.  That is, GET /interactions/attend
+    // This function functions similarly to edit and participate.  That is, GET /interactions/attend
     // will produce an entry form, pre-populated with any existing relevant information,
     // and POST /interactions/attend will submit info to the controller that needs to be
     // written to the db.
+    //
+    // You might be tempted to combine the attend and participate forms. Resist the urge.
+    // Doing so will lead you into a snakepit of needless complexity. Keep 'em separate and simple.
     public function attend() {
 
         $this->request->allowMethod(['get', 'post']);
@@ -39,25 +42,45 @@ class InteractionsController extends AppController {
 
             if ($this->request->is(['post'])) {
 
-
-                // We will simultaneously iterate over request->data['attend'] and request->data['participate']
-                // Make sure that these two arrays have the same quantity of elements and have
-                // the same keys.
-                // Each step corresponds to attendance and participation for a particular student
-                // in the relevant class.
-                // Although tempting to try this using MultipleIterator, that does not work.
-                // We apparently cannot get the key values!
                 foreach($this->request->data['attend'] as $student_id=>$attend_value) {
 
-                    $participate_value=$this->request->data['participate'][$student_id];
+                    // How many existing records, of $itype_id=ATTEND, are there for this student in this class?
+                    /* @var \Cake\ORM\Query $query */
+                    $query = $this->Interactions->find('all')
+                        ->where(['student_id'=>$student_id])
+                        ->where(['clazz_id'=>$clazz_id])
+                        ->where(['itype_id'=>ItypesController::ATTEND]);
 
-                    // Make sure that the Interactions table jives with the attendance value from the form
-                    $this->makeInteractionsJiveWithForm(ItypesController::ATTEND, $attend_value, $student_id, $clazz_id);
+                    // There are no existing ATTEND records for this student,
+                    // in this class.
+                    switch($query->count()) {
+                        case 0:
+                            // If there is any value from the form, create a new ATTEND record
+                            if($attend_value==1) {
+                                $newInteraction = $this->Interactions->newEntity();
+                                $newInteraction = $this->Interactions->patchEntity($newInteraction, [
+                                    'student_id'=>$student_id,'clazz_id'=>$clazz_id,'itype_id'=>ItypesController::ATTEND
+                                ]);
+                                $this->Interactions->save($newInteraction);
+                            } // else do nothing
+                            break;
 
-                    // Do the same with the participation values
-                    $this->makeInteractionsJiveWithForm(ItypesController::PARTICIPATE, $participate_value, $student_id, $clazz_id);
+                        // There is a single existing record.
+                        case 1:
+
+                            $interaction=$query->first();
+                            if($attend_value==1) {
+                                // The mere existence of this record indicates attendance
+                                // Don't worry... be happy
+                            } else {
+                                $this->Interactions->delete($interaction);
+                            }
+
+                        // There should only be zero or one records.
+                        default:
+                            // Max fubar error. Jettison the warp core and run!
+                    }
                 }
-
             }
 
             // The attendance form is fairly complicated. Listen closely...
@@ -79,54 +102,15 @@ class InteractionsController extends AppController {
                 left join sections on sections.cohort_id = cohorts.id
                 left join clazzes on clazzes.section_id = sections.id
                 left join interactions on interactions.clazz_id=clazzes.id and interactions.student_id=students.id and interactions.itype_id=".ItypesController::ATTEND." where clazzes.id=".$clazz_id.
-                " order by sort"
-            ;
+                " order by sort";
 
-            $studentsResults = $connection->execute($query)->fetchAll('assoc');
+            $attendResults = $connection->execute($query)->fetchAll('assoc');
         } else {
             // no class_id specified
-            $studentsResults=[];
+            $attendResults=[];
         }
 
-        $this->set('studentsResults',$studentsResults);
-    }
-
-    private function makeInteractionsJiveWithForm($itype_id, $form_value, $student_id, $clazz_id) {
-        // How many existing records, of $itype_id, are there for this student in this class?
-        /* @var \Cake\ORM\Query $query */
-        $query = $this->Interactions->find('all')
-            ->where(['student_id'=>$student_id])
-            ->where(['clazz_id'=>$clazz_id])
-            ->where(['itype_id'=>$itype_id]);
-
-        switch($query->count()) {
-            case 0:
-                // There are no existing records for this student
-                // in this class.
-                // If there is a form_value then create a new record
-                if($form_value==1) {
-                    $newInteraction = $this->Interactions->newEntity();
-                    $newInteraction = $this->Interactions->patchEntity($newInteraction, [
-                        'student_id'=>$student_id,'clazz_id'=>$clazz_id,'itype_id'=>$itype_id
-                    ]);
-
-                    $this->Interactions->save($newInteraction);
-                } // else do nothing
-                break;
-            case 1:
-                // There is an existing record.
-                // If form_value is the same, then we're happy, do nothing
-                // else if form_value is different then change or delete the record
-                if($form_value==1) {
-                    // Don't worry... be happy
-                } else {
-                    $interaction=$query->first();
-                    $this->Interactions->delete($interaction);
-                }
-                break;
-            default:
-                // Max fubar error. Jettison the warp core and run!
-        }
+        $this->set('attendResults',$attendResults);
     }
 
     public function delete($id = null) {
@@ -162,6 +146,99 @@ class InteractionsController extends AppController {
     public function index() {
         $this->request->allowMethod(['get']);
         $this->set('interactions', $this->Interactions->find('all', ['contain' => ['Clazzes','Itypes','Students']]));
+    }
+
+    //
+    // This function functions similarly to edit and attend.  That is, GET /interactions/participate
+    // will produce an entry form, pre-populated with any existing relevant information,
+    // and POST /interactions/participate will submit info to the controller that needs to be
+    // written to the db.
+    //
+    // You might be tempted to combine the attend and participate forms. Resist the urge.
+    // Doing so will lead you into a snakepit of needless complexity. Keep 'em separate and simple.
+    public function participate() {
+
+        $this->request->allowMethod(['get', 'post']);
+
+        // Must have a clazz_id request parameter
+        if(array_key_exists('clazz_id', $this->request->query)) {
+            $clazz_id = $this->request->query['clazz_id'];
+
+            if ($this->request->is(['post'])) {
+
+                foreach($this->request->data['participate'] as $student_id=>$participate_value) {
+
+                    // How many existing records, of $itype_id=PARTICIPATE, are there for this student in this class?
+                    /* @var \Cake\ORM\Query $query */
+                    $query = $this->Interactions->find('all')
+                        ->where(['student_id'=>$student_id])
+                        ->where(['clazz_id'=>$clazz_id])
+                        ->where(['itype_id'=>ItypesController::PARTICIPATE]);
+
+                    switch($query->count()) {
+                        // There are no existing PARTICIPATE records for this student,
+                        // in this class.
+                        case 0:
+                            // If there is any value from the form, create a new PARTICIPATE record
+                            if($participate_value!='') {
+                                $newInteraction = $this->Interactions->newEntity();
+                                $newInteraction = $this->Interactions->patchEntity($newInteraction, [
+                                    'student_id'=>$student_id,'clazz_id'=>$clazz_id,'itype_id'=>ItypesController::PARTICIPATE,'participate'=>$participate_value
+                                ]);
+                                $this->Interactions->save($newInteraction);
+                            } // else do nothing
+                            break;
+
+                        // There is a single existing record.
+                        case 1:
+                            // If there is no value from the form then delete the record.
+                            // Else update the record with the new value.
+                            $interaction=$query->first();
+
+                            if($participate_value=='') {
+                                $this->Interactions->delete($interaction);
+                            } else {
+                                $interaction = $this->Interactions->patchEntity($interaction, [
+                                    'participate'=>$participate_value
+                                ]);
+                                $this->Interactions->save($interaction);
+                            }
+                            break;
+
+                        // There should only be zero or one records.
+                        default:
+                            // Max fubar error. Jettison the warp core and run!
+                    }
+                }
+            }
+
+            // The participation form is fairly complicated. Listen closely...
+            //
+            // 1. Given a clazz_id, who are the students? This can be found by tracing through
+            // clazzes, sections, cohorts, and thence to students.
+            //
+            // 2. Left join this to any interactions for this class, with Itype=Participate,
+            //
+            // I spent way too much time futily trying to get this to work using the ORM.
+            // Fuck it. Use a direct connection.
+            //
+            /* @var \Cake\Database\Connection $connection */
+            $connection = ConnectionManager::get('default');
+            $query = "select students.id as student_id, students.sort, students.sid, students.giv_name, students.fam_name, students.phonetic_name, interactions.itype_id, interactions.participate, cohorts.id as cohort_id, sections.id as section_id, clazzes.id as clazz_id
+                from students
+                left join cohorts on students.cohort_id = cohorts.id
+                left join sections on sections.cohort_id = cohorts.id
+                left join clazzes on clazzes.section_id = sections.id
+                left join interactions on interactions.clazz_id=clazzes.id and interactions.student_id=students.id and interactions.itype_id=".ItypesController::PARTICIPATE."  where clazzes.id=".$clazz_id.
+                " order by sort";
+
+            $participationResults = $connection->execute($query)->fetchAll('assoc');
+        } else {
+            // no class_id specified
+            $participationResults=[];
+        }
+
+        $this->set('participationResults',$participationResults);
     }
 
     public function view($id = null) {

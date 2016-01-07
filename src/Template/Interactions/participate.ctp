@@ -1,13 +1,13 @@
 <?php
 /**
- * @var array $attend
- * @var array $attendResults
+ * @var array $participate
+ * @var array $participationResults
  */
 ?>
-<div id="InteractionsAttend">
+<div id="InteractionsParticipate">
     <div class="interactions index large-9 medium-8 columns content">
         <h3><?= __('Interactions') ?></h3>
-        <?= $this->Form->create(null,['id'=>'InteractionAttendForm']) ?>
+        <?= $this->Form->create(null,['id'=>'InteractionParticipateForm']) ?>
 
         <table id="InteractionsTable" cellpadding="0" cellspacing="0">
             <thead>
@@ -17,18 +17,18 @@
                 <th id="fam_name"><?= __('Fam Name') ?></th>
                 <th id="giv_name"><?= __('Giv Name') ?></th>
                 <th id="phonetic_name"><?= __('Phonetic Name') ?></th>
-                <th id="attend"><?= __('Attend') ?></th>
+                <th id="participate"><?= __('Participate') ?></th>
             </tr>
             </thead>
             <tbody>
-                <?php foreach ($attendResults as $attend): ?>
+                <?php foreach ($participationResults as $participate): ?>
                     <tr>
-                        <td><?= $attend['sort'] ?></td>
-                        <td><?= $attend['sid'] ?></td>
-                        <td><?= $attend['fam_name'] ?></td>
-                        <td><?= $attend['giv_name'] ?></td>
-                        <td><?= $attend['phonetic_name'] ?></td>
-                        <td><?= $this->Form->input('attend.' . $attend['student_id'], ['type' => 'checkbox', 'checked' => $attend['itype_id']]); ?></td>
+                        <td><?= $participate['sort'] ?></td>
+                        <td><?= $participate['sid'] ?></td>
+                        <td><?= $participate['fam_name'] ?></td>
+                        <td><?= $participate['giv_name'] ?></td>
+                        <td><?= $participate['phonetic_name'] ?></td>
+                        <td><?= $this->Form->input('participate.' . $participate['student_id'],['value'=>$participate['participate']]); ?></td>
                     </tr>
                 <?php endforeach; ?>
                 <?= $this->Form->button(__('Submit')) ?>
