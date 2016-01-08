@@ -1,6 +1,8 @@
 <?php
 namespace App\Controller;
 
+use Cake\Datasource\ConnectionManager;
+
 class ClazzesController extends AppController {
 
     public function add() {
@@ -56,16 +58,22 @@ class ClazzesController extends AppController {
 
     public function index() {
         $this->request->allowMethod(['get']);
-
         $section_id=null;
-        $query=$this->Clazzes->find('all', ['contain' => 'Sections']);
+
+        /* @var \Cake\Database\Connection $connection */
+        $connection = ConnectionManager::get('default');
+
+        $query = "select clazzes.id, event_datetime, comments, count(if(itype_id=1,1,null)) as attend_cnt, count(if(itype_id=4,1,null)) as participate_cnt
+            from clazzes left join interactions on clazzes.id=interactions.clazz_id";
 
         if(array_key_exists('section_id', $this->request->query)) {
             $section_id=$this->request->query['section_id'];
-            $query->where('section_id=' . $section_id);
+            $query .= " where section_id=$section_id";
         }
+        $query .= " group by clazzes.id";
+        $results = $connection->execute($query)->fetchAll('assoc');
 
-        $this->set('clazzes', $query);
+        $this->set('clazzes', $results);
         $this->set('section_id', $section_id);
     }
 
