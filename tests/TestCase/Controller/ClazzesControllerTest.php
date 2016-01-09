@@ -300,21 +300,37 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
         $this->thead = $this->table->find('thead',0);
         $thead_ths = $this->thead->find('tr th');
 
-        $this->assertEquals($thead_ths[0]->id, 'section');
-        $this->assertEquals($thead_ths[1]->id, 'week');
-        $this->assertEquals($thead_ths[2]->id, 'event_datetime');
-        $this->assertEquals($thead_ths[3]->id, 'comments');
+        $this->assertEquals($thead_ths[0]->id, 'event_datetime');
+        $this->assertEquals($thead_ths[1]->id, 'comments');
+        $this->assertEquals($thead_ths[2]->id, 'attend');
+        $this->assertEquals($thead_ths[3]->id, 'participate');
         $this->assertEquals($thead_ths[4]->id, 'actions');
         $column_count = count($thead_ths);
         $this->assertEquals($column_count,5); // no other columns
 
-        // 3. Ensure that the tbody section has the same
-        //    quantity of rows as the count of expected clazz records in the fixture, filtered by $sectionId
+        // 3. Ensure that the tbody section has the correct quantity of rows.
+        // This should be done using a very similar query as used by the controller.
         $this->tbody = $this->table->find('tbody',0);
-        $tbody_rows = $this->tbody->find('tr');
-        if(!is_null($sectionId))
-            $clazzesFixture->filterBySectionId($sectionId);
-        $this->assertEquals(count($tbody_rows), count($clazzesFixture->records));
+        $this->tbody_rows = $this->tbody->find('tr');
+        //if(!is_null($sectionId))
+            //$clazzesFixture->filterBySectionId($sectionId);
+        //$this->assertEquals(count($tbody_rows), count($clazzesFixture->records));
+
+
+        $connection = ConnectionManager::get('default');
+
+        // This query should be essentially the same as the query in InteractionsController.attend
+        $query = "select students.sort, students.sid, students.id as student_id, students.giv_name, students.fam_name, students.phonetic_name, cohorts.id, sections.id, clazzes.id
+            from students
+            left join cohorts on students.cohort_id = cohorts.id
+            left join sections on sections.cohort_id = cohorts.id
+            left join clazzes on clazzes.section_id = sections.id
+            left join interactions on interactions.clazz_id=clazzes.id and interactions.student_id=students.id and interactions.itype_id=".ItypesController::ATTEND." where clazzes.id=".$clazz_id.
+            " order by sort";
+        $studentsResults = $connection->execute($query)->fetchAll('assoc');
+        $s1=count($this->tbody_rows);
+        $s2=count($studentsResults);
+        $this->assertEquals($s1,$s2);
 
         // 4. Ensure that the values displayed in each row, match the values from
         //    the fixture.  The values should be presented in a particular order
@@ -329,30 +345,25 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
             $this->htmlRow = $values[1];
             $htmlColumns = $this->htmlRow->find('td');
 
-            // 8.0 section_nickname (virtual field of Section)
-            $section = $sections->get($fixtureRecord['section_id']);
-            $this->assertEquals($section->nickname, $htmlColumns[0]->plaintext);
+            // 8.0 event_datetime
+            $this->assertEquals($fixtureRecord['event_datetime'], $htmlColumns[0]->plaintext);
 
-            // 8.1 week (virtual field of Clazz)
-            $clazz = $clazzes->get($fixtureRecord['id']);
-            $this->assertEquals($clazz->week, $htmlColumns[1]->plaintext);
+            // 8.1 comments
+            $this->assertEquals($fixtureRecord['comments'], $htmlColumns[1]->plaintext);
 
-            // 8.2 event_datetime
-            $this->assertEquals($fixtureRecord['event_datetime'], $htmlColumns[2]->plaintext);
-
-            // 8.3 comments
-            $this->assertEquals($fixtureRecord['comments'], $htmlColumns[3]->plaintext);
 
             // 8.4 Now examine the action links
             $this->td = $htmlColumns[4];
             $actionLinks = $this->td->find('a');
-            $this->assertEquals('ClazzAttendance', $actionLinks[0]->name);
+            $this->assertEquals('ClazzAttend', $actionLinks[0]->name);
             $aTagsFoundCnt++;
-            $this->assertEquals('ClazzView', $actionLinks[1]->name);
+            $this->assertEquals('ClazzParticipate', $actionLinks[1]->name);
             $aTagsFoundCnt++;
-            $this->assertEquals('ClazzEdit', $actionLinks[2]->name);
+            $this->assertEquals('ClazzView', $actionLinks[2]->name);
             $aTagsFoundCnt++;
-            $this->assertEquals('ClazzDelete', $actionLinks[3]->name);
+            $this->assertEquals('ClazzEdit', $actionLinks[3]->name);
+            $aTagsFoundCnt++;
+            $this->assertEquals('ClazzDelete', $actionLinks[4]->name);
             $aTagsFoundCnt++;
 
             // 8.9 No other columns

@@ -30,22 +30,23 @@ class GraderComponent extends Component {
     // Get the grades for a particular student from a particular section.
     public function getGradeInfo($section_id = null, $student_id = null) {
 
-        // 1. How many times has this particular section met?
+        // 1. Attedance
+        // 1.1 How many times has this particular section met?
         $clazzes = TableRegistry::get('Clazzes');
         $interactions = TableRegistry::get('Interactions');
         $query = $clazzes->find()->where(['section_id' => $section_id]);
         $clazzCnt=$query->count();
 
-        // 2. How many times has the student attended that section?
+        // 1.2 How many times has the student attended that section?
         $attendCnt=$this->itypeCounter($interactions, ItypesController::ATTEND, $section_id, $student_id);
 
-        // 3. How many excused absences does the student have?
+        // 1.3 How many excused absences does the student have?
         $excusedAbsenceCnt=$this->itypeCounter($interactions, ItypesController::EXCUSED, $section_id, $student_id);
 
-        // 4. How many times has the student been ejected from class?
+        // 1.4 How many times has the student been ejected from class?
         $ejectedFromClassCnt=$this->itypeCounter($interactions, ItypesController::EJECT, $section_id, $student_id);
 
-        // 5. How many times has the student left the class?
+        // 1.5 How many times has the student left the class?
         $leftClassCnt=$this->itypeCounter($interactions, ItypesController::LEAVE, $section_id, $student_id);
 
         // A = sum(2+-5) / 1
@@ -54,15 +55,20 @@ class GraderComponent extends Component {
         } else {
             $scoreAttendance=($attendCnt+$excusedAbsenceCnt-$ejectedFromClassCnt-$leftClassCnt)/$clazzCnt;
         }
-        // What is the average class participation ?
-        // select avg from interactions where student_id = student and section_id = section and code=participation
 
-        // Homework = cp
-        // What is the final exam?
-        // select from interactions where student_id = student and section_id = section and code=final exam
+        // 2. What is the average class participation ?
+        $query=$interactions->find('all')
+            ->select(['avg' => $query->func()->avg('participate')])
+            ->leftJoinWith('Clazzes.Sections')
+            ->where(
+                [
+                    'section_id' => $section_id,
+                    'student_id' => $student_id,
+                    'itype_id' => ItypesController::PARTICIPATE
+                ]);
 
-        //$Sections = TableRegistry::get('Sections');
-        //$sections_list = $Sections->find('list');
+        $c = $query->execute($query)->fetchAll('assoc');
+
 
         return [
             'clazzCnt'=>$clazzCnt,
@@ -71,8 +77,9 @@ class GraderComponent extends Component {
             'ejectedFromClassCnt'=>$ejectedFromClassCnt,
             'leftClassCnt'=>$leftClassCnt,
             'scoreAttendance'=>$scoreAttendance,
-            'classroom_participation'=>[1,2,3],
-            'final_exam'=>8
+            'scoreParticipation'=>$c[0]['avg'],
+            'scoreHomework'=>$c[0]['avg'],
+            'final_exam'=>$c[0]['avg']
         ];
     }
 

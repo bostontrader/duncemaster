@@ -60,25 +60,52 @@
                 <td><?= $grade['clazzCnt'] ?></td>
             </tr>
             <tr>
-                <th><?= __('Total attendance, this semester') ?></th>
+                <th><?= __('Total attendance') ?></th>
                 <td><?= $grade['attendCnt'] ?></td>
             </tr>
             <tr>
-                <th><?= __('Excused absences, this semester') ?></th>
+                <th><?= __('Excused absences') ?></th>
                 <td><?= $grade['excusedAbsenceCnt'] ?></td>
             </tr>
             <tr>
-                <th><?= __('Ejected from class, this semester') ?></th>
+                <th><?= __('Ejected from class') ?></th>
                 <td><?= $grade['ejectedFromClassCnt'] ?></td>
             </tr>
             <tr>
-                <th><?= __('Left class early, this semester') ?></th>
+                <th><?= __('Left class early') ?></th>
                 <td><?= $grade['leftClassCnt'] ?></td>
             </tr>
             <tr>
-                <th><?= __('Score- Attendance, this semester') ?></th>
-                <td><?= $grade['scoreAttendance'] ?></td>
+                <th><?= __('Score- Attendance') ?></th>
+                <td><?= $grade['scoreAttendance'] ?></td><td>x 0.3</td><td><?= $grade['scoreAttendance']*0.3 ?></td>
             </tr>
+            <tr>
+                <th><?= __('Score- Homework') ?></th>
+                <td><?= $grade['scoreHomework'] ?></td><td>x 0.2</td><td><?= $grade['scoreHomework']*0.5 ?></td>
+            </tr>
+            <tr>
+                <th><?= __('Score- Participation') ?></th>
+                <td><?= $grade['scoreParticipation'] ?></td><td>x 0.5</td><td><?= $grade['scoreParticipation']*0.2 ?></td>
+            </tr>
+            <tr>
+                <th><?= __('Total classroom score') ?></th>
+                <td></td><td></td><td><?= $n=$grade['scoreAttendance']*0.3 + $grade['scoreHomework']*0.5 + $grade['scoreParticipation']*0.2 ?></td>
+            </tr>
+
+            <tr>
+                <th><?= __('Total classroom score') ?></th>
+                <td><?= $n ?></td><td>x 0.6</td><td><?= $n*0.6 ?></td>
+            </tr>
+            <tr>
+                <th><?= __('Final exam') ?></th>
+                <td><?= 100 ?></td><td>x 0.4</td><td><?= 40.0 ?></td>
+            </tr>
+            <tr>
+                <th><?= __('Final score') ?></th>
+                <td></td><td></td><td><?= $n*0.6+40 ?></td>
+            </tr>
+
+
         </table>
         <?php } ?>
     </div>
