@@ -35,14 +35,13 @@ class SectionsController extends AppController {
         $pdf->setPrintFooter(false);
 
         $pdf->AddPage();
-        $pdf->SetXY(100,10);
+
         $pdf->SetFontSize(22);
+        $pdf->SetXY(100,10);
         $pdf->Cell(100,0,'山东旅游职业学院考评登记表',0,0,'C');
 
-        $pdf->SetFontSize(12);
-        //$pdf->SetFont('cid0cs', '', 12, '', true);
-
         // semester xue qi
+        $pdf->SetFontSize(12);
         $pdf->SetXY(236,16);
         $pdf->Cell(0,0,'学期:');
         $pdf->Line(248,21,273,21); // h
