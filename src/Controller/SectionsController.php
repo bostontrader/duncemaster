@@ -1,6 +1,8 @@
 <?php
 namespace App\Controller;
 
+use Cake\Datasource\ConnectionManager;
+
 class SectionsController extends AppController {
 
     public function add() {
@@ -182,23 +184,61 @@ class SectionsController extends AppController {
         }
         $pdf->Line($priorX1,45,$rightX,35); // sloped
 
+        // WARNING: SQL Injection risk!
+        // This query collects the students names and sids, in sid order. Other queries collect
+        // other info, also in sid order. Be careful to ensure that each query contains
+        // exactly the same students.
+        // |-------------------|-------------------|--------------|
+        // | students.fam_name | students.giv_name | students.sid |
+        // section 2, cohort 3
+
+/*        */
+
+        /* @var \Cake\Database\Connection $connection */
+        $connection = ConnectionManager::get('default');
+        $query = "SELECT sid, fam_name, giv_name from students
+            left join cohorts  on students.cohort_id=cohorts.id
+            left join sections on cohorts.id=sections.cohort_id
+            where sections.id=$id order by sid";
+        $classRoster = $connection->execute($query)->fetchAll('assoc');
+
+
+        // This query collects attendance info, in sid order. Other queries collect
+        // other info, also in sid order. Be careful to ensure that each query contains
+        // exactly the same students.
+        // |--------------|--|
+        // | students.sid |
+        /* @var \Cake\Database\Connection $connection */
+        /*$connection = ConnectionManager::get('default');
+        $query = "select students.id as student_id, students.sort, students.sid, students.giv_name, students.fam_name, students.phonetic_name, interactions.itype_id, cohorts.id as cohort_id, sections.id as section_id, clazzes.id as clazz_id
+                from students
+                left join cohorts on students.cohort_id = cohorts.id
+                left join sections on sections.cohort_id = cohorts.id
+                left join interactions on interactions.clazz_id=clazzes.id and interactions.student_id=students.id and interactions.itype_id=".ItypesController::ATTEND." where clazzes.id=".$clazz_id.
+            " order by sort";
+
+        $attendResults = $connection->execute($query)->fetchAll('assoc');*/
+
         // Fill in the form
         foreach($cy as $yidx=>$y2) {
             $pdf->SetXY($cx['a'],$y2);
             $pdf->Cell(7,0,$yidx+1,0,0,'C');    // sequence no
 
             $pdf->SetXY($cx['b'],$y2);
-            $pdf->Cell(10,0,1234,0,0,'R');
+            $sid=substr($classRoster[$yidx]['sid'],-4);
+            $pdf->Cell(10,0,$sid,0,0,'R');
 
             $pdf->SetXY($cx['c'],$y2);
-            $pdf->Cell(20,0,'name',0,0,'L');
+            $fullName=$classRoster[$yidx]['fam_name'].$classRoster[$yidx]['giv_name'];
+            $pdf->Cell(20,0,$fullName,0,0,'L');
 
             for($i=0; $i<=11; $i++) {
                 $pdf->SetXY($cx['weeks'][$i]['a'],$y2);
-                $pdf->Cell(9,0,'aaa',0,0,'C');
+                //$pdf->Cell(9,0,'aaa',0,0,'C');
 
                 $pdf->SetXY($cx['weeks'][$i]['b'],$y2);
-                $pdf->Cell(9,0,'bbb',0,0,'C');            }
+                //$pdf->Cell(9,0,'bbb',0,0,'C');
+            }
         }
 
 
