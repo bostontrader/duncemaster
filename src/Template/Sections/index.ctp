@@ -34,6 +34,7 @@
                     <td><?= $section->start_time ?></td>
                     <td><?= $section->thours ?></td>
                     <td class="actions">
+                        <?= $this->Html->link(__('Attend'), ['action' => 'attend', $section->id],['name'=>'SectionAttend']) ?>
                         <?= $this->Html->link(__('Classes'), ['controller' => 'clazzes', 'action' => 'index', 'section_id' => $section['id']],['name'=>'SectionClazzes']) ?>
                         <?= $this->Html->link(__('View'), ['action' => 'view', $section->id],['name'=>'SectionView']) ?>
                         <?= $this->Html->link(__('Edit'), ['action' => 'edit', $section->id],['name'=>'SectionEdit']) ?>

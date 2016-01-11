@@ -6,6 +6,10 @@ use App\Test\Fixture\FixtureConstants;
 use App\Test\Fixture\SectionsFixture;
 use Cake\ORM\TableRegistry;
 
+/**
+ * Class ClazzesControllerTest
+ * @package App\Test\TestCase\Controller
+ */
 class ClazzesControllerTest extends DMIntegrationTestCase {
 
     public $fixtures = [
@@ -48,16 +52,46 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
         $this->tstUnauthorizedActionsAndUsers('clazzes');
     }
 
-    // GET /add, no section_id parameter
+    /**
+    * GET /clazzes/add?section_id=n
+    * Returns the new class form
+    * 1. The new class form can only be seen by admin or a teacher.
+    * 2. A class must have an associated section.
+    * 3. The form will present a select list of candidate sections and by default no option will be selected.
+    * 4. If (the request includes a section_id param), then
+    *      If (the section_id param matches an available choice) then
+    *          the value of that param will be used by the form to set the initial selection in the select list
+    *
+    * 5. The avail choices for the select list are:
+    *      If (user is-an admin) then
+    *          all current sections
+    *      else if (user is-a teacher) then
+    *          all current sections for this teacher
+    */
+
     public function testAddGet() {
-        $this->tstAddGet(null);
+
+        // 1. Build a list of all sections for the present semester
+        $allCurrentSections = [];
+
+        // 2. Build a list of all sections for the present semester for this teacher
+        $allCurrentSectionsForThisTeacher = [];
+
+        // admin   GET /clazzes/add
+        $this->tstAddGet(FixtureConstants::userAndyAdminId, $allCurrentSections);
+        // admin   GET /clazzes/add?section_id=n
+        $this->tstAddGet(FixtureConstants::userAndyAdminId, $allCurrentSections, FixtureConstants::userAndyAdminId);
+        // teacher GET /clazzes/add
+        $this->tstAddGet(FixtureConstants::userTommyTeacherId, $allCurrentSectionsForThisTeacher);
+        // teacher GET /clazzes/add?section_id=n
+        $this->tstAddGet(FixtureConstants::userTommyTeacherId, $allCurrentSectionsForThisTeacher, FixtureConstants::userAndyAdminId);
     }
 
     // GET /add, with section_id parameter
-    public function testAddGetSectionId() {
+    //public function testAddGetSectionId() {
         //$this->tstAddGet($this->sectionsFixture->section1Record['id']);
-        $this->tstAddGet($this->clazzesFixture->records[0]['section_id']);
-    }
+        //$this->tstAddGet($this->clazzesFixture->records[0]['section_id']);
+    //}
 
     private function tstAddGET($section_id=null) {
 
