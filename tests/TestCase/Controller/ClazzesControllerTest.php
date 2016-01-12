@@ -4,6 +4,7 @@ namespace App\Test\TestCase\Controller;
 use App\Test\Fixture\ClazzesFixture;
 use App\Test\Fixture\FixtureConstants;
 use App\Test\Fixture\SectionsFixture;
+use Cake\Datasource\ConnectionManager;
 use Cake\ORM\TableRegistry;
 
 /**
@@ -42,69 +43,91 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
 
     // Test that unauthenticated users, when submitting a request to
     // an action, will get redirected to the login url.
-    public function testUnauthenticatedActionsAndUsers() {
-        $this->tstUnauthenticatedActionsAndUsers('clazzes');
-    }
+    //public function testUnauthenticatedActionsAndUsers() {
+        //$this->tstUnauthenticatedActionsAndUsers('clazzes');
+    //}
 
     // Test that users who do not have correct roles, when submitting a request to
     // an action, will get redirected to the home page.
-    public function testUnauthorizedActionsAndUsers() {
-        $this->tstUnauthorizedActionsAndUsers('clazzes');
-    }
+    //public function testUnauthorizedActionsAndUsers() {
+        //$this->tstUnauthorizedActionsAndUsers('clazzes');
+    //}
 
     /**
-    * GET /clazzes/add?section_id=n
-    * Returns the new class form
-    * 1. The new class form can only be seen by admin or a teacher.
-    * 2. A class must have an associated section.
-    * 3. The form will present a select list of candidate sections and by default no option will be selected.
-    * 4. If (the request includes a section_id param), then
-    *      If (the section_id param matches an available choice) then
-    *          the value of that param will be used by the form to set the initial selection in the select list
-    *
-    * 5. The avail choices for the select list are:
-    *      If (user is-an admin) then
-    *          all current sections
-    *      else if (user is-a teacher) then
-    *          all current sections for this teacher
-    */
+     * GET /clazzes/add?section_id=n
+     * Returns the new clazz form.
+     *
+     * The section_id parameter is mandatory. Because...
+     * A clazz needs an associated section. The entry form can easily enough present a select-list
+     * of section choices. But if the request _does not_ specify a section then which sections should
+     * appear in the select list? Including all of them will involve a long and cumbersome list
+     * because it's filled with sections from semesters past. But pruning that list is a remarkably
+     * slippery and needlessly tedious issue best left as an exercise for the reader.
+     *
+     * As a practical matter, this is a non-issue. The creation of a new clazz should be in the
+     * context of a section (and its teacher and semester) that has already been determined.
+     * We'll still use a select-list, but now we can populate it with only those sections from
+     * the same semester, with the same teacher, as the section specified by the request.
+     *
+     * 1. The new class form can only be seen by an admin or the teacher of the specified section.
+     *    We don't want to leak _any_ information to users who are not properly authorized. This
+     *    form will contain a list of sections, so redirect to /clazzes/index if not properly authorized.
+     * 2. A class must have an associated section.
+     * 3. The form will present a select list of candidate sections and by default no option will be selected.
+     *    If (the section_id param matches an available choice) then
+     *      the value of that param will be used by the form to set the initial selection in the select list.
+     * 4. The avail choices for the select list are:
+     *    all sections from the same semester, with the same teacher, as the section specified by the request.
+     */
 
     public function testAddGet() {
 
-        // 1. Build a list of all sections for the present semester
-        $allCurrentSections = [];
+        // 1. Build a list of all sections that have the same semester and teacher
+        // as the given typical section
+        $query = "SELECT DISTINCT b.id
+            FROM sections AS a, sections AS b
+            WHERE a.semester_id=b.semester_id
+            and a.teacher_id=b.teacher_id
+            and a.id=".FixtureConstants::sectionTypical;
 
-        // 2. Build a list of all sections for the present semester for this teacher
-        $allCurrentSectionsForThisTeacher = [];
+        /* @var \Cake\Database\Connection $connection */
+        $connection = ConnectionManager::get('default');
+        $allSectionsForThisTeacherAndSemester = $connection->execute($query)->fetchAll('assoc');
 
-        // admin   GET /clazzes/add
-        $this->tstAddGet(FixtureConstants::userAndyAdminId, $allCurrentSections);
-        // admin   GET /clazzes/add?section_id=n
-        $this->tstAddGet(FixtureConstants::userAndyAdminId, $allCurrentSections, FixtureConstants::userAndyAdminId);
-        // teacher GET /clazzes/add
-        $this->tstAddGet(FixtureConstants::userTommyTeacherId, $allCurrentSectionsForThisTeacher);
-        // teacher GET /clazzes/add?section_id=n
-        $this->tstAddGet(FixtureConstants::userTommyTeacherId, $allCurrentSectionsForThisTeacher, FixtureConstants::userAndyAdminId);
+        // 2.1 admin   GET /clazzes/add
+        //     The section_id param is missing and mandatory.
+        //     Redirect to /clazzes/index
+        $this->tstAddGet(FixtureConstants::userAndyAdminId);
+
+        // 2.2 teacher1 GET /clazzes/add?section_id=n
+        //     Note: Make sure userTommyTeacher is the teacher for sectionTypical.
+        $this->tstAddGet(FixtureConstants::userTommyTeacherId, FixtureConstants::sectionTypical, $allSectionsForThisTeacherAndSemester);
+
+        // 2.3 teacher2 GET /clazzes/add?section_id=n
+        //     Note: Make sure userTommyTeacher is NOT the teacher for sectionTypical.
+        $this->tstAddGet(FixtureConstants::userTommyTeacherId, FixtureConstants::sectionTypical, $allSectionsForThisTeacherAndSemester);
+
+        // 2.4 admin   GET /clazzes/add?section_id=n
+        //     An admin can do this but the select list is still populated with the same sections as for
+        //     a teacher.
+        $this->tstAddGet(FixtureConstants::userAndyAdminId, FixtureConstants::sectionTypical, $allSectionsForThisTeacherAndSemester);
     }
 
-    // GET /add, with section_id parameter
-    //public function testAddGetSectionId() {
-        //$this->tstAddGet($this->sectionsFixture->section1Record['id']);
-        //$this->tstAddGet($this->clazzesFixture->records[0]['section_id']);
-    //}
 
-    private function tstAddGET($section_id=null) {
+    private function tstAddGET($user_id, $section_id=null, $allSectionsForThisTeacherAndSemester=[]) {
 
         // 1. Simulate login, submit request, examine response.
-        $this->fakeLogin(FixtureConstants::userAndyAdminId);
+        $this->fakeLogin($user_id);
 
-        if(is_null($section_id))
+        if(is_null($section_id)) {
             $this->get('/clazzes/add');
-        else
-            $this->get('/clazzes/add?section_id=1');
-
-        $this->assertResponseOk(); // 2xx
-        $this->assertNoRedirect();
+            $this->assertResponseSuccess(); // 2xx, 3xx
+            $this->assertRedirect('/clazzes');
+        } else {
+            $this->get('/clazzes/add?section_id='.$section_id);
+            $this->assertResponseOk(); // 2xx
+            $this->assertNoRedirect();
+        }
 
         // 2. Parse the html from the response
         /* @var \simple_html_dom_node $html */

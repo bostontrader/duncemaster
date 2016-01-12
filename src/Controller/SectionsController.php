@@ -17,6 +17,7 @@ class SectionsController extends AppController {
                 //$this->Flash->error(__('The section could not be saved. Please, try again.'));
             }
         }
+
         $cohorts = $this->Sections->Cohorts->find('list',['contain' => ['Majors']]);
         $semesters = $this->Sections->Semesters->find('list');
         $teachers = $this->Sections->Teachers->find('list');

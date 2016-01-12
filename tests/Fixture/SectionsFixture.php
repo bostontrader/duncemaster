@@ -8,6 +8,7 @@ class SectionsFixture extends DMFixture {
     public $newSectionRecord = [
         'cohort_id'=>FixtureConstants::cohortTypical,
         'semester_id'=>FixtureConstants::semesterTypical,
+        'teacher_id'=>FixtureConstants::teacherTypical,
         'seq'=>1,
         'subject_id'=>FixtureConstants::subjectTypical,
         'tplan_id'=>FixtureConstants::tplanTypical,

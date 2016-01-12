@@ -8,12 +8,9 @@ class ClazzesController extends AppController {
     public function add() {
 
         $this->request->allowMethod(['get', 'post']);
-        $clazz = $this->Clazzes->newEntity();
-
-        if(array_key_exists('section_id', $this->request->query))
-            $clazz->section_id=$this->request->query['section_id'];
 
         if ($this->request->is('post')) {
+            $clazz = $this->Clazzes->newEntity();
             $clazz = $this->Clazzes->patchEntity($clazz, $this->request->data);
             if ($this->Clazzes->save($clazz)) {
                 //$this->Flash->success(__('The clazz has been saved.'));
@@ -22,6 +19,13 @@ class ClazzesController extends AppController {
                 //$this->Flash->error(__('The clazz could not be saved. Please, try again.'));
             }
         }
+
+        // Must have a section_id request parameter
+        if(array_key_exists('section_id', $this->request->query))
+            $clazz->section_id=$this->request->query['section_id'];
+        else
+            return $this->redirect(['action' => 'index']);
+
         $sections = $this->Clazzes->Sections->find('list');
         $this->set(compact('clazz','sections'));
         return null;

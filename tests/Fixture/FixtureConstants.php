@@ -59,6 +59,7 @@ class FixtureConstants {
     const userArnoldAdvisorId = 46;
     const userSallyStudentId = 47;
     const userTommyTeacherId = 48;
+    const userTammyTeacherId = 49;
 
     // When computing scores we need to very carefully weave the above records together such that
     // the following grading results are produced (and thus testable)
