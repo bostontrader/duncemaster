@@ -19,9 +19,10 @@ class SectionsController extends AppController {
         }
         $cohorts = $this->Sections->Cohorts->find('list',['contain' => ['Majors']]);
         $semesters = $this->Sections->Semesters->find('list');
+        $teachers = $this->Sections->Teachers->find('list');
         $subjects = $this->Sections->Subjects->find('list');
         $tplans = $this->Sections->Tplans->find('list');
-        $this->set(compact('cohorts','section','semesters','subjects','tplans'));
+        $this->set(compact('cohorts','section','semesters','subjects','teachers','tplans'));
         return null;
     }
 
@@ -286,7 +287,7 @@ class SectionsController extends AppController {
         $this->set(
             'sections', $this->Sections->find(
                 'all',
-                ['contain' => ['Cohorts.Majors','Semesters','Subjects','Tplans'],'order'=>['Semesters.year','Sections.seq']]
+                ['contain' => ['Cohorts.Majors','Semesters','Subjects','Teachers','Tplans'],'order'=>['Semesters.year','Sections.seq']]
             )
         );
     }

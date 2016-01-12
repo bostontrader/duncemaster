@@ -19,6 +19,10 @@
                 <th><?= __('Semester') ?></th>
                 <td><?= $section->semester->nickname ?></td>
             </tr>
+            <tr id="teacher">
+                <th><?= __('Teacher') ?></th>
+                <td><?= $section->teacher->fam_name ?></td>
+            </tr>
             <tr id="seq">
                 <th><?= __('Seq') ?></th>
                 <td><?= $section->seq ?></td>

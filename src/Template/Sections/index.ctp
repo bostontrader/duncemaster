@@ -15,6 +15,7 @@
                     <th id="seq"><?= __('seq') ?></th>
                     <th id="cohort"><?= __('cohort') ?></th>
                     <th id="subject"><?= __('subject') ?></th>
+                    <th id="teacher"><?= __('teacher') ?></th>
                     <th id="tplan"><?= __('tplan') ?></th>
                     <th id="weekday"><?= __('weekday') ?></th>
                     <th id="start_time"><?= __('start_time') ?></th>
@@ -29,6 +30,7 @@
                     <td><?= $section->seq ?></td>
                     <td><?= $section->cohort->nickname ?></td>
                     <td><?= $section->subject->title ?></td>
+                    <td><?= $section->teacher->fam_name ?></td>
                     <td><?= $section->tplan->title ?></td>
                     <td><?= $section->weekday ?></td>
                     <td><?= $section->start_time ?></td>
