@@ -6,6 +6,7 @@ use App\Test\Fixture\FixtureConstants;
 use App\Test\Fixture\SectionsFixture;
 use Cake\Datasource\ConnectionManager;
 use Cake\ORM\TableRegistry;
+use Cake\Routing\Router;
 
 /**
  * Class ClazzesControllerTest
@@ -81,6 +82,8 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
      */
 
     public function testAddGet() {
+
+        $routes = Router::routes();
 
         // 1. Build a list of all sections that have the same semester and teacher
         // as the given typical section

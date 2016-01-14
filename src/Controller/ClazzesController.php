@@ -2,6 +2,7 @@
 namespace App\Controller;
 
 use Cake\Datasource\ConnectionManager;
+use Cake\Network\Exception\BadRequestException;
 
 class ClazzesController extends AppController {
 
@@ -13,14 +14,18 @@ class ClazzesController extends AppController {
         //foreach($user->roles as $role) {
             //if($role->title=='admin') return true;
         //}
+        // are we admin?
+        // are we a teacher?
         return true;
     }
 
     /**
      * GET /clazzes/add?section_id=n
-     * Returns the new clazz form.
      *
-     * The section_id parameter is mandatory. Because...
+     * Returns a form for the creation of a new clazz. Said form includes a select-list of
+     * sections with section_id pre-selected.
+     *
+     * The section_id parameter is mandatory because...
      * A clazz needs an associated section. The entry form can easily enough present a select-list
      * of section choices. But if the request _does not_ specify a section then which sections should
      * appear in the select list? Including all of them will involve a long and cumbersome list
@@ -32,22 +37,45 @@ class ClazzesController extends AppController {
      * We'll still use a select-list, but now we can populate it with only those sections from
      * the same semester, with the same teacher, as the section specified by the request.
      *
-     * 1. The new class form can only be seen by an admin or the teacher of the specified section.
-     *    We don't want to leak _any_ information to users who are not properly authorized. This
-     *    form will contain a list of sections, so redirect to /clazzes/index if not properly authorized.
-     * 2. A class must have an associated section.
-     * 3. The form will present a select list of candidate sections and by default no option will be selected.
+     * Security:
+     * Only authenticated users with role=admin or role=teacher can see this form.
+     *
+     * We don't want to leak _any_ information to users who are not properly authorized. This
+     * form's select list contains a list of sections for a particular teacher.  Admins can
+     * see this and so can the specific teacher. But nobody else. Hence, the following error
+     * conditions and responses:
+     *
+     * 1. If no section id specified, throw a BadRequestException (400).
+     * 2. If authenticated user is not an admin, but _is_ a teacher, and said teacher is not the
+     *    teacher associated with the section id, throw a BadRequestException (400).
+     *
+     * These errors should only occur if somebody is directly fiddling with the URL, so fuck 'em, they
+     * don't need any user-friendly error reporting.
+     *
+     * That said, the rules:
+     * 1. The form will include a select list of candidate sections and by default no option will be selected.
      *    If (the section_id param matches an available choice) then
      *      the value of that param will be used by the form to set the initial selection in the select list.
-     * 4. The avail choices for the select list are:
-     *    all sections from the same semester, with the same teacher, as the section specified by the request.
+     * 2. The avail choices for the select list are:
+     *    all sections from the same semester, with the same teacher, as the section specified by the request,
+     *
      */
     public function add() {
 
         $this->request->allowMethod(['get', 'post']);
-        $clazz = $this->Clazzes->newEntity();
 
+        // 1. Must have a section_id request parameter
+        if(array_key_exists('section_id', $this->request->query)) {
+            $section_id = $this->request->query['section_id'];
+        } else {
+            //return $this->redirect(['action' => 'index']);
+            throw new BadRequestException("You need to include a 'section_id' parameter");
+        }
+
+        // 2. POST or GET?
         if ($this->request->is('post')) {
+            $clazz = $this->Clazzes->newEntity();
+            $clazz->section_id = $section_id;
             $clazz = $this->Clazzes->patchEntity($clazz, $this->request->data);
             if ($this->Clazzes->save($clazz)) {
                 //$this->Flash->success(__('The clazz has been saved.'));
@@ -55,19 +83,31 @@ class ClazzesController extends AppController {
             } else {
                 //$this->Flash->error(__('The clazz could not be saved. Please, try again.'));
             }
-        }
+        } else { // assume GET
 
-        // Must have a section_id request parameter
-        $n=(array_key_exists('section_id', $this->request->query));
-        if(array_key_exists('section_id', $this->request->query)) {
-            $clazz->section_id = $this->request->query['section_id'];
-        } else {
-            return $this->redirect(['action' => 'index']);
-        }
+            // 2.1 Retrieve the section record from $section_id. We might want to use ->get()
+            // but that throws an exception that I cannot seem to catch. So do it this way.
+            $query=$this->Clazzes->Sections
+                ->find('all')
+                ->where(['id'=>$section_id]);
 
-        $sections = $this->Clazzes->Sections->find('list');
-        $this->set(compact('clazz','sections'));
-        return null;
+            $count=$query->count();
+            if($count==1) {
+                $section=$query->first();
+                if  ($section['teacher_id']==1) {
+                    $sections = $this->Clazzes->Sections
+                        ->find('list')
+                        ->where('teacher_id');
+
+                    $this->set(compact('clazz', 'sections'));
+                    //return null;
+                }
+            }
+
+            throw new BadRequestException("You're not the teacher implied by the specified section_id, assuming this section even exists");
+
+
+        }
     }
 
     public function delete($id = null) {
