@@ -123,6 +123,7 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
             $this->get('/clazzes/add');
             $this->assertResponseSuccess(); // 2xx, 3xx
             $this->assertRedirect('/clazzes');
+            return;
         } else {
             $this->get('/clazzes/add?section_id='.$section_id);
             $this->assertResponseOk(); // 2xx
