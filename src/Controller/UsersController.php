@@ -15,6 +15,11 @@ class UsersController extends AppController {
             return true;
         }
 
+        // The logout action is always allowed.
+        if ($action == 'logout') {
+            return true;
+        }
+
         return false;
     }
 
@@ -84,7 +89,11 @@ class UsersController extends AppController {
         $this->viewBuilder()->layout('login');
         if ($this->request->is('post')) {
             $user = $this->Auth->identify();
+
+
+
             if ($user) {
+                $user['catfood']='yum';
                 $this->Auth->setUser($user);
                 return $this->redirect($this->Auth->redirectUrl());
             }

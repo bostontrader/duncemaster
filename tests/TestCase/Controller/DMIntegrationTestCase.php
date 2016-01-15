@@ -145,14 +145,14 @@ class DMIntegrationTestCase extends IntegrationTestCase {
     /**
      * Many tests need to login, issue a GET request, and receive and parse a response.
      *
-     * @param int $user_id Who shall we login as?
+     * @param int $user_id Who shall we login as? If null, don't login.
      * @param String $url
      * @return \simple_html_dom_node $html parsed dom that contains the response.
      */
     protected function loginRequestResponse($user_id, $url) {
 
         // 1. Simulate login, submit request, examine response.
-        $this->fakeLogin($user_id);
+        if(!is_null($user_id)) $this->fakeLogin($user_id);
         $this->get($url);
         $this->assertResponseOk(); // 2xx
         $this->assertNoRedirect();

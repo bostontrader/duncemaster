@@ -20,6 +20,124 @@ class UsersControllerTest extends DMIntegrationTestCase {
         $this->users = TableRegistry::get('Users');
     }
 
+    public function testLoginGET() {
+
+        // 1. Don't login, but GET the url, and parse the response.
+        $html=$this->loginRequestResponse(null,'/users/login');
+
+        // 2. Ensure that the correct form exists
+        /* @var \simple_html_dom_node $form */
+        $form = $html->find('form#UserLoginForm',0);
+        $this->assertNotNull($form);
+
+        // 3. Now inspect the fields on the form.  We want to know that:
+        // A. The correct fields are there and no other fields.
+        // B. The fields have correct values. This includes verifying that select
+        //    lists contain options.
+        //
+        //  The actual order that the fields are listed on the form is hereby deemed unimportant.
+
+        // 3.1 These are counts of the select and input fields on the form.  They
+        // are presently unaccounted for.
+        $unknownSelectCnt = count($form->find('select'));
+        $unknownInputCnt = count($form->find('input'));
+
+        // 3.2 Look for the hidden POST input
+        if($this->lookForHiddenInput($form)) $unknownInputCnt--;
+
+        // 3.3 Ensure that there's an input field for username, of type text, and that it is empty
+        if($this->inputCheckerA($form,'input#UserUsername')) $unknownInputCnt--;
+
+        // 3.4 Ensure that there's an input field for password, of type text, and that it is empty
+        if($this->inputCheckerA($form,'input#UserPassword')) $unknownInputCnt--;
+
+        // 4. Have all the input, select, and Atags been accounted for?
+        $this->expectedInputsSelectsAtagsFound($unknownInputCnt, $unknownSelectCnt, $html, 'div#UsersLogin');
+    }
+
+    // This is a completely different pattern. Can't use the conventional test.
+    // Instead of observing changes to the db, we need to observe the changes
+    // to the Auth component.
+    public function testLoginPOST() {
+
+        // Login as admin
+        $credentials=['username'=>'AndyAdmin','password'=>'passwordAndyAdmin'];
+        $this->post('/users/login', $credentials);
+        $this->assertResponseSuccess(); // 2xx, 3xx
+        $redirect_url='/';
+        $this->assertRedirect( $redirect_url );
+
+        // verify no teacher, no student
+        $authUser=$this->_controller->Auth->user();
+        $this->assertFalse(array_key_exists('teacher_id', $authUser));
+        $this->assertFalse(array_key_exists('student_id', $authUser));
+
+        // Login as advisor
+        $credentials=['username'=>'ArnoldAdvisor','password'=>'catfood'];
+        $this->post('/users/login', $credentials);
+        $this->assertResponseSuccess(); // 2xx, 3xx
+        $redirect_url='/';
+        $this->assertRedirect( $redirect_url );
+
+        // verify no teacher, no student
+        $authUser=$this->_controller->Auth->user();
+        $this->assertFalse(array_key_exists('teacher_id', $authUser));
+        $this->assertFalse(array_key_exists('student_id', $authUser));
+
+        // verify redirect
+        // verify no teacher, no student
+
+        // Login as teacher
+        // verify redirect
+        // verify teacher, no student
+
+        // Login as student
+        // verify redirect
+        // verify no teacher, but student
+
+        // Login as teacher and student
+        // verify redirect
+        // verify teacher and student
+
+        // Login as bad login
+        // verify redirect
+        // verify no login
+
+        $credentials=$this->usersFixture->newUserRecord;
+
+
+        //$this->fakeLogin($user_id);
+        $this->post('/users/login', $credentials);
+        $this->assertResponseSuccess(); // 2xx, 3xx
+        $redirect_url='/';
+        $this->assertRedirect( $redirect_url );
+
+        // Now retrieve the newly written record.
+        //$connection = ConnectionManager::get('test');
+        //$query=new Query($connection,$table);
+        //$fromDbRecord=$query->find('all')->order(['id' => 'DESC'])->first();
+
+        //return $fromDbRecord;
+
+        // 1. Login, POST a suitable record to the url, redirect, and return the record just
+        // posted, as read from the db.
+        //$fixtureRecord=$this->usersFixture->newUserRecord;
+        //$fromDbRecord=$this->genericAddPostProlog(
+        //FixtureConstants::userAndyAdminId,
+        //'/users/add', $fixtureRecord,
+        //'/users', $this->users
+        //);
+
+
+
+        // 2. Now validate that record.
+        //$this->assertEquals($fromDbRecord['username'],$fixtureRecord['username']);
+
+        // 3. The password is hashed and needs to be checked using the hashed-password checking mechanism
+        //$dph = new DefaultPasswordHasher();
+        //$this->assertTrue($dph->check($fixtureRecord['password'], $fromDbRecord['password']));
+    }
+
     // Test that unauthenticated users, when submitting a request to
     // an action, will get redirected to the login url.
     public function testUnauthenticatedActionsAndUsers() {
@@ -240,6 +358,8 @@ class UsersControllerTest extends DMIntegrationTestCase {
         // 8. Ensure that all the <A> tags have been accounted for
         $this->assertEquals(0, $unknownATag);
     }
+
+
 
     public function testViewGET() {
 
