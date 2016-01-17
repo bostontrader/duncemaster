@@ -15,125 +15,12 @@ class UsersControllerTest extends DMIntegrationTestCase {
         'app.users'
     ];
 
+    /* @var \App\Model\Table\UsersTable */
     private $users;
 
     public function setUp() {
         parent::setUp();
         $this->users = TableRegistry::get('Users');
-    }
-
-    public function testLoginGET() {
-
-        // 1. Don't login, but GET the url, and parse the response.
-        $html=$this->loginRequestResponse(null,'/users/login');
-
-        // 2. Ensure that the correct form exists
-        /* @var \simple_html_dom_node $form */
-        $form = $html->find('form#UserLoginForm',0);
-        $this->assertNotNull($form);
-
-        // 3. Now inspect the fields on the form.  We want to know that:
-        // A. The correct fields are there and no other fields.
-        // B. The fields have correct values. This includes verifying that select
-        //    lists contain options.
-        //
-        //  The actual order that the fields are listed on the form is hereby deemed unimportant.
-
-        // 3.1 These are counts of the select and input fields on the form.  They
-        // are presently unaccounted for.
-        $unknownSelectCnt = count($form->find('select'));
-        $unknownInputCnt = count($form->find('input'));
-
-        // 3.2 Look for the hidden POST input
-        if($this->lookForHiddenInput($form)) $unknownInputCnt--;
-
-        // 3.3 Ensure that there's an input field for username, of type text, and that it is empty
-        if($this->inputCheckerA($form,'input#UserUsername')) $unknownInputCnt--;
-
-        // 3.4 Ensure that there's an input field for password, of type text, and that it is empty
-        if($this->inputCheckerA($form,'input#UserPassword')) $unknownInputCnt--;
-
-        // 4. Have all the input, select, and Atags been accounted for?
-        $this->expectedInputsSelectsAtagsFound($unknownInputCnt, $unknownSelectCnt, $html, 'div#UsersLogin');
-    }
-
-    // This is a completely different pattern so we can't use the conventional test.
-    // Instead of observing changes to the db, we need to observe the changes
-    // to the Auth component.
-    public function testLoginPOST() {
-
-        // 1. Login with credentials expected to not pass.
-        $this->tstLoginPOST('baduser','badpassword', false);
-
-        // 2. Login as an admin. This is expected to pass, but there should be no associated teacher or student.
-        $this->tstLoginPOST(FixtureConstants::userAndyAdminUsername,
-            FixtureConstants::userAndyAdminPw, true);
-
-        // 3. Login as an advisor. This is expected to pass, but there should be no associated teacher or student.
-        $this->tstLoginPOST(FixtureConstants::userArnoldAdvisorUsername,
-            FixtureConstants::userArnoldAdvisorPw, true, false, false);
-
-        // 4.1 Login as a user with the role of teacher, but who is not associated with a
-        // teacher record. This is expected to pass. The Auth->user should have a teachers_id key,
-        // set to null, but no students_id key.
-        $this->tstLoginPOST(FixtureConstants::userTerryTeacherUsername,
-            FixtureConstants::userTerryTeacherPw, true, true, null, false);
-
-        // 4.2 Login as a user with the role of teacher and who is associated with a
-        // teacher record. This is expected to pass. The Auth->user should have a teachers_id key,
-        // set to the teachers_id, but no students_id key.
-        $this->tstLoginPOST(FixtureConstants::userTommyTeacherUsername,
-            FixtureConstants::userTommyTeacherPw, true, true, FixtureConstants::teacherTypical, false);
-
-        // 5.1 Login as a user with the role of student, but who is not associated with a
-        // student record. This is expected to pass. The Auth->user should have a students_id key,
-        // set to null, but no teachers_id key.
-        $this->tstLoginPOST(FixtureConstants::userSuzyStudentUsername,
-            FixtureConstants::userSuzyStudentPw, true, false, null, true, null);
-
-        // 5.2 Login as a user with the role of student and who is associated with a
-        // student record. This is expected to pass. The Auth->user should have a students_id key,
-        // set to the students_id, but no teachers_id key.
-        $this->tstLoginPOST(FixtureConstants::userSallyStudentUsername,
-            FixtureConstants::userSallyStudentPw, true, false, null, true, FixtureConstants::studentTypical);
-
-        // 6. Login as a user with the roles of both student and teacher, both of which
-        // are associated with student or teacher records.  This is expected to pass. The Auth->user
-        // should have a students_id key set to the students_id and a teachers_id key set to the
-        // teachers_id.
-        $this->tstLoginPOST(FixtureConstants::userTammyTeacherAndStudentUsername,
-            FixtureConstants::userTammyTeacherAndStudentPw, true,
-            true, FixtureConstants::teacherAndStudent,
-            true, FixtureConstants::studentAndTeacher);
-    }
-
-    private function tstLoginPOST($username, $password, $expectPass, 
-        $expectTeacher=false, $expectedTeachersId=null, $expectStudent=false, $expectedStudentsId=null) {
-
-        // 1. Attempt to login, observe redirect
-        $credentials=['username'=>$username,'password'=>$password];
-        $this->post('/users/login', $credentials);
-
-        // 2. Verify login results
-        $authUser = $this->_controller->Auth->user();
-
-        if($expectPass) {
-            $this->assertResponseSuccess(); // 2xx, 3xx
-            $this->assertRedirect('/');
-
-            $this->assertTrue(array_key_exists('teachers_id', $authUser)==$expectTeacher);
-            if($expectTeacher)
-                $this->assertTrue($authUser['teachers_id']==$expectedTeachersId);
-
-            $this->assertTrue(array_key_exists('students_id', $authUser)==$expectStudent);
-            if($expectStudent)
-                $this->assertTrue($authUser['students_id']==$expectedStudentsId);
-
-        } else {
-            $this->assertResponseOk(); // 2xx
-            $this->assertNoRedirect();
-            $this->assertNull($authUser);
-        }
     }
 
     // Test that unauthenticated users, when submitting a request to
@@ -357,7 +244,119 @@ class UsersControllerTest extends DMIntegrationTestCase {
         $this->assertEquals(0, $unknownATag);
     }
 
+    public function testLoginGET() {
 
+        // 1. Don't login, but GET the url, and parse the response.
+        $html=$this->loginRequestResponse(null,'/users/login');
+
+        // 2. Ensure that the correct form exists
+        /* @var \simple_html_dom_node $form */
+        $form = $html->find('form#UserLoginForm',0);
+        $this->assertNotNull($form);
+
+        // 3. Now inspect the fields on the form.  We want to know that:
+        // A. The correct fields are there and no other fields.
+        // B. The fields have correct values. This includes verifying that select
+        //    lists contain options.
+        //
+        //  The actual order that the fields are listed on the form is hereby deemed unimportant.
+
+        // 3.1 These are counts of the select and input fields on the form.  They
+        // are presently unaccounted for.
+        $unknownSelectCnt = count($form->find('select'));
+        $unknownInputCnt = count($form->find('input'));
+
+        // 3.2 Look for the hidden POST input
+        if($this->lookForHiddenInput($form)) $unknownInputCnt--;
+
+        // 3.3 Ensure that there's an input field for username, of type text, and that it is empty
+        if($this->inputCheckerA($form,'input#UserUsername')) $unknownInputCnt--;
+
+        // 3.4 Ensure that there's an input field for password, of type text, and that it is empty
+        if($this->inputCheckerA($form,'input#UserPassword')) $unknownInputCnt--;
+
+        // 4. Have all the input, select, and Atags been accounted for?
+        $this->expectedInputsSelectsAtagsFound($unknownInputCnt, $unknownSelectCnt, $html, 'div#UsersLogin');
+    }
+
+    // This is a completely different pattern so we can't use the conventional test.
+    // Instead of observing changes to the db, we need to observe the changes
+    // to the Auth component.
+    public function testLoginPOST() {
+
+        // 1. Login with credentials expected to not pass.
+        $this->tstLoginPOST('baduser','badpassword', false);
+
+        // 2. Login as an admin. This is expected to pass, but there should be no associated teacher or student.
+        $this->tstLoginPOST(FixtureConstants::userAndyAdminUsername,
+            FixtureConstants::userAndyAdminPw, true);
+
+        // 3. Login as an advisor. This is expected to pass, but there should be no associated teacher or student.
+        $this->tstLoginPOST(FixtureConstants::userArnoldAdvisorUsername,
+            FixtureConstants::userArnoldAdvisorPw, true, false, false);
+
+        // 4.1 Login as a user with the role of teacher, but who is not associated with a
+        // teacher record. This is expected to pass. The Auth->user should have a teachers_id key,
+        // set to null, but no students_id key.
+        $this->tstLoginPOST(FixtureConstants::userTerryTeacherUsername,
+            FixtureConstants::userTerryTeacherPw, true, true, null, false);
+
+        // 4.2 Login as a user with the role of teacher and who is associated with a
+        // teacher record. This is expected to pass. The Auth->user should have a teachers_id key,
+        // set to the teachers_id, but no students_id key.
+        $this->tstLoginPOST(FixtureConstants::userTommyTeacherUsername,
+            FixtureConstants::userTommyTeacherPw, true, true, FixtureConstants::teacherTypical, false);
+
+        // 5.1 Login as a user with the role of student, but who is not associated with a
+        // student record. This is expected to pass. The Auth->user should have a students_id key,
+        // set to null, but no teachers_id key.
+        $this->tstLoginPOST(FixtureConstants::userSuzyStudentUsername,
+            FixtureConstants::userSuzyStudentPw, true, false, null, true, null);
+
+        // 5.2 Login as a user with the role of student and who is associated with a
+        // student record. This is expected to pass. The Auth->user should have a students_id key,
+        // set to the students_id, but no teachers_id key.
+        $this->tstLoginPOST(FixtureConstants::userSallyStudentUsername,
+            FixtureConstants::userSallyStudentPw, true, false, null, true, FixtureConstants::studentTypical);
+
+        // 6. Login as a user with the roles of both student and teacher, both of which
+        // are associated with student or teacher records.  This is expected to pass. The Auth->user
+        // should have a students_id key set to the students_id and a teachers_id key set to the
+        // teachers_id.
+        $this->tstLoginPOST(FixtureConstants::userTammyTeacherAndStudentUsername,
+            FixtureConstants::userTammyTeacherAndStudentPw, true,
+            true, FixtureConstants::teacherAndStudent,
+            true, FixtureConstants::studentAndTeacher);
+    }
+
+    private function tstLoginPOST($username, $password, $expectPass,
+                                  $expectTeacher=false, $expectedTeachersId=null, $expectStudent=false, $expectedStudentsId=null) {
+
+        // 1. Attempt to login, observe redirect
+        $credentials=['username'=>$username,'password'=>$password];
+        $this->post('/users/login', $credentials);
+
+        // 2. Verify login results
+        $authUser = $this->_controller->Auth->user();
+
+        if($expectPass) {
+            $this->assertResponseSuccess(); // 2xx, 3xx
+            $this->assertRedirect('/');
+
+            $this->assertTrue(array_key_exists('teachers_id', $authUser)==$expectTeacher);
+            if($expectTeacher)
+                $this->assertTrue($authUser['teachers_id']==$expectedTeachersId);
+
+            $this->assertTrue(array_key_exists('students_id', $authUser)==$expectStudent);
+            if($expectStudent)
+                $this->assertTrue($authUser['students_id']==$expectedStudentsId);
+
+        } else {
+            $this->assertResponseOk(); // 2xx
+            $this->assertNoRedirect();
+            $this->assertNull($authUser);
+        }
+    }
 
     public function testViewGET() {
 
