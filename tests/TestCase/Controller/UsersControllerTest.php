@@ -10,6 +10,8 @@ class UsersControllerTest extends DMIntegrationTestCase {
     public $fixtures = [
         'app.roles',
         'app.roles_users',
+        'app.students',
+        'app.teachers',
         'app.users'
     ];
 
@@ -55,7 +57,7 @@ class UsersControllerTest extends DMIntegrationTestCase {
         $this->expectedInputsSelectsAtagsFound($unknownInputCnt, $unknownSelectCnt, $html, 'div#UsersLogin');
     }
 
-    // This is a completely different pattern. Can't use the conventional test.
+    // This is a completely different pattern so we can't use the conventional test.
     // Instead of observing changes to the db, we need to observe the changes
     // to the Auth component.
     public function testLoginPOST() {
@@ -71,24 +73,42 @@ class UsersControllerTest extends DMIntegrationTestCase {
         $this->tstLoginPOST(FixtureConstants::userArnoldAdvisorUsername,
             FixtureConstants::userArnoldAdvisorPw, true, false, false);
 
-        // 4. Login as a teacher. This is expected to pass. There should be an associated teacher
-        //    but no associated student.
+        // 4.1 Login as a user with the role of teacher, but who is not associated with a
+        // teacher record. This is expected to pass. The Auth->user should have a teachers_id key,
+        // set to null, but no students_id key.
+        $this->tstLoginPOST(FixtureConstants::userTerryTeacherUsername,
+            FixtureConstants::userTerryTeacherPw, true, true, null, false);
+
+        // 4.2 Login as a user with the role of teacher and who is associated with a
+        // teacher record. This is expected to pass. The Auth->user should have a teachers_id key,
+        // set to the teachers_id, but no students_id key.
         $this->tstLoginPOST(FixtureConstants::userTommyTeacherUsername,
-            FixtureConstants::userTommyTeacherPw, true, true, false);
+            FixtureConstants::userTommyTeacherPw, true, true, FixtureConstants::teacherTypical, false);
 
-        // 5. Login as a student. This is expected to pass. There should not be an associated teacher
-        //    but there should be an associated student.
-        $this->tstLoginPOST(FixtureConstants::userTommyTeacherUsername,
-            FixtureConstants::userTommyTeacherPw, true, false, true);
+        // 5.1 Login as a user with the role of student, but who is not associated with a
+        // student record. This is expected to pass. The Auth->user should have a students_id key,
+        // set to null, but no teachers_id key.
+        $this->tstLoginPOST(FixtureConstants::userSuzyStudentUsername,
+            FixtureConstants::userSuzyStudentPw, true, false, null, true, null);
 
-        // 6. Login as a user who is a student and a teacher. This is expected to pass. There should be an
-        //    associated teacher and an associated student.
-        tstLoginPOST(FixtureConstants::userTammyTeacherAndStudentUsername,
-            FixtureConstants::userTammyTeacherAndStudentPw, true, true, true);
+        // 5.2 Login as a user with the role of student and who is associated with a
+        // student record. This is expected to pass. The Auth->user should have a students_id key,
+        // set to the students_id, but no teachers_id key.
+        $this->tstLoginPOST(FixtureConstants::userSallyStudentUsername,
+            FixtureConstants::userSallyStudentPw, true, false, null, true, FixtureConstants::studentTypical);
 
+        // 6. Login as a user with the roles of both student and teacher, both of which
+        // are associated with student or teacher records.  This is expected to pass. The Auth->user
+        // should have a students_id key set to the students_id and a teachers_id key set to the
+        // teachers_id.
+        $this->tstLoginPOST(FixtureConstants::userTammyTeacherAndStudentUsername,
+            FixtureConstants::userTammyTeacherAndStudentPw, true,
+            true, FixtureConstants::teacherAndStudent,
+            true, FixtureConstants::studentAndTeacher);
     }
 
-    private function tstLoginPOST($username, $password, $expectPass, $expectTeacher=false, $expectStudent=false) {
+    private function tstLoginPOST($username, $password, $expectPass, 
+        $expectTeacher=false, $expectedTeachersId=null, $expectStudent=false, $expectedStudentsId=null) {
 
         // 1. Attempt to login, observe redirect
         $credentials=['username'=>$username,'password'=>$password];
@@ -100,8 +120,15 @@ class UsersControllerTest extends DMIntegrationTestCase {
         if($expectPass) {
             $this->assertResponseSuccess(); // 2xx, 3xx
             $this->assertRedirect('/');
-            $this->assertTrue(array_key_exists('teacher_id', $authUser)==$expectTeacher);
-            $this->assertTrue(array_key_exists('student_id', $authUser)==$expectStudent);
+
+            $this->assertTrue(array_key_exists('teachers_id', $authUser)==$expectTeacher);
+            if($expectTeacher)
+                $this->assertTrue($authUser['teachers_id']==$expectedTeachersId);
+
+            $this->assertTrue(array_key_exists('students_id', $authUser)==$expectStudent);
+            if($expectStudent)
+                $this->assertTrue($authUser['students_id']==$expectedStudentsId);
+
         } else {
             $this->assertResponseOk(); // 2xx
             $this->assertNoRedirect();

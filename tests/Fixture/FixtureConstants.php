@@ -41,12 +41,14 @@ class FixtureConstants {
 
     const semesterTypical = 1;
 
-    const studentTypical = 10;
+    const studentAndTeacher = 16;
     const studentCohortIdNull = 79;
+    const studentTypical = 10;
     const studentUserIdNull = 142;
 
     const subjectTypical = 1;
 
+    const teacherAndStudent = 4;
     const teacherTypical = 1;
     const teacherUserIdNull = 2;
 
@@ -63,15 +65,29 @@ class FixtureConstants {
     const userArnoldAdvisorUsername = 'ArnoldAdvisor';
     const userArnoldAdvisorPw = 'passwordArnoldAdvisor';
 
+    // No student points here
+    const userSuzyStudentId = 42;
+    const userSuzyStudentUsername = 'SuzyStudent';
+    const userSuzyStudentPw = 'passwordSuzyStudent';
+
+    // studentTypical points here
     const userSallyStudentId = 47;
     const userSallyStudentUsername = 'SallyStudent';
     const userSallyStudentPw = 'passwordSallyStudent';
 
+    // No teacher points here
+    const userTerryTeacherId = 43;
+    const userTerryTeacherUsername = 'TerryTeacher';
+    const userTerryTeacherPw = 'passwordTerryTeacher';
+
+    // teacherTypical points here
     const userTommyTeacherId = 48;
     const userTommyTeacherUsername = 'TommyTeacher';
     const userTommyTeacherPw = 'passwordTommyTeacher';
 
     // TammyTeacherAndStudent is a teacher and a student
+    // teacherAndStudent points here
+    // studentAndTeacher points here
     const userTammyTeacherAndStudentId = 49;
     const userTammyTeacherAndStudentUsername = 'TammyTeacherAndStudent';
     const userTammyTeacherAndStudentPw = 'passwordTammyTeacherAndStudent';
