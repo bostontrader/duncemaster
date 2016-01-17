@@ -60,82 +60,53 @@ class UsersControllerTest extends DMIntegrationTestCase {
     // to the Auth component.
     public function testLoginPOST() {
 
-        // Login as admin
-        $credentials=['username'=>'AndyAdmin','password'=>'passwordAndyAdmin'];
+        // 1. Login with credentials expected to not pass.
+        $this->tstLoginPOST('baduser','badpassword', false);
+
+        // 2. Login as an admin. This is expected to pass, but there should be no associated teacher or student.
+        $this->tstLoginPOST(FixtureConstants::userAndyAdminUsername,
+            FixtureConstants::userAndyAdminPw, true);
+
+        // 3. Login as an advisor. This is expected to pass, but there should be no associated teacher or student.
+        $this->tstLoginPOST(FixtureConstants::userArnoldAdvisorUsername,
+            FixtureConstants::userArnoldAdvisorPw, true, false, false);
+
+        // 4. Login as a teacher. This is expected to pass. There should be an associated teacher
+        //    but no associated student.
+        $this->tstLoginPOST(FixtureConstants::userTommyTeacherUsername,
+            FixtureConstants::userTommyTeacherPw, true, true, false);
+
+        // 5. Login as a student. This is expected to pass. There should not be an associated teacher
+        //    but there should be an associated student.
+        $this->tstLoginPOST(FixtureConstants::userTommyTeacherUsername,
+            FixtureConstants::userTommyTeacherPw, true, false, true);
+
+        // 6. Login as a user who is a student and a teacher. This is expected to pass. There should be an
+        //    associated teacher and an associated student.
+        tstLoginPOST(FixtureConstants::userTammyTeacherAndStudentUsername,
+            FixtureConstants::userTammyTeacherAndStudentPw, true, true, true);
+
+    }
+
+    private function tstLoginPOST($username, $password, $expectPass, $expectTeacher=false, $expectStudent=false) {
+
+        // 1. Attempt to login, observe redirect
+        $credentials=['username'=>$username,'password'=>$password];
         $this->post('/users/login', $credentials);
-        $this->assertResponseSuccess(); // 2xx, 3xx
-        $redirect_url='/';
-        $this->assertRedirect( $redirect_url );
 
-        // verify no teacher, no student
-        $authUser=$this->_controller->Auth->user();
-        $this->assertFalse(array_key_exists('teacher_id', $authUser));
-        $this->assertFalse(array_key_exists('student_id', $authUser));
+        // 2. Verify login results
+        $authUser = $this->_controller->Auth->user();
 
-        // Login as advisor
-        $credentials=['username'=>'ArnoldAdvisor','password'=>'catfood'];
-        $this->post('/users/login', $credentials);
-        $this->assertResponseSuccess(); // 2xx, 3xx
-        $redirect_url='/';
-        $this->assertRedirect( $redirect_url );
-
-        // verify no teacher, no student
-        $authUser=$this->_controller->Auth->user();
-        $this->assertFalse(array_key_exists('teacher_id', $authUser));
-        $this->assertFalse(array_key_exists('student_id', $authUser));
-
-        // verify redirect
-        // verify no teacher, no student
-
-        // Login as teacher
-        // verify redirect
-        // verify teacher, no student
-
-        // Login as student
-        // verify redirect
-        // verify no teacher, but student
-
-        // Login as teacher and student
-        // verify redirect
-        // verify teacher and student
-
-        // Login as bad login
-        // verify redirect
-        // verify no login
-
-        $credentials=$this->usersFixture->newUserRecord;
-
-
-        //$this->fakeLogin($user_id);
-        $this->post('/users/login', $credentials);
-        $this->assertResponseSuccess(); // 2xx, 3xx
-        $redirect_url='/';
-        $this->assertRedirect( $redirect_url );
-
-        // Now retrieve the newly written record.
-        //$connection = ConnectionManager::get('test');
-        //$query=new Query($connection,$table);
-        //$fromDbRecord=$query->find('all')->order(['id' => 'DESC'])->first();
-
-        //return $fromDbRecord;
-
-        // 1. Login, POST a suitable record to the url, redirect, and return the record just
-        // posted, as read from the db.
-        //$fixtureRecord=$this->usersFixture->newUserRecord;
-        //$fromDbRecord=$this->genericAddPostProlog(
-        //FixtureConstants::userAndyAdminId,
-        //'/users/add', $fixtureRecord,
-        //'/users', $this->users
-        //);
-
-
-
-        // 2. Now validate that record.
-        //$this->assertEquals($fromDbRecord['username'],$fixtureRecord['username']);
-
-        // 3. The password is hashed and needs to be checked using the hashed-password checking mechanism
-        //$dph = new DefaultPasswordHasher();
-        //$this->assertTrue($dph->check($fixtureRecord['password'], $fromDbRecord['password']));
+        if($expectPass) {
+            $this->assertResponseSuccess(); // 2xx, 3xx
+            $this->assertRedirect('/');
+            $this->assertTrue(array_key_exists('teacher_id', $authUser)==$expectTeacher);
+            $this->assertTrue(array_key_exists('student_id', $authUser)==$expectStudent);
+        } else {
+            $this->assertResponseOk(); // 2xx
+            $this->assertNoRedirect();
+            $this->assertNull($authUser);
+        }
     }
 
     // Test that unauthenticated users, when submitting a request to

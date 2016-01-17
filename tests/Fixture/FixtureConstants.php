@@ -56,10 +56,25 @@ class FixtureConstants {
     //const tplan_element2_id =2;
 
     const userAndyAdminId = 45;
+    const userAndyAdminUsername = 'AndyAdmin';
+    const userAndyAdminPw = 'passwordAndyAdmin';
+
     const userArnoldAdvisorId = 46;
+    const userArnoldAdvisorUsername = 'ArnoldAdvisor';
+    const userArnoldAdvisorPw = 'passwordArnoldAdvisor';
+
     const userSallyStudentId = 47;
+    const userSallyStudentUsername = 'SallyStudent';
+    const userSallyStudentPw = 'passwordSallyStudent';
+
     const userTommyTeacherId = 48;
-    const userTammyTeacherId = 49;
+    const userTommyTeacherUsername = 'TommyTeacher';
+    const userTommyTeacherPw = 'passwordTommyTeacher';
+
+    // TammyTeacherAndStudent is a teacher and a student
+    const userTammyTeacherAndStudentId = 49;
+    const userTammyTeacherAndStudentUsername = 'TammyTeacherAndStudent';
+    const userTammyTeacherAndStudentPw = 'passwordTammyTeacherAndStudent';
 
     // When computing scores we need to very carefully weave the above records together such that
     // the following grading results are produced (and thus testable)

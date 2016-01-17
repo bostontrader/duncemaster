@@ -90,10 +90,60 @@ class UsersController extends AppController {
         if ($this->request->is('post')) {
             $user = $this->Auth->identify();
 
-
-
             if ($user) {
-                $user['catfood']='yum';
+                // Is the user a teacher?
+                //$user['teacher_id']=$teacher_id;
+                //$query="SELECT users.id, users.username, roles.title from users
+                    //left join roles_users on roles_users.user_id=users.id
+                    //left join roles       on roles_users.role_id=roles.id
+                    //where roles.title='teacher' and users.username='TommyTeacher'";
+                /* @var \Cake\ORM\Query $query */
+                $query=$this->Users->find('all');
+                    //->leftJoin('','semesters.id = sections.semester_id');
+                $query->select(['users.id','users.username','roles.title'])
+                    ->leftJoin('roles_users','roles_users.user_id=users.id')
+                    ->leftJoin('roles'      ,'roles_users.role_id=roles.id')
+                    ->where(['roles.title'=>'teacher','users.id'=>$user['id']]);
+                $n=$query->execute()->fetchAll('assoc');
+                $c=$query->count();
+
+
+                // Is there a teacher connected to this user?
+                switch($c) {
+                    case 0:
+                        // It's cool. Do nothing. This user does not have a role of teacher.
+                        break;
+                    case 1:
+                        // Ding! We got a winner! This user has role of teacher.
+                        $user['teacher']=null;
+                        // But... even though the user has a role of teacher...
+                        // Are any teachers assigned this user?
+                        $query->select(['teachers.id as teacher_id']);
+                        $query->leftJoin('teachers'      ,'teachers.user_id=users.id');
+                        $n=$query->execute()->fetchAll('assoc');
+                        $c=$query->count();
+                        switch($c) {
+                            case 0:
+                                // It's ok, do nothing more. This user has a role of teacher,
+                                // but does not have a teacher associated with it.
+                                break;
+                            case 1:
+                                // Ding! Another winner. This user has a role of teacher _and_
+                                // there is an associated teacher.
+                                $user['teacher']=$n[0]['teacher_id'];
+                                break;
+                            default:
+                                // A single user id should not have more than 1 teacher pointing to it.
+                                $this->assertFail('MaxFubar Error');
+                        }
+                        break;
+                    default:
+                        // A single user id should not have more than 1 teacher role associated with it.
+                        $this->assertFail('MaxFubar Error');
+                }
+
+                // Is the user a student?
+                //$user['student_id']=student_id;
                 $this->Auth->setUser($user);
                 return $this->redirect($this->Auth->redirectUrl());
             }
