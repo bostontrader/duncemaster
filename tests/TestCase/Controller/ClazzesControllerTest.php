@@ -1,12 +1,12 @@
 <?php
 namespace App\Test\TestCase\Controller;
 
+use App\Controller\ItypesController;
 use App\Test\Fixture\ClazzesFixture;
 use App\Test\Fixture\FixtureConstants;
 use App\Test\Fixture\SectionsFixture;
 use Cake\Datasource\ConnectionManager;
 use Cake\ORM\TableRegistry;
-use Cake\Routing\Router;
 
 /**
  * Class ClazzesControllerTest
@@ -19,6 +19,8 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
         'app.roles',
         'app.roles_users',
         'app.sections',
+        'app.students',
+        'app.teachers',
         'app.users'
     ];
 
@@ -45,7 +47,7 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
     // Test that unauthenticated users, when submitting a request to
     // an action, will get redirected to the login url.
     //public function testUnauthenticatedActionsAndUsers() {
-        //$this->tstUnauthenticatedActionsAndUsers('clazzes');
+        ///$this->tstUnauthenticatedActionsAndUsers('clazzes');
     //}
 
     // Test that users who do not have correct roles, when submitting a request to
@@ -83,8 +85,6 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
 
     public function testAddGet() {
 
-        $routes = Router::routes();
-
         // 1. Build a list of all sections that have the same semester and teacher
         // as the given typical section
         $query = "SELECT DISTINCT b.id
@@ -98,41 +98,52 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
         $allSectionsForThisTeacherAndSemester = $connection->execute($query)->fetchAll('assoc');
 
         // 2.1 admin   GET /clazzes/add
-        //     The section_id param is missing and mandatory.
-        //     Redirect to /clazzes/index
-        $this->tstAddGet(FixtureConstants::userAndyAdminId);
+        //      Error. The section_id param is missing and mandatory. Doesn't matter who the user is.
+        $this->tstAddGet(FixtureConstants::userAndyAdminUsername, FixtureConstants::userAndyAdminPw, 400);
 
         // 2.2 teacher1 GET /clazzes/add?section_id=n
-        //     Note: Make sure userTommyTeacher is the teacher for sectionTypical.
-        $this->tstAddGet(FixtureConstants::userTommyTeacherId, FixtureConstants::sectionTypical, $allSectionsForThisTeacherAndSemester);
+        //     Note: Make sure that the teacher for sectionTypical is connected to userTommyTeacher.  Success.
+        $this->tstAddGet(FixtureConstants::userTommyTeacherUsername, FixtureConstants::userTommyTeacherPw, 200, FixtureConstants::sectionTypical, $allSectionsForThisTeacherAndSemester);
 
         // 2.3 teacher2 GET /clazzes/add?section_id=n
-        //     Note: Make sure userTommyTeacher is NOT the teacher for sectionTypical.
-        $this->tstAddGet(FixtureConstants::userTommyTeacherId, FixtureConstants::sectionTypical, $allSectionsForThisTeacherAndSemester);
+        //     Note: Make sure that the teacher for sectionTypical is not connected to userTammyTeacher.  Error.
+        $this->tstAddGet(FixtureConstants::userTerryTeacherId, FixtureConstants::userTerryTeacherPw, 200, FixtureConstants::sectionTypical, $allSectionsForThisTeacherAndSemester);
 
         // 2.4 admin   GET /clazzes/add?section_id=n
         //     An admin can do this but the select list is still populated with the same sections as for
         //     a teacher.
-        $this->tstAddGet(FixtureConstants::userAndyAdminId, FixtureConstants::sectionTypical, $allSectionsForThisTeacherAndSemester);
+        $this->tstAddGet(FixtureConstants::userAndyAdminId, FixtureConstants::userAndyAdminPw, 200, FixtureConstants::sectionTypical, $allSectionsForThisTeacherAndSemester);
     }
 
 
-    private function tstAddGET($user_id, $section_id=null, $allSectionsForThisTeacherAndSemester=[]) {
+    private function tstAddGET($username, $password, $expectedResponse, $section_id=null, $allSectionsForThisTeacherAndSemester=[]) {
 
+        // 1. Attempt to login.
+        $credentials=['username'=>$username,'password'=>$password];
+        $this->post('/users/login', $credentials);
+        $authUser = $this->_controller->Auth->user();
+        $this->session(
+            [
+                'Auth' => [
+                    'User' => $authUser
+                ]
+            ]
+        );
         // 1. Simulate login, submit request, examine response.
-        $this->fakeLogin($user_id);
-
+        //$this->fakeLogin($user_id);
         if(is_null($section_id)) {
             $this->get('/clazzes/add');
-            $this->assertResponseSuccess(); // 2xx, 3xx
-            $this->assertRedirect('/clazzes');
+            //$this->assertResponseSuccess(); // 2xx, 3xx
+            //$this->assertRedirect('/clazzes');
+            // Error: You need to include a 'section_id' parameter
+            $this->assertResponseCode(400);
+            $this->_controller->Auth->logout();
             return;
         } else {
             $this->get('/clazzes/add?section_id='.$section_id);
             $this->assertResponseOk(); // 2xx
             $this->assertNoRedirect();
         }
-
         // 2. Parse the html from the response
         /* @var \simple_html_dom_node $html */
         $html = str_get_html($this->_response->body());
@@ -158,13 +169,16 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
         if($this->lookForHiddenInput($form)) $unknownInputCnt--;
 
         // 4.3 test the ClazzSectionId select.
-        if(is_null($section_id)) {
+        // shouldn't ever be null
+        //if(is_null($section_id)) {
             // 4.3.1 Ensure that there's a select field for section_id, that it has no selection,
             // and that it has the correct quantity of available choices.
-            if($this->selectCheckerA($form, 'ClazzSectionId', 'sections')) $unknownSelectCnt--;
-        } else {
-            if($this->tstSectionIdSelect($form, $section_id, $this->sections)) $unknownSelectCnt--;
-        }
+            //if($this->selectCheckerA($form, 'ClazzSectionId', 'sections')) $unknownSelectCnt--;
+        //} else {
+            //if($this->tstSectionIdSelect($form, $section_id, $this->sections)) $unknownSelectCnt--;
+            $c=count($allSectionsForThisTeacherAndSemester)+1;
+            if($this->tstSectionIdSelect($form, $section_id, count($allSectionsForThisTeacherAndSemester)+1)) $unknownSelectCnt--;
+        //}
 
         // 4.4 Ensure that there's an input field for event_datetime, of type text, and that it is empty
         if($this->inputCheckerA($form,'input#ClazzDatetime')) $unknownInputCnt--;
@@ -176,6 +190,7 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
         $this->expectedInputsSelectsAtagsFound($unknownInputCnt, $unknownSelectCnt, $html, 'div#ClazzesAdd');
     }
 
+    // Don't need section_id for post
     public function testAddPOST() {
 
         // 1. Login, POST a suitable record to the url, redirect, and return the record just
@@ -248,19 +263,22 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
     /**
      * @param \simple_html_dom_node $html_node the form that contains the select.
      * @param int $section_id The expected selected section_id.
-     * @param \App\Model\Table\SectionsTable $sections.
      * @return boolean Return true if a matching input is found, else assertion errors.
      */
-    private function tstSectionIdSelect($html_node, $section_id, $sections) {
+    private function tstSectionIdSelect($html_node, $section_id, $expectedOptionCnt) {
 
-        // 1. Ensure that there's a select field for section_id and that it is correctly set
+        // 1. How many options are there in the select list?
+        $options = $html_node->find('select#ClazzSectionId option');
+        $this->assertEquals($expectedOptionCnt, count($options));
+
+        // 2. Ensure that there's a select field for section_id and that it is correctly set
         $option = $html_node->find('select#ClazzSectionId option[selected]',0);
         $this->assertEquals($option->value, $section_id);
 
-        // 2. Even though section_id is correct, we don't display section_id.  Instead we display the
+        // 3. Even though section_id is correct, we don't display section_id.  Instead we display the
         // nickname from the related Sections table.  But nickname is a virtual field so we must
         // read the record in order to get the nickname, instead of looking it up in the fixture records.
-        $section = $sections->get($section_id);
+        $section = $this->sections->get($section_id);
         $this->assertEquals($section->nickname, $option->plaintext);
         return true;
     }
@@ -350,7 +368,7 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
      * the fixture. Else the test will only expect to see fixture records with the given $sectionId.
      * @return int $aTagsFoundCnt The number of aTagsFound.
      */
-    public function tstClazzesTable($html, $clazzes, $clazzesFixture, $sections, $sectionId=null) {
+    public function tstClazzesTable($html, $clazzes, $clazzesFixture, $sections, $section_id=null) {
 
         // 1. Ensure that there is a suitably named table to display the results.
         $this->table = $html->find('table#ClazzesTable',0);
@@ -378,28 +396,32 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
         //$this->assertEquals(count($tbody_rows), count($clazzesFixture->records));
 
 
-        $connection = ConnectionManager::get('default');
-
-        // This query should be essentially the same as the query in InteractionsController.attend
-        $query = "select students.sort, students.sid, students.id as student_id, students.giv_name, students.fam_name, students.phonetic_name, cohorts.id, sections.id, clazzes.id
-            from students
-            left join cohorts on students.cohort_id = cohorts.id
-            left join sections on sections.cohort_id = cohorts.id
-            left join clazzes on clazzes.section_id = sections.id
-            left join interactions on interactions.clazz_id=clazzes.id and interactions.student_id=students.id and interactions.itype_id=".ItypesController::ATTEND." where clazzes.id=".$clazz_id.
-            " order by sort";
-        $studentsResults = $connection->execute($query)->fetchAll('assoc');
-        $s1=count($this->tbody_rows);
-        $s2=count($studentsResults);
-        $this->assertEquals($s1,$s2);
-
+        //$connection = ConnectionManager::get('default');
+        // This query should be essentially the same as the query in SectionsController.view
+        //$query = "select students.sort, students.sid, students.id as student_id, students.giv_name, students.fam_name, students.phonetic_name, cohorts.id, sections.id, clazzes.id
+            //from students
+            //left join cohorts on students.cohort_id = cohorts.id
+            //left join sections on sections.cohort_id = cohorts.id
+            //left join clazzes on clazzes.section_id = sections.id
+            //left join interactions on interactions.clazz_id=clazzes.id and interactions.student_id=students.id and interactions.itype_id=".ItypesController::ATTEND." where clazzes.id=".$clazz_id.
+            //" order by sort";
+        //$studentsResults = $connection->execute($query)->fetchAll('assoc');
+        //$s1=count($this->tbody_rows);
+        //$s2=count($studentsResults);
+        //$this->assertEquals($s1,$s2);
+        // Now get the classes associated with this section
+        $query=$clazzes->find()
+            ->where(['section_id'=>$section_id])
+            ->order(['event_datetime'=>'desc']);
+        $q=query->execute()->fetchAll('assoc');
         // 4. Ensure that the values displayed in each row, match the values from
         //    the fixture.  The values should be presented in a particular order
         //    with nothing else thereafter.
         $iterator = new \MultipleIterator();
-        $iterator->attachIterator(new \ArrayIterator($clazzesFixture->records));
-        $iterator->attachIterator(new \ArrayIterator($tbody_rows));
-
+        $iterator->attachIterator(new \ArrayIterator($q));
+        //$iterator->attachIterator(new \ArrayIterator($clazzesFixture->records));
+        $iterator->attachIterator(new \ArrayIterator($this->tbody_rows));
+\
         $aTagsFoundCnt=0;
         foreach ($iterator as $values) {
             $fixtureRecord = $values[0];

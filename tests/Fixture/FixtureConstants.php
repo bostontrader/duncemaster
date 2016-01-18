@@ -38,6 +38,7 @@ class FixtureConstants {
     const roleTeacherId = 4;
 
     const sectionTypical = 1;
+    const sectionTypical2 = 2;
 
     const semesterTypical = 1;
 
@@ -65,15 +66,15 @@ class FixtureConstants {
     const userArnoldAdvisorUsername = 'ArnoldAdvisor';
     const userArnoldAdvisorPw = 'passwordArnoldAdvisor';
 
-    // No student points here
-    const userSuzyStudentId = 42;
-    const userSuzyStudentUsername = 'SuzyStudent';
-    const userSuzyStudentPw = 'passwordSuzyStudent';
-
     // studentTypical points here
     const userSallyStudentId = 47;
     const userSallyStudentUsername = 'SallyStudent';
     const userSallyStudentPw = 'passwordSallyStudent';
+
+    // No student points here
+    const userSuzyStudentId = 42;
+    const userSuzyStudentUsername = 'SuzyStudent';
+    const userSuzyStudentPw = 'passwordSuzyStudent';
 
     // No teacher points here
     const userTerryTeacherId = 43;

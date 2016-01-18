@@ -275,9 +275,10 @@ class SectionsController extends AppController {
         $cohorts = $this->Sections->Cohorts->find('list',['contain' => ['Majors']]);
         $semesters = $this->Sections->Semesters->find('list');
         $subjects = $this->Sections->Subjects->find('list');
+        $teachers = $this->Sections->Teachers->find('list');
         $tplans = $this->Sections->Tplans->find('list');
         $this->set('clazzes',$section->clazzes);
-        $this->set(compact('cohorts','section','semesters','subjects','tplans'));
+        $this->set(compact('cohorts','section','semesters','subjects','teachers','tplans'));
         return null;
     }
 
@@ -299,8 +300,18 @@ class SectionsController extends AppController {
 
     public function view($id = null) {
         $this->request->allowMethod(['get']);
-        $section = $this->Sections->get($id,['contain'=>['Clazzes.Sections','Cohorts.Majors','Semesters','Subjects','Tplans']]);
+
+        $section = $this->Sections->get(
+            $id,[
+                'contain'=>['Cohorts.Majors','Semesters','Subjects','Teachers','Tplans'],
+            ]
+        );
         $this->set('section', $section);
-        $this->set('clazzes',$section->clazzes);
+
+        // Now get the classes associated with this section
+        $query=$this->Sections->Clazzes->find()
+            ->where(['section_id'=>$id])
+            ->order(['event_datetime'=>'desc']);
+        $this->set('clazzes',$query);
     }
 }

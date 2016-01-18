@@ -23,7 +23,7 @@ class TeachersTable extends Table {
         parent::initialize($config);
 
         //$this->table('teachers');
-        //$this->displayField('id');
+        $this->displayField('fam_name');
         //$this->primaryKey('id');
 
         $this->hasMany('Sections', [

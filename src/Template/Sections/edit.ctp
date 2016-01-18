@@ -4,6 +4,7 @@
  * @var \App\Model\Table\CohortsTable $cohorts
  * @var \App\Model\Table\SemestersTable $semesters
  * @var \App\Model\Table\SubjectsTable $subjects
+ * @var \App\Model\Table\TeachersTable $teachers
  * @var \App\Model\Table\TplansTable $tplans
  */
 ?>
@@ -38,7 +39,5 @@
         <?= $this->Form->button(__('Submit')) ?>
         <?= $this->Form->end() ?>
     </div>
-
-    <?= $this->element('clazzes_index') ?>
 
 </div>

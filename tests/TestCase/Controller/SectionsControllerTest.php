@@ -6,6 +6,7 @@ use App\Test\Fixture\ClazzesFixture;
 use App\Test\Fixture\SectionsFixture;
 use App\Test\Fixture\SemestersFixture;
 use App\Test\Fixture\SubjectsFixture;
+use App\Test\Fixture\TeachersFixture;
 use App\Test\Fixture\TplansFixture;
 use Cake\ORM\TableRegistry;
 
@@ -19,7 +20,9 @@ class SectionsControllerTest extends DMIntegrationTestCase {
         'app.roles_users',
         'app.sections',
         'app.semesters',
+        'app.students',
         'app.subjects',
+        'app.teachers',
         'app.tplans',
         'app.users'
     ];
@@ -36,6 +39,9 @@ class SectionsControllerTest extends DMIntegrationTestCase {
     /* @var \App\Model\Table\SemestersTable */
     private $semesters;
 
+    /* @var \App\Model\Table\TeachersTable */
+    private $teachers;
+
     /* @var \App\Test\Fixture\ClazzesFixture */
     private $clazzesFixture;
 
@@ -48,6 +54,9 @@ class SectionsControllerTest extends DMIntegrationTestCase {
     /* @var \App\Test\Fixture\SubjectsFixture */
     private $subjectsFixture;
 
+    /* @var \App\Test\Fixture\TeachersFixture */
+    private $teachersFixture;
+
     /* @var \App\Test\Fixture\TplansFixture */
     private $tplansFixture;
 
@@ -57,11 +66,104 @@ class SectionsControllerTest extends DMIntegrationTestCase {
         $this->cohorts = TableRegistry::get('Cohorts');
         $this->sections = TableRegistry::get('Sections');
         $this->semesters = TableRegistry::get('Semesters');
+        $this->teachers = TableRegistry::get('Teachers');
         $this->clazzesFixture = new ClazzesFixture();
         $this->sectionsFixture = new SectionsFixture();
         $this->semestersFixture = new SemestersFixture();
         $this->subjectsFixture = new SubjectsFixture();
+        $this->teachersFixture = new TeachersFixture();
         $this->tplansFixture = new TplansFixture();
+    }
+
+    public function testViewGET() {
+
+        // 1. Obtain a record to view, login, GET the url, parse the response and send it back.
+        $record2View=$this->sectionsFixture->records[0];
+        $url='/sections/view/' . $record2View['id'];
+        $html=$this->loginRequestResponse(FixtureConstants::userAndyAdminId,$url);
+
+        // 2. Get a the count of all <A> tags that are presently unaccounted for.
+        $this->content = $html->find('div#SectionsView',0);
+        $this->assertNotNull($this->content);
+        $unknownATag = count($this->content->find('a'));
+
+        // 3.  Look for the table that contains the view fields.
+        $this->table = $html->find('table#SectionViewTable',0);
+        $this->assertNotNull($this->table);
+
+        // 4. Now inspect the fields on the form.  We want to know that:
+        // A. The correct fields are there and no other fields.
+        // B. The fields have correct values.
+        //
+        //  The actual order that the fields are listed is hereby deemed unimportant.
+
+        // This is the count of the table rows that are presently unaccounted for.
+        $unknownRowCnt = count($this->table->find('tr'));
+
+        // 4.1 cohort requires finding the nickname, which is computed by the Cohort Entity.
+        $field = $html->find('tr#cohort td',0);
+        $cohort = $this->cohorts->get($record2View['cohort_id'], ['contain' => ['Majors']]);
+        $this->assertEquals($cohort->nickname, $field->plaintext);
+        $unknownRowCnt--;
+
+        // 4.2 subject requires finding the related value in the SubjectsFixture
+        $field = $html->find('tr#subject td',0);
+        $subject_id = $record2View['subject_id'];
+        $subject = $this->subjectsFixture->get($subject_id);
+        $this->assertEquals($subject['title'], $field->plaintext);
+        $unknownRowCnt--;
+
+        // 4.3 semester requires finding the nickname, which is computed by the Semester Entity.
+        $field = $html->find('tr#semester td',0);
+        $semester_id = $record2View['semester_id'];
+        $semester = $this->semesters->get($semester_id);
+        $this->assertEquals($semester->nickname, $field->plaintext);
+        $unknownRowCnt--;
+
+        // 4.4 teacher requires finding the related value in the TeachersFixture
+        $field = $html->find('tr#teacher td',0);
+        $teacher_id = $record2View['teacher_id'];
+        $teacher = $this->teachersFixture->get($teacher_id);
+        $this->assertEquals($teacher['fam_name'], $field->plaintext);
+        $unknownRowCnt--;
+
+        // 4.5 seq
+        $field = $html->find('tr#seq td',0);
+        $this->assertEquals($record2View['seq'], $field->plaintext);
+        $unknownRowCnt--;
+
+        // 4.6 tplan requires finding the related value in the TplansFixture
+        $field = $html->find('tr#tplan td',0);
+        $tplan_id = $record2View['tplan_id'];
+        $tplan = $this->tplansFixture->get($tplan_id);
+        $this->assertEquals($tplan['title'], $field->plaintext);
+        $unknownRowCnt--;
+
+        // 4.7 weekday
+        $field = $html->find('tr#weekday td',0);
+        $this->assertEquals($record2View['weekday'], $field->plaintext);
+        $unknownRowCnt--;
+
+        // 4.8 start_time
+        $field = $html->find('tr#start_time td',0);
+        $this->assertEquals($record2View['start_time'], $field->plaintext);
+        $unknownRowCnt--;
+
+        // 4.9 thours
+        $field = $html->find('tr#thours td',0);
+        $this->assertEquals($record2View['thours'], $field->plaintext);
+        $unknownRowCnt--;
+
+        // 4.10 Have all the rows been accounted for?  Are there any extras?
+        $this->assertEquals(0, $unknownRowCnt);
+
+        // 5. Examine the table of repeating clazzes
+        /* @var \simple_html_dom_node $html */
+        $cct=new ClazzesControllerTest();
+        $unknownATag-=$cct->tstClazzesTable($html,$this->clazzes,$this->clazzesFixture,$this->sections,$record2View['id']);
+
+        // 6. Ensure that all the <A> tags have been accounted for
+        $this->assertEquals(0, $unknownATag);
     }
 
     // Test that unauthenticated users, when submitting a request to
@@ -113,20 +215,24 @@ class SectionsControllerTest extends DMIntegrationTestCase {
         //    and that it has the correct quantity of available choices.
         if($this->selectCheckerA($form, 'SectionSemesterId', 'semesters')) $unknownSelectCnt--;
 
-        // 3.6 Ensure that there's an input field for seq, of type text, and that it is empty
+        // 3.6 Ensure that there's a select field for teacher_id, that it has no selection,
+        //    and that it has the correct quantity of available choices.
+        if($this->selectCheckerA($form, 'SectionTeacherId', 'teachers')) $unknownSelectCnt--;
+
+        // 3.7 Ensure that there's an input field for seq, of type text, and that it is empty
         if($this->inputCheckerA($form,'input#SectionSeq')) $unknownInputCnt--;
 
-        // 3.7 Ensure that there's a select field for tplan_id, that it has no selection,
+        // 3.8 Ensure that there's a select field for tplan_id, that it has no selection,
         //    and that it has the correct quantity of available choices.
         if($this->selectCheckerA($form, 'SectionTplanId', 'tplans')) $unknownSelectCnt--;
 
-        // 3.8 Ensure that there's an input field for weekday, of type text, and that it is empty
+        // 3.9 Ensure that there's an input field for weekday, of type text, and that it is empty
         if($this->inputCheckerA($form,'input#SectionWeekday')) $unknownInputCnt--;
 
-        // 3.9 Ensure that there's an input field for start_time, of type text, and that it is empty
+        // 3.10 Ensure that there's an input field for start_time, of type text, and that it is empty
         if($this->inputCheckerA($form,'input#SectionStartTime')) $unknownInputCnt--;
 
-        // 3.10 Ensure that there's an input field for thours, of type text, and that it is empty
+        // 3.11 Ensure that there's an input field for thours, of type text, and that it is empty
         if($this->inputCheckerA($form,'input#SectionTHours')) $unknownInputCnt--;
 
         // 4. Have all the input, select, and Atags been accounted for?
@@ -225,38 +331,45 @@ class SectionsControllerTest extends DMIntegrationTestCase {
         if($this->inputCheckerB($form,'select#SectionSemesterId option[selected]',$semester_id,$semester['nickname']))
             $unknownSelectCnt--;
 
-        // 6.6 Ensure that there's a field for seq, of type text, and that it is correctly set
+        // 6.6. Ensure that there's a select field for teacher_id and that it is correctly set
+        // $teacher_id / $teacher['fam_name'], from fixture
+        $teacher_id=$record2Edit['teacher_id'];
+        $teacher = $this->teachersFixture->get($teacher_id);
+        if($this->inputCheckerB($form,'select#SectionTeacherId option[selected]',$teacher_id,$teacher['fam_name']))
+            $unknownSelectCnt--;
+
+        // 6.7 Ensure that there's a field for seq, of type text, and that it is correctly set
         if($this->inputCheckerA($form,'input#SectionSeq',
             $record2Edit['seq'])) $unknownInputCnt--;
 
-        // 6.7. Ensure that there's a select field for tplan_id and that it is correctly set
+        // 6.8. Ensure that there's a select field for tplan_id and that it is correctly set
         // $tplan_id / $tplan['title'], from fixture
         $tplan_id=$record2Edit['tplan_id'];
         $tplan = $this->tplansFixture->get($tplan_id);
         if($this->inputCheckerB($form,'select#SectionTplanId option[selected]',$tplan_id,$tplan['title']))
             $unknownSelectCnt--;
 
-        // 6.8 Ensure that there's a field for weekday, of type text, and that it is correctly set
+        // 6.9 Ensure that there's a field for weekday, of type text, and that it is correctly set
         if($this->inputCheckerA($form,'input#SectionWeekday',
             $record2Edit['weekday'])) $unknownInputCnt--;
 
-        // 6.9 Ensure that there's a field for start_time, of type text, and that it is correctly set
+        // 6.10 Ensure that there's a field for start_time, of type text, and that it is correctly set
         if($this->inputCheckerA($form,'input#SectionStartTime',
             $record2Edit['start_time'])) $unknownInputCnt--;
 
-        // 6.10 Ensure that there's a field for weekday, of type text, and that it is correctly set
+        // 6.11 Ensure that there's a field for weekday, of type text, and that it is correctly set
         if($this->inputCheckerA($form,'input#SectionTHours',
             $record2Edit['thours'])) $unknownInputCnt--;
 
-        // 6.11 Have all the input and select fields been accounted for?  Are there
+        // 6.12 Have all the input and select fields been accounted for?  Are there
         // any extras?
         $this->assertEquals(0, $unknownInputCnt);
         $this->assertEquals(0, $unknownSelectCnt);
 
         // 7. Examine the table of TplanElements.
-        $cct=new ClazzesControllerTest();
+        //$cct=new ClazzesControllerTest();
         /* @var \simple_html_dom_node $html */
-        $unknownATag-=$cct->tstClazzesTable($html,$this->clazzes,$this->clazzesFixture,$this->sections,$record2Edit['id']);
+        //$unknownATag-=$cct->tstClazzesTable($html,$this->clazzes,$this->clazzesFixture,$this->sections,$record2Edit['id']);
 
         // 8. Ensure that all the <A> tags have been accounted for
         $this->assertEquals(0, $unknownATag);
@@ -276,6 +389,7 @@ class SectionsControllerTest extends DMIntegrationTestCase {
         // 2. Now validate that record.
         $this->assertEquals($fromDbRecord['cohort_id'],$fixtureRecord['cohort_id']);
         $this->assertEquals($fromDbRecord['semester_id'],$fixtureRecord['semester_id']);
+        $this->assertEquals($fromDbRecord['teacher_id'],$fixtureRecord['teacher_id']);
         $this->assertEquals($fromDbRecord['seq'],$fixtureRecord['seq']);
         $this->assertEquals($fromDbRecord['subject_id'],$fixtureRecord['subject_id']);
         $this->assertEquals($fromDbRecord['weekday'],$fixtureRecord['weekday']);
@@ -310,13 +424,14 @@ class SectionsControllerTest extends DMIntegrationTestCase {
         $this->assertEquals($thead_ths[1]->id, 'seq');
         $this->assertEquals($thead_ths[2]->id, 'cohort');
         $this->assertEquals($thead_ths[3]->id, 'subject');
-        $this->assertEquals($thead_ths[4]->id, 'tplan');
-        $this->assertEquals($thead_ths[5]->id, 'weekday');
-        $this->assertEquals($thead_ths[6]->id, 'start_time');
-        $this->assertEquals($thead_ths[7]->id, 'thours');
-        $this->assertEquals($thead_ths[8]->id, 'actions');
+        $this->assertEquals($thead_ths[4]->id, 'teacher');
+        $this->assertEquals($thead_ths[5]->id, 'tplan');
+        $this->assertEquals($thead_ths[6]->id, 'weekday');
+        $this->assertEquals($thead_ths[7]->id, 'start_time');
+        $this->assertEquals($thead_ths[8]->id, 'thours');
+        $this->assertEquals($thead_ths[9]->id, 'actions');
         $column_count = count($thead_ths);
-        $this->assertEquals($column_count,9); // no other columns
+        $this->assertEquals($column_count,10); // no other columns
 
         // 6. Ensure that the tbody section has the same
         //    quantity of rows as the count of section records in the fixture.
@@ -353,32 +468,38 @@ class SectionsControllerTest extends DMIntegrationTestCase {
             $subject = $this->subjectsFixture->get($fixtureRecord['subject_id']);
             $this->assertEquals($subject['title'], $htmlColumns[3]->plaintext);
 
-            // 7.4 tplan. all info is available via fixture.
+            // 7.4 teacher. all info is available via fixture.
+            $teacher = $this->teachersFixture->get($fixtureRecord['teacher_id']);
+            $this->assertEquals($teacher['fam_name'], $htmlColumns[4]->plaintext);
+
+            // 7.5 tplan. all info is available via fixture.
             $tplan = $this->tplansFixture->get($fixtureRecord['tplan_id']);
-            $this->assertEquals($tplan['title'], $htmlColumns[4]->plaintext);
+            $this->assertEquals($tplan['title'], $htmlColumns[5]->plaintext);
 
-            // 7.5 weekday
-            $this->assertEquals($fixtureRecord['weekday'], $htmlColumns[5]->plaintext);
+            // 7.6 weekday
+            $this->assertEquals($fixtureRecord['weekday'], $htmlColumns[6]->plaintext);
 
-            // 7.6 start_time
-            $this->assertEquals($fixtureRecord['start_time'], $htmlColumns[6]->plaintext);
+            // 7.7 start_time
+            $this->assertEquals($fixtureRecord['start_time'], $htmlColumns[7]->plaintext);
 
-            // 7.7 thours
-            $this->assertEquals($fixtureRecord['thours'], $htmlColumns[7]->plaintext);
+            // 7.8 thours
+            $this->assertEquals($fixtureRecord['thours'], $htmlColumns[8]->plaintext);
 
-            // 7.8 Now examine the action links
-            $this->td = $htmlColumns[8];
+            // 7.9 Now examine the action links
+            $this->td = $htmlColumns[9];
             $actionLinks = $this->td->find('a');
-            $this->assertEquals('SectionClazzes', $actionLinks[0]->name);
+            $this->assertEquals('SectionAttend', $actionLinks[0]->name);
             $unknownATag--;
-            $this->assertEquals('SectionView', $actionLinks[1]->name);
+            $this->assertEquals('SectionClazzes', $actionLinks[1]->name);
             $unknownATag--;
-            $this->assertEquals('SectionEdit', $actionLinks[2]->name);
+            $this->assertEquals('SectionView', $actionLinks[2]->name);
             $unknownATag--;
-            $this->assertEquals('SectionDelete', $actionLinks[3]->name);
+            $this->assertEquals('SectionEdit', $actionLinks[3]->name);
+            $unknownATag--;
+            $this->assertEquals('SectionDelete', $actionLinks[4]->name);
             $unknownATag--;
 
-            // 7.9 No other columns
+            // 7.10 No other columns
             $this->assertEquals(count($htmlColumns),$column_count);
         }
 
@@ -386,87 +507,4 @@ class SectionsControllerTest extends DMIntegrationTestCase {
         $this->assertEquals(0, $unknownATag);
     }
 
-    public function testViewGET() {
-
-        // 1. Obtain a record to view, login, GET the url, parse the response and send it back.
-        $record2View=$this->sectionsFixture->records[0];
-        $url='/sections/view/' . $record2View['id'];
-        $html=$this->loginRequestResponse(FixtureConstants::userAndyAdminId,$url);
-
-        // 2. Get a the count of all <A> tags that are presently unaccounted for.
-        $this->content = $html->find('div#SectionsView',0);
-        $this->assertNotNull($this->content);
-        $unknownATag = count($this->content->find('a'));
-
-        // 3.  Look for the table that contains the view fields.
-        $this->table = $html->find('table#SectionViewTable',0);
-        $this->assertNotNull($this->table);
-
-        // 4. Now inspect the fields on the form.  We want to know that:
-        // A. The correct fields are there and no other fields.
-        // B. The fields have correct values.
-        //
-        //  The actual order that the fields are listed is hereby deemed unimportant.
-
-        // This is the count of the table rows that are presently unaccounted for.
-        $unknownRowCnt = count($this->table->find('tr'));
-
-        // 4.1 cohort requires finding the nickname, which is computed by the Cohort Entity.
-        $field = $html->find('tr#cohort td',0);
-        $cohort = $this->cohorts->get($record2View['cohort_id'], ['contain' => ['Majors']]);
-        $this->assertEquals($cohort->nickname, $field->plaintext);
-        $unknownRowCnt--;
-
-        // 4.2 subject requires finding the related value in the SubjectsFixture
-        $field = $html->find('tr#subject td',0);
-        $subject_id = $record2View['subject_id'];
-        $subject = $this->subjectsFixture->get($subject_id);
-        $this->assertEquals($subject['title'], $field->plaintext);
-        $unknownRowCnt--;
-
-        // 4.3 semester requires finding the nickname, which is computed by the Semester Entity.
-        $field = $html->find('tr#semester td',0);
-        $semester_id = $record2View['semester_id'];
-        $semester = $this->semesters->get($semester_id);
-        $this->assertEquals($semester->nickname, $field->plaintext);
-        $unknownRowCnt--;
-
-        // 4.4 seq
-        $field = $html->find('tr#seq td',0);
-        $this->assertEquals($record2View['seq'], $field->plaintext);
-        $unknownRowCnt--;
-
-        // 4.5 tplan requires finding the related value in the TplansFixture
-        $field = $html->find('tr#tplan td',0);
-        $tplan_id = $record2View['tplan_id'];
-        $tplan = $this->tplansFixture->get($tplan_id);
-        $this->assertEquals($tplan['title'], $field->plaintext);
-        $unknownRowCnt--;
-
-        // 4.6 weekday
-        $field = $html->find('tr#weekday td',0);
-        $this->assertEquals($record2View['weekday'], $field->plaintext);
-        $unknownRowCnt--;
-
-        // 4.7 start_time
-        $field = $html->find('tr#start_time td',0);
-        $this->assertEquals($record2View['start_time'], $field->plaintext);
-        $unknownRowCnt--;
-
-        // 4.8 thours
-        $field = $html->find('tr#thours td',0);
-        $this->assertEquals($record2View['thours'], $field->plaintext);
-        $unknownRowCnt--;
-
-        // 4.9 Have all the rows been accounted for?  Are there any extras?
-        $this->assertEquals(0, $unknownRowCnt);
-
-        // 5. Examine the table of repeating clazzes
-        /* @var \simple_html_dom_node $html */
-        $cct=new ClazzesControllerTest();
-        $unknownATag-=$cct->tstClazzesTable($html,$this->clazzes,$this->clazzesFixture,$this->sections,$record2View['id']);
-
-        // 6. Ensure that all the <A> tags have been accounted for
-        $this->assertEquals(0, $unknownATag);
-    }
 }

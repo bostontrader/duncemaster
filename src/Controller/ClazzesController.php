@@ -3,20 +3,24 @@ namespace App\Controller;
 
 use Cake\Datasource\ConnectionManager;
 use Cake\Network\Exception\BadRequestException;
+use Cake\ORM\TableRegistry;
 
 class ClazzesController extends AppController {
 
     // Nothing is authorized unless a controller says so.
     // Admin is always authorized.
     public function isAuthorized($userArray) {
-        //$users = TableRegistry::get('Users');
-        //$user=$users->get($userArray['id'], ['contain' => ['Roles']]);
-        //foreach($user->roles as $role) {
-            //if($role->title=='admin') return true;
-        //}
-        // are we admin?
-        // are we a teacher?
-        return true;
+
+        $users = TableRegistry::get('Users');
+        $user=$users->get($userArray['id'], ['contain' => ['Roles']]);
+        $this->isAdmin = false;
+        $this->isTeacher = false;
+        foreach($user->roles as $role) {
+            if($role->title=='admin') $this->isAdmin=true;
+            if($role->title=='teacher') $this->isTeacher=true;
+        }
+        // Is this user an admin or a teacher?
+        return $this->isAdmin || $this->isTeacher;
     }
 
     /**
@@ -64,18 +68,13 @@ class ClazzesController extends AppController {
 
         $this->request->allowMethod(['get', 'post']);
 
-        // 1. Must have a section_id request parameter
-        if(array_key_exists('section_id', $this->request->query)) {
-            $section_id = $this->request->query['section_id'];
-        } else {
-            //return $this->redirect(['action' => 'index']);
-            throw new BadRequestException("You need to include a 'section_id' parameter");
-        }
+        $clazz = $this->Clazzes->newEntity();
+        //$clazz->section_id = $section_id;
 
         // 2. POST or GET?
         if ($this->request->is('post')) {
-            $clazz = $this->Clazzes->newEntity();
-            $clazz->section_id = $section_id;
+            //$clazz = $this->Clazzes->newEntity();
+            //$clazz->section_id = $section_id;
             $clazz = $this->Clazzes->patchEntity($clazz, $this->request->data);
             if ($this->Clazzes->save($clazz)) {
                 //$this->Flash->success(__('The clazz has been saved.'));
@@ -84,6 +83,16 @@ class ClazzesController extends AppController {
                 //$this->Flash->error(__('The clazz could not be saved. Please, try again.'));
             }
         } else { // assume GET
+
+            // 1. Must have a section_id request parameter
+            if(array_key_exists('section_id', $this->request->query)) {
+                $section_id = $this->request->query['section_id'];
+                $clazz->section_id = $section_id;
+            } else {
+                //return $this->redirect(['action' => 'index']);
+                throw new BadRequestException("You need to include a 'section_id' parameter");
+            }
+
 
             // 2.1 Retrieve the section record from $section_id. We might want to use ->get()
             // but that throws an exception that I cannot seem to catch. So do it this way.
@@ -94,13 +103,14 @@ class ClazzesController extends AppController {
             $count=$query->count();
             if($count==1) {
                 $section=$query->first();
-                if  ($section['teacher_id']==1) {
+                $t=$this->Auth->user('teachers_id');
+                if  ($section['teacher_id']==$this->Auth->user('teachers_id') || $this->isAdmin) {
                     $sections = $this->Clazzes->Sections
                         ->find('list')
-                        ->where('teacher_id');
-
+                        ->where(['teacher_id'=>$section['teacher_id']]);
+                    $c=$sections->count();
                     $this->set(compact('clazz', 'sections'));
-                    //return null;
+                    return null;
                 }
             }
 
