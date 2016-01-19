@@ -124,7 +124,7 @@ class UsersController extends AppController {
                 break;
             case 1:
                 // Ding! We got a winner! This user has role of $type.
-                $user[$type.'s_id']=null;
+                $user[$type.'_id']=null;
 
                 // But... even though the user has a role of $type...
                 // Are any $type assigned this user?
@@ -141,7 +141,7 @@ class UsersController extends AppController {
                         // Ding! Another winner. This user has a role of $type _and_
                         // there is an associated $type as well.
                         $n=$query->execute()->fetchAll('assoc');
-                        $user[$type.'s_id']=$n[0][$type.'s__id'];
+                        $user[$type.'_id']=$n[0][$type.'s__id'];
                         break;
                     default:
                         // A single user id should not have more than 1 $type pointing to it.
