@@ -71,7 +71,6 @@ class ClazzesController extends AppController {
 
         $clazz = $this->Clazzes->newEntity();
 
-        // 2. POST or GET?
         if ($this->request->is('post')) {
 
             $clazz = $this->Clazzes->patchEntity($clazz, $this->request->data);
@@ -81,49 +80,66 @@ class ClazzesController extends AppController {
             } else {
                 //$this->Flash->error(__('The clazz could not be saved. Please, try again.'));
             }
-        } else { // assume GET
+        }
 
-            // 1. Must have a section_id request parameter
-            if(array_key_exists('section_id', $this->request->query)) {
-                $section_id = $this->request->query['section_id'];
-                $clazz->section_id = $section_id;
-            } else {
-                throw new BadRequestException("You need to include a 'section_id' parameter");
-            }
+        // Must have a section_id request parameter
+        if(array_key_exists('section_id', $this->request->query)) {
+            $section_id = $this->request->query['section_id'];
+            $clazz->section_id = $section_id;
+        } else {
+            throw new BadRequestException("You need to include a 'section_id' parameter");
+        }
 
-            // 2.1 Retrieve the single section record from $section_id. We might want to use ->get()
-            // but that throws an exception that I cannot seem to catch. So do it this way.
-            // This is very similar to code in .edit. Can we factor this out?
-            $query=$this->Clazzes->Sections
-                ->find()
-                ->where(['id'=>$section_id]);
+        $this->set(compact('clazz', $this->getSectionsForSelectList($section_id)));
+        return null;
+    }
 
-            switch($query->count()) {
-                case 0:
-                    // This means that the given section doesn't exist. Does it matter if we leak that info?
-                    // For now, assume it doesn't matter. But this should only happen if the user is fiddling
-                    // with the URL, so no need for any user-friendly error messages.
-                    throw new BadRequestException("That does not compute");
-                    break;
-                case 1:
-                    // We found this section. Now can we get all sections with the same teacher_id and semester_id?
-                    $section=$query->first();
-                    $teacher_id=$this->Auth->user('teacher_id');
-                    $semester_id=$section['semester_id'];
-                    if ($section['teacher_id']==$this->Auth->user('teacher_id') || $this->isAdmin) {
-                        $sections = $this->Clazzes->Sections
-                            ->find('list')
-                            ->where(['teacher_id'=>$section['teacher_id'],'semester_id'=>$section['semester_id']]);
-                        $c=$sections->count();
-                    } else {
-                        throw new BadRequestException("You're not the teacher implied by the specified section_id, assuming this section even exists");
-                    }
-                    $this->set(compact('clazz', 'sections'));
-                    return null;
-                    break;
-                default:
-                    // max fubar error. How could the above query _ever_ not be 0 or 1?
-            }
+    /**
+     * Given a section_id, return a list of all sections with the same teacher and semester, or throw an exception.
+     * @var int $section_id
+     * @return \Cake\ORM\Query
+     */
+
+    private function getSectionsForSelectList($section_id) {
+
+        // 1. Retrieve a single section record from $section_id. We might want to use ->get()
+        // but that throws an exception that I cannot seem to catch. So do it this way.
+        /** @var \Cake\ORM\Query $query */
+        $query=$this->Clazzes->Sections
+            ->find()->where(['id'=>$section_id]);
+
+        switch($query->count()) {
+            case 0:
+                // This means that the given section doesn't exist.  This should never happen.
+                //
+                // If this occurs during GET /clazzes/add it's because the user is fiddling with the
+                // URL. Shame on him and we're thus relieved of the obligation to provide any sensible
+                // error messages to him. But do we leak the fact that the given section does not exist?
+                // I don't think it's either a problem or avoidable so let's not worry about it.
+                //
+                // If this occurs during GET /clazzes/edit it's clearly an error. Let's not worry about
+                // developing a graceful method of reacting, at this time.
+                //
+                // That said...
+                throw new BadRequestException("That does not compute");
+                break;
+            case 1:
+                // We found this section. Now can we get all sections with the same teacher_id and semester_id...
+                $section=$query->first();
+
+                // ...assuming the logged in user is authorized to see this.
+                if ($section['teacher_id']==$this->Auth->user('teacher_id') || $this->isAdmin) {
+                    $sections = $this->Clazzes->Sections
+                        ->find('list')
+                        ->where(['teacher_id'=>$section['teacher_id'],'semester_id'=>$section['semester_id']]);
+                } else {
+                    throw new BadRequestException("You're not the teacher implied by the specified section_id.");
+                }
+                $this->set(compact('clazz', 'sections'));
+                return null;
+            default:
+                // max fubar error. How could the above query _ever_ not have 0 or 1 records?
+                throw new BadRequestException("That does not compute");
         }
     }
 
@@ -152,40 +168,7 @@ class ClazzesController extends AppController {
             }
         }
 
-        // Retrieve the single section record associated with this clazz. We might want to use ->get()
-        // but that throws an exception that I cannot seem to catch. So do it this way.
-        // This is very similar to code in .add. Can we factor this out?
-        $query=$this->Clazzes->Sections
-            ->find()
-            ->where(['id'=>$clazz['section_id']]);
-
-        switch($query->count()) {
-            case 0:
-                // This means that the given section doesn't exist. This should
-                // never happen.
-                throw new BadRequestException("That does not compute");
-                break;
-            case 1:
-                $section=$query->first();
-                $teacher_id=$this->Auth->user('teacher_id');
-                $semester_id=$section['semester_id'];
-                if ($section['teacher_id']==$this->Auth->user('teacher_id') || $this->isAdmin) {
-                    $sections = $this->Clazzes->Sections
-                        ->find('list')
-                        ->where(['teacher_id'=>$section['teacher_id'],'semester_id'=>$section['semester_id']]);
-                    $c=$sections->count();
-                } else {
-                    throw new BadRequestException("You're not the teacher implied by the specified section_id, assuming this section even exists");
-                }
-                $this->set(compact('clazz', 'sections'));
-                return null;
-                break;
-            default:
-                // max fubar error. How could the above query _ever_ not be 0 or 1?
-        }
-
-
-        //$this->set(compact('clazz', 'sections'));
+        $this->set(compact('clazz', $this->getSectionsForSelectList($clazz['section_id'])));
         return null;
     }
 

@@ -1,7 +1,6 @@
 <?php
 namespace App\Test\TestCase\Controller;
 
-use App\Controller\ItypesController;
 use App\Test\Fixture\ClazzesFixture;
 use App\Test\Fixture\FixtureConstants;
 use App\Test\Fixture\SectionsFixture;
@@ -45,232 +44,16 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
         $this->sectionsFixture = new SectionsFixture();
     }
 
-
-
-    // GET /index, no section_id parameter
-    public function testIndexGet() {
-        $this->tstIndexGet(null);
-    }
-
-    // GET /index, with section_id parameter
-    public function testIndexGetSectionId() {
-        $this->tstIndexGet($this->sectionsFixture->records[0]['id']);
-    }
-    
-    private function tstIndexGET($section_id=null) {
-
-        // 1. Simulate login, submit request, examine response.
-        $this->fakeLogin(FixtureConstants::userAndyAdminId);
-
-        if(is_null($section_id))
-            $this->get('/clazzes/index');
-        else
-            $this->get('/clazzes/index?section_id='.$section_id);
-
-        $this->assertResponseOk(); // 2xx
-        $this->assertNoRedirect();
-
-        // 2. Parse the html from the response
-        $html = str_get_html($this->_response->body());
-
-        // 3. Get a the count of all <A> tags that are presently unaccounted for.
-        $this->content = $html->find('div#ClazzesIndex',0);
-        $this->assertNotNull($this->content);
-        $unknownATag = count($this->content->find('a'));
-
-        // 4. Test the new clazz link
-
-        // 4.1 Does it exist?
-        $link=$html->find('a#ClazzAdd')[0];
-        $this->assertNotNull($link);
-        $unknownATag--;
-
-        // 4.2 Does it point to the correct destination?
-        if(is_null($section_id))
-            $expectedHref='/clazzes/add';
-        else
-            $expectedHref='/clazzes/add?section_id='.$section_id;
-
-        $this->assertEquals($expectedHref,$link->href);
-
-        // 5. Examine the table of Clazzes.
-        /* @var \simple_html_dom_node $html */
-        if(is_null($section_id))
-            $unknownATag-=$this->tstClazzesTable($html,$this->clazzes,$this->clazzesFixture,$this->sections);
-        else
-            $unknownATag-=$this->tstClazzesTable($html,$this->clazzes,$this->clazzesFixture,$this->sections,$section_id);
-
-        // 6. Ensure that all the <A> tags have been accounted for
-        $this->assertEquals(0, $unknownATag);
-    }
-
-    /**
-     * At least three views create a table of Clazzes.
-     * (Sections.edit,  Sections.view, and Clazzes.index)
-     * This table must be tested. Factor that testing into this method.
-     * @param \simple_html_dom_node $html parsed dom that contains the ClazzesTable
-     * @param \App\Model\Table\ClazzesTable $clazzes
-     * @param \App\Test\Fixture\ClazzesFixture $clazzesFixture
-     * @param \App\Model\Table\SectionsTable $sections
-     * @param int $sectionId If $sectionId=null, the test will expect to see all the records from
-     * the fixture. Else the test will only expect to nersee fixture records with the given $sectionId.
-     * @return int $aTagsFoundCnt The number of aTagsFound.
-     */
-    public function tstClazzesTable($html, $clazzes, $clazzesFixture, $sections, $section_id=null) {
-
-        // 1. Ensure that there is a suitably named table to display the results.
-        $this->table = $html->find('table#ClazzesTable',0);
-        $this->assertNotNull($this->table);
-
-        // 2. Ensure that said table's thead element contains the correct
-        //    headings, in the correct order, and nothing else.
-        $this->thead = $this->table->find('thead',0);
-        $thead_ths = $this->thead->find('tr th');
-
-        $this->assertEquals($thead_ths[0]->id, 'event_datetime');
-        $this->assertEquals($thead_ths[1]->id, 'comments');
-        $this->assertEquals($thead_ths[2]->id, 'attend');
-        $this->assertEquals($thead_ths[3]->id, 'participate');
-        $this->assertEquals($thead_ths[4]->id, 'actions');
-        $column_count = count($thead_ths);
-        $this->assertEquals($column_count,5); // no other columns
-
-        // 3. Ensure that the tbody section has the correct quantity of rows.
-        // This should be done using a very similar query as used by the controller.
-        $this->tbody = $this->table->find('tbody',0);
-        $this->tbody_rows = $this->tbody->find('tr');
-        //if(!is_null($sectionId))
-            //$clazzesFixture->filterBySectionId($sectionId);
-        //$this->assertEquals(count($tbody_rows), count($clazzesFixture->records));
-
-
-        //$connection = ConnectionManager::get('default');
-        // This query should be essentially the same as the query in SectionsController.view
-        //$query = "select students.sort, students.sid, students.id as student_id, students.giv_name, students.fam_name, students.phonetic_name, cohorts.id, sections.id, clazzes.id
-            //from students
-            //left join cohorts on students.cohort_id = cohorts.id
-            //left join sections on sections.cohort_id = cohorts.id
-            //left join clazzes on clazzes.section_id = sections.id
-            //left join interactions on interactions.clazz_id=clazzes.id and interactions.student_id=students.id and interactions.itype_id=".ItypesController::ATTEND." where clazzes.id=".$clazz_id.
-            //" order by sort";
-        //$studentsResults = $connection->execute($query)->fetchAll('assoc');
-        //$s1=count($this->tbody_rows);
-        //$s2=count($studentsResults);
-        //$this->assertEquals($s1,$s2);
-        // Now get the classes associated with this section
-        $query=$clazzes->find()
-            ->order(['event_datetime'=>'asc']);
-        if(!is_null($section_id)) {
-            $query->where(['section_id'=>$section_id]);
-        }
-
-        $q=$query->execute()->fetchAll('assoc');
-        // 4. Ensure that the values displayed in each row, match the values from
-        //    the fixture.  The values should be presented in a particular order
-        //    with nothing else thereafter.
-        $iterator = new \MultipleIterator();
-        $iterator->attachIterator(new \ArrayIterator($q));
-        //$iterator->attachIterator(new \ArrayIterator($clazzesFixture->records));
-        $iterator->attachIterator(new \ArrayIterator($this->tbody_rows));
-
-        $aTagsFoundCnt=0;
-        foreach ($iterator as $values) {
-            $fixtureRecord = $values[0];
-            $this->htmlRow = $values[1];
-            $htmlColumns = $this->htmlRow->find('td');
-
-            // 8.0 event_datetime
-            $this->assertEquals($fixtureRecord['Clazzes__event_datetime'], $htmlColumns[0]->plaintext);
-
-            // 8.1 comments
-            $this->assertEquals($fixtureRecord['Clazzes__comments'], $htmlColumns[1]->plaintext);
-
-            // 8.2 attend
-
-            // 8.3 participate
-
-            // 8.4 Now examine the action links
-            $this->td = $htmlColumns[4];
-            $actionLinks = $this->td->find('a');
-            $this->assertEquals('ClazzAttend', $actionLinks[0]->name);
-            $aTagsFoundCnt++;
-            $this->assertEquals('ClazzParticipate', $actionLinks[1]->name);
-            $aTagsFoundCnt++;
-            $this->assertEquals('ClazzView', $actionLinks[2]->name);
-            $aTagsFoundCnt++;
-            $this->assertEquals('ClazzEdit', $actionLinks[3]->name);
-            $aTagsFoundCnt++;
-            $this->assertEquals('ClazzDelete', $actionLinks[4]->name);
-            $aTagsFoundCnt++;
-
-            // 8.9 No other columns
-            $this->assertEquals(count($htmlColumns),$column_count);
-        }
-        return $aTagsFoundCnt;
-    }
-
-    public function testViewGET() {
-
-        // 1. Simulate login, submit request, examine response.
-        $this->fakeLogin(FixtureConstants::userAndyAdminId);
-        $fixtureRecord=$this->clazzesFixture->records[0];
-        $this->get('/clazzes/view/' . $fixtureRecord['id']);
-        $this->assertResponseOk(); // 2xx
-        $this->assertNoRedirect();
-
-        // 2. Parse the html from the response
-        $html = str_get_html($this->_response->body());
-
-        // 3.  Look for the table that contains the view fields.
-        $this->table = $html->find('table#ClazzViewTable',0);
-        $this->assertNotNull($this->table);
-
-        // 4. Now inspect the fields on the table.  We want to know that:
-        // A. The correct fields are there and no other fields.
-        // B. The fields have correct values.
-        //
-        //  The actual order that the fields are listed is hereby deemed unimportant.
-
-        // This is the count of the table rows that are presently unaccounted for.
-        $unknownRowCnt = count($this->table->find('tr'));
-
-        // 2.1 section requires finding the nickname, which is computed by the Section Entity.
-        $field = $html->find('tr#section td',0);
-        $section_id = $fixtureRecord['id'];
-        $section = $this->sections->get($section_id);
-        $this->assertEquals($section->nickname, $field->plaintext);
-        $unknownRowCnt--;
-
-        // 2.2 event_datetime
-        $field = $html->find('tr#event_datetime td',0);
-        $this->assertEquals($fixtureRecord['event_datetime'], $field->plaintext);
-        $unknownRowCnt--;
-
-        // 2.3 comments
-        $field = $html->find('tr#comments td',0);
-        $this->assertEquals($fixtureRecord['comments'], $field->plaintext);
-        $unknownRowCnt--;
-
-        // 2.9 Have all the rows been accounted for?  Are there any extras?
-        $this->assertEquals(0, $unknownRowCnt);
-
-        // 3. Examine the <A> tags on this page.  There should be zero links.
-        $this->content = $html->find('div#ClazzesView',0);
-        $this->assertNotNull($this->content);
-        $links = $this->content->find('a');
-        $this->assertEquals(0,count($links));
-    }
-
     // Test that unauthenticated users, when submitting a request to
     // an action, will get redirected to the login url.
     //public function testUnauthenticatedActionsAndUsers() {
-    ///$this->tstUnauthenticatedActionsAndUsers('clazzes');
+        //$this->tstUnauthenticatedActionsAndUsers('clazzes');
     //}
 
     // Test that users who do not have correct roles, when submitting a request to
     // an action, will get redirected to the home page.
     //public function testUnauthorizedActionsAndUsers() {
-    //$this->tstUnauthorizedActionsAndUsers('clazzes');
+        //$this->tstUnauthorizedActionsAndUsers('clazzes');
     //}
 
     /**
@@ -314,6 +97,7 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
         $connection = ConnectionManager::get('default');
         $allSectionsForThisTeacherAndSemester = $connection->execute($query)->fetchAll('assoc');
 
+        // 2. Positive tests. Test of functionality that should be handled by the controller.
         // 2.1 admin   GET /clazzes/add
         //      Error. The section_id param is missing and mandatory. Doesn't matter who the user is.
         $this->tstAddGet(FixtureConstants::userAndyAdminUsername, FixtureConstants::userAndyAdminPw, 400);
@@ -330,8 +114,25 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
         //     An admin can do this but the select list is still populated with the same sections as for
         //     a teacher.
         $this->tstAddGet(FixtureConstants::userAndyAdminId, FixtureConstants::userAndyAdminPw, 200, FixtureConstants::sectionTypical, $allSectionsForThisTeacherAndSemester);
-    }
 
+        // 3. Negative tests. Requests that should _not_ get to the controller.
+
+        // 3.2 Test that users who do not have correct roles will get redirected to the home page.
+        //public function testUnauthorizedActionsAndUsers() {
+        //$this->tstUnauthorizedActionsAndUsers('clazzes');
+        //}
+        $this->tstAddGet(FixtureConstants::userArnoldAdvisorId, FixtureConstants::userArnoldAdvisorPw, 302, FixtureConstants::sectionTypical, $allSectionsForThisTeacherAndSemester);
+        $this->tstAddGet(FixtureConstants::userSallyStudentId, FixtureConstants::userSallyStudentPw, 302, FixtureConstants::sectionTypical, $allSectionsForThisTeacherAndSemester);
+
+
+        // 3.1 Test that unauthenticated users will get redirected to the login url.
+        $this->session(['Auth' => null]);
+        $this->get('/clazzes/add');
+        $this->assertResponseCode(302);
+        $this->assertRedirect( '/users/login' );
+
+
+    }
 
     private function tstAddGET($username, $password, $expectedResponse, $section_id=null, $allSectionsForThisTeacherAndSemester=[]) {
 
@@ -531,4 +332,217 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
         $this->assertEquals($fromDbRecord['event_datetime'],$fixtureRecord['event_datetime']);
     }
 
+    // GET /index, no section_id parameter
+    public function testIndexGet() {
+        $this->tstIndexGet(null);
+    }
+
+    // GET /index, with section_id parameter
+    public function testIndexGetSectionId() {
+        $this->tstIndexGet($this->sectionsFixture->records[0]['id']);
+    }
+
+    private function tstIndexGET($section_id=null) {
+
+        // 1. Simulate login, submit request, examine response.
+        $this->fakeLogin(FixtureConstants::userAndyAdminId);
+
+        if(is_null($section_id))
+            $this->get('/clazzes/index');
+        else
+            $this->get('/clazzes/index?section_id='.$section_id);
+
+        $this->assertResponseOk(); // 2xx
+        $this->assertNoRedirect();
+
+        // 2. Parse the html from the response
+        $html = str_get_html($this->_response->body());
+
+        // 3. Get a the count of all <A> tags that are presently unaccounted for.
+        $this->content = $html->find('div#ClazzesIndex',0);
+        $this->assertNotNull($this->content);
+        $unknownATag = count($this->content->find('a'));
+
+        // 4. Test the new clazz link
+
+        // 4.1 Does it exist?
+        $link=$html->find('a#ClazzAdd')[0];
+        $this->assertNotNull($link);
+        $unknownATag--;
+
+        // 4.2 Does it point to the correct destination?
+        if(is_null($section_id))
+            $expectedHref='/clazzes/add';
+        else
+            $expectedHref='/clazzes/add?section_id='.$section_id;
+
+        $this->assertEquals($expectedHref,$link->href);
+
+        // 5. Examine the table of Clazzes.
+        /* @var \simple_html_dom_node $html */
+        if(is_null($section_id))
+            $unknownATag-=$this->tstClazzesTable($html,$this->clazzes,$this->clazzesFixture,$this->sections);
+        else
+            $unknownATag-=$this->tstClazzesTable($html,$this->clazzes,$this->clazzesFixture,$this->sections,$section_id);
+
+        // 6. Ensure that all the <A> tags have been accounted for
+        $this->assertEquals(0, $unknownATag);
+    }
+
+    /**
+     * At least three views create a table of Clazzes.
+     * (Sections.edit,  Sections.view, and Clazzes.index)
+     * This table must be tested. Factor that testing into this method.
+     * @param \simple_html_dom_node $html parsed dom that contains the ClazzesTable
+     * @param \App\Model\Table\ClazzesTable $clazzes
+     * @param \App\Test\Fixture\ClazzesFixture $clazzesFixture
+     * @param \App\Model\Table\SectionsTable $sections
+     * @param int $sectionId If $sectionId=null, the test will expect to see all the records from
+     * the fixture. Else the test will only expect to nersee fixture records with the given $sectionId.
+     * @return int $aTagsFoundCnt The number of aTagsFound.
+     */
+    public function tstClazzesTable($html, $clazzes, $clazzesFixture, $sections, $section_id=null) {
+
+        // 1. Ensure that there is a suitably named table to display the results.
+        $this->table = $html->find('table#ClazzesTable',0);
+        $this->assertNotNull($this->table);
+
+        // 2. Ensure that said table's thead element contains the correct
+        //    headings, in the correct order, and nothing else.
+        $this->thead = $this->table->find('thead',0);
+        $thead_ths = $this->thead->find('tr th');
+
+        $this->assertEquals($thead_ths[0]->id, 'event_datetime');
+        $this->assertEquals($thead_ths[1]->id, 'comments');
+        $this->assertEquals($thead_ths[2]->id, 'attend');
+        $this->assertEquals($thead_ths[3]->id, 'participate');
+        $this->assertEquals($thead_ths[4]->id, 'actions');
+        $column_count = count($thead_ths);
+        $this->assertEquals($column_count,5); // no other columns
+
+        // 3. Ensure that the tbody section has the correct quantity of rows.
+        // This should be done using a very similar query as used by the controller.
+        $this->tbody = $this->table->find('tbody',0);
+        $this->tbody_rows = $this->tbody->find('tr');
+        //if(!is_null($sectionId))
+        //$clazzesFixture->filterBySectionId($sectionId);
+        //$this->assertEquals(count($tbody_rows), count($clazzesFixture->records));
+
+
+        //$connection = ConnectionManager::get('default');
+        // This query should be essentially the same as the query in SectionsController.view
+        //$query = "select students.sort, students.sid, students.id as student_id, students.giv_name, students.fam_name, students.phonetic_name, cohorts.id, sections.id, clazzes.id
+        //from students
+        //left join cohorts on students.cohort_id = cohorts.id
+        //left join sections on sections.cohort_id = cohorts.id
+        //left join clazzes on clazzes.section_id = sections.id
+        //left join interactions on interactions.clazz_id=clazzes.id and interactions.student_id=students.id and interactions.itype_id=".ItypesController::ATTEND." where clazzes.id=".$clazz_id.
+        //" order by sort";
+        //$studentsResults = $connection->execute($query)->fetchAll('assoc');
+        //$s1=count($this->tbody_rows);
+        //$s2=count($studentsResults);
+        //$this->assertEquals($s1,$s2);
+        // Now get the classes associated with this section
+        $query=$clazzes->find()
+            ->order(['event_datetime'=>'asc']);
+        if(!is_null($section_id)) {
+            $query->where(['section_id'=>$section_id]);
+        }
+
+        $q=$query->execute()->fetchAll('assoc');
+        // 4. Ensure that the values displayed in each row, match the values from
+        //    the fixture.  The values should be presented in a particular order
+        //    with nothing else thereafter.
+        $iterator = new \MultipleIterator();
+        $iterator->attachIterator(new \ArrayIterator($q));
+        //$iterator->attachIterator(new \ArrayIterator($clazzesFixture->records));
+        $iterator->attachIterator(new \ArrayIterator($this->tbody_rows));
+
+        $aTagsFoundCnt=0;
+        foreach ($iterator as $values) {
+            $fixtureRecord = $values[0];
+            $this->htmlRow = $values[1];
+            $htmlColumns = $this->htmlRow->find('td');
+
+            // 8.0 event_datetime
+            $this->assertEquals($fixtureRecord['Clazzes__event_datetime'], $htmlColumns[0]->plaintext);
+
+            // 8.1 comments
+            $this->assertEquals($fixtureRecord['Clazzes__comments'], $htmlColumns[1]->plaintext);
+
+            // 8.2 attend
+
+            // 8.3 participate
+
+            // 8.4 Now examine the action links
+            $this->td = $htmlColumns[4];
+            $actionLinks = $this->td->find('a');
+            $this->assertEquals('ClazzAttend', $actionLinks[0]->name);
+            $aTagsFoundCnt++;
+            $this->assertEquals('ClazzParticipate', $actionLinks[1]->name);
+            $aTagsFoundCnt++;
+            $this->assertEquals('ClazzView', $actionLinks[2]->name);
+            $aTagsFoundCnt++;
+            $this->assertEquals('ClazzEdit', $actionLinks[3]->name);
+            $aTagsFoundCnt++;
+            $this->assertEquals('ClazzDelete', $actionLinks[4]->name);
+            $aTagsFoundCnt++;
+
+            // 8.9 No other columns
+            $this->assertEquals(count($htmlColumns),$column_count);
+        }
+        return $aTagsFoundCnt;
+    }
+
+    public function testViewGET() {
+
+        // 1. Simulate login, submit request, examine response.
+        $this->fakeLogin(FixtureConstants::userAndyAdminId);
+        $fixtureRecord=$this->clazzesFixture->records[0];
+        $this->get('/clazzes/view/' . $fixtureRecord['id']);
+        $this->assertResponseOk(); // 2xx
+        $this->assertNoRedirect();
+
+        // 2. Parse the html from the response
+        $html = str_get_html($this->_response->body());
+
+        // 3.  Look for the table that contains the view fields.
+        $this->table = $html->find('table#ClazzViewTable',0);
+        $this->assertNotNull($this->table);
+
+        // 4. Now inspect the fields on the table.  We want to know that:
+        // A. The correct fields are there and no other fields.
+        // B. The fields have correct values.
+        //
+        //  The actual order that the fields are listed is hereby deemed unimportant.
+
+        // This is the count of the table rows that are presently unaccounted for.
+        $unknownRowCnt = count($this->table->find('tr'));
+
+        // 2.1 section requires finding the nickname, which is computed by the Section Entity.
+        $field = $html->find('tr#section td',0);
+        $section_id = $fixtureRecord['id'];
+        $section = $this->sections->get($section_id);
+        $this->assertEquals($section->nickname, $field->plaintext);
+        $unknownRowCnt--;
+
+        // 2.2 event_datetime
+        $field = $html->find('tr#event_datetime td',0);
+        $this->assertEquals($fixtureRecord['event_datetime'], $field->plaintext);
+        $unknownRowCnt--;
+
+        // 2.3 comments
+        $field = $html->find('tr#comments td',0);
+        $this->assertEquals($fixtureRecord['comments'], $field->plaintext);
+        $unknownRowCnt--;
+
+        // 2.9 Have all the rows been accounted for?  Are there any extras?
+        $this->assertEquals(0, $unknownRowCnt);
+
+        // 3. Examine the <A> tags on this page.  There should be zero links.
+        $this->content = $html->find('div#ClazzesView',0);
+        $this->assertNotNull($this->content);
+        $links = $this->content->find('a');
+        $this->assertEquals(0,count($links));
+    }
 }

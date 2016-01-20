@@ -308,6 +308,7 @@ class DMIntegrationTestCase extends IntegrationTestCase {
 
     // Test that unauthenticated users, when submitting a request to
     // an action, will get redirected to the login url.
+    // This is a stop-gap measure until more thorough testing is implemented in the various controllers.
     protected function tstUnauthenticatedActionsAndUsers($controller) {
         foreach($this->requests2Try as $request2Try) {
             $this->tstNotAllowedRequest($request2Try['verb'], '/'.$controller.'/'.$request2Try['method'], '/users/login');
@@ -316,6 +317,7 @@ class DMIntegrationTestCase extends IntegrationTestCase {
 
     // Test that users who do not have correct roles, when submitting a request to
     // an action, will get redirected to the home page.
+    // This is a stop-gap measure until more thorough testing is implemented in the various controllers.
     protected function tstUnauthorizedActionsAndUsers($controller) {
 
         $userIds = [
