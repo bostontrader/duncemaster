@@ -1,6 +1,7 @@
 <?php
 namespace App\Test\TestCase\Controller;
 
+use App\Controller\ClazzesController;
 use App\Test\Fixture\ClazzesFixture;
 use App\Test\Fixture\FixtureConstants;
 use App\Test\Fixture\SectionsFixture;
@@ -43,18 +44,6 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
         $this->clazzesFixture = new ClazzesFixture();
         $this->sectionsFixture = new SectionsFixture();
     }
-
-    // Test that unauthenticated users, when submitting a request to
-    // an action, will get redirected to the login url.
-    //public function testUnauthenticatedActionsAndUsers() {
-        //$this->tstUnauthenticatedActionsAndUsers('clazzes');
-    //}
-
-    // Test that users who do not have correct roles, when submitting a request to
-    // an action, will get redirected to the home page.
-    //public function testUnauthorizedActionsAndUsers() {
-        //$this->tstUnauthorizedActionsAndUsers('clazzes');
-    //}
 
     /**
      * GET /clazzes/add?section_id=n
@@ -100,112 +89,105 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
         // 2. Positive tests. Test of functionality that should be handled by the controller.
         // 2.1 admin   GET /clazzes/add
         //      Error. The section_id param is missing and mandatory. Doesn't matter who the user is.
-        $this->tstAddGet(FixtureConstants::userAndyAdminUsername, FixtureConstants::userAndyAdminPw, 400);
+        $this->tstAddGet(FixtureConstants::userAndyAdminUsername, FixtureConstants::userAndyAdminPw, 400, ClazzesController::NEED_SECTION_ID);
 
         // 2.2 teacher1 GET /clazzes/add?section_id=n
         //     Note: Make sure that the teacher for sectionTypical is connected to userTommyTeacher.  Success.
-        $this->tstAddGet(FixtureConstants::userTommyTeacherUsername, FixtureConstants::userTommyTeacherPw, 200, FixtureConstants::sectionTypical, $allSectionsForThisTeacherAndSemester);
+        $this->tstAddGet(FixtureConstants::userTommyTeacherUsername, FixtureConstants::userTommyTeacherPw, 200, null, FixtureConstants::sectionTypical, $allSectionsForThisTeacherAndSemester);
 
         // 2.3 teacher2 GET /clazzes/add?section_id=n
         //     Note: Make sure that the teacher for sectionTypical is not connected to userTammyTeacher.  Error.
-        $this->tstAddGet(FixtureConstants::userTerryTeacherId, FixtureConstants::userTerryTeacherPw, 200, FixtureConstants::sectionTypical, $allSectionsForThisTeacherAndSemester);
+        $this->tstAddGet(FixtureConstants::userTerryTeacherUsername, FixtureConstants::userTerryTeacherPw, 400, ClazzesController::UR_NOT_THE_TEACHER, FixtureConstants::sectionTypical, $allSectionsForThisTeacherAndSemester);
 
         // 2.4 admin   GET /clazzes/add?section_id=n
         //     An admin can do this but the select list is still populated with the same sections as for
         //     a teacher.
-        $this->tstAddGet(FixtureConstants::userAndyAdminId, FixtureConstants::userAndyAdminPw, 200, FixtureConstants::sectionTypical, $allSectionsForThisTeacherAndSemester);
+        $this->tstAddGet(FixtureConstants::userAndyAdminUsername, FixtureConstants::userAndyAdminPw, 200, null, FixtureConstants::sectionTypical, $allSectionsForThisTeacherAndSemester);
 
         // 3. Negative tests. Requests that should _not_ get to the controller.
 
-        // 3.2 Test that users who do not have correct roles will get redirected to the home page.
-        //public function testUnauthorizedActionsAndUsers() {
-        //$this->tstUnauthorizedActionsAndUsers('clazzes');
-        //}
-        $this->tstAddGet(FixtureConstants::userArnoldAdvisorId, FixtureConstants::userArnoldAdvisorPw, 302, FixtureConstants::sectionTypical, $allSectionsForThisTeacherAndSemester);
-        $this->tstAddGet(FixtureConstants::userSallyStudentId, FixtureConstants::userSallyStudentPw, 302, FixtureConstants::sectionTypical, $allSectionsForThisTeacherAndSemester);
+        // 3.1 Test that users who do not have correct roles will get redirected to the home page.
+        $this->tstAddGet(FixtureConstants::userArnoldAdvisorUsername, FixtureConstants::userArnoldAdvisorPw, 302, null, FixtureConstants::sectionTypical, $allSectionsForThisTeacherAndSemester);
+        $this->tstAddGet(FixtureConstants::userSallyStudentUsername, FixtureConstants::userSallyStudentPw, 302, null, FixtureConstants::sectionTypical, $allSectionsForThisTeacherAndSemester);
 
-
-        // 3.1 Test that unauthenticated users will get redirected to the login url.
+        // 3.2 Test that unauthenticated users will get redirected to the login url.
         $this->session(['Auth' => null]);
         $this->get('/clazzes/add');
         $this->assertResponseCode(302);
-        $this->assertRedirect( '/users/login' );
-
-
+        $this->assertRedirect('/users/login');
     }
 
-    private function tstAddGET($username, $password, $expectedResponse, $section_id=null, $allSectionsForThisTeacherAndSemester=[]) {
+    private function tstAddGET($username, $password, $expectedResponseCode, $expectedErrorMessage, $section_id=null, $allSectionsForThisTeacherAndSemester=[]) {
 
         // 1. Attempt to login.
         $credentials=['username'=>$username,'password'=>$password];
         $this->post('/users/login', $credentials);
         $authUser = $this->_controller->Auth->user();
-        $this->session(
-            [
-                'Auth' => [
-                    'User' => $authUser
-                ]
-            ]
-        );
-        // 1. Simulate login, submit request, examine response.
-        //$this->fakeLogin($user_id);
+        $this->session(['Auth' => ['User' => $authUser]]);
+
+        // 2. Submit request...
         if(is_null($section_id)) {
             $this->get('/clazzes/add');
-            //$this->assertResponseSuccess(); // 2xx, 3xx
-            //$this->assertRedirect('/clazzes');
-            // Error: You need to include a 'section_id' parameter
-            $this->assertResponseCode(400);
-            $this->_controller->Auth->logout();
-            return;
         } else {
             $this->get('/clazzes/add?section_id='.$section_id);
-            $this->assertResponseOk(); // 2xx
-            $this->assertNoRedirect();
         }
-        // 2. Parse the html from the response
+
+        // 3. Examine response.
+        $this->assertResponseCode($expectedResponseCode);
+        switch($expectedResponseCode) {
+            case 200:  // All is well... keep on truckin'
+                $this->assertNoRedirect();
+                break;
+            case 302:   // Authenticated but unauthorized user. Redirect to home.
+                $this->assertRedirect( '/' );
+                return;
+            case 400:   // you need a section_id parameter
+                $this->assertResponseContains($expectedErrorMessage);
+                return;
+            default:
+                $this->fail('Unexpected response');
+        }
+
+        // 4. Parse the html from the response
         /* @var \simple_html_dom_node $html */
         $html = str_get_html($this->_response->body());
 
-        // 3. Ensure that the correct form exists
+        // 5. Ensure that the correct form exists
         /* @var \simple_html_dom_node $form */
         $form = $html->find('form#ClazzAddForm',0);
         $this->assertNotNull($form);
 
-        // 4. Now inspect the fields on the form.  We want to know that:
+        // 6. Now inspect the fields on the form.  We want to know that:
         // A. The correct fields are there and no other fields.
         // B. The fields have correct values. This includes verifying that select
         //    lists contain options.
         //
         //  The actual order that the fields are listed on the form is hereby deemed unimportant.
 
-        // 4.1 These are counts of the select and input fields on the form.  They
+        // 6.1 These are counts of the select and input fields on the form.  They
         // are presently unaccounted for.
         $unknownSelectCnt = count($form->find('select'));
         $unknownInputCnt = count($form->find('input'));
 
-        // 4.2 Look for the hidden POST input
+        // 6.2 Look for the hidden POST input
         if($this->lookForHiddenInput($form)) $unknownInputCnt--;
 
-        // 4.3 test the ClazzSectionId select.
+        // 6.3 test the ClazzSectionId select.
         // shouldn't ever be null
-        //if(is_null($section_id)) {
-        // 4.3.1 Ensure that there's a select field for section_id, that it has no selection,
-        // and that it has the correct quantity of available choices.
-        //if($this->selectCheckerA($form, 'ClazzSectionId', 'sections')) $unknownSelectCnt--;
-        //} else {
-        //if($this->tstSectionIdSelect($form, $section_id, $this->sections)) $unknownSelectCnt--;
-        $c=count($allSectionsForThisTeacherAndSemester)+1;
         if($this->tstSectionIdSelect($form, $section_id, count($allSectionsForThisTeacherAndSemester)+1)) $unknownSelectCnt--;
-        //}
 
-        // 4.4 Ensure that there's an input field for event_datetime, of type text, and that it is empty
+        // 6.4 Ensure that there's an input field for event_datetime, of type text, and that it is empty
         if($this->inputCheckerA($form,'input#ClazzDatetime')) $unknownInputCnt--;
 
-        // 4.5 Ensure that there's an input field for comments, of type text, and that it is empty
+        // 6.5 Ensure that there's an input field for comments, of type text, and that it is empty
         if($this->inputCheckerA($form,'input#ClazzComments')) $unknownInputCnt--;
 
-        // 4. Have all the input, select, and Atags been accounted for?
+        // 7. Have all the input, select, and Atags been accounted for?
         $this->expectedInputsSelectsAtagsFound($unknownInputCnt, $unknownSelectCnt, $html, 'div#ClazzesAdd');
+
+        // 8. Verify no flash message
+        $flash = $this->_controller->request->session()->read("Flash");
+        $this->assertNull($flash);
     }
 
     // Don't need section_id for post
@@ -219,6 +201,11 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
             '/clazzes/add', $fixtureRecord,
             '/clazzes', $this->clazzes
         );
+
+        // 2. Verify the flash message
+        $flash = $this->_controller->request->session()->read("Flash");
+        $n = $flash['flash'][0]['message'];
+        $this->assertEquals(ClazzesController::CLAZZ_SAVED, $n);
 
         // 2. Now validate that record.
         $this->assertEquals($fromDbRecord['section_id'],$fixtureRecord['section_id']);

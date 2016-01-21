@@ -7,6 +7,14 @@ use Cake\ORM\TableRegistry;
 
 class ClazzesController extends AppController {
 
+    const CLAZZ_SAVED = "The clazz has been saved.";
+    const CLAZZ_NOT_SAVED = "The clazz could not be saved. Please, try again.";
+    const NEED_SECTION_ID = "You need to include a 'section_id' parameter";
+    const DNC = "That does not compute";
+    const UR_NOT_THE_TEACHER = "You're not the teacher implied by the specified section_id.";
+    const CLAZZ_DELETED = "The clazz has been deleted.";
+    const CANNOT_DELETE_CLAZZ = "The clazz could not be deleted. Please, try again.";
+
     // Nothing is authorized unless a controller says so.
     // Admin and teachers are always authorized. It is the responsibility
     // of a particular action to restrict access to info for a teacher
@@ -75,10 +83,10 @@ class ClazzesController extends AppController {
 
             $clazz = $this->Clazzes->patchEntity($clazz, $this->request->data);
             if ($this->Clazzes->save($clazz)) {
-                //$this->Flash->success(__('The clazz has been saved.'));
+                $this->Flash->set(__(self::CLAZZ_SAVED));
                 return $this->redirect(['action' => 'index']);
             } else {
-                //$this->Flash->error(__('The clazz could not be saved. Please, try again.'));
+                $this->Flash->set(__(self::CLAZZ_NOT_SAVED));
             }
         }
 
@@ -87,7 +95,7 @@ class ClazzesController extends AppController {
             $section_id = $this->request->query['section_id'];
             $clazz->section_id = $section_id;
         } else {
-            throw new BadRequestException("You need to include a 'section_id' parameter");
+            throw new BadRequestException(self::NEED_SECTION_ID);
         }
 
         $this->set(compact('clazz', $this->getSectionsForSelectList($section_id)));
@@ -99,7 +107,6 @@ class ClazzesController extends AppController {
      * @var int $section_id
      * @return \Cake\ORM\Query
      */
-
     private function getSectionsForSelectList($section_id) {
 
         // 1. Retrieve a single section record from $section_id. We might want to use ->get()
@@ -121,7 +128,7 @@ class ClazzesController extends AppController {
                 // developing a graceful method of reacting, at this time.
                 //
                 // That said...
-                throw new BadRequestException("That does not compute");
+                throw new BadRequestException(self::DNC);
                 break;
             case 1:
                 // We found this section. Now can we get all sections with the same teacher_id and semester_id...
@@ -133,13 +140,13 @@ class ClazzesController extends AppController {
                         ->find('list')
                         ->where(['teacher_id'=>$section['teacher_id'],'semester_id'=>$section['semester_id']]);
                 } else {
-                    throw new BadRequestException("You're not the teacher implied by the specified section_id.");
+                    throw new BadRequestException(self::UR_NOT_THE_TEACHER);
                 }
                 $this->set(compact('clazz', 'sections'));
                 return null;
             default:
                 // max fubar error. How could the above query _ever_ not have 0 or 1 records?
-                throw new BadRequestException("That does not compute");
+                throw new BadRequestException(self::DNC);
         }
     }
 
@@ -147,9 +154,9 @@ class ClazzesController extends AppController {
         $this->request->allowMethod(['post', 'delete']);
         $clazz = $this->Clazzes->get($id);
         if ($this->Clazzes->delete($clazz)) {
-            //$this->Flash->success(__('The clazz has been deleted.'));
-            //} else {
-            //$this->Flash->error(__('The clazz could not be deleted. Please, try again.'));
+            $this->Flash->set(__(self::CLAZZ_DELETED));
+        } else {
+            $this->Flash->set(__(self::CANNOT_DELETE_CLAZZ));
         }
         return $this->redirect(['action' => 'index']);
     }
@@ -161,10 +168,10 @@ class ClazzesController extends AppController {
         if ($this->request->is(['put'])) {
             $clazz = $this->Clazzes->patchEntity($clazz, $this->request->data);
             if ($this->Clazzes->save($clazz)) {
-                //$this->Flash->success(__('The clazz has been saved.'));
+                $this->Flash->set(__(self::CLAZZ_SAVED));
                 return $this->redirect(['action' => 'index']);
             } else {
-                //$this->Flash->error(__('The clazz could not be saved. Please, try again.'));
+                $this->Flash->set(__(self::CLAZZ_NOT_SAVED));
             }
         }
 

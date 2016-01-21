@@ -10,6 +10,7 @@
         </ul>
     </nav>
     <div class="clazzes form large-9 medium-8 columns content">
+        <?= $this->Flash->render() ?>
         <?= $this->Form->create($clazz, ['id'=>'ClazzAddForm']) ?>
         <fieldset>
             <legend><?= __('Add Class') ?></legend>
