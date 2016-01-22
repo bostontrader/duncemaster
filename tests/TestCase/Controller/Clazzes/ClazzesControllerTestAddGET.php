@@ -38,8 +38,7 @@ class ClazzesControllerTestAddGET extends ClazzesControllerTest {
      *    all sections from the same semester, with the same teacher, as the section specified by the request.
      */
 
-    public function testAddGet()
-    {
+    public function testAddGET() {
 
         // 1. Build a list of all sections that have the same semester and teacher
         // as the given typical section
@@ -56,26 +55,26 @@ class ClazzesControllerTestAddGET extends ClazzesControllerTest {
         // 2. Positive tests. Test of functionality that should be handled by the controller.
         // 2.1 admin   GET /clazzes/add
         //      Error. The section_id param is missing and mandatory. Doesn't matter who the user is.
-        $this->tstAddGet(FixtureConstants::userAndyAdminUsername, FixtureConstants::userAndyAdminPw, 400, ClazzesController::NEED_SECTION_ID);
+        $this->tstAddGET(FixtureConstants::userAndyAdminUsername, FixtureConstants::userAndyAdminPw, 400, ClazzesController::NEED_SECTION_ID);
 
         // 2.2 teacher1 GET /clazzes/add?section_id=n
         //     Note: Make sure that the teacher for sectionTypical is connected to userTommyTeacher.  Success.
-        $this->tstAddGet(FixtureConstants::userTommyTeacherUsername, FixtureConstants::userTommyTeacherPw, 200, null, FixtureConstants::sectionTypical, $allSectionsForThisTeacherAndSemester);
+        $this->tstAddGET(FixtureConstants::userTommyTeacherUsername, FixtureConstants::userTommyTeacherPw, 200, null, FixtureConstants::sectionTypical, $allSectionsForThisTeacherAndSemester);
 
         // 2.3 teacher2 GET /clazzes/add?section_id=n
         //     Note: Make sure that the teacher for sectionTypical is not connected to userTammyTeacher.  Error.
-        $this->tstAddGet(FixtureConstants::userTerryTeacherUsername, FixtureConstants::userTerryTeacherPw, 400, ClazzesController::UR_NOT_THE_TEACHER, FixtureConstants::sectionTypical, $allSectionsForThisTeacherAndSemester);
+        $this->tstAddGET(FixtureConstants::userTerryTeacherUsername, FixtureConstants::userTerryTeacherPw, 400, ClazzesController::UR_NOT_THE_TEACHER, FixtureConstants::sectionTypical, $allSectionsForThisTeacherAndSemester);
 
         // 2.4 admin   GET /clazzes/add?section_id=n
         //     An admin can do this but the select list is still populated with the same sections as for
         //     a teacher.
-        $this->tstAddGet(FixtureConstants::userAndyAdminUsername, FixtureConstants::userAndyAdminPw, 200, null, FixtureConstants::sectionTypical, $allSectionsForThisTeacherAndSemester);
+        $this->tstAddGET(FixtureConstants::userAndyAdminUsername, FixtureConstants::userAndyAdminPw, 200, null, FixtureConstants::sectionTypical, $allSectionsForThisTeacherAndSemester);
 
         // 3. Negative tests. Requests that should _not_ get to the controller.
 
         // 3.1 Test that users who do not have correct roles will get redirected to the home page.
-        $this->tstAddGet(FixtureConstants::userArnoldAdvisorUsername, FixtureConstants::userArnoldAdvisorPw, 302, null, FixtureConstants::sectionTypical, $allSectionsForThisTeacherAndSemester);
-        $this->tstAddGet(FixtureConstants::userSallyStudentUsername, FixtureConstants::userSallyStudentPw, 302, null, FixtureConstants::sectionTypical, $allSectionsForThisTeacherAndSemester);
+        $this->tstAddGET(FixtureConstants::userArnoldAdvisorUsername, FixtureConstants::userArnoldAdvisorPw, 302, null, FixtureConstants::sectionTypical, $allSectionsForThisTeacherAndSemester);
+        $this->tstAddGET(FixtureConstants::userSallyStudentUsername, FixtureConstants::userSallyStudentPw, 302, null, FixtureConstants::sectionTypical, $allSectionsForThisTeacherAndSemester);
 
         // 3.2 Test that unauthenticated users will get redirected to the login url.
         $this->session(['Auth' => null]);
@@ -84,8 +83,7 @@ class ClazzesControllerTestAddGET extends ClazzesControllerTest {
         $this->assertRedirect('/users/login');
     }
 
-    private function tstAddGET($username, $password, $expectedResponseCode, $expectedErrorMessage, $section_id = null, $allSectionsForThisTeacherAndSemester = [])
-    {
+    private function tstAddGET($username, $password, $expectedResponseCode, $expectedErrorMessage, $section_id = null, $allSectionsForThisTeacherAndSemester = []) {
 
         // 1. Attempt to login.
         $credentials = ['username' => $username, 'password' => $password];
@@ -109,7 +107,7 @@ class ClazzesControllerTestAddGET extends ClazzesControllerTest {
             case 302:   // Authenticated but unauthorized user. Redirect to home.
                 $this->assertRedirect('/');
                 return;
-            case 400:   // you need a section_id parameter
+            case 400:
                 $this->assertResponseContains($expectedErrorMessage);
                 return;
             default:
