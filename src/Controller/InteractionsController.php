@@ -80,8 +80,15 @@ class InteractionsController extends AppController {
                         default:
                             // Max fubar error. Jettison the warp core and run!
                     }
+                } // for each request data
+
+                // If a section_id is passed, then redirect back to the clazzes for that section
+                if(array_key_exists('section_id', $this->request->query)) {
+                    $section_id = $this->request->query['section_id'];
+                    return $this->redirect(['controller' => 'clazzes', 'action' => 'index', 'section_id' => $section_id ]);
                 }
-            }
+
+            } // if reqest is post
 
             // The attendance form is fairly complicated. Listen closely...
             //
@@ -209,8 +216,15 @@ class InteractionsController extends AppController {
                         default:
                             // Max fubar error. Jettison the warp core and run!
                     }
+                } // foreach request data
+
+                // If a section_id is passed, then redirect back to the clazzes for that section
+                if(array_key_exists('section_id', $this->request->query)) {
+                    $section_id = $this->request->query['section_id'];
+                    return $this->redirect(['controller' => 'clazzes', 'action' => 'index', 'section_id' => $section_id ]);
                 }
-            }
+
+            } // if request is post
 
             // The participation form is fairly complicated. Listen closely...
             //

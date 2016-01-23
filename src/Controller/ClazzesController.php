@@ -82,6 +82,12 @@ class ClazzesController extends AppController {
         if ($this->request->is('post')) {
 
             $clazz = $this->Clazzes->patchEntity($clazz, $this->request->data);
+
+            // We don't need a select list, but this will cause an exception
+            // if the logged in teacher is not the same as that implied by the
+            // section_id to save.
+            $this->getSectionsForSelectList($clazz->section_id);
+
             if ($this->Clazzes->save($clazz)) {
                 $this->Flash->set(__(self::CLAZZ_SAVED));
                 return $this->redirect(['action' => 'index']);

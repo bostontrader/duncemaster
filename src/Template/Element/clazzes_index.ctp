@@ -24,8 +24,8 @@
                 <td><?= $clazz['attend_cnt'] ?></td>
                 <td><?= $clazz['participate_cnt'] ?></td>
                 <td class="actions">
-                    <?= $this->Html->link(__('Attendance'), ['controller' => 'interactions', 'action' => 'attend', 'clazz_id' => $clazz['id']],['name'=>'ClazzAttend']) ?>
-                    <?= $this->Html->link(__('Participation'), ['controller' => 'interactions', 'action' => 'participate', 'clazz_id' => $clazz['id']],['name'=>'ClazzParticipate']) ?>
+                    <?= $this->Html->link(__('Attendance'), ['controller' => 'interactions', 'action' => 'attend', 'clazz_id' => $clazz['id'], 'section_id' => $section_id],['name'=>'ClazzAttend']) ?>
+                    <?= $this->Html->link(__('Participation'), ['controller' => 'interactions', 'action' => 'participate', 'clazz_id' => $clazz['id'], 'section_id' => $section_id],['name'=>'ClazzParticipate']) ?>
                     <?= $this->Html->link(__('View'), ['action' => 'view', $clazz['id']],['name'=>'ClazzView']) ?>
                     <?= $this->Html->link(__('Edit'), ['action' => 'edit', $clazz['id']],['name'=>'ClazzEdit']) ?>
                     <?= $this->Form->postLink(__('Delete'), ['action' => 'delete', $clazz['id']], ['name'=>'ClazzDelete','confirm' => __('Are you sure you want to delete # {0}?', $clazz['id'])]) ?>
