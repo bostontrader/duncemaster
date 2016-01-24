@@ -21,14 +21,14 @@ class ClazzesController extends AppController {
     // to only his information and no other teacher.
     public function isAuthorized($userArray) {
 
-        $users = TableRegistry::get('Users');
-        $user=$users->get($userArray['id'], ['contain' => ['Roles']]);
-        $this->isAdmin = false;
-        $this->isTeacher = false;
-        foreach($user->roles as $role) {
-            if($role->title=='admin') $this->isAdmin=true;
-            if($role->title=='teacher') $this->isTeacher=true;
-        }
+        //$users = TableRegistry::get('Users');
+        //$user=$users->get($userArray['id'], ['contain' => ['Roles']]);
+        //$this->isAdmin = false;
+        //$this->isTeacher = false;
+        //foreach($user->roles as $role) {
+            //if($role->title=='admin') $this->isAdmin=true;
+            //if($role->title=='teacher') $this->isTeacher=true;
+        //}
         return $this->isAdmin || $this->isTeacher;
     }
 
@@ -90,7 +90,7 @@ class ClazzesController extends AppController {
 
             if ($this->Clazzes->save($clazz)) {
                 $this->Flash->set(__(self::CLAZZ_SAVED));
-                return $this->redirect(['action' => 'index']);
+                return $this->redirect(['action' => 'index', 'section_id'=>$clazz['section_id']]);
             } else {
                 $this->Flash->set(__(self::CLAZZ_NOT_SAVED));
             }
