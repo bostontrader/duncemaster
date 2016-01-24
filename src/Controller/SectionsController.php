@@ -5,6 +5,23 @@ use Cake\Datasource\ConnectionManager;
 
 class SectionsController extends AppController {
 
+    // Nothing is authorized unless a controller says so.
+    // Admin and teachers are always authorized. It is the responsibility
+    // of a particular action to restrict access to info for a teacher
+    // to only his information and no other teacher.
+    public function isAuthorized($userArray) {
+
+        //$users = TableRegistry::get('Users');
+        //$user=$users->get($userArray['id'], ['contain' => ['Roles']]);
+        //$this->isAdmin = false;
+        //$this->isTeacher = false;
+        //foreach($user->roles as $role) {
+            //if($role->title=='admin') $this->isAdmin=true;
+            //if($role->title=='teacher') $this->isTeacher=true;
+        //}
+        return $this->isAdmin || $this->isTeacher;
+    }
+
     public function add() {
         $this->request->allowMethod(['get', 'post']);
         $section = $this->Sections->newEntity();
@@ -285,13 +302,15 @@ class SectionsController extends AppController {
     public function index() {
         $this->request->allowMethod(['get']);
 
-        // Ensure that the ordering produced here matches the ordering in SectionsFixture.
-        $this->set(
-            'sections', $this->Sections->find(
-                'all',
-                ['contain' => ['Cohorts.Majors','Semesters','Subjects','Teachers','Tplans'],'order'=>['Semesters.year','Sections.seq']]
-            )
-        );
+        /* @var \Cake\ORM\Query $query */
+        $query = $this->Sections->find('all')
+            ->contain(['Cohorts.Majors','Semesters','Subjects','Teachers','Tplans'])
+            ->order(['Semesters.year','Sections.seq']);
+
+        if($this->isTeacher)
+            $query->where(['teacher_id'=>$this->Auth->user('teacher_id')]);
+        $this->set('sections',$query);
+
     }
 
     public function scores() {

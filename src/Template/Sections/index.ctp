@@ -31,7 +31,7 @@
                     <td><?= $section->cohort->nickname ?></td>
                     <td><?= $section->subject->title ?></td>
                     <td><?= $section->teacher->fam_name ?></td>
-                    <td><?= $section->tplan->title ?></td>
+                    <td><?= is_null($section->tplan) ? '(none selected)' : $section->tplan->title ?></td>
                     <td><?= $section->weekday ?></td>
                     <td><?= $section->start_time ?></td>
                     <td><?= $section->thours ?></td>

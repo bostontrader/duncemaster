@@ -29,7 +29,7 @@
             </tr>
             <tr id="tplan">
                 <th><?= __('Tplan') ?></th>
-                <td><?= $section->tplan->title ?></td>
+                <td><?= is_null($section->tplan) ? '(none selected)' : $section->tplan->title ?></td>
             </tr>
             <tr id="weekday">
                 <th><?= __('Weekday') ?></th>
