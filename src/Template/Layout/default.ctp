@@ -15,7 +15,7 @@
 <body>
 
     <?php if($currentUser) {
-        $userMsg   = "current user = " . $currentUser;
+        $userMsg   = "current user = " . $currentUser['username'];
         $loginLink = $this->Html->link(
             'Logout',
             '/users/logout',

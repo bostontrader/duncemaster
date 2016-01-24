@@ -25,6 +25,19 @@ class AppController extends Controller {
             ]
         );
 
+        // Now set role flags
+        $user_id=$this->Auth->user('id');
+        if(!is_null($user_id)) {
+            $users = TableRegistry::get('Users');
+            $user=$users->get($user_id, ['contain' => ['Roles']]);
+            $this->isAdmin = false;
+            $this->isTeacher = false;
+            foreach($user->roles as $role) {
+                if($role->title=='admin') $this->isAdmin=true;
+                if($role->title=='teacher') $this->isTeacher=true;
+            }
+        }
+
         // The language is initially set in bootstrap.php.  If we want to change the language on-the-fly,
         // such as in clicking the little flags, then we need to store the desired language in the session,
         // retrieve that value here, and use that value to override the default language.  Even though the
@@ -60,6 +73,8 @@ class AppController extends Controller {
      * @return void
      */
     public function beforeRender(Event $event) {
-        $this->set('currentUser',$this->Auth->user('username'));
+        $this->set('currentUser',$this->Auth->user());
+        $this->set('isAdmin',$this->isAdmin);
+        $this->set('isTeacher',$this->isTeacher);
     }
 }
