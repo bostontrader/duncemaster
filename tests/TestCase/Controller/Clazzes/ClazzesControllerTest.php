@@ -27,16 +27,16 @@ class ClazzesControllerTest extends DMIntegrationTestCase {
     ];
 
     /* @var \App\Model\Table\ClazzesTable */
-    private $clazzes;
+    protected $clazzes;
 
     /* @var \App\Test\Fixture\ClazzesFixture */
-    private $clazzesFixture;
+    protected $clazzesFixture;
 
     /* @var \App\Model\Table\SectionsTable */
-    private $sections;
+    protected $sections;
 
     /* @var \App\Test\Fixture\SectionsFixture */
-    private $sectionsFixture;
+    protected $sectionsFixture;
 
     public function setUp() {
         parent::setUp();

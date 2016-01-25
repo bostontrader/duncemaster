@@ -7,18 +7,9 @@ class SectionsController extends AppController {
 
     // Nothing is authorized unless a controller says so.
     // Admin and teachers are always authorized. It is the responsibility
-    // of a particular action to restrict access to info for a teacher
+    // of this controller to restrict access to info for a teacher
     // to only his information and no other teacher.
     public function isAuthorized($userArray) {
-
-        //$users = TableRegistry::get('Users');
-        //$user=$users->get($userArray['id'], ['contain' => ['Roles']]);
-        //$this->isAdmin = false;
-        //$this->isTeacher = false;
-        //foreach($user->roles as $role) {
-            //if($role->title=='admin') $this->isAdmin=true;
-            //if($role->title=='teacher') $this->isTeacher=true;
-        //}
         return $this->isAdmin || $this->isTeacher;
     }
 
@@ -243,11 +234,11 @@ class SectionsController extends AppController {
             $pdf->SetXY($cx['a'],$y2);
             $pdf->Cell(7,0,$yidx+1,0,0,'C');    // sequence no
 
-            $pdf->SetXY($cx['b'],$y2);
+            $pdf->SetXY($cx['b']+1.0,$y2);
             $sid=substr($classRoster[$yidx]['sid'],-4);
             $pdf->Cell(10,0,$sid,0,0,'R');
 
-            $pdf->SetXY($cx['c']+2.5,$y2);
+            $pdf->SetXY($cx['c'],$y2);
             $fullName=$classRoster[$yidx]['fam_name'].$classRoster[$yidx]['giv_name'];
             $pdf->Cell(20,0,$fullName,0,0,'L');
 
