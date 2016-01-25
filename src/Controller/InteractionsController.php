@@ -5,6 +5,14 @@ use Cake\Datasource\ConnectionManager;
 
 class InteractionsController extends AppController {
 
+    // Nothing is authorized unless a controller says so.
+    // Admin and teachers are always authorized. It is the responsibility
+    // of this controller to restrict access to info for a teacher
+    // to only his information and no other teacher.
+    public function isAuthorized($userArray) {
+        return $this->isAdmin || $this->isTeacher;
+    }
+
     public function add() {
         $this->request->allowMethod(['get', 'post']);
         $interaction = $this->Interactions->newEntity();
