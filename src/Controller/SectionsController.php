@@ -46,6 +46,12 @@ class SectionsController extends AppController {
 
     public function attend($id = null) {
 
+        //select teachers.fam_name, teachers.giv_name, subjects.title
+        //from sections
+        //left join teachers on sections.teacher_id = teachers.id
+        //left join subjects on sections.subject_id = subjects.id
+        $section = $this->Sections->get($id,['contain' => ['Cohorts.Majors','Semesters','Subjects','Teachers']]);
+
         // 1. Get started
         require('tcpdf.php');
 
@@ -74,7 +80,7 @@ class SectionsController extends AppController {
         $pdf->SetXY(236,16);
         $pdf->Cell(0,0,'学期:');
         $pdf->SetXY(249,15);
-        $pdf->Cell(0,0,'2015-2');
+        $pdf->Cell(0,0,$section->semester->nickname);
         $pdf->Line(248,21,273,21); // h
 
         // 4.
@@ -109,21 +115,22 @@ class SectionsController extends AppController {
         $pdf->SetXY(26,194);
         $pdf->Cell(0,0,'课程名称:');
         $pdf->SetXY(48,193);
-        $pdf->Cell(0,0,'英语口语');
+        $pdf->Cell(0,0,$section->subject->title);
         $pdf->Line(47,199,80,199); // h
 
         // 10.Bānjí class
         $pdf->SetXY(99,194);
         $pdf->Cell(0,0,'班级:');
         $pdf->SetXY(112,193);
-        $pdf->Cell(0,0,'14H5');
+        $n=$section->cohort->nickname;
+        $pdf->Cell(0,0,$n);
         $pdf->Line(111,199,136,199); // h
 
         // 11.Rènkè lǎoshī Instructor
         $pdf->SetXY(162,194);
         $pdf->Cell(0,0,'任课老师:');
         $pdf->SetXY(184,193);
-        $pdf->Cell(0,0,'Thomas Radloff');
+        $pdf->Cell(0,0,$section->teacher->fam_name);
         $pdf->Line(183,199,209,199); // h
 
         // In addition to the fundamental system of positioning, as described
@@ -143,12 +150,6 @@ class SectionsController extends AppController {
         // $c[y] where y = 0 to 29
         // where the content is a numeric y value
         //
-
-        //$cx['a']=0; $cx['b']=0; $cx['c']=0;
-        //$cx['weeks'][0]['a']=0;
-        //$cx['weeks'][0]['b']=0;
-
-        //$cy[0]=;
 
         // 12. Draw the main outerbox
         $leftX = 19;
@@ -211,7 +212,6 @@ class SectionsController extends AppController {
         // | students.fam_name | students.giv_name | students.sid |
         // section 2, cohort 3
 
-/*        */
 
         /* @var \Cake\Database\Connection $connection */
         $connection = ConnectionManager::get('default');
@@ -247,7 +247,7 @@ class SectionsController extends AppController {
             $sid=substr($classRoster[$yidx]['sid'],-4);
             $pdf->Cell(10,0,$sid,0,0,'R');
 
-            $pdf->SetXY($cx['c'],$y2);
+            $pdf->SetXY($cx['c']+2.5,$y2);
             $fullName=$classRoster[$yidx]['fam_name'].$classRoster[$yidx]['giv_name'];
             $pdf->Cell(20,0,$fullName,0,0,'L');
 
