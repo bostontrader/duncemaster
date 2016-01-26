@@ -109,7 +109,7 @@ class UsersController extends AppController {
 
         /* @var \Cake\ORM\Query $query */
         $query=$this->Users->find('all');
-        $query->select(['users.id','users.username','roles.title'])
+        $query->select(['Users.id','Users.username','roles.title'])
             ->leftJoin('roles_users','roles_users.user_id=Users.id')
             ->leftJoin('roles'      ,'roles_users.role_id=roles.id')
             ->where(['roles.title'=>$type,'Users.id'=>$user['id']]);
