@@ -175,7 +175,7 @@ class ClazzesController extends AppController {
             $clazz = $this->Clazzes->patchEntity($clazz, $this->request->data);
             if ($this->Clazzes->save($clazz)) {
                 $this->Flash->set(__(self::CLAZZ_SAVED));
-                return $this->redirect(['action' => 'index']);
+                return $this->redirect(['action' => 'index','section_id'=> $clazz['section_id']]);
             } else {
                 $this->Flash->set(__(self::CLAZZ_NOT_SAVED));
             }
