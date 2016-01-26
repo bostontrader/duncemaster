@@ -110,12 +110,9 @@ class UsersController extends AppController {
         /* @var \Cake\ORM\Query $query */
         $query=$this->Users->find('all');
         $query->select(['users.id','users.username','roles.title'])
-            ->leftJoin('roles_users','roles_users.user_id=users.id')
+            ->leftJoin('roles_users','roles_users.user_id=Users.id')
             ->leftJoin('roles'      ,'roles_users.role_id=roles.id')
-            ->where(['roles.title'=>$type,'users.id'=>$user['id']]);
-        //$n=$query->execute()->fetchAll('assoc');
-        //$c=$query->count();
-
+            ->where(['roles.title'=>$type,'Users.id'=>$user['id']]);
 
         // Is there a $type connected to this user?
         switch($query->count()) {
