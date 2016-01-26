@@ -126,7 +126,7 @@ class UsersController extends AppController {
                 // But... even though the user has a role of $type...
                 // Are any $type assigned this user?
                 $query->select([$type.'s.id']);
-                $query->leftJoin($type.'s',$type.'s.user_id=users.id');
+                $query->leftJoin($type.'s',$type.'s.user_id=Users.id');
                 //$n=$query->execute()->fetchAll('assoc');
                 //$c=$query->count();
                 switch($query->count()) {
