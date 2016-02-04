@@ -158,11 +158,6 @@ class InteractionsController extends AppController {
         return null;
     }
 
-    public function index() {
-        $this->request->allowMethod(['get']);
-        $this->set('interactions', $this->Interactions->find('all', ['contain' => ['Clazzes','Itypes','Students']]));
-    }
-
     //
     // This function functions similarly to edit and attend.  That is, GET /interactions/participate
     // will produce an entry form, pre-populated with any existing relevant information,

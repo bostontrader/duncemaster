@@ -209,7 +209,7 @@ class ClazzesController extends AppController {
 
     public function view($id = null) {
         $this->request->allowMethod(['get']);
-        $clazz = $this->Clazzes->get($id, ['contain'=>'Sections']);
+        $clazz = $this->Clazzes->get($id, ['contain'=>'Sections','where'=>['book_id'=>$book_id]]);
         $this->set('clazz', $clazz);
     }
 }

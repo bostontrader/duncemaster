@@ -306,174 +306,267 @@ class SectionsController extends AppController {
 
     }
 
-    public function scores() {
+    public function scores($id = null){
 
-        // 1. GET the home page
+        $this->request->allowMethod(['get', 'post']);
+        if ($this->request->is(['post'])) {
+
+            $section = $this->Sections->get($id,['contain' => ['Cohorts.Majors']]);
+            //$query = $this->Sections->find('all')
+                //->contain(['Cohorts.Majors','Semesters','Subjects','Teachers','Tplans'])
+                //->order(['Semesters.year','Sections.seq']);
+
+            $username=$this->request->data['username'];
+            $password=$this->request->data['password'];
+
+            // 1. GET the login form and determine the session_id.
+            $content=$this->getHomePage();
+            $session_id=$this->get_session_id($content);
+
+            // 1.1 The home page also has the __VIEWSTATE input which will be used
+            // in a subsequent POST. Grab that now.
+            $html = str_get_html($content);
+            $vs1=urlencode($html->find("input[name='__VIEWSTATE']",0)->value);
+
+            // 2. POST the login form.
+            $content=$this->postLoginForm($username, $password, $session_id, $vs1);
+
+            // 3. GET jsmainfs. Successful login will give us 302 redirect to this page.
+            // But we probably don't really need to read this.
+            //$content=$this->getJsmainfs($session_id);
+
+            // 4. GET jsleft.aspx. This contains the list of available sections and we need this to find the URL for
+            // this particular section.
+            $url="http://60.216.13.32/jsleft.aspx/?flag=cjlr&xn=2015-2016&xq=1";
+            $content=$this->getJsleft($url,$session_id);
+
+            // 4.1 Parse the response and find the A tag that points to the scores form, for this section.
+            $html = str_get_html($content);
+            $atags=$html->find("a");
+            $n = $section->cohort->nickname;
+            foreach($atags as $atag) {
+                if(strpos($atag->title,$n)) {
+                    $scoresUrl="http://60.216.13.32/".$atag->href;
+                    break;
+                }
+            }
+
+            // 5. GET the scores form.
+            $scoresUrl="http://60.216.13.32/cjlr1.aspx?xh=$username&kc=%282015-2016-1%29-1103016-$username-1&kclx=%B1%D8%D0%DE%BF%CE&cjxn=2015-2016&cjxq=1";
+            $content=$this->getScoresForm($scoresUrl,$session_id);
+
+            // 5.1 The scores form also has another __VIEWSTATE input which will be used
+            // in a subsequent POST. Grab that now.
+            $html = str_get_html($content);
+            $vs2=urlencode($html->find("input[name='__VIEWSTATE']",0)->value);
+
+            // 6. POST the scores form.
+            $content=$this->postScoresForm($scoresUrl,$session_id,$vs2);
+
+            //$this->Flash->success(__('The section has been saved.'));
+            //return $this->redirect(['action' => 'index']);
+
+        }
+
+        //$this->set('clazzes',$section->clazzes);
+        //$this->set(compact('cohorts','section','semesters','subjects','teachers','tplans'));
+        return null;
+    }
+
+    private function getHomePage() {
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, "http://60.216.13.32/");
-        curl_setopt($ch, CURLOPT_HEADER  ,true);         // need this to read the cookie
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER  ,true); // read into a string
-        $content=curl_exec($ch);
 
-        // 1.1 Get the session id
-        $cookies = array();
-        preg_match_all('/Set-Cookie:(?<cookie>\s{0,}.*)$/im', $content, $cookies);
-        parse_str($cookies['cookie'][0],$catfood);
-        $c=substr($catfood['ASP_NET_SessionId'],0,24);
-
-        curl_close ($ch);
-
-        // 2. POST the login form, using info from the home page
-        $ch = curl_init();
-
-        curl_setopt($ch, CURLOPT_URL,"http://60.216.13.32/Default3.aspx");
-        curl_setopt($ch, CURLOPT_COOKIE, "ASP_NET_SessionId=$c");
-        curl_setopt($ch, CURLOPT_HEADER  ,true);         // need this to read the cookie
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS,
-            "__VIEWSTATE=dDwtNjg3Njk1NzQ3O3Q8O2w8aTwxPjs%2BO2w8dDw7bDxpPDg%2BO2k8MTM%2BO2k8MTU%2BOz47bDx0PHA8O3A8bDxvbmNsaWNrOz47bDx3aW5kb3cuY2xvc2UoKVw7Oz4
-%2BPjs7Pjt0PHA8bDxWaXNpYmxlOz47bDxvPGY%2BOz4%2BOzs%2BO3Q8cDxsPFZpc2libGU7PjtsPG88Zj47Pj47Oz47Pj47Pj47bDxpbWdETDtpbWdUQztpbWdRTU07Pj4gfPC6MSALMtZMxdX9OxOYhvTFFQ
-%3D%3D&tbYHM=11164&tbPSW=11164&ddlSF=%BD%CC%CA%A6&imgDL.x=32&imgDL.y=12");
-
-        // in real life you should use something like:
-        // curl_setopt($ch, CURLOPT_POSTFIELDS,
-        //          http_build_query(array('postvar1' => 'value1')));
-
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-        $server_output = curl_exec ($ch);
-
-        curl_close ($ch);
-
-        // 2.5 We're logged in, but we've received a redirection.  Perhaps we
-        // need to follow that link to make the server happy?
-        // 1. GET the home page
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, "http://60.216.13.32/");
-        curl_setopt($ch, CURLOPT_HEADER  ,true);         // need this to read the cookie
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER  ,true); // read into a string
-        $content=curl_exec($ch);
-
-        // 1.1 Get the session id
-        $cookies = array();
-        preg_match_all('/Set-Cookie:(?<cookie>\s{0,}.*)$/im', $content, $cookies);
-        parse_str($cookies['cookie'][0],$catfood);
-        $c=substr($catfood['ASP_NET_SessionId'],0,24);
-
-        curl_close ($ch);
-
-
-        // 3. Now that we're logged in, GET one of the class pages
-        $ch = curl_init();
-
-
-        $headers = array(
-            //"POST ".$page." HTTP/1.0",
-            //"Content-type: text/xml;charset=\"utf-8\"",
-            //"Accept: text/xml",
-            //"Cache-Control: no-cache",
-            //"Pragma: no-cache",
-            //"SOAPAction: \"run\"",
-            //"Content-length: ".strlen($xml_data),
-            //"Authorization: Basic " . base64_encode($credentials)
-            "User-Agent: Mozilla/5.0 (Windows NT 5.1; rv:43.0) Gecko/20100101 Firefox/43.0",
+        $headers = [
+            //"User-Agent: Mozilla/5.0 (Windows NT 5.1; rv:43.0) Gecko/20100101 Firefox/43.0",
             "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
             "Accept-Language: en-US,en;q=0.5",
             "Accept-Encoding: gzip, deflate",
-            //Cookie: ASP.NET_SessionId=ussxfh55vu3ljd45zfthe545
             "Connection: keep-alive"
-            //"Pragma: no-cache"
-        );
-
-        //curl_setopt($ch, CURLOPT_URL, "http://60.216.13.32/jsmainfs.aspx?xh=11164");
-        //$url="http://60.216.13.32/cjlr1.aspx?xh=11164&kc=(2015-2016-1)-1103016-11164-1&kclx=%B1%D8%D0%DE%BF%CE&cjxn=2015-2016&cjxq=1";
-        $url="http://60.216.13.32/cjlr1.aspx?xh=11164&kc=%282015-2016-1%29-1103016-11164-1&kclx=%B1%D8%D0%DE%BF%CE&cjxn=2015-2016&cjxq=1";
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_COOKIE, "ASP_NET_SessionId=$c");
-        //curl_setopt($ch, CURLOPT_USERAGENT,'Mozilla/5.0 (Windows NT 5.1; rv:43.0) Gecko/20100101 Firefox/43.0');
+        ];
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($ch, CURLOPT_HEADER  ,true);
-
-        //curl_setopt($ch, CURLOPT_HEADER  ,true);
+        curl_setopt($ch, CURLOPT_HEADER  ,true);         // need this to read the cookie
         curl_setopt($ch, CURLOPT_RETURNTRANSFER  ,true); // read into a string
-        //curl_setopt($ch, CURLOPT_FOLLOWLOCATION  ,1);
-        //curl_setopt($ch, CURLOPT_HEADER, 0);        $content = curl_exec($ch);
+        $content=curl_exec($ch);
+        curl_close($ch);
+        return $content;
+    }
+
+
+    private function postLoginForm($username, $password, $session_id, $viewState) {
+        $ch = curl_init();
+
+        curl_setopt($ch, CURLOPT_URL,"http://60.216.13.32/Default3.aspx");
+        $headers = [
+            //"User-Agent: Mozilla/5.0 (Windows NT 5.1; rv:43.0) Gecko/20100101 Firefox/43.0",
+            "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+            "Accept-Language: en-US,en;q=0.5",
+            "Accept-Encoding: gzip, deflate",
+            //"Referer: http://60.216.13.32/",
+            "Connection: keep-alive"
+        ];
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+        curl_setopt($ch, CURLOPT_COOKIE, "ASP.NET_SessionId=$session_id");
+        curl_setopt($ch, CURLOPT_HEADER  ,true);         // need this to read the cookie
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS,
+            "__VIEWSTATE=$viewState&tbYHM=$username&tbPSW=$password&ddlSF=%BD%CC%CA%A6&imgDL.x=32&imgDL.y=12");
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
         $content=curl_exec($ch);
         curl_close ($ch);
+        return $content;
+    }
 
-        // get cookies- why did it change?
-        $cookies = array();
-        preg_match_all('/Set-Cookie:(?<cookie>\s{0,}.*)$/im', $content, $cookies);
-        parse_str($cookies['cookie'][0],$catfood);
-        $c=substr($catfood['ASP_NET_SessionId'],0,24);
+    /*private function getJsmainfs($session_id) {
+        $ch = curl_init();
 
+        $url="http://60.216.13.32/jsmainfs.aspx?xh=$username";
+        curl_setopt($ch, CURLOPT_URL,$url);
 
+        $headers = [
+            "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,s/s;q=0.8",
+            "Accept-Language: en-US,en;q=0.5",
+            "Accept-Encoding: gzip, deflate",
+            "Connection: keep-alive",
+            //"User-Agent: Mozilla/5.0 (Windows NT 5.1; rv:43.0) Gecko/20100101 Firefox/43.0",
+            "Host: 60.216.13.32"
+            //"Referer: http://60.216.13.32/"
+        ];
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_COOKIE, "ASP.NET_SessionId=$session_id");
+        curl_setopt($ch, CURLOPT_HEADER  ,true);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER  ,true); // read into a string
 
-        $html = str_get_html($content);
-        $n1=$html->find('form#Form1',0);
-        //$n2=$n1->find('input#__VIEWSTATE');
-        //$n2=$n1->find('input');
-        //$n2=$n1->find('input[name=__VIEWSTATE]',0);
-        //$viewState=$n2->value;
-        $viewState='catfood';
-        //foreach($n2 as $element) {
-            //$n3=$element->name;
-            //$n4=$element->value;
-        //}
+        $content=curl_exec($ch);
+        curl_close ($ch);
+        return $content;
+    }*/
 
-        // 4. now post
+    private function getScoresForm($url,$session_id) {
         $ch = curl_init();
 
         curl_setopt($ch, CURLOPT_URL,$url);
-        curl_setopt($ch, CURLOPT_USERAGENT,'Mozilla/5.0 (Windows NT 5.1; rv:43.0) Gecko/20100101 Firefox/43.0');
-        curl_setopt($ch, CURLOPT_REFERER, $url);
-        curl_setopt($ch, CURLOPT_COOKIE, "ASP_NET_SessionId=$c");
+
+        $headers = [
+            //"User-Agent: Mozilla/5.0 (Windows NT 5.1; rv:43.0) Gecko/20100101 Firefox/43.0",
+            "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+            "Accept-Language: en-US,en;q=0.5",
+            "Accept-Encoding: gzip, deflate",
+            "Connection: keep-alive",
+            "Host: 60.216.13.32",
+        ];
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_COOKIE, "ASP.NET_SessionId=$session_id");
+        curl_setopt($ch, CURLOPT_HEADER  ,true);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER  ,true); // read into a string
+
+        $content=curl_exec($ch);
+        curl_close ($ch);
+        return $content;
+    }
+
+    private function getJsleft($url,$session_id) {
+        $ch = curl_init();
+
+        curl_setopt($ch, CURLOPT_URL,$url);
+
+        $headers = [
+            //"User-Agent: Mozilla/5.0 (Windows NT 5.1; rv:43.0) Gecko/20100101 Firefox/43.0",
+            "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+            "Accept-Language: en-US,en;q=0.5",
+            "Accept-Encoding: gzip, deflate",
+            "Connection: keep-alive",
+            "Host: 60.216.13.32",
+        ];
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_COOKIE, "ASP.NET_SessionId=$session_id");
+        curl_setopt($ch, CURLOPT_HEADER  ,true);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER  ,true); // read into a string
+
+        $content=curl_exec($ch);
+        curl_close ($ch);
+        return $content;
+    }
+
+    private function postScoresForm($url,$session_id,$viewState) {
+        $ch = curl_init();
+
+        curl_setopt($ch, CURLOPT_URL,$url);
+
+        $headers = [
+            //"User-Agent: Mozilla/5.0 (Windows NT 5.1; rv:43.0) Gecko/20100101 Firefox/43.0",
+            "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+            "Accept-Language: en-US,en;q=0.5",
+            "Accept-Encoding: gzip, deflate",
+            "Connection: keep-alive",
+            "Host: 60.216.13.32",
+            //"Referer: http://60.216.13.32$url"
+        ];
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_COOKIE, "ASP.NET_SessionId=$session_id");
         curl_setopt($ch, CURLOPT_POST, 1);
-        $pf="__EVENTTARGET=Button1&__EVENTARGUMENT=&__VIEWSTATE=$viewState&Dgfcj=%BB%BA%BF%BC&txtChanged=0&jfz=%B0%D9%B7%D6%D6%C6&psb=40&qmb=60&Dzpcj=%B0
-%D9%B7%D6%D6%C6&DataGrid1%3A_ctl2%3Aps=11&DataGrid1%3A_ctl2%3Aqm=22&DataGrid1%3A_ctl2%3Azp=2&DataGrid1
-%3A_ctl3%3Aps=3&DataGrid1%3A_ctl3%3Aqm=4&DataGrid1%3A_ctl3%3Azp=4&DataGrid1%3A_ctl4%3Aps=5&DataGrid1
-%3A_ctl4%3Aqm=6&DataGrid1%3A_ctl4%3Azp=6&DataGrid1%3A_ctl5%3Aps=7&DataGrid1%3A_ctl5%3Aqm=8&DataGrid1
-%3A_ctl5%3Azp=8&DataGrid1%3A_ctl6%3Aps=9&DataGrid1%3A_ctl6%3Aqm=10&DataGrid1%3A_ctl6%3Azp=10&DataGrid1
-%3A_ctl7%3Aps=11&DataGrid1%3A_ctl7%3Aqm=12&DataGrid1%3A_ctl7%3Azp=12&DataGrid1%3A_ctl8%3Aps=13&DataGrid1
-%3A_ctl8%3Aqm=14&DataGrid1%3A_ctl8%3Azp=14&DataGrid1%3A_ctl9%3Aps=15&DataGrid1%3A_ctl9%3Aqm=16&DataGrid1
-%3A_ctl9%3Azp=16&DataGrid1%3A_ctl10%3Aps=17&DataGrid1%3A_ctl10%3Aqm=18&DataGrid1%3A_ctl10%3Azp=18&DataGrid1
-%3A_ctl11%3Aps=19&DataGrid1%3A_ctl11%3Aqm=20&DataGrid1%3A_ctl11%3Azp=20&DataGrid1%3A_ctl12%3Aps=21&DataGrid1
-%3A_ctl12%3Aqm=22&DataGrid1%3A_ctl12%3Azp=22&DataGrid1%3A_ctl13%3Aps=23&DataGrid1%3A_ctl13%3Aqm=24&DataGrid1
-%3A_ctl13%3Azp=24&DataGrid1%3A_ctl14%3Aps=25&DataGrid1%3A_ctl14%3Aqm=26&DataGrid1%3A_ctl14%3Azp=26&DataGrid1
-%3A_ctl15%3Aps=27&DataGrid1%3A_ctl15%3Aqm=28&DataGrid1%3A_ctl15%3Azp=28&DataGrid1%3A_ctl16%3Aps=29&DataGrid1
-%3A_ctl16%3Aqm=30&DataGrid1%3A_ctl16%3Azp=30&DataGrid1%3A_ctl17%3Aps=31&DataGrid1%3A_ctl17%3Aqm=32&DataGrid1
-%3A_ctl17%3Azp=32&DataGrid1%3A_ctl18%3Aps=33&DataGrid1%3A_ctl18%3Aqm=34&DataGrid1%3A_ctl18%3Azp=34&DataGrid1
-%3A_ctl19%3Aps=35&DataGrid1%3A_ctl19%3Aqm=36&DataGrid1%3A_ctl19%3Azp=36&DataGrid1%3A_ctl20%3Aps=37&DataGrid1
-%3A_ctl20%3Aqm=38&DataGrid1%3A_ctl20%3Azp=38&DataGrid1%3A_ctl21%3Aps=39&DataGrid1%3A_ctl21%3Aqm=40&DataGrid1
-%3A_ctl21%3Azp=40&DataGrid1%3A_ctl22%3Aps=41&DataGrid1%3A_ctl22%3Aqm=42&DataGrid1%3A_ctl22%3Azp=42&DataGrid1
-%3A_ctl23%3Aps=43&DataGrid1%3A_ctl23%3Aqm=44&DataGrid1%3A_ctl23%3Azp=44&DataGrid1%3A_ctl24%3Aps=45&DataGrid1
-%3A_ctl24%3Aqm=46&DataGrid1%3A_ctl24%3Azp=46&DataGrid1%3A_ctl25%3Aps=47&DataGrid1%3A_ctl25%3Aqm=48&DataGrid1
-%3A_ctl25%3Azp=48&DataGrid1%3A_ctl26%3Aps=49&DataGrid1%3A_ctl26%3Aqm=50&DataGrid1%3A_ctl26%3Azp=50&DataGrid1
-%3A_ctl27%3Aps=51&DataGrid1%3A_ctl27%3Aqm=52&DataGrid1%3A_ctl27%3Azp=52&DataGrid1%3A_ctl28%3Aps=53&DataGrid1
-%3A_ctl28%3Aqm=54&DataGrid1%3A_ctl28%3Azp=54&DataGrid1%3A_ctl29%3Aps=55&DataGrid1%3A_ctl29%3Aqm=56&DataGrid1
-%3A_ctl29%3Azp=56&rbntl=Excel%CA%E4%B3%F6&pslr=&Txt_save=&tbXXMC=%C9%BD%B6%AB%C2%C3%D3%CE%D6%B0%D2%B5
-%D1%A7%D4%BA";
+
+        $pf="__EVENTTARGET=Button1".
+            "&__EVENTARGUMENT="."&__VIEWSTATE=$viewState".
+            "&Dgfcj=%BB%BA%BF%BC&txtChanged=1".
+            "&jfz=%B0%D9%B7%D6%D6%C6".
+            "&psb=40".
+            "&qmb=60".
+            "&Dzpcj=%B0%D9%B7%D6%D6%C6".
+
+            "&DataGrid1%3A_ctl2%3Aps=1". // 1st
+            "&DataGrid1%3A_ctl2%3Aqm=1". // 2nd
+            "&DataGrid1%3A_ctl2%3Azp=". // ??
+
+            "&DataGrid1%3A_ctl3%3Aps=2".
+            "&DataGrid1%3A_ctl3%3Aqm=3".
+            "&DataGrid1%3A_ctl3%3Azp=".
+
+            "&DataGrid1%3A_ctl4%3Aps=1".
+            "&DataGrid1%3A_ctl4%3Aqm=1".
+            "&DataGrid1%3A_ctl4%3Azp=".
+
+            "&DataGrid1%3A_ctl5%3Aps=7&DataGrid1%3A_ctl5%3Aqm=8&DataGrid1%3A_ctl5%3Azp=8&DataGrid1
+%3A_ctl6%3Aps=9&DataGrid1%3A_ctl6%3Aqm=10&DataGrid1%3A_ctl6%3Azp=10&DataGrid1%3A_ctl7%3Aps=11&DataGrid1
+%3A_ctl7%3Aqm=12&DataGrid1%3A_ctl7%3Azp=12&DataGrid1%3A_ctl8%3Aps=13&DataGrid1%3A_ctl8%3Aqm=14&DataGrid1
+%3A_ctl8%3Azp=14&DataGrid1%3A_ctl9%3Aps=15&DataGrid1%3A_ctl9%3Aqm=16&DataGrid1%3A_ctl9%3Azp=16&DataGrid1
+%3A_ctl10%3Aps=17&DataGrid1%3A_ctl10%3Aqm=18&DataGrid1%3A_ctl10%3Azp=18&DataGrid1%3A_ctl11%3Aps=19&DataGrid1
+%3A_ctl11%3Aqm=20&DataGrid1%3A_ctl11%3Azp=20&DataGrid1%3A_ctl12%3Aps=21&DataGrid1%3A_ctl12%3Aqm=22&DataGrid1
+%3A_ctl12%3Azp=22&DataGrid1%3A_ctl13%3Aps=23&DataGrid1%3A_ctl13%3Aqm=24&DataGrid1%3A_ctl13%3Azp=24&DataGrid1
+%3A_ctl14%3Aps=25&DataGrid1%3A_ctl14%3Aqm=26&DataGrid1%3A_ctl14%3Azp=26&DataGrid1%3A_ctl15%3Aps=27&DataGrid1
+%3A_ctl15%3Aqm=28&DataGrid1%3A_ctl15%3Azp=28&DataGrid1%3A_ctl16%3Aps=29&DataGrid1%3A_ctl16%3Aqm=30&DataGrid1
+%3A_ctl16%3Azp=30&DataGrid1%3A_ctl17%3Aps=31&DataGrid1%3A_ctl17%3Aqm=32&DataGrid1%3A_ctl17%3Azp=32&DataGrid1
+%3A_ctl18%3Aps=33&DataGrid1%3A_ctl18%3Aqm=34&DataGrid1%3A_ctl18%3Azp=34&DataGrid1%3A_ctl19%3Aps=35&DataGrid1
+%3A_ctl19%3Aqm=36&DataGrid1%3A_ctl19%3Azp=36&DataGrid1%3A_ctl20%3Aps=37&DataGrid1%3A_ctl20%3Aqm=38&DataGrid1
+%3A_ctl20%3Azp=38&DataGrid1%3A_ctl21%3Aps=39&DataGrid1%3A_ctl21%3Aqm=40&DataGrid1%3A_ctl21%3Azp=40&DataGrid1
+%3A_ctl22%3Aps=41&DataGrid1%3A_ctl22%3Aqm=42&DataGrid1%3A_ctl22%3Azp=42&DataGrid1%3A_ctl23%3Aps=43&DataGrid1
+%3A_ctl23%3Aqm=44&DataGrid1%3A_ctl23%3Azp=44&DataGrid1%3A_ctl24%3Aps=45&DataGrid1%3A_ctl24%3Aqm=46&DataGrid1
+%3A_ctl24%3Azp=46&DataGrid1%3A_ctl25%3Aps=47&DataGrid1%3A_ctl25%3Aqm=48&DataGrid1%3A_ctl25%3Azp=48&DataGrid1
+%3A_ctl26%3Aps=49&DataGrid1%3A_ctl26%3Aqm=50&DataGrid1%3A_ctl26%3Azp=50&DataGrid1%3A_ctl27%3Aps=51&DataGrid1
+%3A_ctl27%3Aqm=52&DataGrid1%3A_ctl27%3Azp=52&DataGrid1%3A_ctl28%3Aps=53&DataGrid1%3A_ctl28%3Aqm=54&DataGrid1
+%3A_ctl28%3Azp=54&DataGrid1%3A_ctl29%3Aps=55&DataGrid1%3A_ctl29%3Aqm=56&DataGrid1%3A_ctl29%3Azp=56&rbntl
+=Excel%CA%E4%B3%F6&pslr=&Txt_save=false&tbXXMC=%C9%BD%B6%AB%C2%C3%D3%CE%D6%B0%D2%B5%D1%A7%D4%BA";
         $sz=strlen($pf);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $pf);
 
-        $headers=array(
-            //"Content-Type: application/x-www-form-urlencoded",
-            //"Content-Length: ".$sz
-        );
-        //curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-
-
-// in real life you should use something like:
-// curl_setopt($ch, CURLOPT_POSTFIELDS,
-//          http_build_query(array('postvar1' => 'value1')));
-
-// receive server response ...
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
-        $server_output = curl_exec ($ch);
-
+        $content = curl_exec ($ch);
+        $s=curl_error($ch);
         curl_close ($ch);
+        return $content;
+    }
 
 
+    private function get_session_id($content) {
+        // 1.1 Get the session id
+        $cookies = array();
+        preg_match_all('/Set-Cookie:(?<cookie>\s{0,}.*)$/im', $content, $cookies);
+        parse_str($cookies['cookie'][0],$target);
+        $c=substr($target['ASP_NET_SessionId'],0,24);
+        return $c;
     }
 
     public function view($id = null) {
