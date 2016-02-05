@@ -312,12 +312,14 @@ class SectionsController extends AppController {
         if ($this->request->is(['post'])) {
 
             $section = $this->Sections->get($id,['contain' => ['Cohorts.Majors']]);
-            //$query = $this->Sections->find('all')
-                //->contain(['Cohorts.Majors','Semesters','Subjects','Teachers','Tplans'])
-                //->order(['Semesters.year','Sections.seq']);
 
+            // The login credentials for he school's computer.
             $username=$this->request->data['username'];
             $password=$this->request->data['password'];
+
+            $scores=[
+                //['sid'=>'1000','a'=>20,'b'=>30]
+            ];
 
             // 1. GET the login form and determine the session_id.
             $content=$this->getHomePage();
@@ -352,6 +354,7 @@ class SectionsController extends AppController {
             }
 
             // 5. GET the scores form.
+            $scoresUrl="http://60.216.13.32/cjlr1.aspx?xh=11164&kc=%282015-2016-1%29-1103016-11164-1&kclx=%B1%D8%D0%DE%BF%CE&cjxn=2015-2016&cjxq=1";
             $scoresUrl="http://60.216.13.32/cjlr1.aspx?xh=$username&kc=%282015-2016-1%29-1103016-$username-1&kclx=%B1%D8%D0%DE%BF%CE&cjxn=2015-2016&cjxq=1";
             $content=$this->getScoresForm($scoresUrl,$session_id);
 
@@ -359,13 +362,40 @@ class SectionsController extends AppController {
             // in a subsequent POST. Grab that now.
             $html = str_get_html($content);
             $vs2=urlencode($html->find("input[name='__VIEWSTATE']",0)->value);
+            $table=$html->find("table[id='DataGrid1']",0);
+            $trs=$table->find("tr");
+            $c=count($trs);
+
+            $myscores=[];
+            $myscores['201402010103']=['a'=>'50','b'=>'60'];
+            $myscores['201402010106']=['a'=>'60','b'=>'70'];
+            $myscores['201402010110']=['a'=>'70','b'=>'80'];
+
+            foreach($trs as $tr) {
+                $tds=$tr->find("td");
+                $idx=$tds[0]->innertext;
+                $sid=$tds[2]->innertext;
+
+                if(is_numeric($idx)) {
+                    if(array_key_exists($sid, $myscores)) {
+                        $ms = $myscores[$sid];
+                        $scores[$idx] = ['gidx' => $idx + 1, 'a' => $ms['a'], 'b' => $ms['b']];
+                    } else
+                        $scores[$idx] = ['gidx'=>$idx+1,'a'=>'','b'=>''];
+
+                }
+            }
+
+
 
             // 6. POST the scores form.
-            $content=$this->postScoresForm($scoresUrl,$session_id,$vs2);
+            $result=$this->postScoresForm($scoresUrl,$session_id,$vs2,$scores);
+
+            if($result=="") $result="Success!";
+            $this->set(compact('result'));
 
             //$this->Flash->success(__('The section has been saved.'));
-            //return $this->redirect(['action' => 'index']);
-
+            return $this->redirect(['action' => 'index']);
         }
 
         //$this->set('clazzes',$section->clazzes);
@@ -391,7 +421,6 @@ class SectionsController extends AppController {
         curl_close($ch);
         return $content;
     }
-
 
     private function postLoginForm($username, $password, $session_id, $viewState) {
         $ch = curl_init();
@@ -490,7 +519,7 @@ class SectionsController extends AppController {
         return $content;
     }
 
-    private function postScoresForm($url,$session_id,$viewState) {
+    private function postScoresForm($url,$session_id,$viewState,$scores) {
         $ch = curl_init();
 
         curl_setopt($ch, CURLOPT_URL,$url);
@@ -512,16 +541,23 @@ class SectionsController extends AppController {
             "&__EVENTARGUMENT="."&__VIEWSTATE=$viewState".
             "&Dgfcj=%BB%BA%BF%BC&txtChanged=1".
             "&jfz=%B0%D9%B7%D6%D6%C6".
-            "&psb=40".
-            "&qmb=60".
-            "&Dzpcj=%B0%D9%B7%D6%D6%C6".
+            "&psb=60". // classroom
+            "&qmb=40". // final
+            "&Dzpcj=%B0%D9%B7%D6%D6%C6";
 
-            "&DataGrid1%3A_ctl2%3Aps=1". // 1st
-            "&DataGrid1%3A_ctl2%3Aqm=1". // 2nd
+            foreach($scores as $score) {
+                $gidx=$score['gidx'];
+                $pf.="&DataGrid1%3A_ctl$gidx%3Aps=".$score['a'];
+                $pf.="&DataGrid1%3A_ctl$gidx%3Aqm=".$score['b'];
+                //"&DataGrid1%3A_ctl2%3Azp=". // ??
+            }
+
+            /*"&DataGrid1%3A_ctl2%3Aps=".$scores[1]['a'].
+            "&DataGrid1%3A_ctl2%3Aqm=".$scores[1]['b'].
             "&DataGrid1%3A_ctl2%3Azp=". // ??
 
-            "&DataGrid1%3A_ctl3%3Aps=2".
-            "&DataGrid1%3A_ctl3%3Aqm=3".
+            "&DataGrid1%3A_ctl3%3Aps=".$scores[2]['a'].
+            "&DataGrid1%3A_ctl3%3Aqm=".$scores[2]['b'].
             "&DataGrid1%3A_ctl3%3Azp=".
 
             "&DataGrid1%3A_ctl4%3Aps=1".
@@ -546,8 +582,8 @@ class SectionsController extends AppController {
 %3A_ctl24%3Azp=46&DataGrid1%3A_ctl25%3Aps=47&DataGrid1%3A_ctl25%3Aqm=48&DataGrid1%3A_ctl25%3Azp=48&DataGrid1
 %3A_ctl26%3Aps=49&DataGrid1%3A_ctl26%3Aqm=50&DataGrid1%3A_ctl26%3Azp=50&DataGrid1%3A_ctl27%3Aps=51&DataGrid1
 %3A_ctl27%3Aqm=52&DataGrid1%3A_ctl27%3Azp=52&DataGrid1%3A_ctl28%3Aps=53&DataGrid1%3A_ctl28%3Aqm=54&DataGrid1
-%3A_ctl28%3Azp=54&DataGrid1%3A_ctl29%3Aps=55&DataGrid1%3A_ctl29%3Aqm=56&DataGrid1%3A_ctl29%3Azp=56&rbntl
-=Excel%CA%E4%B3%F6&pslr=&Txt_save=false&tbXXMC=%C9%BD%B6%AB%C2%C3%D3%CE%D6%B0%D2%B5%D1%A7%D4%BA";
+%3A_ctl28%3Azp=54&DataGrid1%3A_ctl29%3Aps=55&DataGrid1%3A_ctl29%3Aqm=56&DataGrid1%3A_ctl29%3Azp=56*/
+        $pf.="&rbntl=Excel%CA%E4%B3%F6&pslr=&Txt_save=false&tbXXMC=%C9%BD%B6%AB%C2%C3%D3%CE%D6%B0%D2%B5%D1%A7%D4%BA";
         $sz=strlen($pf);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $pf);
 
@@ -556,7 +592,7 @@ class SectionsController extends AppController {
         $content = curl_exec ($ch);
         $s=curl_error($ch);
         curl_close ($ch);
-        return $content;
+        return $s;
     }
 
 
