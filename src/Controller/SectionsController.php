@@ -354,8 +354,18 @@ class SectionsController extends AppController {
             }
 
             // 5. GET the scores form.
-            $scoresUrl="http://60.216.13.32/cjlr1.aspx?xh=11164&kc=%282015-2016-1%29-1103016-11164-1&kclx=%B1%D8%D0%DE%BF%CE&cjxn=2015-2016&cjxq=1";
-            $scoresUrl="http://60.216.13.32/cjlr1.aspx?xh=$username&kc=%282015-2016-1%29-1103016-$username-1&kclx=%B1%D8%D0%DE%BF%CE&cjxn=2015-2016&cjxq=1";
+            //$scoresUrl="http://60.216.13.32/cjlr1.aspx?xh=11164&kc=%282015-2016-1%29-1103016-11164-1&kclx=%B1%D8%D0%DE%BF%CE&cjxn=2015-2016&cjxq=1";
+            //$scoresUrl="http://60.216.13.32/cjlr1.aspx?xh=$username&kc=%282015-2016-1%29-1103016-$username-1&kclx=%B1%D8%D0%DE%BF%CE&cjxn=2015-2016&cjxq=1";
+
+            // 14A1 $scoresUrl="http://60.216.13.32/cjlr1.aspx?xh=11164&kc=(2015-2016-1)-1103020-11164-3&kclx=%B1%D8%D0%DE%BF%CE&cjxn=2015-2016&cjxq=1";
+            // 14A2 $scoresUrl="http://60.216.13.32/cjlr1.aspx?xh=11164&kc=(2015-2016-1)-1103020-11164-4&kclx=%B1%D8%D0%DE%BF%CE&cjxn=2015-2016&cjxq=1";
+            // 14A3 $scoresUrl="http://60.216.13.32/cjlr1.aspx?xh=11164&kc=(2015-2016-1)-1103020-11164-5&kclx=%B1%D8%D0%DE%BF%CE&cjxn=2015-2016&cjxq=1";
+            // 14A4 $scoresUrl="http://60.216.13.32/cjlr1.aspx?xh=11164&kc=%282015-2016-1%29-1103020-11164-6&kclx=%B1%D8%D0%DE%BF%CE&cjxn=2015-2016&cjxq=1";
+            // 14E1 $scoresUrl="http://60.216.13.32/cjlr1.aspx?xh=11164&kc=(2015-2016-1)-1103016-11164-1&kclx=%B1%D8%D0%DE%BF%CE&cjxn=2015-2016&cjxq=1";
+            // 14E2 $scoresUrl="http://60.216.13.32/cjlr1.aspx?xh=11164&kc=(2015-2016-1)-1103016-11164-2&kclx=%B1%D8%D0%DE%BF%CE&cjxn=2015-2016&cjxq=1";
+            // 14H4 $scoresUrl="http://60.216.13.32/cjlr1.aspx?xh=11164&kc=(2015-2016-1)-1103020-11164-1&kclx=%B1%D8%D0%DE%BF%CE&cjxn=2015-2016&cjxq=1";
+            // 14H5
+            $scoresUrl="http://60.216.13.32/cjlr1.aspx?xh=11164&kc=(2015-2016-1)-1103020-11164-2&kclx=%B1%D8%D0%DE%BF%CE&cjxn=2015-2016&cjxq=1";
             $content=$this->getScoresForm($scoresUrl,$session_id);
 
             // 5.1 The scores form also has another __VIEWSTATE input which will be used
@@ -366,10 +376,68 @@ class SectionsController extends AppController {
             $trs=$table->find("tr");
             $c=count($trs);
 
+            $cohort_id=$section->cohort_id;   // cohort 9   = 14A4
+            $semester_id=$section->semester_id; // semester 1 = 2015-2
+            $section_id=$id;  // section  4 = 14A4 for 2015-2
+            /* @var \Cake\Database\Connection $connection */
+            $connection = ConnectionManager::get('default');
+            $query="select count(*) as c1 from clazzes where section_id=$section_id and clazzes.exam != 1";
+            $classCnt=$connection->execute($query)->fetchAll('assoc');
+
+            $query="select students.sid,
+                sum(if(itype_id=1,1,0)) as c1,
+                avg(if(itype_id=4,interactions.participate,null)) as c4,
+                count(*)
+                from interactions
+                left join students on interactions.student_id=students.id
+                left join cohorts on students.cohort_id=cohorts.id
+                left join clazzes on interactions.clazz_id=clazzes.id
+                left join sections on clazzes.section_id=sections.id
+                left join semesters on sections.semester_id=semesters.id
+                where cohorts.id=$cohort_id and semesters.id=$semester_id and clazzes.exam != 1
+                group by students.sid";
+
+            $interactionAnalysis=$connection->execute($query)->fetchAll('assoc');
+
+            $query="select students.sid,
+                sum(if(itype_id=1,1,0)) as c1,
+                avg(if(itype_id=4,interactions.participate,null)) as c4,
+                count(*)
+                from interactions
+                left join students on interactions.student_id=students.id
+                left join cohorts on students.cohort_id=cohorts.id
+                left join clazzes on interactions.clazz_id=clazzes.id
+                left join sections on clazzes.section_id=sections.id
+                left join semesters on sections.semester_id=semesters.id
+                where cohorts.id=$cohort_id and semesters.id=$semester_id and clazzes.exam=1
+                group by students.sid";
+
+            $finalExam=$connection->execute($query)->fetchAll('assoc');
+
             $myscores=[];
-            $myscores['201402010103']=['a'=>'50','b'=>'60'];
-            $myscores['201402010106']=['a'=>'60','b'=>'70'];
-            $myscores['201402010110']=['a'=>'70','b'=>'80'];
+            $classCnt=$classCnt[0]['c1'];
+            foreach($interactionAnalysis as $ia) {
+                $sid=$ia['sid'];
+                $attend=$ia['c1'];
+                $participate=$ia['c4'];
+                $homework=$participate;
+                //$score_attend=$attend/$classCnt;
+                $score = (0.3*$attend/$classCnt*10+ 0.5*$homework + 0.2*$participate)*10;
+
+                $myscores[$sid]=['a'=>round($score)];
+
+            }
+
+            foreach($finalExam as $exam) {
+                $sid=$exam['sid'];
+                //$myscores[$sid]=['b'=>$exam['c4']*10];
+                $myscores[$sid]['b']=$exam['c4']*10;
+            }
+
+
+            //$myscores['201402010103']=['a'=>'50','b'=>'60'];
+            //$myscores['201402010106']=['a'=>'60','b'=>'70'];
+            //$myscores['201402010110']=['a'=>'70','b'=>'80'];
 
             foreach($trs as $tr) {
                 $tds=$tr->find("td");
@@ -379,9 +447,17 @@ class SectionsController extends AppController {
                 if(is_numeric($idx)) {
                     if(array_key_exists($sid, $myscores)) {
                         $ms = $myscores[$sid];
-                        $scores[$idx] = ['gidx' => $idx + 1, 'a' => $ms['a'], 'b' => $ms['b']];
+                        $cs = ['gidx'=>$idx+1,'a'=>0,'b'=>0];
+
+                        if(array_key_exists('a',$ms))
+                            $cs['a']=$ms['a'];
+
+                        if(array_key_exists('b',$ms))
+                            $cs['b']=$ms['b'];
+
+                        $scores[$idx]=$cs;
                     } else
-                        $scores[$idx] = ['gidx'=>$idx+1,'a'=>'','b'=>''];
+                        $scores[$idx] = ['gidx'=>$idx+1,'a'=>0,'b'=>0];
 
                 }
             }
