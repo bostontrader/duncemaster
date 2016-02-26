@@ -50,7 +50,7 @@ class CohortsController extends AppController {
 
     public function index() {
         $this->request->allowMethod(['get']);
-        $this->set('cohorts', $this->Cohorts->find()->contain(['Majors']));
+        $this->set('cohorts', $this->Cohorts->find()->contain(['Majors'])->order(['start_year','Majors.sdesc','seq']));
     }
 
     public function view($id = null) {
