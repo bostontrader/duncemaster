@@ -298,7 +298,7 @@ class SectionsController extends AppController {
         /* @var \Cake\ORM\Query $query */
         $query = $this->Sections->find('all')
             ->contain(['Cohorts.Majors','Semesters','Subjects','Teachers','Tplans'])
-            ->order(['Semesters.year','Sections.seq']);
+            ->order(['Semesters.year','Semesters.seq','Teachers.fam_name','Sections.seq']);
 
         if($this->isTeacher)
             $query->where(['teacher_id'=>$this->Auth->user('teacher_id')]);
