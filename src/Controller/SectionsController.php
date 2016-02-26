@@ -3,7 +3,7 @@ namespace App\Controller;
 
 use Cake\Datasource\ConnectionManager;
 
-require_once 'simple_html_dom.php';
+//require_once 'simple_html_dom.php';
 
 class SectionsController extends AppController {
 
