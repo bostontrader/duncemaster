@@ -83,7 +83,7 @@ class SectionsController extends AppController {
 
         $pdf->SetFontSize(14);
         $pdf->SetXY(57,24);
-        $pdf->Cell(0,0,'(注: 事假: X 旷课: Ø 病假: / 迟到: O 早退: + 迟到又早退:   公假:   正常或完成作业: , 未完成作业: X)');
+        $pdf->Cell(0,0,'(注: 事假: X 旷课: Ø 病假: / 迟到: O 早退: + 迟到又早退: ⊕ 公假: ∆ 正常或完成作业: ✓ , 未完成作业: X)');
 
         // 5. zhōu cì week
         $pdf->SetFontSize(12);
