@@ -1,26 +1,52 @@
-# CakePHP Application Skeleton
+# Welcome to DunceMaster!
 
-[![Build Status](https://api.travis-ci.org/cakephp/app.png)](https://travis-ci.org/cakephp/app)
-[![License](https://poser.pugx.org/cakephp/app/license.svg)](https://packagist.org/packages/cakephp/app)
+The purpose of this app is to provide some basic management of a school.  A school has various objects such 
+as Teachers, Students, Semesters, Sections, Classes and more. How do these things fit together? Can we organize
+these things in some sensible manner or are we perpetually doomed to flounder in random chaos?  That's what we 
+try to figure out here.
 
-A skeleton for creating applications with [CakePHP](http://cakephp.org) 3.x.
-
-The framework source code can be found here: [cakephp/cakephp](https://github.com/cakephp/cakephp).
+Some parts of this app are more generally useful for all schools than other parts which are more
+specific to the one particular school that this app was built for.  It would have been nice to abstract
+out the general bits, more fully, from the specific bit.  Unfortunately, that was not very high on the
+priority list, but we did the best we could, given the constraints.
 
 ## Installation
 
-1. Download [Composer](http://getcomposer.org/doc/00-intro.md) or update `composer self-update`.
-2. Run `php composer.phar create-project --prefer-dist cakephp/app [app_name]`.
+This app was developed using CakePHP 3.* served by LEMP on Ubuntu.  The first step in installation would 
+be to replicate our server installation.  That's fairly easily done by examining http://github.com/bostontrader/lemp.
 
-If Composer is installed globally, run
-```bash
-composer create-project --prefer-dist cakephp/app [app_name]
-```
+Although that serves as the foundation, there is a minor customization required, in order to 
+accommodate this app.  More specifically:
 
-You should now be able to visit the path to where you installed the app and see
-the setup traffic lights.
+When we build PHP we need to add the following configuration options:
 
-## Configuration
+--with-pdo-mysql=$STACK_ROOT/mysql
+--enable-intl
 
-Read and edit `config/app.php` and setup the 'Datasources' and any other
-configuration relevant for your application.
+These options are required by CakePHP.
+
+--with-openssl
+
+Needed by composer. Which means you'll have to have OpenSSL installed on your server.
+
+
+Recall that STACK_ROOT is defined by the LEMP stack installation.
+
+cd $STACK_ROOT/html
+
+git clone https://github.com/bostontrader/duncemaster.git
+
+Setup the proper nginx config file.
+
+Install composer.
+
+$STACK_ROOT/php/bin/php composer.phar update
+Update composer.
+
+Configure config/app.php. The existing edition is set for a very low-security testing
+environment.  You'll need to tighten screws and adapt for production use.
+  
+
+
+
+
