@@ -62,3 +62,9 @@ environment.  You'll need to tighten screws and adapt for production use.
 
 XDEBUG_SESSION_START
 
+sudo $STACK_ROOT/mysql/bin/mysqld_safe --user=batman --log-error=$STACK_ROOT/mysql.err --datadir=$STACK_ROOT/mysql/data --port=3307 &
+$STACK_ROOT/php/sbin/php-fpm
+$STACK_ROOT/nginx/sbin/nginx &
+$STACK_ROOT/nginx/sbin/nginx -s reload
+
+
