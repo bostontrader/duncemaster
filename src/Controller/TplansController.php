@@ -52,10 +52,11 @@ class TplansController extends AppController {
         $this->set('tplans', $this->Tplans->find('all'));
     }
 
-    // Generate the PDF teaching plan
+    // This function will produce PDF output to display a teaching plan.
+    // It will emit individual pages, sequentially, with the understanding that these
+    // pages will be printed four per sheet of paper (two pages, side-by-side, on each sheet),
+    // in booklet form.  Hence the quantity of document pages should be a multiple of 4.
     public function pdf($id = null) {
-
-
 
         // 1. Get started
         require('tcpdf.php');
@@ -74,20 +75,100 @@ class TplansController extends AppController {
         $pdf->AddPage();
 
 
+        // 1. Page 1, The cover
+
+        // 2. The Plan Elements
+
+        // The Plan Elements are each printed across one side of two consecutive pages.
+
+        // Each set of two-pages contains 5 Plan Elements, with the exception of the last set.
+
+        // The last set of two-pages only contains 4 Plan Elements, with the area normally containing
+        // the 5th element, on the left page, being blank, and the same area on the right page
+        // containing date and signature.
+
+        // Two sets of two-pages, containing 10 Plan Elements, can be printed on a single sheet of paper.
+        // One set on the front, and one set on the back.
+        //
+        // Upon careful reflection we can determine that:
+        // 1. Any plan containing <=4 plan elements can be fully printed on a single sheet of paper.
+        // 2. Each additional sheet of paper will accommodate up to 10 additional plan elements.
+
+        // Our basic strategy will be to determine how many extra sheets of paper are required
+        // and then emit 10 (plan elements or blank elements) to fill each extra sheet.
+        // Then continue to emit 10 () to fill the final set of two-pages.
+        $tplanElementCnt=4;
+        $extraSheetCnt=intval(($tplanElementCnt+5)/10);
+
+        while($extraSheetCnt>0) {
+            // emit the next 10 (plan elements or blank elements)
+            $extraSheetCnt--;
+        }
+
+        // Emit the next 4 (plan elements or blank elements)
+        // Emit the signature block
+
+        // 2. Rear cover
+
+
+
+
+
         // Draw the main outerbox
-        $leftX = 20;
-        $rightX = 150;
-        $topY = 30;
-        $bottomY = 191;
+        $offsetX=5;
+        $offsetY=5;
+        $leftX = 0;
+        $rightX = 154;
+        $topY = 0;
+        $bottomY = 219;
         $pdf->SetLineWidth(0.5);
-        $pdf->Line($leftX,$topY,$leftX,$bottomY); // v
-        $pdf->Line($rightX,$topY,$rightX,$bottomY); // v
-        $pdf->Line($leftX,$topY,$rightX,$topY); // h
-        $pdf->Line($leftX,$bottomY,$rightX,$bottomY); // h
+        $pdf->Line($leftX+$offsetX, $topY+$offsetY,   $leftX+$offsetX, $bottomY+$offsetY); // v
+        $pdf->Line($rightX+$offsetX,$topY+$offsetY,   $rightX+$offsetX,$bottomY+$offsetY); // v
+        $pdf->Line($leftX+$offsetX, $topY+$offsetY,   $rightX+$offsetX,$topY+$offsetY); // h
+        $pdf->Line($leftX+$offsetX, $bottomY+$offsetY,$rightX+$offsetX,$bottomY+$offsetY); // h
+
+        // Draw the vertical lines
+        $pdf->Line($leftX+18+$offsetX, $topY+$offsetY,   $leftX+18+$offsetX, $bottomY+$offsetY); // v
+        $pdf->Line($leftX+41+$offsetX, $topY+$offsetY,   $leftX+41+$offsetX, $bottomY+$offsetY); // v
+        $pdf->Line($leftX+89+$offsetX, $topY+$offsetY,   $leftX+89+$offsetX, $bottomY+$offsetY); // v
+        $pdf->Line($leftX+137+$offsetX, $topY+$offsetY,   $leftX+137+$offsetX, $bottomY+$offsetY); // v
+
+        // Draw the horizontal lines
+        $pdf->Line($leftX+$offsetX, $topY+37+$offsetY,   $rightX+$offsetX,$topY+37+$offsetY); // h
+        $pdf->Line($leftX+$offsetX, $topY+74+$offsetY,   $rightX+$offsetX,$topY+74+$offsetY); // h
+        $pdf->Line($leftX+$offsetX, $topY+110+$offsetY,   $rightX+$offsetX,$topY+110+$offsetY); // h
+        $pdf->Line($leftX+$offsetX, $topY+147+$offsetY,   $rightX+$offsetX,$topY+147+$offsetY); // h
+        $pdf->Line($leftX+$offsetX, $topY+183+$offsetY,   $rightX+$offsetX,$topY+183+$offsetY); // h
 
 
-        // Draw a line
-        $pdf->Line(170,100,250,100); // h
+        // Draw the main outerbox
+        $offsetX=170;
+        $offsetY=5;
+        $leftX = 0;
+        $rightX = 154;
+        $topY = 0;
+        $bottomY = 219;
+        $pdf->SetLineWidth(0.5);
+        $pdf->Line($leftX+$offsetX, $topY+$offsetY,   $leftX+$offsetX, $bottomY+$offsetY); // v
+        $pdf->Line($rightX+$offsetX,$topY+$offsetY,   $rightX+$offsetX,$bottomY+$offsetY); // v
+        $pdf->Line($leftX+$offsetX, $topY+$offsetY,   $rightX+$offsetX,$topY+$offsetY); // h
+        $pdf->Line($leftX+$offsetX, $bottomY+$offsetY,$rightX+$offsetX,$bottomY+$offsetY); // h
+
+        // Draw the vertical lines
+        $pdf->Line($leftX+60+$offsetX, $topY+$offsetY,   $leftX+60+$offsetX, $bottomY+$offsetY); // v
+        $pdf->Line($leftX+121+$offsetX, $topY+$offsetY,   $leftX+121+$offsetX, $bottomY+$offsetY); // v
+        $pdf->Line($leftX+137+$offsetX, $topY+$offsetY,   $leftX+137+$offsetX, $bottomY+$offsetY); // v
+
+        // Draw the horizontal lines
+        $pdf->Line($leftX+$offsetX, $topY+37+$offsetY,   $rightX+$offsetX,$topY+37+$offsetY); // h
+        $pdf->Line($leftX+$offsetX, $topY+74+$offsetY,   $rightX+$offsetX,$topY+74+$offsetY); // h
+        $pdf->Line($leftX+$offsetX, $topY+110+$offsetY,   $rightX+$offsetX,$topY+110+$offsetY); // h
+        $pdf->Line($leftX+$offsetX, $topY+147+$offsetY,   $rightX+$offsetX,$topY+147+$offsetY); // h
+        $pdf->Line($leftX+$offsetX, $topY+183+$offsetY,   $rightX+$offsetX,$topY+183+$offsetY); // h
+
+
+
+
 
 
         // 2. Lǚyóu zhíyè xuéyuàn kǎopíng dēngjì biǎo
