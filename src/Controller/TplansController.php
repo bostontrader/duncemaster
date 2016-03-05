@@ -61,9 +61,12 @@ class TplansController extends AppController {
         // 1. In the beginning...
         // 1.1 Obtain the data to print.
         $info['subject']='Intro to Warp Theory';
-        $info['major']='Warp Drive Engineering';
+        $info['major']='Engineering';
         $info['cohorts']='15A1, 15A2';
         $info['instructor']='Spock';
+        $info['class_cnt']=18;
+        $info['teaching_hrs_per_class']=2;
+        $info['semester_seq']=2; // 1st or 2nd
 
         // 1.2 Initialize the pdf
         require('tcpdf.php');
@@ -81,112 +84,7 @@ class TplansController extends AppController {
 
         // 2. Page 1, The cover
         $pdf->AddPage();
-        $this->emitRearCover($pdf,17,23);
-        $pdf->AddPage();
-
-        // 2.1 shandong Lǚyóu zhíyè xuéyuàn
-        // Shandong College of Tourism and Hospitality
-        $pdf->SetFontSize(21);
-        $pdf->SetXY(44,20);
-        $pdf->Cell(74,8,'山 东 旅 游 职 业 学 院',1,0,'C');
-
-        // 2.2 jia4oxue2 ri4li4
-        // Teaching plan
-        $pdf->SetFontSize(40);
-        $pdf->SetXY(21,37);
-        $pdf->Cell(123,18,'教     学     日     历',1,0,'C');
-
-        // 2.3 ke4che2ng mi2ngche1ng
-        // Course title
-        $pdf->SetFontSize(16);
-        $pdf->SetXY(37,77);
-        $pdf->Cell(22,8,'课程名称',1,0,'C');
-
-        // 2.4 zhua1n ye4
-        // Profession
-        $pdf->SetXY(37,92);
-        $pdf->Cell(11,8,'专业',1,0,'C');
-
-        // nia2n ji2
-        // Grade aka cohorts
-        $pdf->SetXY(82,92);
-        $pdf->Cell(12,8,'年级',1,0,'C');
-
-        // zh3jia3ng jia4o shi1
-        // Speaker/teacher
-        $pdf->SetFontSize(12);
-        $pdf->SetXY(37,102);
-        $pdf->Cell(8,5,'主讲',1,0,'C');
-        $pdf->SetXY(37,107);
-        $pdf->Cell(8,5,'教师',1,0,'C');
-
-        // xi4ng mi2ng
-        // Full name
-        $pdf->SetFontSize(16);
-        $pdf->SetXY(47,103);
-        $pdf->Cell(11,8,'姓名',1,0,'C');
-
-        // zhi2 che1ng
-        // Job title
-        $pdf->SetXY(87,103);
-        $pdf->Cell(12,8,'职称',1,0,'C');
-
-        $pdf->SetXY(37,129);
-        $pdf->Cell(17,7,'周   数',1,0,'C');
-        //$pdf->SetXY(100,100);
-        //$pdf->Cell(100,0,'数',0,0,'C');
-
-
-        $pdf->SetXY(37,138);
-        $pdf->Cell(17,7,'讲   课',1,0,'C');
-        //$pdf->SetXY(100,120);
-        //$pdf->Cell(100,0,'课',0,0,'C');
-
-        $pdf->SetXY(106,138);
-        $pdf->Cell(13,7,'学时',1,0,'C');
-
-
-        $pdf->SetXY(37,147);
-        $pdf->Cell(17,7,'实习课',1,0,'C');
-        $pdf->SetXY(106,147);
-        $pdf->Cell(13,7,'学时',1,0,'C');
-
-
-        $pdf->SetXY(37,156);
-        $pdf->Cell(17,7,'实   验',1,0,'C');
-        //$pdf->SetXY(100,170);
-        //$pdf->Cell(100,0,'验',0,0,'C');
-        $pdf->SetXY(106,156);
-        $pdf->Cell(13,7,'学时',1,0,'C');
-
-
-        $pdf->SetXY(37,165);
-        $pdf->Cell(17,7,'总   计',1,0,'C');
-        //$pdf->SetXY(100,190);
-        //$pdf->Cell(100,0,'计',0,0,'C');
-        $pdf->SetXY(106,165);
-        $pdf->Cell(13,7,'学时',1,0,'C');
-
-
-        $pdf->Line(59,83, 118,83); // h
-        $pdf->Line(48,97, 84, 97); // h
-        $pdf->Line(95,97, 118,97); // h
-        $pdf->Line(57,110, 88,110); // h
-        $pdf->Line(98,110, 118,110); // h
-
-        $pdf->Line(53,135,118,135); // h
-        $pdf->Line(53,144,108,144); // h
-        $pdf->Line(53,153,108,153); // h
-        $pdf->Line(53,162,108,162); // h
-        $pdf->Line(53,172,108,172); // h
-
-        $pdf->SetXY(34,204);
-        $pdf->Cell(30,7,'2015-2016',1,0,'C');
-        $pdf->SetXY(80,204);
-        $pdf->Cell(21,7,'学年第',1,0,'C');
-        $pdf->SetXY(109,204);
-        $pdf->Cell(11,7,'学期',1,0,'C');
-
+        $this->emitFrontCover($info,$pdf,10,10);
 
         // 3. The Plan Elements
         $pdf->AddPage();
@@ -228,8 +126,7 @@ class TplansController extends AppController {
 
         // 3. Rear cover
         $pdf->AddPage();
-        $this->emitRearCover($pdf);
-
+        $this->emitRearCover($pdf,17,23);
 
 
         $pdf->Output();
@@ -246,6 +143,141 @@ class TplansController extends AppController {
 
     private function dmSetXY($pdf,$x,$y,$ox,$oy) {
         $pdf->SetXY($x+$ox,$y+$oy);
+    }
+
+    private function emitFrontCover($info,$pdf,$ox=0,$oy=0) {
+
+        // 2.1 shandong Lǚyóu zhíyè xuéyuàn
+        // Shandong College of Tourism and Hospitality
+        $pdf->SetFontSize(21);
+        $this->dmSetXY($pdf,44,20,$ox,$oy);
+        $pdf->Cell(74,8,'山 东 旅 游 职 业 学 院',0,0,'C');
+
+        // 2.2 jia4oxue2 ri4li4
+        // Teaching plan
+        $pdf->SetFontSize(40);
+        $this->dmSetXY($pdf,21,37,$ox,$oy);
+        $pdf->Cell(123,18,'教     学     日     历',0,0,'C');
+
+        // 2.3 ke4che2ng mi2ngche1ng
+        // Course title
+        $pdf->SetFontSize(16);
+        $this->dmSetXY($pdf,37,77,$ox,$oy);
+        $pdf->Cell(22,8,'课程名称',0,0,'C');
+
+        $this->dmSetXY($pdf,59,77,$ox,$oy);
+        $pdf->Cell(100,8,$info['subject'],0,0,'L');
+
+        $this->dmLine($pdf,60,84, 118,84,$ox,$oy); // h
+
+        // 2.4 zhua1n ye4
+        // Profession
+        $this->dmSetXY($pdf,37,92,$ox,$oy);
+        $pdf->Cell(11,8,'专业',0,0,'C');
+
+        $this->dmSetXY($pdf,48,92,$ox,$oy);
+        $pdf->Cell(100,8,$info['major'],0,0,'L');
+
+        $this->dmLine($pdf,49,99, 82, 99,$ox,$oy); // h
+
+        // 2.5 nia2n ji2
+        // Grade aka cohorts
+        $this->dmSetXY($pdf,82,92,$ox,$oy);
+        $pdf->Cell(12,8,'年级',0,0,'C');
+
+        $this->dmSetXY($pdf,95,92,$ox,$oy);
+        $pdf->Cell(100,8,$info['cohorts'],0,0,'L');
+
+        $this->dmLine($pdf,95,99, 118,99,$ox,$oy); // h
+
+        // 2.6 zh3jia3ng jia4o shi1
+        // Speaker/teacher
+        $pdf->SetFontSize(12);
+        $this->dmSetXY($pdf,37,102,$ox,$oy);
+        $pdf->Cell(8,5,'主讲',0,0,'C');
+        $this->dmSetXY($pdf,37,107,$ox,$oy);
+        $pdf->Cell(8,5,'教师',0,0,'C');
+
+        // 2.6.1 xi4ng mi2ng
+        // Full name
+        $pdf->SetFontSize(16);
+        $this->dmSetXY($pdf,47,103,$ox,$oy);
+        $pdf->Cell(11,8,'姓名',0,0,'C');
+
+        $this->dmSetXY($pdf,57,103,$ox,$oy);
+        $pdf->Cell(100,8,$info['instructor'],0,0,'L');
+
+        $this->dmLine($pdf,58,110, 86,110,$ox,$oy); // h
+
+        // 2.6.2 zhi2 che1ng
+        // Job title
+        $this->dmSetXY($pdf,87,103,$ox,$oy);
+        $pdf->Cell(12,8,'职称',0,0,'C');
+
+        $this->dmLine($pdf,99,110, 118,110,$ox,$oy); // h
+
+
+        // 2.7
+        $this->dmSetXY($pdf,37,129,$ox,$oy);
+        $pdf->Cell(17,7,'周   数',0,0,'C');
+
+        $this->dmSetXY($pdf,57,128,$ox,$oy);
+        $pdf->Cell(20,8,$info['class_cnt'],0,0,'R');
+
+        $this->dmLine($pdf,54,135,118,135,$ox,$oy); // h
+
+
+        // 2.8
+        $this->dmSetXY($pdf,37,138,$ox,$oy);
+        $pdf->Cell(17,7,'讲   课',0,0,'C');
+        $this->dmSetXY($pdf,57,137,$ox,$oy);
+        $pdf->Cell(20,8,$info['teaching_hrs_per_class'],0,0,'R');
+        $this->dmLine($pdf,54,144,105,144,$ox,$oy); // h
+
+        $this->dmSetXY($pdf,106,138,$ox,$oy);
+        $pdf->Cell(13,7,'学时',0,0,'C');
+
+
+        // 2.9
+        $this->dmSetXY($pdf,37,147,$ox,$oy);
+        $pdf->Cell(17,7,'实习课',0,0,'C');
+        $this->dmLine($pdf,54,153,105,153,$ox,$oy); // h
+        $this->dmSetXY($pdf,106,147,$ox,$oy);
+        $pdf->Cell(13,7,'学时',0,0,'C');
+
+
+        // 2.10
+        $this->dmSetXY($pdf,37,156,$ox,$oy);
+        $pdf->Cell(17,7,'实   验',0,0,'C');
+        $this->dmLine($pdf,54,162,105,162,$ox,$oy); // h
+        $this->dmSetXY($pdf,106,156,$ox,$oy);
+        $pdf->Cell(13,7,'学时',0,0,'C');
+
+
+        // 2.11
+        $this->dmSetXY($pdf,37,165,$ox,$oy);
+        $pdf->Cell(17,7,'总   计',0,0,'C');
+
+        $this->dmSetXY($pdf,57,165,$ox,$oy);
+        $pdf->Cell(20,8,$info['teaching_hrs_per_class']*$info['class_cnt'],0,0,'R');
+
+        $this->dmLine($pdf,54,172,105,172,$ox,$oy); // h
+
+        $this->dmSetXY($pdf,106,165,$ox,$oy);
+        $pdf->Cell(13,7,'学时',0,0,'C');
+
+
+        // 2.12
+        $this->dmSetXY($pdf,34,204,$ox,$oy);
+        $pdf->Cell(30,7,'2015-2016',0,0,'C');
+        $this->dmSetXY($pdf,80,204,$ox,$oy);
+        $pdf->Cell(21,7,'学年第',0,0,'C');
+
+        $this->dmSetXY($pdf,100,204,$ox,$oy);
+        $pdf->Cell(8,8,$info['semester_seq'],0,0,'C');
+
+        $this->dmSetXY($pdf,109,204,$ox,$oy);
+        $pdf->Cell(11,7,'学期',0,0,'C');
     }
 
     private function emitRearCover($pdf,$ox=0,$oy=0) {
