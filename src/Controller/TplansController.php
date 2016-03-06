@@ -68,6 +68,15 @@ class TplansController extends AppController {
         $info['teaching_hrs_per_class']=2;
         $info['semester_seq']=2; // 1st or 2nd
 
+        //$element=['start_week'=>1,'stop_week'=>2,
+            //'a'=>'A. Class orientation. B. People in my life.',
+            //'b'=>'A. 1. Discuss the grading system and basis for final grade/score. 2. Rules in classs. B. 1. Ask: Can you tell me who are the people in your life? 2. Direct students\'attention to the pictures and present the vocabulary.'];
+        $element=['start_week'=>1,'stop_week'=>2,
+            'a'=>'Class orientation.',
+            'b'=>'Discuss the grading system.'];
+        $info['elements']=[];
+        $info['elements'][] = $element;
+
         // 1.2 Initialize the pdf
         require('tcpdf.php');
 
@@ -91,7 +100,7 @@ class TplansController extends AppController {
         $this->emitFrontCover($info,$pdf,10,10);
 
         // 3. The Plan Elements
-        $pdf->AddPage();
+        //$pdf->AddPage();
 
         // The Plan Elements are each printed across one side of two consecutive pages.
 
@@ -111,19 +120,24 @@ class TplansController extends AppController {
         // Our basic strategy will be to determine how many extra sheets of paper are required
         // and then emit 10 (plan elements or blank elements) to fill each extra sheet.
         // Then continue to emit 10 () to fill the final set of two-pages.
-        $tplanElementCnt=4;
+        $tplanElementCnt=count($info['elements']);
         $extraSheetCnt=intval(($tplanElementCnt+5)/10); // model this in excel and see that it works
 
+        $tplanElementIdx=0;
         while($extraSheetCnt>0) {
             // emit the next 10 (plan elements or blank elements)
-            $this->emitPageLeft($info,$pdf,5,5);
-            $this->emitPageRight($info,$pdf,5,5);
+            //$this->emitPageLeft($info,$pdf,5,5);
+            //$this->emitPageRight($info,$pdf,5,5);
+            $this->emitLeftAndRightPages($info,$pdf,$tplanElementIdx,false);
             $extraSheetCnt--;
         }
 
-        $this->emitPageLeft($info,$pdf,5,5);
-        $pdf->AddPage();
-        $this->emitPageRight($info,$pdf,5,5);
+        //$tplanElememntsToPrint=$tplanElementCnt-$tplanElementIdx;
+        //if ($tplanElememntsToPrint)
+        //$this->emitPageLeft($info,$pdf,5,5);
+        //$pdf->AddPage();
+        //$this->emitPageRight($info,$pdf,5,5);
+        $tplanElementIdx+=$this->emitLeftAndRightPages($info,$pdf,$tplanElementIdx,true);
 
         // 3. Rear cover
         $pdf->AddPage();
@@ -133,6 +147,14 @@ class TplansController extends AppController {
         $pdf->Output();
         $this->response->type('application/pdf');
         return $this->response;
+    }
+
+    // The left and right pages are logically one unit and there's some overlapping code.
+    private function emitLeftAndRightPages($info,$pdf,$tplanElementIdx,$lastSheet) {
+        $pdf->AddPage();
+        $elementOutputCnt=$this->emitPageLeft($info,$pdf,$tplanElementIdx,$lastSheet,5,5);
+        $pdf->AddPage();
+        $elementOutputCnt=$this->emitPageRight($info,$pdf,$tplanElementIdx,$lastSheet,5,5);
     }
 
     // Emit a line, but apply an x,y offset to the endpoints.
@@ -315,13 +337,11 @@ class TplansController extends AppController {
         $pdf->Cell(126,7,'附注: 本日历一式三份, 一份存教务处,一份存教研室, 一份讲授者保存',0,0,'C');
     }
 
-    private function emitPageLeft($info,$pdf,$ox=0,$oy=0) {
+    private function emitPageLeft($info,$pdf,$tplanElementIdx,$lastSheet,$ox=0,$oy=0) {
 
-        $pdf->SetFontSize(12);
+        $pdf->SetFontSize(10);
 
         // Draw the header box
-        //$offsetX=5;
-        //$offsetY=5;
         $leftX = 0;
         $rightX = 154;
         $topY = 0;
@@ -332,12 +352,13 @@ class TplansController extends AppController {
         $this->dmLine($pdf,$leftX, $topY,   $rightX,$topY,$ox,$oy); // h
         $this->dmLine($pdf,$leftX, $bottomY,$rightX,$bottomY,$ox,$oy); // h
 
-        // Draw the vertical lines
+        // Draw the vertical lines for the header
         $this->dmLine($pdf,$leftX+18, $topY,   $leftX+18, $bottomY,$ox,$oy); // v
         $this->dmLine($pdf,$leftX+41, $topY,   $leftX+41, $bottomY,$ox,$oy); // v
         $this->dmLine($pdf,$leftX+89, $topY,   $leftX+89, $bottomY,$ox,$oy); // v
         $this->dmLine($pdf,$leftX+137, $topY,   $leftX+137, $bottomY,$ox,$oy); // v
 
+        // Labels for the header
         $this->dmSetXY($pdf,7,12,$ox,$oy);
         $pdf->Cell(5,7,'月',0,0,'C');
         $this->dmSetXY($pdf,7,18,$ox,$oy);
@@ -361,17 +382,20 @@ class TplansController extends AppController {
         $this->dmSetXY($pdf,143,21,$ox,$oy);
         $pdf->Cell(5,7,'时',0,0,'C');
 
+        // Determine how many elements to emit.  Whether an element is filled or blank will
+        // be determined later.
+        $lastSheet ? $elementCnt=4 : $elementCnt=5;
 
-        // Emit the next 4 (plan elements or blank elements)
-        for($i=0; $i<4; $i++) {
+        // Emit the next (plan elements or blank elements)
+        for($i=0; $i<$elementCnt; $i++) {
 
             // I need this again because something (I think SetXY) resets it.
             $pdf->SetLineWidth(0.5);
 
+            // Print the box
             $offsetY2=37+$i*36;
             $this->dmLine($pdf,$leftX, $topY,   $leftX, $bottomY, $ox,$oy+$offsetY2); // v
             $this->dmLine($pdf,$rightX,$topY,   $rightX,$bottomY, $ox,$oy+$offsetY2); // v
-            //$this->dmLine($pdf,$leftX, $topY,   $rightX,$topY, $ox,$oy+$offsetY2); // h
             $this->dmLine($pdf,$leftX, $bottomY,$rightX,$bottomY, $ox,$oy+$offsetY2); // h
 
             // Draw the vertical lines
@@ -385,21 +409,45 @@ class TplansController extends AppController {
             $hz=$this->itohz($i+1);
             $pdf->Cell(13,7,'第'.$hz.'周',0,0,'C');
 
-            $this->dmSetXY($pdf,18,19,$ox,$oy+$offsetY2);
-            $pdf->Cell(20,7,'从   到',0,0,'C');
-            $this->dmLine($pdf,26, 25,30,25, $ox,$oy+$offsetY2); // h
-            $this->dmLine($pdf,34, 25,38,25, $ox,$oy+$offsetY2); // h
+            $this->dmSetXY($pdf, 18, 19, $ox, $oy + $offsetY2);
+            $pdf->Cell(20, 7, '从   到', 0, 0, 'C');
+            $this->dmLine($pdf, 26, 25, 30, 25, $ox, $oy + $offsetY2); // h
+            $this->dmLine($pdf, 34, 25, 38, 25, $ox, $oy + $offsetY2); // h
+
+            //$element=['start_week'=>1,'stop_week'=>2,
+                //'a'=>'A. Class orientation. B. People in my life.',
+                //'b'=>'A. 1. Discuss the grading system and basis for final grade/score. 2. Rules in classs. B. 1. Ask: Can you tell me who are the people in your life? 2. Direct students\'attention to the pictures and present the vocabulary.'];
+            //$info['elements']=[];
+            //$info['elements'][] = $element;
+
+            // Now print the contents, if any
+            $elementsPrintedCnt=0;
+            if($tplanElementIdx<1) {
+                $element=$info['elements'][$tplanElementIdx];
+
+                // The start and stop weeks
+                $this->dmSetXY($pdf, 26, 18, $ox, $oy + $offsetY2);
+                $pdf->Cell(5, 7, $element['start_week'], 0, 0, 'R');
+                $this->dmSetXY($pdf, 34, 18, $ox, $oy + $offsetY2);
+                $pdf->Cell(5, 7, $element['stop_week'], 0, 0, 'R');
+
+                // a
+                $this->dmSetXY($pdf, 41, 1, $ox, $oy + $offsetY2);
+                $pdf->Cell(5, 7, $element['a'], 0, 0, 'L');
+
+                $elementsPrintedCnt++;
+                $tplanElementIdx++;
+            }
 
         }
-
-        // Emit the signature block
+        return $elementsPrintedCnt;
     }
     private function itohz($i) {
         $a=['','一','二','三','四'];
         return $a[$i];
     }
 
-    private function emitPageRight($info,$pdf,$ox=0,$oy=0) {
+    private function emitPageRight($info,$pdf,$tplanElementIdx,$lastSheet,$ox=0,$oy=0) {
 
         $pdf->SetFontSize(10);
 
@@ -414,12 +462,12 @@ class TplansController extends AppController {
         $this->dmLine($pdf,$leftX, $topY,   $rightX,$topY,$ox,$oy); // h
         $this->dmLine($pdf,$leftX, $bottomY,$rightX,$bottomY,$ox,$oy); // h
 
-        // Draw the vertical lines
+        // Draw the vertical lines for the header
         $this->dmLine($pdf,$leftX+60, $topY,   $leftX+60, $bottomY,$ox,$oy); // v
         $this->dmLine($pdf,$leftX+121, $topY,   $leftX+121, $bottomY,$ox,$oy); // v
         $this->dmLine($pdf,$leftX+137, $topY,   $leftX+137, $bottomY,$ox,$oy); // v
 
-
+        // Labels for the header
         $this->dmSetXY($pdf,15,14,$ox,$oy);
         $pdf->Cell(27,7,'阅读主要参考书',0,0,'C');
 
@@ -432,17 +480,20 @@ class TplansController extends AppController {
         $this->dmSetXY($pdf,140,14,$ox,$oy);
         $pdf->Cell(11,7,'备注',0,0,'C');
 
+        // Determine how many elements to emit.  Whether an element is filled or blank will
+        // be determined later.
+        $lastSheet ? $elementCnt=4 : $elementCnt=5;
 
-        // Emit the next 4 (plan elements or blank elements)
-        for($i=0; $i<4; $i++) {
+        // Emit the next (plan elements or blank elements)
+        for($i=0; $i<$elementCnt; $i++) {
 
             // I need this again because something (I think SetXY) resets it.
             $pdf->SetLineWidth(0.5);
 
+            // Print the box
             $offsetY2=37+$i*36;
             $this->dmLine($pdf,$leftX, $topY,   $leftX, $bottomY, $ox,$oy+$offsetY2); // v
             $this->dmLine($pdf,$rightX,$topY,   $rightX,$bottomY, $ox,$oy+$offsetY2); // v
-            //$this->dmLine($pdf,$leftX, $topY,   $rightX,$topY); // h
             $this->dmLine($pdf,$leftX, $bottomY,$rightX,$bottomY, $ox,$oy+$offsetY2); // h
 
             // Draw the vertical lines
@@ -450,28 +501,46 @@ class TplansController extends AppController {
             $this->dmLine($pdf,$leftX+121, $topY,   $leftX+121, $bottomY, $ox,$oy+$offsetY2); // v
             $this->dmLine($pdf,$leftX+137, $topY,   $leftX+137, $bottomY, $ox,$oy+$offsetY2); // v
 
+            // Now print the contents, if any
+            $elementsPrintedCnt=0;
+            if($tplanElementIdx<1) {
+                $element=$info['elements'][$tplanElementIdx];
+
+                // b
+                $this->dmSetXY($pdf, 60, 1, $ox, $oy + $offsetY2);
+                $pdf->Cell(5, 7, $element['b'], 0, 0, 'L');
+
+                $elementsPrintedCnt++;
+                $tplanElementIdx++;
+            }
+
         }
 
-        //$pdf->SetLineWidth(0.3);
 
-        $this->dmSetXY($pdf,0,207,$ox,$oy);
-        $pdf->Cell(19,7,'主 讲 老 师',0,0,'L');
-        $this->dmLine($pdf,19,212,43,212, $ox,$oy); // h
+        // Emit signature block, if necessary
+        if($lastSheet) {
+            $this->dmSetXY($pdf, 0, 207, $ox, $oy);
+            $pdf->Cell(19, 7, '主 讲 老 师', 0, 0, 'L');
+            $this->dmLine($pdf, 19, 212, 43, 212, $ox, $oy); // h
 
-        $this->dmSetXY($pdf,0,215,$ox,$oy);
-        $pdf->Cell(19,7,'教研室主任',0,0,'L');
-        $this->dmLine($pdf,19,220,43,220, $ox,$oy); // h
+            $this->dmSetXY($pdf, 0, 215, $ox, $oy);
+            $pdf->Cell(19, 7, '教研室主任', 0, 0, 'L');
+            $this->dmLine($pdf, 19, 220, 43, 220, $ox, $oy); // h
 
-        $this->dmSetXY($pdf,100,207,$ox,$oy);
-        $pdf->Cell(12,7,'系主任',0,0,'L');
-        $this->dmLine($pdf,112,212,149,212, $ox,$oy); // h
+            $this->dmSetXY($pdf, 100, 207, $ox, $oy);
 
-        $this->dmSetXY($pdf,100,215,$ox,$oy);
-        $pdf->Cell(10,7,'日期',0,0,'L');
-        $this->dmSetXY($pdf,117,215,$ox,$oy);
-        $pdf->Cell(100,7,'年           月           日',0,0,'L');
-        // Emit the signature block
+            $pdf->Cell(12, 7, '系主任', 0, 0, 'L');
+            $this->dmLine($pdf, 112, 212, 149, 212, $ox, $oy); // h
+
+            $this->dmSetXY($pdf, 100, 215, $ox, $oy);
+            $pdf->Cell(10, 7, '日期', 0, 0, 'L');
+            $this->dmSetXY($pdf, 117, 215, $ox, $oy);
+            $pdf->Cell(100, 7, '年           月           日', 0, 0, 'L');
+        }
+
+        return $elementsPrintedCnt;
     }
+
     public function view($id = null) {
         $this->request->allowMethod(['get']);
         $tplan = $this->Tplans->get($id,['contain' => ['TplanElements']]);
