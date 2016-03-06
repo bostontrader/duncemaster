@@ -82,7 +82,11 @@ class TplansController extends AppController {
         $pdf->setPrintHeader(false);
         $pdf->setPrintFooter(false);
 
+        
         // 2. Page 1, The cover
+        //$pdf->AddPage();
+        //$this->emitPageLeft($info,$pdf,0,0);
+
         $pdf->AddPage();
         $this->emitFrontCover($info,$pdf,10,10);
 
@@ -112,17 +116,14 @@ class TplansController extends AppController {
 
         while($extraSheetCnt>0) {
             // emit the next 10 (plan elements or blank elements)
-            $this->emitPageLeft();
-            $this->emitPageRight();
+            $this->emitPageLeft($info,$pdf,5,5);
+            $this->emitPageRight($info,$pdf,5,5);
             $extraSheetCnt--;
         }
 
-        $this->emitPageLeft($pdf);
+        $this->emitPageLeft($info,$pdf,5,5);
         $pdf->AddPage();
-        $this->emitPageRight($pdf);
-        // Draw the header box
-
-
+        $this->emitPageRight($info,$pdf,5,5);
 
         // 3. Rear cover
         $pdf->AddPage();
@@ -149,15 +150,15 @@ class TplansController extends AppController {
 
         // 2.1 shandong Lǚyóu zhíyè xuéyuàn
         // Shandong College of Tourism and Hospitality
-        $pdf->SetFontSize(21);
+        $pdf->SetFontSize(20);
         $this->dmSetXY($pdf,44,20,$ox,$oy);
         $pdf->Cell(74,8,'山 东 旅 游 职 业 学 院',0,0,'C');
 
         // 2.2 jia4oxue2 ri4li4
         // Teaching plan
-        $pdf->SetFontSize(40);
+        $pdf->SetFontSize(39);
         $this->dmSetXY($pdf,21,37,$ox,$oy);
-        $pdf->Cell(123,18,'教     学     日     历',0,0,'C');
+        $pdf->Cell(123,18,'教      学      日      历',0,0,'C');
 
         // 2.3 ke4che2ng mi2ngche1ng
         // Course title
@@ -218,65 +219,65 @@ class TplansController extends AppController {
 
 
         // 2.7
-        $this->dmSetXY($pdf,37,129,$ox,$oy);
+        $this->dmSetXY($pdf,37,133,$ox,$oy);
         $pdf->Cell(17,7,'周   数',0,0,'C');
 
-        $this->dmSetXY($pdf,57,128,$ox,$oy);
+        $this->dmSetXY($pdf,57,132,$ox,$oy);
         $pdf->Cell(20,8,$info['class_cnt'],0,0,'R');
 
-        $this->dmLine($pdf,54,135,118,135,$ox,$oy); // h
+        $this->dmLine($pdf,54,139,118,139,$ox,$oy); // h
 
 
         // 2.8
-        $this->dmSetXY($pdf,37,138,$ox,$oy);
+        $this->dmSetXY($pdf,37,142,$ox,$oy);
         $pdf->Cell(17,7,'讲   课',0,0,'C');
-        $this->dmSetXY($pdf,57,137,$ox,$oy);
+        $this->dmSetXY($pdf,57,141,$ox,$oy);
         $pdf->Cell(20,8,$info['teaching_hrs_per_class'],0,0,'R');
-        $this->dmLine($pdf,54,144,105,144,$ox,$oy); // h
+        $this->dmLine($pdf,54,148,105,148,$ox,$oy); // h
 
-        $this->dmSetXY($pdf,106,138,$ox,$oy);
+        $this->dmSetXY($pdf,106,142,$ox,$oy);
         $pdf->Cell(13,7,'学时',0,0,'C');
 
 
         // 2.9
-        $this->dmSetXY($pdf,37,147,$ox,$oy);
+        $this->dmSetXY($pdf,37,151,$ox,$oy);
         $pdf->Cell(17,7,'实习课',0,0,'C');
-        $this->dmLine($pdf,54,153,105,153,$ox,$oy); // h
-        $this->dmSetXY($pdf,106,147,$ox,$oy);
+        $this->dmLine($pdf,54,157,105,157,$ox,$oy); // h
+        $this->dmSetXY($pdf,106,151,$ox,$oy);
         $pdf->Cell(13,7,'学时',0,0,'C');
 
 
         // 2.10
-        $this->dmSetXY($pdf,37,156,$ox,$oy);
+        $this->dmSetXY($pdf,37,160,$ox,$oy);
         $pdf->Cell(17,7,'实   验',0,0,'C');
-        $this->dmLine($pdf,54,162,105,162,$ox,$oy); // h
-        $this->dmSetXY($pdf,106,156,$ox,$oy);
+        $this->dmLine($pdf,54,166,105,166,$ox,$oy); // h
+        $this->dmSetXY($pdf,106,160,$ox,$oy);
         $pdf->Cell(13,7,'学时',0,0,'C');
 
 
         // 2.11
-        $this->dmSetXY($pdf,37,165,$ox,$oy);
+        $this->dmSetXY($pdf,37,169,$ox,$oy);
         $pdf->Cell(17,7,'总   计',0,0,'C');
 
-        $this->dmSetXY($pdf,57,165,$ox,$oy);
+        $this->dmSetXY($pdf,57,169,$ox,$oy);
         $pdf->Cell(20,8,$info['teaching_hrs_per_class']*$info['class_cnt'],0,0,'R');
 
-        $this->dmLine($pdf,54,172,105,172,$ox,$oy); // h
+        $this->dmLine($pdf,54,176,105,176,$ox,$oy); // h
 
-        $this->dmSetXY($pdf,106,165,$ox,$oy);
+        $this->dmSetXY($pdf,106,169,$ox,$oy);
         $pdf->Cell(13,7,'学时',0,0,'C');
 
 
         // 2.12
-        $this->dmSetXY($pdf,34,204,$ox,$oy);
+        $this->dmSetXY($pdf,34,208,$ox,$oy);
         $pdf->Cell(30,7,'2015-2016',0,0,'C');
-        $this->dmSetXY($pdf,80,204,$ox,$oy);
+        $this->dmSetXY($pdf,80,208,$ox,$oy);
         $pdf->Cell(21,7,'学年第',0,0,'C');
 
-        $this->dmSetXY($pdf,100,204,$ox,$oy);
+        $this->dmSetXY($pdf,100,208,$ox,$oy);
         $pdf->Cell(8,8,$info['semester_seq'],0,0,'C');
 
-        $this->dmSetXY($pdf,109,204,$ox,$oy);
+        $this->dmSetXY($pdf,109,208,$ox,$oy);
         $pdf->Cell(11,7,'学期',0,0,'C');
     }
 
@@ -295,169 +296,180 @@ class TplansController extends AppController {
 
         $pdf->SetFontSize(12);
         $this->dmSetXY($pdf,6,7,$ox,$oy);
-        $pdf->Cell(48,5,'检查本日历完成情况的结果',1,0,'C');
+        $pdf->Cell(48,5,'检查本日历完成情况的结果:',0,0,'C');
 
         $this->dmSetXY($pdf,24,192,$ox,$oy);
-        $pdf->Cell(11,7,'检查者',1,0,'C');
-        $this->dmLine($pdf,35,197,61,197,$ox,$oy); // h
+        $pdf->Cell(11,7,'检查者',0,0,'C');
+        $this->dmLine($pdf,36,197,61,197,$ox,$oy); // h
         $this->dmSetXY($pdf,32,203,$ox,$oy);
-        $pdf->Cell(35,7,'年         月         日',1,0,'C');
+        $pdf->Cell(35,7,'年         月         日',0,0,'C');
 
         $this->dmSetXY($pdf,87,192,$ox,$oy);
-        $pdf->Cell(15,7,'主讲教师',1,0,'C');
-        $this->dmLine($pdf,102,197,133,197,$ox,$oy); // h
+        $pdf->Cell(15,7,'主讲教师',0,0,'C');
+        $this->dmLine($pdf,103,197,133,197,$ox,$oy); // h
 
         $this->dmSetXY($pdf,99,203,$ox,$oy);
-        $pdf->Cell(35,7,'年         月         日',1,0,'C');
+        $pdf->Cell(35,7,'年         月         日',0,0,'C');
 
         $this->dmSetXY($pdf,5,215,$ox,$oy);
-        $pdf->Cell(126,7,'附注: 本日历一式三份, 一份存教务处,一份存教研室, 一份讲授者保存',1,0,'C');
+        $pdf->Cell(126,7,'附注: 本日历一式三份, 一份存教务处,一份存教研室, 一份讲授者保存',0,0,'C');
     }
 
-    private function emitPageLeft($pdf) {
+    private function emitPageLeft($info,$pdf,$ox=0,$oy=0) {
+
+        $pdf->SetFontSize(12);
+
         // Draw the header box
-        $offsetX=5;
-        $offsetY=5;
+        //$offsetX=5;
+        //$offsetY=5;
         $leftX = 0;
         $rightX = 154;
         $topY = 0;
         $bottomY = 37;
         $pdf->SetLineWidth(0.5);
-        $pdf->Line($leftX+$offsetX, $topY+$offsetY,   $leftX+$offsetX, $bottomY+$offsetY); // v
-        $pdf->Line($rightX+$offsetX,$topY+$offsetY,   $rightX+$offsetX,$bottomY+$offsetY); // v
-        $pdf->Line($leftX+$offsetX, $topY+$offsetY,   $rightX+$offsetX,$topY+$offsetY); // h
-        $pdf->Line($leftX+$offsetX, $bottomY+$offsetY,$rightX+$offsetX,$bottomY+$offsetY); // h
+        $this->dmLine($pdf,$leftX, $topY,   $leftX, $bottomY,$ox,$oy); // v
+        $this->dmLine($pdf,$rightX,$topY,   $rightX,$bottomY,$ox,$oy); // v
+        $this->dmLine($pdf,$leftX, $topY,   $rightX,$topY,$ox,$oy); // h
+        $this->dmLine($pdf,$leftX, $bottomY,$rightX,$bottomY,$ox,$oy); // h
 
         // Draw the vertical lines
-        $pdf->Line($leftX+18+$offsetX, $topY+$offsetY,   $leftX+18+$offsetX, $bottomY+$offsetY); // v
-        $pdf->Line($leftX+41+$offsetX, $topY+$offsetY,   $leftX+41+$offsetX, $bottomY+$offsetY); // v
-        $pdf->Line($leftX+89+$offsetX, $topY+$offsetY,   $leftX+89+$offsetX, $bottomY+$offsetY); // v
-        $pdf->Line($leftX+137+$offsetX, $topY+$offsetY,   $leftX+137+$offsetX, $bottomY+$offsetY); // v
+        $this->dmLine($pdf,$leftX+18, $topY,   $leftX+18, $bottomY,$ox,$oy); // v
+        $this->dmLine($pdf,$leftX+41, $topY,   $leftX+41, $bottomY,$ox,$oy); // v
+        $this->dmLine($pdf,$leftX+89, $topY,   $leftX+89, $bottomY,$ox,$oy); // v
+        $this->dmLine($pdf,$leftX+137, $topY,   $leftX+137, $bottomY,$ox,$oy); // v
 
-        $pdf->SetXY(5,14);
-        $pdf->Cell(5,7,'月',1,0,'C');
-        $pdf->SetXY(5,20);
-        $pdf->Cell(5,7,'份',1,0,'C');
+        $this->dmSetXY($pdf,7,12,$ox,$oy);
+        $pdf->Cell(5,7,'月',0,0,'C');
+        $this->dmSetXY($pdf,7,18,$ox,$oy);
+        $pdf->Cell(5,7,'份',0,0,'C');
 
-        $pdf->SetXY(35,16);
-        $pdf->Cell(15,7,'周   次',1,0,'C');
-        //$pdf->SetXY(100,40);
-        //$pdf->Cell(100,0,'次',0,0,'C');
+        $this->dmSetXY($pdf,23,15,$ox,$oy);
+        $pdf->Cell(15,7,'周   次',0,0,'C');
 
-        $pdf->SetXY(54,13);
-        $pdf->Cell(20,7,'讲    课',1,0,'C');
-        //$pdf->SetXY(100,60);
-        //$pdf->Cell(100,0,'课',0,0,'C');
-        $pdf->SetXY(47,19);
-        $pdf->Cell(34,7,'（教学大纲章节题目）',1,0,'C');
+        $this->dmSetXY($pdf,54,12,$ox,$oy);
+        $pdf->Cell(20,7,'讲    课',0,0,'C');
+        $this->dmSetXY($pdf,47,18,$ox,$oy);
+        $pdf->Cell(34,7,'（教学大纲章节题目）',0,0,'C');
 
-        $pdf->SetXY(95,13);
-        $pdf->Cell(34,7,'实验习题课课堂',1,0,'C');
-        $pdf->SetXY(95,19);
-        $pdf->Cell(34,7,'讨论及其它作业题目',1,0,'C');
+        $this->dmSetXY($pdf,95,12,$ox,$oy);
+        $pdf->Cell(34,7,'实验,  习题课,  课堂',0,0,'C');
+        $this->dmSetXY($pdf,95,18,$ox,$oy);
+        $pdf->Cell(34,7,'讨论及其它作业题目',0,0,'C');
 
-        $pdf->SetXY(143,11);
-        $pdf->Cell(5,7,'课',1,0,'C');
-        $pdf->SetXY(143,21);
-        $pdf->Cell(5,7,'时',1,0,'C');
-
+        $this->dmSetXY($pdf,143,11,$ox,$oy);
+        $pdf->Cell(5,7,'课',0,0,'C');
+        $this->dmSetXY($pdf,143,21,$ox,$oy);
+        $pdf->Cell(5,7,'时',0,0,'C');
 
 
         // Emit the next 4 (plan elements or blank elements)
         for($i=0; $i<4; $i++) {
+
+            // I need this again because something (I think SetXY) resets it.
+            $pdf->SetLineWidth(0.5);
+
             $offsetY2=37+$i*36;
-            $pdf->Line($leftX+$offsetX, $topY+$offsetY+$offsetY2,   $leftX+$offsetX, $bottomY+$offsetY+$offsetY2); // v
-            $pdf->Line($rightX+$offsetX,$topY+$offsetY+$offsetY2,   $rightX+$offsetX,$bottomY+$offsetY+$offsetY2); // v
-            $pdf->Line($leftX+$offsetX, $topY+$offsetY+$offsetY2,   $rightX+$offsetX,$topY+$offsetY+$offsetY2); // h
-            $pdf->Line($leftX+$offsetX, $bottomY+$offsetY+$offsetY2,$rightX+$offsetX,$bottomY+$offsetY+$offsetY2); // h
+            $this->dmLine($pdf,$leftX, $topY,   $leftX, $bottomY, $ox,$oy+$offsetY2); // v
+            $this->dmLine($pdf,$rightX,$topY,   $rightX,$bottomY, $ox,$oy+$offsetY2); // v
+            //$this->dmLine($pdf,$leftX, $topY,   $rightX,$topY, $ox,$oy+$offsetY2); // h
+            $this->dmLine($pdf,$leftX, $bottomY,$rightX,$bottomY, $ox,$oy+$offsetY2); // h
 
             // Draw the vertical lines
-            $pdf->Line($leftX+18+$offsetX, $topY+$offsetY+$offsetY2,   $leftX+18+$offsetX, $bottomY+$offsetY+$offsetY2); // v
-            $pdf->Line($leftX+41+$offsetX, $topY+$offsetY+$offsetY2,   $leftX+41+$offsetX, $bottomY+$offsetY+$offsetY2); // v
-            $pdf->Line($leftX+89+$offsetX, $topY+$offsetY+$offsetY2,   $leftX+89+$offsetX, $bottomY+$offsetY+$offsetY2); // v
-            $pdf->Line($leftX+137+$offsetX, $topY+$offsetY+$offsetY2,   $leftX+137+$offsetX, $bottomY+$offsetY+$offsetY2); // v
+            $this->dmLine($pdf,$leftX+18, $topY,   $leftX+18, $bottomY, $ox,$oy+$offsetY2); // v
+            $this->dmLine($pdf,$leftX+41, $topY,   $leftX+41, $bottomY, $ox,$oy+$offsetY2); // v
+            $this->dmLine($pdf,$leftX+89, $topY,   $leftX+89, $bottomY, $ox,$oy+$offsetY2); // v
+            $this->dmLine($pdf,$leftX+137, $topY,   $leftX+137, $bottomY, $ox,$oy+$offsetY2); // v
 
+            // Which week?
+            $this->dmSetXY($pdf,22,13,$ox,$oy+$offsetY2);
+            $hz=$this->itohz($i+1);
+            $pdf->Cell(13,7,'第'.$hz.'周',0,0,'C');
 
-            $pdf->SetXY(20,17+$offsetY+$offsetY2);
-            $pdf->Cell(13,7,'第一周',1,0,'C');
-            $pdf->SetXY(20,23+$offsetY+$offsetY2);
-            $pdf->Cell(20,7,'从   到',1,0,'C');
+            $this->dmSetXY($pdf,18,19,$ox,$oy+$offsetY2);
+            $pdf->Cell(20,7,'从   到',0,0,'C');
+            $this->dmLine($pdf,26, 25,30,25, $ox,$oy+$offsetY2); // h
+            $this->dmLine($pdf,34, 25,38,25, $ox,$oy+$offsetY2); // h
 
         }
 
         // Emit the signature block
     }
-    private function emitPageRight($pdf) {
+    private function itohz($i) {
+        $a=['','一','二','三','四'];
+        return $a[$i];
+    }
+
+    private function emitPageRight($info,$pdf,$ox=0,$oy=0) {
+
+        $pdf->SetFontSize(10);
+
         // Draw the header box
-        $offsetX=5;
-        $offsetY=5;
         $leftX = 0;
         $rightX = 154;
         $topY = 0;
         $bottomY = 37;
         $pdf->SetLineWidth(0.5);
-        $pdf->Line($leftX+$offsetX, $topY+$offsetY,   $leftX+$offsetX, $bottomY+$offsetY); // v
-        $pdf->Line($rightX+$offsetX,$topY+$offsetY,   $rightX+$offsetX,$bottomY+$offsetY); // v
-        $pdf->Line($leftX+$offsetX, $topY+$offsetY,   $rightX+$offsetX,$topY+$offsetY); // h
-        $pdf->Line($leftX+$offsetX, $bottomY+$offsetY,$rightX+$offsetX,$bottomY+$offsetY); // h
+        $this->dmLine($pdf,$leftX, $topY,   $leftX, $bottomY,$ox,$oy); // v
+        $this->dmLine($pdf,$rightX,$topY,   $rightX,$bottomY,$ox,$oy); // v
+        $this->dmLine($pdf,$leftX, $topY,   $rightX,$topY,$ox,$oy); // h
+        $this->dmLine($pdf,$leftX, $bottomY,$rightX,$bottomY,$ox,$oy); // h
+
         // Draw the vertical lines
-        $pdf->Line($leftX+60+$offsetX, $topY+$offsetY,   $leftX+60+$offsetX, $bottomY+$offsetY); // v
-        $pdf->Line($leftX+121+$offsetX, $topY+$offsetY,   $leftX+121+$offsetX, $bottomY+$offsetY); // v
-        $pdf->Line($leftX+137+$offsetX, $topY+$offsetY,   $leftX+137+$offsetX, $bottomY+$offsetY); // v
+        $this->dmLine($pdf,$leftX+60, $topY,   $leftX+60, $bottomY,$ox,$oy); // v
+        $this->dmLine($pdf,$leftX+121, $topY,   $leftX+121, $bottomY,$ox,$oy); // v
+        $this->dmLine($pdf,$leftX+137, $topY,   $leftX+137, $bottomY,$ox,$oy); // v
 
 
-        $pdf->SetXY(15,16);
-        $pdf->Cell(27,7,'阅读主要参考书',1,0,'C');
+        $this->dmSetXY($pdf,15,14,$ox,$oy);
+        $pdf->Cell(27,7,'阅读主要参考书',0,0,'C');
 
-        $pdf->SetXY(73,16);
-        $pdf->Cell(34,7,'辅导形式和主要内容',1,0,'C');
+        $this->dmSetXY($pdf,73,14,$ox,$oy);
+        $pdf->Cell(34,7,'辅导形式和主要内容',0,0,'C');
 
-        $pdf->SetXY(125,16);
-        $pdf->Cell(10,7,'课时',1,0,'C');
+        $this->dmSetXY($pdf,125,14,$ox,$oy);
+        $pdf->Cell(10,7,'课时',0,0,'C');
 
-        $pdf->SetXY(140,16);
-        $pdf->Cell(11,7,'备注',1,0,'C');
-
-
+        $this->dmSetXY($pdf,140,14,$ox,$oy);
+        $pdf->Cell(11,7,'备注',0,0,'C');
 
 
         // Emit the next 4 (plan elements or blank elements)
         for($i=0; $i<4; $i++) {
+
+            // I need this again because something (I think SetXY) resets it.
+            $pdf->SetLineWidth(0.5);
+
             $offsetY2=37+$i*36;
-            $pdf->Line($leftX+$offsetX, $topY+$offsetY+$offsetY2,   $leftX+$offsetX, $bottomY+$offsetY+$offsetY2); // v
-            $pdf->Line($rightX+$offsetX,$topY+$offsetY+$offsetY2,   $rightX+$offsetX,$bottomY+$offsetY+$offsetY2); // v
-            $pdf->Line($leftX+$offsetX, $topY+$offsetY+$offsetY2,   $rightX+$offsetX,$topY+$offsetY+$offsetY2); // h
-            $pdf->Line($leftX+$offsetX, $bottomY+$offsetY+$offsetY2,$rightX+$offsetX,$bottomY+$offsetY+$offsetY2); // h
+            $this->dmLine($pdf,$leftX, $topY,   $leftX, $bottomY, $ox,$oy+$offsetY2); // v
+            $this->dmLine($pdf,$rightX,$topY,   $rightX,$bottomY, $ox,$oy+$offsetY2); // v
+            //$this->dmLine($pdf,$leftX, $topY,   $rightX,$topY); // h
+            $this->dmLine($pdf,$leftX, $bottomY,$rightX,$bottomY, $ox,$oy+$offsetY2); // h
 
             // Draw the vertical lines
-            //$pdf->Line($leftX+18+$offsetX, $topY+$offsetY+$offsetY2,   $leftX+18+$offsetX, $bottomY+$offsetY+$offsetY2); // v
-            //$pdf->Line($leftX+41+$offsetX, $topY+$offsetY+$offsetY2,   $leftX+41+$offsetX, $bottomY+$offsetY+$offsetY2); // v
-            //$pdf->Line($leftX+89+$offsetX, $topY+$offsetY+$offsetY2,   $leftX+89+$offsetX, $bottomY+$offsetY+$offsetY2); // v
-            //$pdf->Line($leftX+137+$offsetX, $topY+$offsetY+$offsetY2,   $leftX+137+$offsetX, $bottomY+$offsetY+$offsetY2); // v
-            // Draw the vertical lines
-            $pdf->Line($leftX+60+$offsetX, $topY+$offsetY+$offsetY2,   $leftX+60+$offsetX, $bottomY+$offsetY+$offsetY2); // v
-            $pdf->Line($leftX+121+$offsetX, $topY+$offsetY+$offsetY2,   $leftX+121+$offsetX, $bottomY+$offsetY+$offsetY2); // v
-            $pdf->Line($leftX+137+$offsetX, $topY+$offsetY+$offsetY2,   $leftX+137+$offsetX, $bottomY+$offsetY+$offsetY2); // v
-
-            //$pdf->SetXY(20,17+$offsetY+$offsetY2);
-            //$pdf->Cell(13,7,'第一周',1,0,'C');
-            //$pdf->SetXY(20,23+$offsetY+$offsetY2);
-            //$pdf->Cell(20,7,'从   到',1,0,'C');
+            $this->dmLine($pdf,$leftX+60, $topY,   $leftX+60, $bottomY, $ox,$oy+$offsetY2); // v
+            $this->dmLine($pdf,$leftX+121, $topY,   $leftX+121, $bottomY, $ox,$oy+$offsetY2); // v
+            $this->dmLine($pdf,$leftX+137, $topY,   $leftX+137, $bottomY, $ox,$oy+$offsetY2); // v
 
         }
 
+        //$pdf->SetLineWidth(0.3);
 
-        $pdf->SetXY(0,100);
-        $pdf->Cell(19,7,'主讲老师',1,0,'C');
+        $this->dmSetXY($pdf,0,207,$ox,$oy);
+        $pdf->Cell(19,7,'主 讲 老 师',0,0,'L');
+        $this->dmLine($pdf,19,212,43,212, $ox,$oy); // h
 
-        $pdf->SetXY(0,120);
-        $pdf->Cell(19,7,'教研室主任',1,0,'C');
+        $this->dmSetXY($pdf,0,215,$ox,$oy);
+        $pdf->Cell(19,7,'教研室主任',0,0,'L');
+        $this->dmLine($pdf,19,220,43,220, $ox,$oy); // h
 
-        $pdf->SetXY(100,100);
-        $pdf->Cell(11,7,'系主任',1,0,'C');
+        $this->dmSetXY($pdf,100,207,$ox,$oy);
+        $pdf->Cell(12,7,'系主任',0,0,'L');
+        $this->dmLine($pdf,112,212,149,212, $ox,$oy); // h
 
-        $pdf->SetXY(100,120);
-        $pdf->Cell(100,7,'日期年月日',1,0,'C');
+        $this->dmSetXY($pdf,100,215,$ox,$oy);
+        $pdf->Cell(10,7,'日期',0,0,'L');
+        $this->dmSetXY($pdf,117,215,$ox,$oy);
+        $pdf->Cell(100,7,'年           月           日',0,0,'L');
         // Emit the signature block
     }
     public function view($id = null) {
