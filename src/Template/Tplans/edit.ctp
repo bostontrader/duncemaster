@@ -23,6 +23,4 @@
         <?= $this->Form->end() ?>
     </div>
 
-    <?= $this->element('tplan_elements_index') ?>
-
 </div>
