@@ -11,6 +11,10 @@
                 <th><?= __('Title') ?></th>
                 <td><?= $tplan->title ?></td>
             </tr>
+            <tr id="session_cnt">
+                <th><?= __('Sessions') ?></th>
+                <td><?= $tplan->session_cnt ?></td>
+            </tr>
         </table>
     </div>
 

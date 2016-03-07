@@ -64,6 +64,11 @@ class TplansController extends AppController {
 
         // 1.1 Obtain the data to print.
 
+        // 1.1.1 We'll obviously need info about the teaching plan itself, as well as
+        // its associated elements
+        $tplan_id=2; // hardwired example
+        $tplan = $this->Tplans->get($tplan_id,['contain' => 'TplanElements']);
+
         // 1.1.1 Get the header info.
         // This query finds all sections that use this teaching plan. Most of the selected
         // fields should be the same, such as the course title and teacher.  However, the cohorts
@@ -73,7 +78,7 @@ class TplansController extends AppController {
 
         $query = $tableSections->find('all')
             ->contain(['Cohorts.Majors','Semesters','Subjects','Teachers'])
-            ->where(['Sections.tplan_id'=>2]); // hardwired example tplan to use
+            ->where(['Sections.tplan_id'=>$tplan_id]);
 
         $cohortList = null;
         foreach($query as $tplanUser) {
@@ -83,12 +88,15 @@ class TplansController extends AppController {
 
         $n=$query->first();
 
+
+
+
         //$info['subject']=$n->Subjects->title;
         $info['subject']=$n->subject->title;
         $info['major']=$n->cohort->major->title;
         $info['cohorts']=$cohortList;
         $info['instructor']=$n->teacher->fam_name;
-        $info['class_cnt']=18;
+        $info['class_cnt']=$tplan['session_cnt'];
         $info['teaching_hrs_per_class']=2;
         $info['semester_seq']=2; // 1st or 2nd
 

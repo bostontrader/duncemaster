@@ -15,6 +15,7 @@
             <legend><?= __('Add Tplan') ?></legend>
             <?php
                 echo $this->Form->input('title',['id'=>'TplanTitle']);
+                echo $this->Form->input('session_cnt',['id'=>'TplanSessionCnt']);
             ?>
         </fieldset>
         <?= $this->Form->button(__('Submit')) ?>

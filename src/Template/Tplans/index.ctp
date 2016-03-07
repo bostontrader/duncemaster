@@ -17,6 +17,7 @@
             <thead>
                 <tr>
                     <th id="title"><?= __('Title') ?></th>
+                    <th id="session_cnt"><?= __('Sessions') ?></th>
                     <th id="actions" class="actions"><?= __('Actions') ?></th>
                 </tr>
             </thead>
@@ -24,6 +25,7 @@
                 <?php foreach ($tplans as $tplan): ?>
                 <tr>
                     <td><?= $tplan->title ?></td>
+                    <td><?= $tplan->session_cnt ?></td>
                     <td class="actions">
                         <?= $this->Html->link(__('View'), ['action' => 'view', $tplan->id],['name'=>'TplanView']) ?>
                         <?= $this->Html->link(__('Edit'), ['action' => 'edit', $tplan->id],['name'=>'TplanEdit']) ?>
