@@ -1,6 +1,8 @@
 <?php
 namespace App\Controller;
 
+use Cake\ORM\TableRegistry;
+
 class TplansController extends AppController {
 
     public function add() {
@@ -59,11 +61,33 @@ class TplansController extends AppController {
     public function pdf($id = null) {
 
         // 1. In the beginning...
+
         // 1.1 Obtain the data to print.
-        $info['subject']='Intro to Warp Theory';
-        $info['major']='Engineering';
-        $info['cohorts']='15A1, 15A2';
-        $info['instructor']='Spock';
+
+        // 1.1.1 Get the header info.
+        // This query finds all sections that use this teaching plan. Most of the selected
+        // fields should be the same, such as the course title and teacher.  However, the cohorts
+        // can be different.
+
+        $tableSections=TableRegistry::get('Sections');
+
+        $query = $tableSections->find('all')
+            ->contain(['Cohorts.Majors','Semesters','Subjects','Teachers'])
+            ->where(['Sections.tplan_id'=>2]); // hardwired example tplan to use
+
+        $cohortList = null;
+        foreach($query as $tplanUser) {
+            $cohortNickname=$tplanUser->cohort->nickname;
+            (is_null($cohortList)) ? $cohortList=$cohortNickname : $cohortList.=','.$cohortNickname;
+        }
+
+        $n=$query->first();
+
+        //$info['subject']=$n->Subjects->title;
+        $info['subject']=$n->subject->title;
+        $info['major']=$n->cohort->major->title;
+        $info['cohorts']=$cohortList;
+        $info['instructor']=$n->teacher->fam_name;
         $info['class_cnt']=18;
         $info['teaching_hrs_per_class']=2;
         $info['semester_seq']=2; // 1st or 2nd
@@ -126,17 +150,10 @@ class TplansController extends AppController {
         $tplanElementIdx=0;
         while($extraSheetCnt>0) {
             // emit the next 10 (plan elements or blank elements)
-            //$this->emitPageLeft($info,$pdf,5,5);
-            //$this->emitPageRight($info,$pdf,5,5);
             $this->emitLeftAndRightPages($info,$pdf,$tplanElementIdx,false);
             $extraSheetCnt--;
         }
 
-        //$tplanElememntsToPrint=$tplanElementCnt-$tplanElementIdx;
-        //if ($tplanElememntsToPrint)
-        //$this->emitPageLeft($info,$pdf,5,5);
-        //$pdf->AddPage();
-        //$this->emitPageRight($info,$pdf,5,5);
         $tplanElementIdx+=$this->emitLeftAndRightPages($info,$pdf,$tplanElementIdx,true);
 
         // 3. Rear cover
@@ -188,6 +205,7 @@ class TplansController extends AppController {
         $this->dmSetXY($pdf,37,77,$ox,$oy);
         $pdf->Cell(22,8,'课程名称',0,0,'C');
 
+        $pdf->SetFontSize(14);
         $this->dmSetXY($pdf,59,77,$ox,$oy);
         $pdf->Cell(100,8,$info['subject'],0,0,'L');
 
@@ -195,9 +213,11 @@ class TplansController extends AppController {
 
         // 2.4 zhua1n ye4
         // Profession
+        $pdf->SetFontSize(16);
         $this->dmSetXY($pdf,37,92,$ox,$oy);
         $pdf->Cell(11,8,'专业',0,0,'C');
 
+        $pdf->SetFontSize(14);
         $this->dmSetXY($pdf,48,92,$ox,$oy);
         $pdf->Cell(100,8,$info['major'],0,0,'L');
 
@@ -205,9 +225,11 @@ class TplansController extends AppController {
 
         // 2.5 nia2n ji2
         // Grade aka cohorts
+        $pdf->SetFontSize(16);
         $this->dmSetXY($pdf,82,92,$ox,$oy);
         $pdf->Cell(12,8,'年级',0,0,'C');
 
+        $pdf->SetFontSize(14);
         $this->dmSetXY($pdf,95,92,$ox,$oy);
         $pdf->Cell(100,8,$info['cohorts'],0,0,'L');
 
@@ -227,6 +249,7 @@ class TplansController extends AppController {
         $this->dmSetXY($pdf,47,103,$ox,$oy);
         $pdf->Cell(11,8,'姓名',0,0,'C');
 
+        $pdf->SetFontSize(14);
         $this->dmSetXY($pdf,57,103,$ox,$oy);
         $pdf->Cell(100,8,$info['instructor'],0,0,'L');
 
@@ -234,6 +257,7 @@ class TplansController extends AppController {
 
         // 2.6.2 zhi2 che1ng
         // Job title
+        $pdf->SetFontSize(16);
         $this->dmSetXY($pdf,87,103,$ox,$oy);
         $pdf->Cell(12,8,'职称',0,0,'C');
 
@@ -359,24 +383,35 @@ class TplansController extends AppController {
         $this->dmLine($pdf,$leftX+137, $topY,   $leftX+137, $bottomY,$ox,$oy); // v
 
         // Labels for the header
+
+        // Month
+        // yue4fe4n
         $this->dmSetXY($pdf,7,12,$ox,$oy);
         $pdf->Cell(5,7,'月',0,0,'C');
         $this->dmSetXY($pdf,7,18,$ox,$oy);
         $pdf->Cell(5,7,'份',0,0,'C');
 
+        // week
+        // zho1u ci4
         $this->dmSetXY($pdf,23,15,$ox,$oy);
         $pdf->Cell(15,7,'周   次',0,0,'C');
 
+        // Lecture (Syllabus chapter title)
+        // jia4oxue2 da4ga1ng zha1ngjie2 ti1mu4
         $this->dmSetXY($pdf,54,12,$ox,$oy);
         $pdf->Cell(20,7,'讲    课',0,0,'C');
         $this->dmSetXY($pdf,47,18,$ox,$oy);
         $pdf->Cell(34,7,'（教学大纲章节题目）',0,0,'C');
 
+        // Experiment, recitation, classroom, discussions and other job title
+        // shi2ya4n xi2ti2 ke4 ke4ta2ng ta3olu4n ji2 qi2ta1 zuo4ye4 ti2mu4
         $this->dmSetXY($pdf,95,12,$ox,$oy);
         $pdf->Cell(34,7,'实验,  习题课,  课堂',0,0,'C');
         $this->dmSetXY($pdf,95,18,$ox,$oy);
         $pdf->Cell(34,7,'讨论及其它作业题目',0,0,'C');
 
+        // Class
+        // Ke4shi2
         $this->dmSetXY($pdf,143,11,$ox,$oy);
         $pdf->Cell(5,7,'课',0,0,'C');
         $this->dmSetXY($pdf,143,21,$ox,$oy);
@@ -468,15 +503,24 @@ class TplansController extends AppController {
         $this->dmLine($pdf,$leftX+137, $topY,   $leftX+137, $bottomY,$ox,$oy); // v
 
         // Labels for the header
+
+        // Reading the main reference.
+        // Yue4 du2 zhu3ya4o ca1nka3o shu1
         $this->dmSetXY($pdf,15,14,$ox,$oy);
         $pdf->Cell(27,7,'阅读主要参考书',0,0,'C');
 
+        // Counseling form and the main content
+        // fu3da3o xi2ngshi4 he2 zhu3ya4o ne4iro2ng
         $this->dmSetXY($pdf,73,14,$ox,$oy);
         $pdf->Cell(34,7,'辅导形式和主要内容',0,0,'C');
 
+        // class
+        // ke4shi2
         $this->dmSetXY($pdf,125,14,$ox,$oy);
         $pdf->Cell(10,7,'课时',0,0,'C');
 
+        // remark
+        // be4izhu4
         $this->dmSetXY($pdf,140,14,$ox,$oy);
         $pdf->Cell(11,7,'备注',0,0,'C');
 
