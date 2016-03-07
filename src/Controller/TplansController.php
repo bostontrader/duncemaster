@@ -97,8 +97,11 @@ class TplansController extends AppController {
         $info['cohorts']=$cohortList;
         $info['instructor']=$n->teacher->fam_name;
         $info['class_cnt']=$tplan['session_cnt'];
-        $info['teaching_hrs_per_class']=2;
-        $info['semester_seq']=2; // 1st or 2nd
+        $info['teaching_hrs_per_class']=$n->thours;
+
+        // The desired semester sequence printed, is the reverse of
+        // what's in the db.
+        $info['semester_seq']=($n->semester->seq=1)?2:1;
 
         //$element=['start_week'=>1,'stop_week'=>2,
             //'a'=>'A. Class orientation. B. People in my life.',
