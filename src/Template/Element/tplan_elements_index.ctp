@@ -8,20 +8,27 @@
     <table id="TplanElementsTable" cellpadding="0" cellspacing="0">
         <thead>
             <tr>
+                <th id="start_thour"><?= __('Start Thour') ?></th>
+                <th id="stop_thour"><?= __('Stop Thour') ?></th>
                 <th id="col1"><?= __('Col1') ?></th>
                 <th id="col2"><?= __('Col2') ?></th>
+                <th id="col3"><?= __('Col3') ?></th>
+                <th id="col4"><?= __('Col4') ?></th>
                 <th id="actions" class="actions"><?= __('Actions') ?></th>
             </tr>
         </thead>
         <tbody>
             <?php foreach ($tplan_elements as $tplan_element): ?>
             <tr>
+                <td><?= $tplan_element->start_thour ?></td>
+                <td><?= $tplan_element->stop_thour ?></td>
                 <td><?= $tplan_element->col1 ?></td>
                 <td><?= $tplan_element->col2 ?></td>
+                <td><?= $tplan_element->col3 ?></td>
+                <td><?= $tplan_element->col4 ?></td>
                 <td class="actions">
-                    <?= $this->Html->link(__('View'), ['action' => 'view', $tplan_element->id],['name'=>'TplanElementView']) ?>
-                    <?= $this->Html->link(__('Edit'), ['action' => 'edit', $tplan_element->id],['name'=>'TplanElementEdit']) ?>
-                    <?= $this->Form->postLink(__('Delete'), ['action' => 'delete', $tplan_element->id], ['name'=>'TplanElementDelete','confirm' => __('Are you sure you want to delete # {0}?', $tplan_element->id)]) ?>
+                    <?= $this->Html->link(__('View'), ['controller'=>'TplanElements','action' => 'view', $tplan_element->id],['name'=>'TplanElementView']) ?>
+                    <?= $this->Html->link(__('Edit'), ['controller'=>'TplanElements','action' => 'edit', $tplan_element->id],['name'=>'TplanElementEdit']) ?>
                 </td>
             </tr>
             <?php endforeach; ?>

@@ -88,10 +88,6 @@ class TplansController extends AppController {
 
         $n=$query->first();
 
-
-
-
-        //$info['subject']=$n->Subjects->title;
         $info['subject']=$n->subject->title;
         $info['major']=$n->cohort->major->title;
         $info['cohorts']=$cohortList;
@@ -103,14 +99,22 @@ class TplansController extends AppController {
         // what's in the db.
         $info['semester_seq']=($n->semester->seq=1)?2:1;
 
-        //$element=['start_week'=>1,'stop_week'=>2,
-            //'a'=>'A. Class orientation. B. People in my life.',
-            //'b'=>'A. 1. Discuss the grading system and basis for final grade/score. 2. Rules in classs. B. 1. Ask: Can you tell me who are the people in your life? 2. Direct students\'attention to the pictures and present the vocabulary.'];
-        $element=['start_week'=>1,'stop_week'=>2,
-            'a'=>'Class orientation.',
-            'b'=>'Discuss the grading system.'];
+
         $info['elements']=[];
-        $info['elements'][] = $element;
+
+        // Now iterate over all the TplanElements
+        foreach($tplan->tplan_elements as $tplanElement) {
+            $element=[
+                //'start_thour'=>1,'stop_thour'=>2,
+                'start_thour'=>$tplanElement->start_thour,
+                'stop_thour'=>$tplanElement->stop_thour,
+                'col1'=>$tplanElement->col1,
+                'col2'=>$tplanElement->col2,
+                'col3'=>$tplanElement->col3,
+                'col4'=>$tplanElement->col4,
+            ];
+            $info['elements'][] = $element;
+        }
 
         // 1.2 Initialize the pdf
         require('tcpdf.php');
@@ -433,6 +437,8 @@ class TplansController extends AppController {
         $lastSheet ? $elementCnt=4 : $elementCnt=5;
 
         // Emit the next (plan elements or blank elements)
+        $elementsPrintedCnt=0;
+        $tplanElementsCnt=count($info['elements']);
         for($i=0; $i<$elementCnt; $i++) {
 
             // I need this again because something (I think SetXY) resets it.
@@ -455,31 +461,28 @@ class TplansController extends AppController {
             $hz=$this->itohz($i+1);
             $pdf->Cell(13,7,'第'.$hz.'周',0,0,'C');
 
-            $this->dmSetXY($pdf, 18, 19, $ox, $oy + $offsetY2);
-            $pdf->Cell(20, 7, '从   到', 0, 0, 'C');
-            $this->dmLine($pdf, 26, 25, 30, 25, $ox, $oy + $offsetY2); // h
-            $this->dmLine($pdf, 34, 25, 38, 25, $ox, $oy + $offsetY2); // h
-
-            //$element=['start_week'=>1,'stop_week'=>2,
-                //'a'=>'A. Class orientation. B. People in my life.',
-                //'b'=>'A. 1. Discuss the grading system and basis for final grade/score. 2. Rules in classs. B. 1. Ask: Can you tell me who are the people in your life? 2. Direct students\'attention to the pictures and present the vocabulary.'];
-            //$info['elements']=[];
-            //$info['elements'][] = $element;
+            $this->dmSetXY($pdf, 17, 19, $ox, $oy + $offsetY2);
+            $pdf->Cell(20, 7, '从     到', 0, 0, 'C');
+            $this->dmLine($pdf, 25, 24.5, 29, 24.5, $ox, $oy + $offsetY2); // h
+            $this->dmLine($pdf, 34, 24.5, 38, 24.5, $ox, $oy + $offsetY2); // h
 
             // Now print the contents, if any
-            $elementsPrintedCnt=0;
-            if($tplanElementIdx<1) {
+            if($tplanElementIdx<$tplanElementsCnt) {
                 $element=$info['elements'][$tplanElementIdx];
 
                 // The start and stop weeks
-                $this->dmSetXY($pdf, 26, 18, $ox, $oy + $offsetY2);
-                $pdf->Cell(5, 7, $element['start_week'], 0, 0, 'R');
-                $this->dmSetXY($pdf, 34, 18, $ox, $oy + $offsetY2);
-                $pdf->Cell(5, 7, $element['stop_week'], 0, 0, 'R');
+                $this->dmSetXY($pdf, 25, 19, $ox, $oy + $offsetY2);
+                $pdf->Cell(5, 7, $element['start_thour'], 0, 0, 'R');
+                $this->dmSetXY($pdf, 34, 19, $ox, $oy + $offsetY2);
+                $pdf->Cell(5, 7, $element['stop_thour'], 0, 0, 'R');
 
-                // a
+                // col1
                 $this->dmSetXY($pdf, 41, 1, $ox, $oy + $offsetY2);
-                $pdf->Cell(5, 7, $element['a'], 0, 0, 'L');
+                $pdf->Cell(5, 7, $element['col1'], 0, 0, 'L');
+
+                // col2
+                $this->dmSetXY($pdf, 89, 1, $ox, $oy + $offsetY2);
+                $pdf->Cell(5, 7, $element['col2'], 0, 0, 'L');
 
                 $elementsPrintedCnt++;
                 $tplanElementIdx++;
@@ -488,9 +491,10 @@ class TplansController extends AppController {
         }
         return $elementsPrintedCnt;
     }
+
     private function itohz($i) {
-        $a=['','一','二','三','四'];
-        return $a[$i];
+        //$a=['','一','二','三','四','五','六','七','八','九','十','十一','十二','十三','十四','十五','十六','十七','十八','十九','二十','二十一','二十二','二十三','二十四'];
+        return ['','一','二','三','四','五','六','七','八','九','十','十一','十二','十三','十四','十五','十六','十七','十八','十九','二十','二十一','二十二','二十三','二十四'][$i];
     }
 
     private function emitPageRight($info,$pdf,$tplanElementIdx,$lastSheet,$ox=0,$oy=0) {
@@ -540,6 +544,8 @@ class TplansController extends AppController {
         $lastSheet ? $elementCnt=4 : $elementCnt=5;
 
         // Emit the next (plan elements or blank elements)
+        $elementsPrintedCnt=0;
+        $tplanElementsCnt=count($info['elements']);
         for($i=0; $i<$elementCnt; $i++) {
 
             // I need this again because something (I think SetXY) resets it.
@@ -558,12 +564,20 @@ class TplansController extends AppController {
 
             // Now print the contents, if any
             $elementsPrintedCnt=0;
-            if($tplanElementIdx<1) {
+            if($tplanElementIdx<$tplanElementsCnt) {
                 $element=$info['elements'][$tplanElementIdx];
 
-                // b
+                // col3
+                $this->dmSetXY($pdf, 1, 1, $ox, $oy + $offsetY2);
+                $pdf->Cell(5, 7, $element['col3'], 0, 0, 'L');
+
+                // col4
                 $this->dmSetXY($pdf, 60, 1, $ox, $oy + $offsetY2);
-                $pdf->Cell(5, 7, $element['b'], 0, 0, 'L');
+                $pdf->Cell(5, 7, $element['col4'], 0, 0, 'L');
+
+                // h (teaching hours, this session)
+                $this->dmSetXY($pdf, 127, 1, $ox, $oy + $offsetY2);
+                $pdf->Cell(5, 7, $info['teaching_hrs_per_class'], 0, 0, 'C');
 
                 $elementsPrintedCnt++;
                 $tplanElementIdx++;
