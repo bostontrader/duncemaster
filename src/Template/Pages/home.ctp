@@ -29,6 +29,7 @@
                     <li><?= $this->Html->link(__('Users'),         ['controller' => 'Users'])         ?></li>
                 <?php } else if($isTeacher) {?>
                     <li><?= $this->Html->link(__('Sections'),      ['controller' => 'Sections'])      ?></li>
+                    <li><?= $this->Html->link(__('Tplans'),        ['controller' => 'Tplans'])        ?></li>
                 <?php } ?>
         </ul>
     </nav>

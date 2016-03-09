@@ -27,6 +27,7 @@
                     <td><?= $tplan->title ?></td>
                     <td><?= $tplan->session_cnt ?></td>
                     <td class="actions">
+                        <?= $this->Html->link(__('PDF'), ['action' => 'pdf', $tplan->id],['name'=>'TplanPDF']) ?>
                         <?= $this->Html->link(__('View'), ['action' => 'view', $tplan->id],['name'=>'TplanView']) ?>
                         <?= $this->Html->link(__('Edit'), ['action' => 'edit', $tplan->id],['name'=>'TplanEdit']) ?>
                         <?= $this->Form->postLink(__('Delete'), ['action' => 'delete', $tplan->id], ['name'=>'TplanDelete','confirm' => __('Are you sure you want to delete # {0}?', $tplan->id)]) ?>

@@ -5,6 +5,15 @@ use Cake\ORM\TableRegistry;
 
 class TplansController extends AppController {
 
+
+    // Nothing is authorized unless a controller says so.
+    // Admin and teachers are always authorized. It is the responsibility
+    // of this controller to restrict access to info for a teacher
+    // to only his information and no other teacher.
+    public function isAuthorized($userArray) {
+        return $this->isAdmin || $this->isTeacher;
+    }
+
     public function add() {
         $this->request->allowMethod(['get', 'post']);
         $tplan = $this->Tplans->newEntity();
@@ -66,7 +75,7 @@ class TplansController extends AppController {
 
         // 1.1.1 We'll obviously need info about the teaching plan itself, as well as
         // its associated elements
-        $tplan_id=2; // hardwired example
+        $tplan_id=$id = null;
         $tplan = $this->Tplans->get($tplan_id,['contain' => 'TplanElements']);
 
         // 1.1.1 Get the header info.
