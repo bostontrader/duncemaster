@@ -15,7 +15,7 @@
         <fieldset>
             <legend><?= __('Add TplanElement') ?></legend>
             <?php
-                echo $this->Form->input('tplan_id', ['id'=>'TplanElementTplanId', 'options' => $tplans, 'empty' => '(none selected)']);
+                echo $this->Form->input('tplan_id',['value'=>$tplan['id'],'type'=>'hidden']);
                 echo $this->Form->input('start_thour',['id'=>'TplanElementStartThour']);
                 echo $this->Form->input('stop_thour',['id'=>'TplanElementStopThour']);
                 echo $this->Form->input('col1',['id'=>'TplanElementCol1']);

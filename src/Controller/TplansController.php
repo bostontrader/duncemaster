@@ -75,7 +75,7 @@ class TplansController extends AppController {
 
         // 1.1.1 We'll obviously need info about the teaching plan itself, as well as
         // its associated elements
-        $tplan_id=$id = null;
+        $tplan_id=$id;
         $tplan = $this->Tplans->get($tplan_id,['contain' => 'TplanElements']);
 
         // 1.1.1 Get the header info.
@@ -487,11 +487,11 @@ class TplansController extends AppController {
 
                 // col1
                 $this->dmSetXY($pdf, 41, 1, $ox, $oy + $offsetY2);
-                $pdf->Cell(5, 7, $element['col1'], 0, 0, 'L');
+                $pdf->MultiCell(48,0,$element['col1'],0,'L');
 
                 // col2
                 $this->dmSetXY($pdf, 89, 1, $ox, $oy + $offsetY2);
-                $pdf->Cell(5, 7, $element['col2'], 0, 0, 'L');
+                $pdf->MultiCell(48,0,$element['col2'],0,'L');
 
                 $elementsPrintedCnt++;
                 $tplanElementIdx++;
@@ -502,7 +502,6 @@ class TplansController extends AppController {
     }
 
     private function itohz($i) {
-        //$a=['','一','二','三','四','五','六','七','八','九','十','十一','十二','十三','十四','十五','十六','十七','十八','十九','二十','二十一','二十二','二十三','二十四'];
         return ['','一','二','三','四','五','六','七','八','九','十','十一','十二','十三','十四','十五','十六','十七','十八','十九','二十','二十一','二十二','二十三','二十四'][$i];
     }
 
@@ -577,12 +576,12 @@ class TplansController extends AppController {
                 $element=$info['elements'][$tplanElementIdx];
 
                 // col3
-                $this->dmSetXY($pdf, 1, 1, $ox, $oy + $offsetY2);
-                $pdf->Cell(5, 7, $element['col3'], 0, 0, 'L');
+                $this->dmSetXY($pdf, 0, 1, $ox, $oy + $offsetY2);
+                $pdf->MultiCell(59,0,$element['col3'],0,'L');
 
                 // col4
                 $this->dmSetXY($pdf, 60, 1, $ox, $oy + $offsetY2);
-                $pdf->Cell(5, 7, $element['col4'], 0, 0, 'L');
+                $pdf->MultiCell(61,0,$element['col4'],0,'L');
 
                 // h (teaching hours, this session)
                 $this->dmSetXY($pdf, 127, 1, $ox, $oy + $offsetY2);

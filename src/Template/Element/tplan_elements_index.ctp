@@ -27,8 +27,7 @@
                 <td><?= $tplan_element->col3 ?></td>
                 <td><?= $tplan_element->col4 ?></td>
                 <td class="actions">
-                    <?= $this->Html->link(__('View'), ['controller'=>'TplanElements','action' => 'view', $tplan_element->id],['name'=>'TplanElementView']) ?>
-                    <?= $this->Html->link(__('Edit'), ['controller'=>'TplanElements','action' => 'edit', $tplan_element->id],['name'=>'TplanElementEdit']) ?>
+                    <?= $this->Html->link(__('Edit'), ['tplan_id'=>$tplan['id'],'action'=>'edit',$tplan_element->id,'_method'=>'GET'],['name'=>'TplanElementEdit']) ?>
                 </td>
             </tr>
             <?php endforeach; ?>

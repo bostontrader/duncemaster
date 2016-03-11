@@ -42,6 +42,16 @@ use Cake\Routing\Router;
 Router::defaultRouteClass('DashedRoute');
 
 Router::scope('/', function ($routes) {
+
+    $routes->resources('Tplans', function ($routes) {
+        $routes->resources('TplanElements');
+        $routes->connect('/tplan-elements/add', ['controller' => 'TplanElements', 'action' => 'add']);
+        $routes->connect('/tplan-elements/edit/*', ['controller' => 'TplanElements', 'action' => 'edit']);
+
+    });
+    $routes->connect('/tplans/add', ['controller' => 'Tplans', 'action' => 'add']);
+    $routes->connect('/tplans/edit/*', ['controller' => 'Tplans', 'action' => 'edit']);
+
     /**
      * Here, we are connecting '/' (base path) to a controller called 'Pages',
      * its action called 'display', and we pass a param to select the view file
