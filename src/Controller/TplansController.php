@@ -97,8 +97,8 @@ class TplansController extends AppController {
 
         $n=$query->first();
 
-        //$info['subject']=$n->subject->title;
-        $info['subject']='subject';
+        $info['subject']=$n->subject->title;
+        //$info['subject']='subject';
         //$info['major']=$n->cohort->major->title;
         $info['major']='major';
         //$info['cohorts']=$cohortList;
