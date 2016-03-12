@@ -3,6 +3,7 @@
  * @var \App\Model\Entity\Tplan $tplan
  * @var \App\Model\Table\TplansTable $tplans
  */
+$this->Breadcrumb->makeTrail('Teaching Plans',$this->Html);
 ?>
 <div id="TplansIndex">
     <nav class="large-3 medium-4 columns" id="actions-sidebar">

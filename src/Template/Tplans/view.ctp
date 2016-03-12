@@ -1,4 +1,7 @@
-<?php /* @var \App\Model\Entity\Tplan $tplan */ ?>
+<?php
+/* @var \App\Model\Entity\Tplan $tplan */
+$this->Breadcrumb->makeTrail($tplan->title,$this->Html);
+?>
 <div id="TplansView">
     <nav class="large-3 medium-4 columns" id="actions-sidebar">
         <ul class="side-nav">
