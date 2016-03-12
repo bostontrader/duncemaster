@@ -214,7 +214,7 @@ return [
              * MySQL on MAMP uses port 8889, MAMP users will want to uncomment
              * the following line and set the port accordingly
              */
-            //'port' => 'nonstandard_port_number',
+            'port' => 3307,
             'username' => 'duncemaster-test',
             'password' => '',       // not the real app, no password needed
             'database' => 'duncemaster-fixture',
@@ -252,6 +252,7 @@ return [
             'persistent' => false,
             'host' => 'localhost',
             //'port' => 'nonstandard_port_number',
+            'port' => 3307,
             'username' => 'duncemaster-test',
             'password' => '',            // not the real app, no password needed
             'database' => 'duncemaster-test',

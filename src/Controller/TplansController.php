@@ -97,17 +97,23 @@ class TplansController extends AppController {
 
         $n=$query->first();
 
-        $info['subject']=$n->subject->title;
-        $info['major']=$n->cohort->major->title;
-        $info['cohorts']=$cohortList;
-        $info['instructor']=$n->teacher->fam_name;
-        $info['class_cnt']=$tplan['session_cnt'];
-        $info['teaching_hrs_per_class']=$n->thours;
+        //$info['subject']=$n->subject->title;
+        $info['subject']='subject';
+        //$info['major']=$n->cohort->major->title;
+        $info['major']='major';
+        //$info['cohorts']=$cohortList;
+        $info['cohorts']='cohorts';
+        //$info['instructor']=$n->teacher->fam_name;
+        $info['instructor']='instructor';
+        //$info['class_cnt']=$tplan['session_cnt'];
+        $info['class_cnt']=3;
+        //$info['teaching_hrs_per_class']=$n->thours;
+        $info['teaching_hrs_per_class']=4;
 
         // The desired semester sequence printed, is the reverse of
         // what's in the db.
-        $info['semester_seq']=($n->semester->seq=1)?2:1;
-
+        //$info['semester_seq']=($n->semester->seq=1)?2:1;
+        $info['semester_seq']=99;
 
         $info['elements']=[];
 
