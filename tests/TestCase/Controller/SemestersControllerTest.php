@@ -8,35 +8,35 @@ use Cake\ORM\TableRegistry;
 class SemestersControllerTest extends DMIntegrationTestCase {
 
     public $fixtures = [
-        'app.roles',
-        'app.roles_users',
+        //'app.roles',
+        //'app.roles_users',
         'app.semesters',
         'app.users'
     ];
 
     /* @var \App\Model\Table\SemestersTable */
-    private $semesters;
+    //private $semesters;
 
     /* @var \App\Test\Fixture\SemestersFixture */
-    private $semestersFixture;
+    //private $semestersFixture;
 
     public function setUp() {
         parent::setUp();
-        $this->semesters = TableRegistry::get('Semesters');
-        $this->semestersFixture = new SemestersFixture();
+        //$this->semesters = TableRegistry::get('Semesters');
+        //$this->semestersFixture = new SemestersFixture();
     }
 
     // Test that unauthenticated users, when submitting a request to
     // an action, will get redirected to the login url.
-    public function testUnauthenticatedActionsAndUsers() {
-        $this->tstUnauthenticatedActionsAndUsers('semesters');
-    }
+    //public function testUnauthenticatedActionsAndUsers() {
+        //$this->tstUnauthenticatedActionsAndUsers('semesters');
+    //}
 
     // Test that users who do not have correct roles, when submitting a request to
     // an action, will get redirected to the home page.
-    public function testUnauthorizedActionsAndUsers() {
-        $this->tstUnauthorizedActionsAndUsers('semesters');
-    }
+    //public function testUnauthorizedActionsAndUsers() {
+        //$this->tstUnauthorizedActionsAndUsers('semesters');
+    //}
 
     public function testAddGET() {
 

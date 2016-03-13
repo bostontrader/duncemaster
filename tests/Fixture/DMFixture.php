@@ -34,7 +34,7 @@ class DMFixture extends TestFixture {
 
         if(!is_null($this->joinTableName)) {
             TableRegistry::remove($this->joinTableName);
-            TableRegistry::get($this->joinTableName, ['connection' => ConnectionManager::get('fixture')]);
+            $n=TableRegistry::get($this->joinTableName, ['connection' => ConnectionManager::get('fixture')]);
         }
 
         // 3. Now build the query
@@ -42,6 +42,7 @@ class DMFixture extends TestFixture {
         $query->find('all');
         if(!is_null($this->order)) $query->order($this->order);
         if(!is_null($this->joinTableName)) $query->leftJoin($this->joinTableName,'semesters.id = sections.semester_id');
+        $c=$query->count();
 
         // 4. Copy the records
         /* @var \Cake\ORM\Entity $record */
