@@ -24,6 +24,6 @@ class SemestersFixture extends DMFixture {
                 'firstday'=>'2016-03-01'
             ]
         ];
-        //parent::init();
+        parent::init();
     }
 }

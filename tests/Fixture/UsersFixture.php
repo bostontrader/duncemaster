@@ -15,6 +15,6 @@ class UsersFixture extends DMFixture {
                 'password'=>''
             ]
         ];
-        //parent::init(); // This is where the records are loaded.
+        parent::init();
     }
 }

@@ -1,24 +1,5 @@
 #Test Plan
 
-Execute phpunit.  Feed it whatever args you want...
-cd $STACK_ROOT/html/duncemaster
-$STACK_ROOT/php/bin/php vendor/bin/phpunit tests/TestCase/Controller
-
-##Fixture Data
-Ordinary fixtures are hoplessly clumsy to use.  Any realistic app can be expected to have
-many tables with their records intricately related.  Assembling a set of fixtures that provides
-sufficient variation for testing is not easy and can be very fragile and difficult to debug.
-
-I attempted to use a method I configure the app to use a db source named 'fixture' and then
-use the app to create the myriad of variations required for testing.  I then modified the init
-method of each fixture class to populate the fixture's records using the 'fixture' source,
-instead of hardwired values in the Class.  This didn't work out as well as I had hoped.  So 
-I'm back to the original method.
-
-The basic problem with either method is that the blizzard of related records becomes too complicated
-to properly manage.  How to solve this puzzle?
-
-
 ##Categories of Testing
 There are several basic categories of testing that I'm interested in:
 
@@ -42,3 +23,53 @@ There are several basic categories of testing that I'm interested in:
 
 * Does the html output adhere to standards?
 
+##Fixture Data
+
+Much testing involves the db. This is a notoriously difficult thing to test.  Here I describe my
+approach.  But first a quick review:
+
+We are using PHPUnit and IntegrationTestCase from CakePHP.  This requires a 'test' db configuration
+in app.config.  When this runs, it will drop all the tables, if any, presently in the test db,
+and create new ones, based on the fixtures specified in the test case.  This presents two obvious
+issues: 1) Where to obtain/specify the schema for the required tables, and 2) where to actually
+get the data.
+
+If we specify the schema in the fixtures we would have to manually keep it in sync with everything
+else and it definitely doesn't participate in the Cake migration process.  It is however easy 
+to tell Cake testing to use the schema from another db, such as perhaps from myapp-dev,
+by setting the $import member in a fixture class.  Hopefully this schema is more elegantly kept in synch
+with everything else and would be a good source to copy. This will give us the schema, but not the data.
+
+Getting the data is the hard part.  Here we have two basic choices: 1) Hard-wire example data in 
+the fixture files, or 2) import from another db (as with the schema).  These choices are confounded
+by the fact that realistic example data will include many records that are all intricately
+wired together via their keys.  
+
+We need to carefully ensure that there is sufficient variation
+in order to exercise all the nooks and crannies of our code. For example, a list of classes for one
+teacher should not display classes for another. To make sure this is not happening, we need to
+have records refering to both teachers, and ensure that only the proper subset is used.
+
+We need some method of obtaining bad records.  We'll need something to trigger the various exceptions
+and validations.
+
+During testing we eventually need a fairly large db-style capacity for dealing with the
+data.  For example, we need WHERE and ORDER clauses, we need to do joins, and we need to use
+aggregate functions.  This is not real easy to do using hard-wired fixture data and looks quite
+a lot like re-inventing wheels.
+
+All that hand-wringing said, here's my approach:
+
+1. Most of the fixture data lives in a db named myapp-fixture.  This is a showcase for perfect
+data only.  Nothing in this db should violate any validation or constraint.
+
+
+
+##Cheat Sheet
+Execute phpunit.  Feed it whatever args you want...
+cd $STACK_ROOT/html/duncemaster
+$STACK_ROOT/php/bin/php vendor/bin/phpunit tests/TestCase/Controller
+
+http://localhost/myapp?XDEBUG_SESSION_START=n
+var_dump($n);
+export XDEBUG_CONFIG="idekey=PHPSTORM"

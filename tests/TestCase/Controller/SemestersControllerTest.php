@@ -8,22 +8,22 @@ use Cake\ORM\TableRegistry;
 class SemestersControllerTest extends DMIntegrationTestCase {
 
     public $fixtures = [
-        //'app.roles',
-        //'app.roles_users',
-        'app.semesters'
-        //'app.users'
+        'app.roles',
+        'app.roles_users',
+        'app.semesters',
+        'app.users'
     ];
 
     /* @var \App\Model\Table\SemestersTable */
-    //private $semesters;
+    private $Semesters;
 
     /* @var \App\Test\Fixture\SemestersFixture */
-    //private $semestersFixture;
+    private $semestersFixture;
 
     public function setUp() {
         parent::setUp();
-        //$this->semesters = TableRegistry::get('Semesters');
-        //$this->semestersFixture = new SemestersFixture();
+        $this->Semesters = TableRegistry::get('Semesters');
+        $this->semestersFixture = new SemestersFixture();
     }
 
     // Test that unauthenticated users, when submitting a request to
@@ -82,9 +82,9 @@ class SemestersControllerTest extends DMIntegrationTestCase {
         // posted, as read from the db.
         $fixtureRecord=$this->semestersFixture->newSemesterRecord;
         $fromDbRecord=$this->genericAddPostProlog(
-            FixtureConstants::userAndyAdminId,
+            FixtureConstants::USER_ANDY_ADMIN_ID,
             '/semesters/add', $fixtureRecord,
-            '/semesters', $this->semesters
+            '/semesters', $this->Semesters
         );
 
         // 2. Now validate that record.
@@ -93,21 +93,20 @@ class SemestersControllerTest extends DMIntegrationTestCase {
         $this->assertEquals($fromDbRecord['firstday'],$fixtureRecord['firstday']);
     }
 
-    public function testDeletePOST() {
-
-        $semester_id = $this->semestersFixture->records[0]['id'];
-        $this->deletePOST(
-            FixtureConstants::userAndyAdminId, '/semesters/delete/',
-            $semester_id, '/semesters', $this->semesters
-        );
-    }
+    //public function testDeletePOST() {
+        //$semester_id = $this->semestersFixture->records[0]['id'];
+        //$this->deletePOST(
+            //FixtureConstants::USER_ANDY_ADMIN_ID, '/semesters/delete/',
+            //$semester_id, '/semesters', $this->semesters
+        //);
+    //}
 
     public function testEditGET() {
 
         // 1. Obtain a record to edit, login, GET the url, parse the response and send it back.
         $record2Edit=$this->semestersFixture->records[0];
         $url='/semesters/edit/' . $record2Edit['id'];
-        $html=$this->loginRequestResponse(FixtureConstants::userAndyAdminId,$url);
+        $html=$this->loginRequestResponse(FixtureConstants::USER_ANDY_ADMIN_ID,$url);
         
         // 2. Ensure that the correct form exists
         /* @var \simple_html_dom_node $form */
@@ -151,9 +150,9 @@ class SemestersControllerTest extends DMIntegrationTestCase {
         // posted, as read from the db.
         $fixtureRecord=$this->semestersFixture->newSemesterRecord;
         $fromDbRecord=$this->genericEditPutProlog(
-            FixtureConstants::userAndyAdminId,
+            FixtureConstants::USER_ANDY_ADMIN_ID,
             '/semesters/edit', $fixtureRecord,
-            '/semesters', $this->semesters
+            '/semesters', $this->Semesters
         );
 
         // 2. Now validate that record.
@@ -165,7 +164,7 @@ class SemestersControllerTest extends DMIntegrationTestCase {
     public function testIndexGET() {
 
         // 1. Login, GET the url, parse the response and send it back.
-        $html=$this->loginRequestResponse(FixtureConstants::userAndyAdminId,'/semesters/index');
+        $html=$this->loginRequestResponse(FixtureConstants::USER_ANDY_ADMIN_ID,'/semesters/index');
 
         // 2. Get a the count of all <A> tags that are presently unaccounted for.
         $this->content = $html->find('div#SemestersIndex',0);
@@ -237,7 +236,7 @@ class SemestersControllerTest extends DMIntegrationTestCase {
         // 1. Obtain a record to view, login, GET the url, parse the response and send it back.
         $record2View=$this->semestersFixture->records[0];
         $url='/semesters/view/' . $record2View['id'];
-        $html=$this->loginRequestResponse(FixtureConstants::userAndyAdminId,$url);
+        $html=$this->loginRequestResponse(FixtureConstants::USER_ANDY_ADMIN_ID,$url);
 
         // 2.  Look for the table that contains the view fields.
         $this->table = $html->find('table#SemesterViewTable',0);

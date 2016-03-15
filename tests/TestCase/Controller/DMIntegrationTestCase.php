@@ -58,7 +58,7 @@ class DMIntegrationTestCase extends IntegrationTestCase {
     protected $usersFixture;
 
     /* @var \simple_html_dom_node */
-    private $input;
+    //private $input;
 
     /**
      * Login and submit a POST request to a $url that is expected to delete a given record,
