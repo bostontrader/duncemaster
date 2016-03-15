@@ -19,17 +19,6 @@ The basic problem with either method is that the blizzard of related records bec
 to properly manage.  How to solve this puzzle?
 
 
-
-
-
-I have a db duncemaster-fixture.  I can configure the app to use duncemaster-fixture for
-ordinary operation.  The test fixtures have been setup to copy the data from duncemaster-fixture
-into duncemaster-test. This has proven to be reasonable method to provide good example data.
-I can use the ordinary app to manipulate the various records and their relationships,
-and then set appropriate constants in tests/Fixture/FixtureConstants to point to
-the various records. I can then refer to said records by using these constants.
-But be careful to ensure that the constants stay in sync with the duncemaster-fixture.
-
 ##Categories of Testing
 There are several basic categories of testing that I'm interested in:
 

@@ -8,7 +8,13 @@ class UsersFixture extends DMFixture {
     public $newUserRecord = ['username' => 'billy', 'password' => 'passwordBilly'];
 
     public function init() {
-        $this->tableName='Users';
-        parent::init(); // This is where the records are loaded.
+        $this->records = [
+            [
+                'id'=>FixtureConstants::USER_ANDY_ADMIN_ID,
+                'username'=>'AndyAdmin',
+                'password'=>''
+            ]
+        ];
+        //parent::init(); // This is where the records are loaded.
     }
 }

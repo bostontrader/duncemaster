@@ -10,8 +10,8 @@ class SemestersControllerTest extends DMIntegrationTestCase {
     public $fixtures = [
         //'app.roles',
         //'app.roles_users',
-        'app.semesters',
-        'app.users'
+        'app.semesters'
+        //'app.users'
     ];
 
     /* @var \App\Model\Table\SemestersTable */
@@ -40,8 +40,8 @@ class SemestersControllerTest extends DMIntegrationTestCase {
 
     public function testAddGET() {
 
-        // 1. Login, GET the url, parse the response and send it back.
-        $html=$this->loginRequestResponse(FixtureConstants::userAndyAdminId,'/semesters/add');
+        // 1. Login, GET the url, and parse the response.
+        $html=$this->loginRequestResponse(FixtureConstants::USER_ANDY_ADMIN_ID,'/semesters/add');
 
         // 2. Ensure that the correct form exists
         /* @var \simple_html_dom_node $form */

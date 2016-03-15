@@ -217,7 +217,7 @@ return [
             'port' => 3307,
             'username' => 'duncemaster-test',
             'password' => '',       // not the real app, no password needed
-            'database' => 'duncemaster-fixture',
+            'database' => 'duncemaster-dev',
             'encoding' => 'utf8',
             'timezone' => 'UTC',
             'cacheMetadata' => true,
@@ -260,9 +260,9 @@ return [
             'timezone' => 'UTC',
             'cacheMetadata' => true,
             'quoteIdentifiers' => false,
-            'log' => false,
-            //'init' => ['SET GLOBAL innodb_stats_on_metadata = 0'],
+            'log' => false
         ],
+
     ],
 
     /**
