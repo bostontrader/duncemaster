@@ -8,7 +8,7 @@ use Cake\Datasource\ConnectionManager;
 use Cake\ORM\Query;
 use Cake\TestSuite\IntegrationTestCase;
 
-require_once 'simple_html_dom.php';
+//require_once 'simple_html_dom.php';
 
 /**
  *
@@ -53,6 +53,13 @@ require_once 'simple_html_dom.php';
  */
 
 class DMIntegrationTestCase extends IntegrationTestCase {
+
+    // Almost every test is going to need to deal with users/roles.
+    public $fixtures = [
+        'app.roles',
+        'app.roles_users',
+        'app.users'
+    ];
 
     /* @var \App\Test\Fixture\UsersFixture */
     protected $usersFixture;
@@ -293,6 +300,7 @@ class DMIntegrationTestCase extends IntegrationTestCase {
 
     public function setUp() {
         parent::setUp();
+
         $this->usersFixture = new UsersFixture();
     }
 

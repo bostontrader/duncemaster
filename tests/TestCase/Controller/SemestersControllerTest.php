@@ -7,18 +7,23 @@ use Cake\ORM\TableRegistry;
 
 class SemestersControllerTest extends DMIntegrationTestCase {
 
-    public $fixtures = [
-        'app.roles',
-        'app.roles_users',
-        'app.semesters',
-        'app.users'
-    ];
+    //public $fixtures = [
+        //'app.roles',
+        //'app.roles_users',
+        //'app.semesters',
+        //'app.users'
+    //];
 
     /* @var \App\Model\Table\SemestersTable */
     private $Semesters;
 
     /* @var \App\Test\Fixture\SemestersFixture */
     private $semestersFixture;
+
+    function __construct() {
+        //$this->fixtures[]='app.roles';
+        $this->fixtures[]='app.semesters';
+    }
 
     public function setUp() {
         parent::setUp();

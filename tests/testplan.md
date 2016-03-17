@@ -48,7 +48,10 @@ wired together via their keys.
 We need to carefully ensure that there is sufficient variation
 in order to exercise all the nooks and crannies of our code. For example, a list of classes for one
 teacher should not display classes for another. To make sure this is not happening, we need to
-have records refering to both teachers, and ensure that only the proper subset is used.
+have records refering to both teachers, and ensure that only the proper subset is used. In fact
+I suggest that explicitly testing for this variation is desireable.  So for example, our list 
+of records in one screen is known to be the desired subset, filtered from other records, instead
+of all records, that just don't have sufficient variation.
 
 We need some method of obtaining bad records.  We'll need something to trigger the various exceptions
 and validations.
