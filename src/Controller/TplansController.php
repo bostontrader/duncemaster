@@ -427,6 +427,11 @@ class TplansController extends AppController {
         $this->dmSetXY($pdf,47,18,$ox,$oy);
         $pdf->Cell(34,7,'（教学大纲章节题目）',0,0,'C');
 
+        // Ugly hack. Zombies coming over wall. Gotta do this NOW!
+        $this->dmSetXY($pdf,40,24,$ox,$oy);
+        $pdf->Cell(34,7,'视听说教程-2,Stempleski',0,0,'C');
+
+
         // Experiment, recitation, classroom, discussions and other job title
         // shi2ya4n xi2ti2 ke4 ke4ta2ng ta3olu4n ji2 qi2ta1 zuo4ye4 ti2mu4
         $this->dmSetXY($pdf,95,12,$ox,$oy);
