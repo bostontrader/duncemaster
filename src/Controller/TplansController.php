@@ -63,10 +63,53 @@ class TplansController extends AppController {
         $this->set('tplans', $this->Tplans->find('all'));
     }
 
-    // This function will produce PDF output to display a teaching plan.
-    // It will emit individual pages, sequentially, with the understanding that these
-    // pages will be printed four per sheet of paper (two pages, side-by-side, on each sheet),
-    // in booklet form.  Hence the quantity of document pages should be a multiple of 4.
+    /**
+     * @param null $id
+     * @return \Cake\Network\Response|null
+     *
+     * This function will produce PDF output to display a Teaching Plan.
+     *
+     * Said Plan is composed of the following sections:
+     * 1. A cover sheet.
+     * 2. Zero or more full-sized plan element listings (PEL).
+     * 3. One short-form PEL.
+     * 4. A rear cover sheet.
+     *
+     * A plan starts as a sequence of A4 sized pages.  Henceforth a "page"
+     * will specifically refer to an A4 sized page.
+     *
+     * The front and rear cover sheets are ordinary pages.
+     *
+     * Each PEL is a sequence of two pages, a left-side and a right-side,
+     * intended to be viewed side-by-side.
+     * A PEL contains up to 5 Plan Elements, listed from top-to-bottom, with
+     * the exception of the final short-form PEL.
+     *
+     * The short-form PEL only contains 4 Plan Elements.  Where the 5th Element
+     * would normally be printed, the short-form PEL contains a blank area for the
+     * left page, and a signature block for the right page.
+     *
+     * Physical Paper:
+     *
+     * With suitable software, the pages can be printed in booklet form, on double-sized
+     * paper, with four pages per physical sheet of paper, two pages on each side. This
+     * closely simulates the original hand-drawn form in pre-printed booklets. The downsides
+     * of this method include:
+     *
+     *  * We need to find large paper and a printer that can print on both sides of it.
+     *  * We need to find suitable booklet printing software and expertise.
+     *  * There's also quite a lot of wasted form-space.
+     *
+     * We can also print these pages sequentially, on the front and back of A4 paper.
+     * If we do this then the PELs can be readily viewed as intended, side-by-side, simply
+     * by turning the pages.
+     *
+     * The downside of this method is that it's such a good idea, within its narrow context,
+     * and so radically different from the original form, that the Bureacratic Gods that
+     * lurk in the shadows must certainly frown upon this approach.  Nevertheless, I hereby taunt fate,
+     * live dangerously, and chose this method.  May the Gods of Idiocy strike me down!
+     */
+
     public function pdf($id = null) {
 
         // 1. In the beginning...
@@ -78,10 +121,10 @@ class TplansController extends AppController {
         $tplan_id=$id;
         $tplan = $this->Tplans->get($tplan_id,['contain' => 'TplanElements']);
 
-        // 1.1.1 Get the header info.
+        // 1.1.2 Get the front cover info.
         // This query finds all sections that use this teaching plan. Most of the selected
         // fields should be the same, such as the course title, teacher, and teaching_hours_per_class.
-        // However, the should be different.
+        // However, the cohorts should all be different. (This would be nice to verify.)
         $tableSections=TableRegistry::get('Sections');
 
         $query = $tableSections->find('all')
@@ -95,6 +138,9 @@ class TplansController extends AppController {
             (is_null($cohortList)) ? $cohortList=$cohortNickname : $cohortList.=','.$cohortNickname;
         }
 
+        // Assuming all of these fields are the same, for each record,
+        // then its ok to retrieve their values from the 1st record.
+        // WARNING! Maybe they're not all the same!
         $n=$query->first();
 
         $info['subject']=$n->subject->title;
@@ -103,18 +149,15 @@ class TplansController extends AppController {
         $info['instructor']=$n->teacher->fam_name;
         $info['class_cnt']=$tplan['session_cnt'];
         $info['teaching_hrs_per_class']=$n->thours;
-        $info['teaching_hrs_per_class']=2;
 
         // The desired semester sequence printed, is the reverse of
         // what's in the db.
         $info['semester_seq']=($n->semester->seq=1)?2:1;
 
+        // 1.1.4. Now get the plan elements
         $info['elements']=[];
-
-        // Now iterate over all the TplanElements
         foreach($tplan->tplan_elements as $tplanElement) {
             $element=[
-                //'start_thour'=>1,'stop_thour'=>2,
                 'start_thour'=>$tplanElement->start_thour,
                 'stop_thour'=>$tplanElement->stop_thour,
                 'col1'=>$tplanElement->col1,
@@ -125,13 +168,12 @@ class TplansController extends AppController {
             $info['elements'][] = $element;
         }
 
-        // 1.2 Initialize the pdf
+        // 2. Initialize the pdf
         require('tcpdf.php');
 
         // The primary method of specifying position is to measure mm from the origin,
         // where the origin is at the upper-left corner of the paper, moving right increases x
         // and moving down increases y.
-
         $pdf = new \tcpdf('P','mm','A4');
         $pdf->SetFont('cid0cs', '', 16, '', true);
 
@@ -140,62 +182,65 @@ class TplansController extends AppController {
         $pdf->setPrintFooter(false);
 
         
-        // 2. Page 1, The cover
-        //$pdf->AddPage();
-        //$this->emitPageLeft($info,$pdf,0,0);
-
+        // 3. Page 1, The cover
         $pdf->AddPage();
         $this->emitFrontCover($info,$pdf,10,10);
 
-        // 3. The Plan Elements
-        //$pdf->AddPage();
-
-        // The Plan Elements are each printed across one side of two consecutive pages.
-
-        // Each set of two-pages contains 5 Plan Elements, with the exception of the last set.
-
-        // The last set of two-pages only contains 4 Plan Elements, with the area normally containing
-        // the 5th element, on the left page, being blank, and the same area on the right page
-        // containing date and signature.
-
-        // Two sets of two-pages, containing 10 Plan Elements, can be printed on a single sheet of paper.
-        // One set on the front, and one set on the back.
+        // 4. The Plan Elements
         //
-        // Upon careful reflection we can determine that:
-        // 1. Any plan containing <=4 plan elements can be fully printed on a single sheet of paper.
-        // 2. Each additional sheet of paper will accommodate up to 10 additional plan elements.
+        // We can print the PELs, double-side, on ordinary paper, or we can do it
+        // booklet-style on large paper. You decide.
+        $bookletStyle=false;
+        if($bookletStyle) {
+            // Upon careful reflection we can determine that:
+            // 1. Any plan containing <=4 plan elements can be fully printed on a single short-form PEL.
+            // 2. Each additional sheet of paper will accommodate up to 10 additional plan elements.
 
-        // Our basic strategy will be to determine how many extra sheets of paper are required
-        // and then emit 10 (plan elements or blank elements) to fill each extra sheet.
-        // Then continue to emit 10 () to fill the final set of two-pages.
-        $tplanElementCnt=count($info['elements']);
-        $extraSheetCnt=intval(($tplanElementCnt+5)/10); // model this in excel and see that it works
+            // Our basic strategy will be to determine how many extra sheets of paper are required
+            // and then emit 10 (plan elements or blank elements) to fill each extra sheet.
+            // Then continue to emit 10 () to fill the final set of two-pages.
+            $tplanElementCnt=count($info['elements']);
+            $extraSheetCnt=intval(($tplanElementCnt+5)/10); // model this in excel and see that it works
 
-        $tplanElementIdx=0;
-        while($extraSheetCnt>0) {
-            // emit the next 10 (plan elements or blank elements)
-            $this->emitLeftAndRightPages($info,$pdf,$tplanElementIdx,false);
-            $extraSheetCnt--;
+            $tplanElementIdx=0;
+            while($extraSheetCnt>0) {
+                // emit the next 10 (plan elements or blank elements)
+                $tplanElementIdx+=$this->emitPEL($info,$pdf,$tplanElementIdx,false);
+                $extraSheetCnt--;
+            }
+
+            $tplanElementIdx+=$this->emitPEL($info,$pdf,$tplanElementIdx,true);
+        } else {
+            // Excellent choice.  Let's print these pages, double-sided, on ordinary paper.
+            $tplanElementCnt=count($info['elements']);
+            $tplanElementIdx=0; // which element to print next? zero based idx.
+
+            // Emit all the full-sized PELs, if any.
+            while( ($tplanElementCnt-$tplanElementIdx) >= 5) {
+                // emit the next 5 plan elements
+                $tplanElementIdx+=$this->emitPEL($info,$pdf,$tplanElementIdx,false); // not last PEL
+            }
+
+            // Always emit at least one short-form PEL.
+            $tplanElementIdx+=$this->emitPEL($info,$pdf,$tplanElementIdx,true); // last PEL
         }
 
-        $tplanElementIdx+=$this->emitLeftAndRightPages($info,$pdf,$tplanElementIdx,true);
-
-        // 3. Rear cover
+        // 5. Rear cover
         $pdf->AddPage();
         $this->emitRearCover($pdf,17,23);
 
-
         $pdf->Output();
         $this->response->type('application/pdf');
+
         return $this->response;
     }
 
-    // The left and right pages are logically one unit and there's some overlapping code.
-    private function emitLeftAndRightPages($info,$pdf,$tplanElementIdx,$lastSheet) {
+    private function emitPEL($info,$pdf,$tplanElementIdx,$lastPEL) {
         $pdf->AddPage();
-        $elementOutputCnt=$this->emitPageLeft($info,$pdf,$tplanElementIdx,$lastSheet,5,5);
+        $this->emitPageLeft($info,$pdf,$tplanElementIdx,$lastPEL,5,5);
         $pdf->AddPage();
-        $elementOutputCnt=$this->emitPageRight($info,$pdf,$tplanElementIdx,$lastSheet,5,5);
+        $elementOutputCnt=$this->emitPageRight($info,$pdf,$tplanElementIdx,$lastPEL,5,5);
+        return $elementOutputCnt;
     }
 
     // Emit a line, but apply an x,y offset to the endpoints.
@@ -576,7 +621,7 @@ class TplansController extends AppController {
             $this->dmLine($pdf,$leftX+137, $topY,   $leftX+137, $bottomY, $ox,$oy+$offsetY2); // v
 
             // Now print the contents, if any
-            $elementsPrintedCnt=0;
+            //$elementsPrintedCnt=0;
             if($tplanElementIdx<$tplanElementsCnt) {
                 $element=$info['elements'][$tplanElementIdx];
 
