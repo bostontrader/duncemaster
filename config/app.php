@@ -62,7 +62,7 @@ return [
      *   You should treat it as extremely sensitive data.
      */
     'Security' => [
-        'salt' => '__SALT__',
+        'salt' => 'e7d1addcb1f910fd864fccb7e83ce75c9c057620b70cac9948ba2185d9261026',
     ],
 
     /**
@@ -243,6 +243,21 @@ return [
             //'init' => ['SET GLOBAL innodb_stats_on_metadata = 0'],
         ],
 
+        'dev' => [
+            'className' => 'Cake\Database\Connection',
+            'driver' => 'Cake\Database\Driver\Mysql',
+            'persistent' => false,
+            'host' => 'localhost',
+            'port' => 3307,
+            'username' => 'duncemaster-test',
+            'password' => '',       // not the real app, no password needed
+            'database' => 'duncemaster-dev',
+            'encoding' => 'utf8',
+            'timezone' => 'UTC',
+            'cacheMetadata' => true,
+            'log' => false,
+            'quoteIdentifiers' => false
+        ],
         /**
          * The test connection is used during the test suite.
          */

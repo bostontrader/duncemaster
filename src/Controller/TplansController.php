@@ -80,13 +80,13 @@ class TplansController extends AppController {
 
         // 1.1.1 Get the header info.
         // This query finds all sections that use this teaching plan. Most of the selected
-        // fields should be the same, such as the course title and teacher.  However, the cohorts
-        // can be different.
-
+        // fields should be the same, such as the course title, teacher, and teaching_hours_per_class.
+        // However, the should be different.
         $tableSections=TableRegistry::get('Sections');
 
         $query = $tableSections->find('all')
             ->contain(['Cohorts.Majors','Semesters','Subjects','Teachers'])
+            ->order('Cohorts.nickname')
             ->where(['Sections.tplan_id'=>$tplan_id]);
 
         $cohortList = null;
@@ -103,7 +103,7 @@ class TplansController extends AppController {
         $info['instructor']=$n->teacher->fam_name;
         $info['class_cnt']=$tplan['session_cnt'];
         $info['teaching_hrs_per_class']=$n->thours;
-        $info['teaching_hrs_per_class']=4;
+        $info['teaching_hrs_per_class']=2;
 
         // The desired semester sequence printed, is the reverse of
         // what's in the db.
