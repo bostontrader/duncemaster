@@ -428,7 +428,7 @@ class TplansController extends AppController {
         $pdf->Cell(34,7,'（教学大纲章节题目）',0,0,'C');
 
         // Ugly hack. Zombies coming over wall. Gotta do this NOW!
-        $this->dmSetXY($pdf,40,24,$ox,$oy);
+        $this->dmSetXY($pdf,47,24,$ox,$oy);
         $pdf->Cell(34,7,'视听说教程-2,Stempleski',0,0,'C');
 
 
