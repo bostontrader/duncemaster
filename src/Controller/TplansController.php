@@ -86,7 +86,7 @@ class TplansController extends AppController {
 
         $query = $tableSections->find('all')
             ->contain(['Cohorts.Majors','Semesters','Subjects','Teachers'])
-            ->order('Cohorts.nickname')
+            ->order('Cohorts.seq')
             ->where(['Sections.tplan_id'=>$tplan_id]);
 
         $cohortList = null;
