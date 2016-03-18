@@ -199,6 +199,9 @@ class SemestersControllerTest extends DMIntegrationTestCase {
         // 6. Ensure that the tbody section has the same
         //    quantity of rows as the count of semester records in the fixture.
         $this->tbody = $this->table->find('tbody',0);
+
+        $tb=$this->tbody;
+
         $tbody_rows = $this->tbody->find('tr');
         $this->assertEquals(count($tbody_rows), count($this->semestersFixture->records));
 
@@ -213,6 +216,8 @@ class SemestersControllerTest extends DMIntegrationTestCase {
             $fixtureRecord = $values[0];
             $this->htmlRow = $values[1];
             $htmlColumns = $this->htmlRow->find('td');
+
+
 
             $this->assertEquals($fixtureRecord['year'],  $htmlColumns[0]->plaintext);
             $this->assertEquals($fixtureRecord['seq'],  $htmlColumns[1]->plaintext);

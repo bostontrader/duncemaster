@@ -17,13 +17,7 @@ class SemestersFixture extends DMFixture {
     ];
 
     public function init() {
-        $this->records = [
-            [
-                'id'=>FixtureConstants::SEMESTER_2016_1_ID,
-                'year' => 2016, 'seq' => 1,
-                'firstday'=>'2016-03-01'
-            ]
-        ];
+        $this->tableName='Semesters';
         parent::init();
     }
 }
