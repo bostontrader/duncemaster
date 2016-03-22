@@ -1,5 +1,9 @@
 #Test Plan
 
+WARNING: The testing for this app uses shark/simple_html_dom which appears to have a bizarre 
+error when reading a tbody tag.  Search the source, find the single occurrence of 'tbody', and
+comment out that line. Then everything will then work as expected.
+
 ##Categories of Testing
 There are several basic categories of testing that I'm interested in:
 
@@ -48,8 +52,8 @@ wired together via their keys.
 We need to carefully ensure that there is sufficient variation
 in order to exercise all the nooks and crannies of our code. For example, a list of classes for one
 teacher should not display classes for another. To make sure this is not happening, we need to
-have records refering to both teachers, and ensure that only the proper subset is used. In fact
-I suggest that explicitly testing for this variation is desireable.  So for example, our list 
+have records referring to both teachers, and ensure that only the proper subset is used. In fact
+I suggest that explicitly testing for this variation is desirable.  So for example, our list 
 of records in one screen is known to be the desired subset, filtered from other records, instead
 of all records, that just don't have sufficient variation.
 

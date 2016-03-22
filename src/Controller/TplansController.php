@@ -517,7 +517,7 @@ class TplansController extends AppController {
 
             // Which week?
             $this->dmSetXY($pdf,22,13,$ox,$oy+$offsetY2);
-            $hz=$this->itohz($i+1);
+            $hz=$this->itohz($tplanElementIdx+1);
             $pdf->Cell(13,7,'第'.$hz.'周',0,0,'C');
 
             $this->dmSetXY($pdf, 17, 19, $ox, $oy + $offsetY2);
