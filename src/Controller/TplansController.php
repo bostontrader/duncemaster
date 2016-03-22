@@ -154,6 +154,9 @@ class TplansController extends AppController {
         // what's in the db.
         $info['semester_seq']=($n->semester->seq=1)?2:1;
 
+        // Ugly, ad-hoc bureaucratise...
+        $info['book']=$tplan->book;
+
         // 1.1.4. Now get the plan elements
         $info['elements']=[];
         foreach($tplan->tplan_elements as $tplanElement) {
@@ -474,8 +477,7 @@ class TplansController extends AppController {
 
         // Ugly hack. Zombies coming over wall. Gotta do this NOW!
         $this->dmSetXY($pdf,47,24,$ox,$oy);
-        $pdf->Cell(34,7,'视听说教程-2,Stempleski',0,0,'C');
-
+        $pdf->Cell(34,7,$info['book'],0,0,'C');
 
         // Experiment, recitation, classroom, discussions and other job title
         // shi2ya4n xi2ti2 ke4 ke4ta2ng ta3olu4n ji2 qi2ta1 zuo4ye4 ti2mu4
