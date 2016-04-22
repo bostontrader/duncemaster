@@ -54,7 +54,7 @@
         </section>
     </nav>
 
-    <?php if($currentUser) {
+    <?php if(true) {
         echo $this->Html->getCrumbs(' > ', 'Home');
         echo $this->fetch('content');
     }?>
