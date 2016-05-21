@@ -33,6 +33,8 @@ Needed by composer. Which means you'll have to have OpenSSL installed on your se
 
 Needed by CakePHP
 
+--with-curl
+
 Recall that STACK_ROOT is defined by the LEMP stack installation.
 
 cd $STACK_ROOT/html
