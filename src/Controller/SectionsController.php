@@ -61,16 +61,35 @@ class SectionsController extends AppController {
         // |--------------|--|
         // | students.sid |
         /* @var \Cake\Database\Connection $connection */
-        /*$connection = ConnectionManager::get('default');
-        $query = "select students.id as student_id, students.sort, students.sid, students.giv_name, students.fam_name, students.phonetic_name, interactions.itype_id, cohorts.id as cohort_id, sections.id as section_id, clazzes.id as clazz_id
-                from students
-                left join cohorts on students.cohort_id = cohorts.id
-                left join sections on sections.cohort_id = cohorts.id
-                left join interactions on interactions.clazz_id=clazzes.id and interactions.student_id=students.id and interactions.itype_id=".ItypesController::ATTEND." where clazzes.id=".$clazz_id.
-            " order by sort";
+        $connection = ConnectionManager::get('default');
+        $query = "select week, sid, itype_id, participate from interactions 
+left join clazzes on interactions.clazz_id=clazzes.id
+left join sections on clazzes.section_id=sections.id
+left join students on interactions.student_id=students.id
+where sections.id=$id and clazzes.exam != 1";
 
-        $attendResults = $connection->execute($query)->fetchAll('assoc');*/
+        $interactionResults = $connection->execute($query)->fetchAll('assoc');
 
+        // Now merge $attendResults and $classRoster into some useable format
+        foreach($interactionResults as $interaction) {
+            foreach($classRoster as $student_idx=>$student) {
+                if ($student['sid']==$interaction['sid']) {
+                    $w=$interaction['week'];
+                    $widx=$w-1; // convert to zero based week
+                    if($interaction['itype_id']=="1") {
+                        $classRoster[$student_idx]['weeks'][$widx]['a'] = 1;
+                    } else if ($interaction['itype_id']=="4") {
+                        $classRoster[$student_idx]['weeks'][$widx]['b'] = $interaction['participate'];
+                    } else {
+                        // Another kind of interaction type has been found.
+                        // What should we do?
+                    }
+                } else {
+                    // An interaction has been found for a student who's not really in this class.
+                    // What should we do?
+                }
+            }
+        }
 
         // The primary method of specifying position is to measure mm from the origin,
         // where the origin is at the upper-left corner of the paper, moving right increases x
@@ -85,17 +104,17 @@ class SectionsController extends AppController {
         $pdf->setPrintFooter(false);
 
         $pdf->AddPage();
-        $this->emitAttendForm($pdf,$section,$classRoster,1);
+        $this->emitAttendForm($pdf,$section,$classRoster,0);
 
         $pdf->AddPage();
-        $this->emitAttendForm($pdf,$section,$classRoster,31);
+        $this->emitAttendForm($pdf,$section,$classRoster,30);
 
         $pdf->Output();
         $this->response->type('application/pdf');
         return $this->response;
     }
 
-    private function emitAttendForm($pdf,$section,$classRoster) {
+    private function emitAttendForm($pdf,$section,$classRoster,$idxOffset) {
 
         // 1. Lǚyóu zhíyè xuéyuàn kǎopíng dēngjì biǎo
         // Tourism College Evaluation Registration Form
@@ -231,23 +250,41 @@ class SectionsController extends AppController {
 
         // Fill in the form
         foreach($cy as $yidx=>$y2) {
+
             $pdf->SetXY($cx['a'],$y2);
-            $pdf->Cell(7,0,$yidx+1,0,0,'C');    // sequence no
+            $pdf->Cell(7,0,$yidx+1+$idxOffset,0,0,'C');    // sequence no
+
+            if($yidx+$idxOffset >= count($classRoster)) continue;
+
+            $studentInfo=$classRoster[$yidx+$idxOffset];
 
             $pdf->SetXY($cx['b']+1.0,$y2);
-            $sid=substr($classRoster[$yidx]['sid'],-4);
+            $sid=substr($studentInfo['sid'],-4);
             $pdf->Cell(10,0,$sid,0,0,'R');
 
             $pdf->SetXY($cx['c'],$y2);
-            $fullName=$classRoster[$yidx]['fam_name'].$classRoster[$yidx]['giv_name'];
+            $fullName=$studentInfo['fam_name'].$studentInfo['giv_name'];
             $pdf->Cell(20,0,$fullName,0,0,'L');
 
             for($i=0; $i<=11; $i++) {
-                $pdf->SetXY($cx['weeks'][$i]['a'],$y2);
-                //$pdf->Cell(9,0,'aaa',0,0,'C');
+                if(array_key_exists('weeks',$studentInfo)) {
 
-                $pdf->SetXY($cx['weeks'][$i]['b'],$y2);
-                //$pdf->Cell(9,0,'bbb',0,0,'C');
+                    if(array_key_exists($i,$studentInfo['weeks'])) {
+                        if(array_key_exists('a',$studentInfo['weeks'][$i])) {
+                            $pdf->SetXY($cx['weeks'][$i]['a'], $y2);
+                            $pdf->Cell(9, 0, $studentInfo['weeks'][$i]['a'], 0, 0, 'C');
+                        }
+                        if(array_key_exists('b',$studentInfo['weeks'][$i])) {
+                            $pdf->SetXY($cx['weeks'][$i]['b'], $y2);
+                            $pdf->Cell(9, 0, $studentInfo['weeks'][$i]['b'], 0, 0, 'C');
+                        }
+                    }
+
+
+
+                    //$pdf->SetXY($cx['weeks'][$i]['b'], $y2);
+                    //$pdf->Cell(9, 0, 'bbb', 0, 0, 'C');
+                }
             }
         }
 
@@ -337,7 +374,8 @@ class SectionsController extends AppController {
 
             // 4. GET jsleft.aspx. This contains the list of available sections and we need this to find the URL for
             // this particular section.
-            $url="http://60.216.13.32/jsleft.aspx/?flag=cjlr&xn=2015-2016&xq=1";
+            //$url="http://60.216.13.32/jsleft.aspx/?flag=cjlr&xn=2015-2016&xq=1";
+            $url="http://60.216.13.32/jsleft.aspx/?flag=cjlr&xn=2015-2016&xq=2";
             $content=$this->getJsleft($url,$session_id);
 
             // 4.1 Parse the response and find the A tag that points to the scores form, for this section.
@@ -363,10 +401,13 @@ class SectionsController extends AppController {
             // 14E2 $scoresUrl="http://60.216.13.32/cjlr1.aspx?xh=11164&kc=(2015-2016-1)-1103016-11164-2&kclx=%B1%D8%D0%DE%BF%CE&cjxn=2015-2016&cjxq=1";
             // 14H4 $scoresUrl="http://60.216.13.32/cjlr1.aspx?xh=11164&kc=(2015-2016-1)-1103020-11164-1&kclx=%B1%D8%D0%DE%BF%CE&cjxn=2015-2016&cjxq=1";
             // 14H5
-            $scoresUrl="http://60.216.13.32/cjlr1.aspx?xh=11164&kc=(2015-2016-1)-1103020-11164-2&kclx=%B1%D8%D0%DE%BF%CE&cjxn=2015-2016&cjxq=1";
+            //$scoresUrl="http://60.216.13.32/cjlr1.aspx?xh=11164&kc=(2015-2016-1)-1103020-11164-2&kclx=%B1%D8%D0%DE%BF%CE&cjxn=2015-2016&cjxq=1";
+            /* 14A1 */ $scoresUrl="http://60.216.13.32/cjlr1.aspx?xh=11164&kc=(2015-2016-2)-1103021-11164-1&kclx=%B1%D8%D0%DE%BF%CE&cjxn=2015-2016&cjxq=2";
+                       //"http://60.216.13.32/cjlr1.aspx?xh=11164&kc=(2015-2016-2)-1103021-11164-1&kclx=%B1%D8%D0%DE%BF%CE&cjxn=2015-2016&cjxq=2";
+            //"Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:46.0) Gecko/20100101 Firefox/46.0";
             $content=$this->getScoresForm($scoresUrl,$session_id);
 
-            // 5.1 The scores form also has another __VIEWSTATE input which will be used
+                // 5.1 The scores form also has another __VIEWSTATE input which will be used
             // in a subsequent POST. Grab that now.
             $html = str_get_html($content);
             $vs2=urlencode($html->find("input[name='__VIEWSTATE']",0)->value);
