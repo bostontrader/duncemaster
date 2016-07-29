@@ -402,7 +402,10 @@ where sections.id=$id and clazzes.exam != 1";
             // 14H4 $scoresUrl="http://60.216.13.32/cjlr1.aspx?xh=11164&kc=(2015-2016-1)-1103020-11164-1&kclx=%B1%D8%D0%DE%BF%CE&cjxn=2015-2016&cjxq=1";
             // 14H5
             //$scoresUrl="http://60.216.13.32/cjlr1.aspx?xh=11164&kc=(2015-2016-1)-1103020-11164-2&kclx=%B1%D8%D0%DE%BF%CE&cjxn=2015-2016&cjxq=1";
-            /* 14A1 */ $scoresUrl="http://60.216.13.32/cjlr1.aspx?xh=11164&kc=(2015-2016-2)-1103021-11164-1&kclx=%B1%D8%D0%DE%BF%CE&cjxn=2015-2016&cjxq=2";
+            /* 14A1 */ // $scoresUrl="http://60.216.13.32/cjlr1.aspx?xh=11164&kc=(2015-2016-2)-1103021-11164-1&kclx=%B1%D8%D0%DE%BF%CE&cjxn=2015-2016&cjxq=2";
+            /* 14A2 */ // $scoresUrl="http://60.216.13.32/cjlr1.aspx?xh=11164&kc=(2015-2016-2)-1103021-11164-2&kclx=%B1%D8%D0%DE%BF%CE&cjxn=2015-2016&cjxq=2";
+            /* 14A3 */ // $scoresUrl="http://60.216.13.32/cjlr1.aspx?xh=11164&kc=(2015-2016-2)-1103021-11164-3&kclx=%B1%D8%D0%DE%BF%CE&cjxn=2015-2016&cjxq=2";
+            /* 14A4 */    $scoresUrl="http://60.216.13.32/cjlr1.aspx?xh=11164&kc=(2015-2016-2)-1103021-11164-4&kclx=%B1%D8%D0%DE%BF%CE&cjxn=2015-2016&cjxq=2";
                        //"http://60.216.13.32/cjlr1.aspx?xh=11164&kc=(2015-2016-2)-1103021-11164-1&kclx=%B1%D8%D0%DE%BF%CE&cjxn=2015-2016&cjxq=2";
             //"Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:46.0) Gecko/20100101 Firefox/46.0";
             $content=$this->getScoresForm($scoresUrl,$session_id);
@@ -412,8 +415,9 @@ where sections.id=$id and clazzes.exam != 1";
             $html = str_get_html($content);
             $vs2=urlencode($html->find("input[name='__VIEWSTATE']",0)->value);
             $table=$html->find("table[id='DataGrid1']",0);
-            $trs=$table->find("tr");
-            $c=count($trs);
+            // Ugly hack! Find out why this doesn't work for 14A4
+            //$trs=$table->find("tr");
+            //$c=count($trs);
 
             $cohort_id=$section->cohort_id;   // cohort 9   = 14A4
             $semester_id=$section->semester_id; // semester 1 = 2015-2
